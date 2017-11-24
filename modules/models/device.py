@@ -106,7 +106,7 @@ class Device(object):
                 "%(last_seen)s",
                 "%(last_ip)s",
                 "%(last_hostname)s",
-                "%(seen_by)s
+                "%(seen_by)s"
                 )
                 ;"""
         qry = qry % vals
