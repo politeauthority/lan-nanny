@@ -134,7 +134,7 @@ class LanNanny(object):
                 if device['mac'] == mac:
                     scanned_device_id = d_id
             if not scanned_device_id:
-                scanned_device_id = Device().save(info)
+                scanned_device_id = Device().save(info, db)
                 print 'Found new device %s at ip: %s' % (mac, info['current_ip'])
             else:
                 Device().update(info, db)
