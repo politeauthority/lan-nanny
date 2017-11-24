@@ -20,6 +20,7 @@ import os
 import sys
 import xmltodict
 from datetime import datetime
+import requests
 
 import conf
 from modules.npappy import Npappy
@@ -56,8 +57,6 @@ class LanNanny(object):
             network_devices = dict(network_devices, **self.parse_nmap(scan_file))
         print 'Proccessing scan output'
         self.store_data(network_devices)
-
-
 
     def save_new_device(self, device):
         """
@@ -138,12 +137,13 @@ class LanNanny(object):
                 scanned_device_id = Device().save(info)
                 print 'Found new device %s at ip: %s' % (mac, info['current_ip'])
             else:
-                Device().update_device(info, db)
+                Device().update(info, db)
 
             if scanned_device_id in known_devices:
                 if known_devices[scanned_device_id]['name']:
                     print 'We found Device: %s' % known_devices[scanned_device_id]['name']
                 else:
+                    Device().mac_lookup(mac, db)
                     print 'Unknown: %s %s' % (info['mac'], info['current_ip'])
                 # print known_devices[scanned_device_id]
             self.save_wittness(scanned_device_id, info['scan_time'])
