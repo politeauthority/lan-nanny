@@ -10,6 +10,7 @@ Options:
     -h --help       Shows this screen.
     --ip=<ip>       The ip range to scan
     --device        Add a name or person to a device
+    --report        Find the last time a device_id has been on network
 
 """
 
@@ -134,8 +135,8 @@ def save_wittness(device_id, time_seen):
     """
     qry = """
         INSERT INTO `lan_nanny`.`witness`
-        (`device_id`, `date`)
-        VALUES(%s, "%s"); """ % (device_id, time_seen)
+        (`device_id`, `date`, `seen_by`)
+        VALUES(%s, "%s"); """ % (device_id, time_seen, conf.machine_id)
     db.ex(qry)
 
 
@@ -144,6 +145,12 @@ def parse_scan_time(string_):
 
 
 def parse_nmap(xml_phile):
+    """
+    Reads and parses a Nmap output files.
+
+    :param xml_phile: Path to the Nmap output XML file.
+    :type xml_phile: str
+    """
     print '  Parsing %s' % xml_phile
     scan_string = open(xml_phile)
     netscan = dict(xmltodict.parse(scan_string))
@@ -166,6 +173,11 @@ def parse_nmap(xml_phile):
 
 
 def store_data(network_devices):
+    """
+    """
+    import pprint
+    pp = pprint.PrettyPrinter(indent=4)
+    # pp.pprint(network_devices)
     known_devices = get_devices()
     print 'Found %s Devices of %s known\n' % (len(network_devices), len(known_devices))
     for mac, info in network_devices.iteritems():
@@ -182,6 +194,8 @@ def store_data(network_devices):
         if scanned_device_id in known_devices:
             if known_devices[scanned_device_id]['name']:
                 print 'We found Device: %s' % known_devices[scanned_device_id]['name']
+            else:
+                print 'Unknown: %s %s' % (info['mac'], info['current_ip'])
             # print known_devices[scanned_device_id]
         save_wittness(scanned_device_id, info['scan_time'])
 

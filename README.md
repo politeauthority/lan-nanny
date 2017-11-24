@@ -1,7 +1,7 @@
 # LAN Nanny
 A tool for collecting and storing network devices by mac/ip and tagging the devices with custom naming.
 
-##Example Usage
+## Example Usage
 This will scan the entire range of ips given. When running regular scans, its best to target the expect DCHP ranges, if you're interested in units coming on and dropping off network.
 ```
 sudo python lan_nanny.py --ip=192.168.1.1-255
@@ -32,12 +32,13 @@ CREATE TABLE `lan_nanny`.`people` (
   `last_ip` varchar(15) DEFAULT NULL,
   `last_device_id` int(10) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
 
  CREATE TABLE `lan_nanny`.`witness` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `device_id` int(10) NOT NULL,
   `date` datetime DEFAULT NULL,
+  `seen_by` varchar(50) default null,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=106517 DEFAULT CHARSET=latin1
+) ENGINE=InnoDB AUTO_INCREMENT=106517 DEFAULT CHARSET=latin1;
 ```
