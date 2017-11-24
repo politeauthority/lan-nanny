@@ -1,6 +1,7 @@
 #!/usr/bin/env python
-"""
-    NetScan
+"""Npappy
+Reads, parses and provides Nmap data
+
 """
 
 import os
@@ -11,7 +12,7 @@ from politeauthority import environmental
 from politeauthority import common
 
 
-class NetScan(object):
+class Npappy(object):
 
     def hosts(self, ip_range):
         self.output_file = os.path.join(
