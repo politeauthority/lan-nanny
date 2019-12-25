@@ -42,7 +42,9 @@ def _create_devices(cursor: sqlite3.Cursor) -> bool:
         last_ip text,
         last_seen date,
         first_seen date,
-        name text
+        name text,
+        hide integer,
+        icon text
     );
     """
     try:

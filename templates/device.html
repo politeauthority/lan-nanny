@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row">
+  <div class="col-lg-6">
+    {%if device.name%}
+      <h2><a href="/device/{{device.id}}">{{device.name}}</a></h2>
+    {%else%}
+      <h2><a href="/device/{{device.id}}">{{device.vendor}}</a></h2>
+    {%endif%}
+  </div>
+  <div class="col-lg-2">
+    <a href="/device-edit/{{device.id}}" class="btn btn-primary">Edit</a>
+  </div>
+</div>
+<div class="row">
+  <div class="col-lg-6">
+    <table class="table table-striped">
+      <tr>
+        <td><b>IP</b></td>
+        <td>{{device.ip}}</td>
+      </tr>
+      <tr>
+        <td><b>Mac</b></td>
+        <td>{{device.mac}}</td>
+      </tr>
+      <tr>
+        <td><b>Vendor</b></td>
+        <td>{{device.vendor}}</td>
+      </tr>
+      <tr>
+        <td><b>Last Seen</b></td>
+        <td>{{device.last_seen}}</td>
+      </tr>
+      <tr>
+        <td><b>First Seen</b></td>
+        <td>{{device.first_seen}}</td>
+      </tr>
+    </table>
+  </div>
+</div>
+{%endblock%}

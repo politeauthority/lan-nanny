@@ -1,0 +1,76 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row">
+  <div class="col-lg-6">
+    {%if device.name%}
+      <h2><a href="/device/{{device.id}}">{{device.name}}</a></h2>
+    {%else%}
+      <h2><a href="/device/{{device.id}}">{{device.vendor}}</a></h2>
+    {%endif%}
+  </div>
+</div>
+<div class="row">
+  <div class="col-lg-6">
+    <h3>General</h3>
+    <form action="/device-save" method="POST">
+
+      <input type="hidden" name="device_id" value="{{device.id}}">
+      <input type="hidden" name="device_icon" value="{%if device.icon%}{{device.icon}}{%endif%}">
+
+      <table class="table table-striped">
+
+        <tr>
+          <td>
+            <b>Name</b>
+          </td>
+          <td>
+            <input type="text" name="device_name" value="{%if device.name%}{{device.name}}{%endif%}">
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <b>IP</b>
+          </td>
+          <td>
+            {{device.ip}}
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <b>Mac</b>
+          </td>
+          <td>
+            {{device.mac}}
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <b>Vendor</b>
+          </td>
+          <td>
+            <input type="text" name="device_vendor" value="{{device.vendor}}">
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <b>Hide</b>
+          </td>
+          <td>
+            <div class="btn-group-toggle" data-toggle="buttons">
+              <label class="btn btn-secondary active">
+                <input type="checkbox" name="device_hide" {%if device.hide%}checked{%endif%} autocomplete="off"> Hidden
+              </label>
+            </div>
+          </td>
+        </tr>
+
+      </table>
+      <button class="btn btn-success" type="submit">Save</button>
+    </form>
+  </div>
+</div>
+{%endblock%}

@@ -4,11 +4,13 @@
 from datetime import datetime
 import subprocess
 
+import arrow
 from modules import parse_nmap
 from modules import db
+from modules.device import Device
 
 NMAP_SCAN_FILE = "tmp.xml"
-NMAP_SCAN_RANGE = "1-5"
+NMAP_SCAN_RANGE = "1-255"
 NMAP_DB = "lan_nanny.db"
 
 conn, cursor = db.create_connection(NMAP_DB)
@@ -24,120 +26,56 @@ def run():
     handle_devices(hosts)
 
 def scan() -> dict:
-    # cmd = "nmap -sP 192.168.1.1-255"
-    cmd = "nmap -sP 192.168.1.%s -oX %s" % (NMAP_SCAN_RANGE, NMAP_SCAN_FILE)
+    """
+    Runs NMap scan.
+
+    """
     print('Running scan')
+
+    cmd = "nmap -sP 192.168.1.%s -oX %s" % (NMAP_SCAN_RANGE, NMAP_SCAN_FILE)
     try:
         subprocess.check_output(cmd, shell=True)
     except subprocess.CalledProcessError:
         print('Error running scan, please try again')
         exit(1)
     hosts = parse_nmap.parse_hosts(NMAP_SCAN_FILE)
-    print('Found %s hosts' % len(hosts))
 
     return hosts
 
 
 def handle_devices(hosts):
+    """
+    Handles devices found in NMap scan, creating records for new devices, updating last seen for
+    already known devices and saving witness for all found devices.
 
-    scan_time = datetime.now()
+    """
+    print('Found %s devices:' % len(hosts))
+
+    scan_time = arrow.utcnow().datetime
     for host in hosts:
-        device = _get_device_by_mac(host['mac'])
-        if not device:
-            device_id = _create_device(host,  scan_time)
-            device = _get_device_by_id(device_id)
-            if device['vendor']:
-                print('New Device:\t%s - %s' % (device['vendor'], device['ip']))
-            else:
-                print('New Device:\t%s' % (device['ip']))
+        device = Device(conn, cursor).get_by_mac(host['mac'])
+        new = False
+        if not device.mac:
+            new = True
+            device = device.create(scan_time, host)
         else:
-            # device['id'] = device_id
-            print(device)
-            _update_device(device, scan_time)
+            device.last_seen = scan_time
+            device.update()
+
+        new_device_str = ""
+        if new:
+            new_device_str = "\t- New Device"
+        if device.name:
+            print('\t%s - %s%s' % (device.name, device.ip, new_device_str))
+        elif device.vendor:
+            print('\t%s - %s%s' % (device.vendor, device.ip, new_device_str))
+        else:
+            print('\t%s - %s%s' % (device.mac, device.ip, new_device_str))
+
         _save_witness(device, scan_time)
 
 
-def _get_device_by_mac(mac: str) -> dict:
-    """
-    Gets a device from the devices table based on mac address.
-
-    """
-    sql = """SELECT * FROM devices WHERE mac='%s'""" % mac
-    cursor.execute(sql)
-    device_raw = cursor.fetchone()
-    if not device_raw:
-        return {}
-    
-    device = {
-        'id': device_raw[0],
-        'mac': device_raw[1],
-        'vendor': device_raw[2],
-        'ip': device_raw[3],
-        'last_seen': device_raw[4],
-        'first_seen': device_raw[5],
-        'name': device_raw[6],
-    }
-
-    return device
-
-def _get_device_by_id(device_id: int) -> dict:
-    """
-    Gets a device from the devices table based on it's device ID.
-
-    """
-    sql = """SELECT * FROM devices WHERE id=%s""" % device_id
-    curor.execute(sql)
-    device_raw = cursor.fetchone()
-    if not device_raw:
-        return {}
-    
-    device = {
-        'id': device_raw[0],
-        'mac': device_raw[1],
-        'vendor': device_raw[2],
-        'ip': device_raw[3],
-        'last_seen': device_raw[4],
-        'first_seen': device_raw[5],
-        'name': device_raw[6],
-    }
-
-    return device
-
-def _create_device(device: dict, scan_time: datetime) -> int:
-    """
-    Creates a device by inserting into the devices table, returning its new key.
-
-    """
-    sql = """
-        INSERT INTO devices
-        (mac, vendor, last_ip, last_seen, first_seen)
-        VALUES (?, ?, ?, ?, ?)"""
-    
-    device = (
-        device['mac'],
-        device['vendor'],
-        device['ip'],
-        scan_time,
-        scan_time)
-
-    cursor.execute(sql, device)
-    conn.commit()
-    return cursor.lastrowid
-
-def _update_device(device: dict, scan_time: datetime) -> bool:
-    """
-    Updates a device in the `devices` table setting its new last seen time to the scan time.
-
-    """
-    sql = """
-        UPDATE devices
-        SET last_seen = ?
-        WHERE id = ?"""
-    cursor.execute(sql, (scan_time, device['id']))
-    conn.commit()
-    return True
-
-def _save_witness(device: dict, scan_time: datetime) -> int:
+def _save_witness(device: Device, scan_time: datetime) -> int:
     """
     Creates a record in the `witness` table of the devices id and scan time.
 
@@ -148,7 +86,7 @@ def _save_witness(device: dict, scan_time: datetime) -> int:
         VALUES (?, ?)"""
     
     witness = (
-        device['id'],
+        device.id,
         scan_time)
 
     cursor.execute(sql, witness)
