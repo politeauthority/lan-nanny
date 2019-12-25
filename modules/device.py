@@ -19,6 +19,7 @@ class Device():
         self.name = None
         self.hide = None
         self.icon = None
+        self.update_ts = None
 
     def __repr__(self):
         return "<Device %s>" % self.mac
@@ -131,6 +132,7 @@ class Device():
         self.name = raw[6]
         self.hide = raw[7]
         self.icon = raw[8]
+        self.update_ts = raw[9]
 
     def build_from_dict(self, raw_device:dict):
         """

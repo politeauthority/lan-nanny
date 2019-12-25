@@ -95,3 +95,5 @@ def _save_witness(device: Device, scan_time: datetime) -> int:
 
 if __name__ == '__main__':
     run()
+
+# End File: lan-nanny/scan.py

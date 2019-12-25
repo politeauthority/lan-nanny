@@ -3,6 +3,7 @@ import sys
 
 from modules.device import Device
 from modules.devices import Devices
+from modules import filters
 
 from flask import Flask, redirect, render_template, request, g
 
@@ -37,7 +38,6 @@ def index() -> str:
     devices.cursor = cursor
     data = {}
     data['devices'] = devices.get_all()
-    print(data)
     return render_template('index.html', **data)
 
 
@@ -72,7 +72,6 @@ def device_edit(device_id: int) -> str:
 
     data = {}
     data['device'] = device
-    print(data)
     return render_template('device_edit.html', **data)
 
 @app.route('/device-save', methods=['POST'])
@@ -87,20 +86,37 @@ def device_save() -> str:
     device.cursor = cursor
     device.get_by_id(request.form['device_id'])
 
-    # import ipdb; ipdb.set_trace()
     device.name = request.form['device_name']
     device.vendor = request.form['device_vendor']
+    # @todo figure out how hide works.
     # device.hide = request.form['device_hide']
     device.icon = request.form['device_icon']
     device.update()
 
     return redirect('/device/%s' % device.id)
 
+@app.route('/settings')
+def settings() -> str:
+    """
+    Settings page.
+
+    """
+    return render_template('settings.html')
+
+
+def register_jinja_funcs(app):
+    """
+    Makes functions avialble to jinja templates.
+    """
+    app.jinja_env.filters['last_seen'] = filters.last_seen
 
 if __name__ == '__main__':
     port = 5000
     if len(sys.argv) > 1:
         port = sys.argv[1]
+
+    register_jinja_funcs(app)
     app.run(host="0.0.0.0", port=port)
 
-# End File: lan-nanny/web/app.py
+
+# End File: lan-nanny/app.py
