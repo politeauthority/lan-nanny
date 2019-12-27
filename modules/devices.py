@@ -1,9 +1,11 @@
 """Devices
+Gets collections of devices.
 
 """
 from datetime import datetime
 
 from .device import Device
+
 
 class Devices():
 
@@ -16,7 +18,32 @@ class Devices():
         Gets all devices in the database.
 
         """
-        sql = "SELECT * FROM devices;"
+        sql = """
+            SELECT *
+            FROM devices
+            ORDER BY last_seen DESC;"""
+
+        self.cursor.execute(sql)
+        raw_devices = self.cursor.fetchall()
+        devices = []
+        for raw_device in raw_devices:
+            device = Device()
+            device.build_from_list(raw_device)
+            devices.append(device)
+        return devices
+
+
+    def get_favorites(self):
+        """
+        Gets all devices in the database.
+
+        """
+        sql = """
+            SELECT *
+            FROM devices
+            WHERE favorite = 1
+            ORDER BY last_seen DESC;"""
+
         self.cursor.execute(sql)
         raw_devices = self.cursor.fetchall()
         devices = []

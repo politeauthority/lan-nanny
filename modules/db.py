@@ -5,12 +5,14 @@ Handles the majority of raw database connections.
 import sqlite3
 from sqlite3 import Error
 
+from flask import g
+
 from .option import Option
 
 
 def create_connection(database_file: str):
     """
-    Create a database connection to a SQLite database
+    Create a database connection to a SQLite database.
 
     """
     conn = None
@@ -23,6 +25,18 @@ def create_connection(database_file: str):
     cursor = conn.cursor()
     return conn, cursor
 
+
+def get_db_flask(database_file: str):
+    """
+    Create a database connection to a SQLite database for the flask web environment.
+
+    """
+    db = getattr(g, '_database', None)
+    if db is None:
+        db = g._database = sqlite3.connect(database_file)
+    return db, db.cursor()
+
+
 def create_tables(cursor: sqlite3.Cursor):
     """
     Creates all the applications tables needed.
@@ -32,14 +46,17 @@ def create_tables(cursor: sqlite3.Cursor):
     _create_witness(cursor)
     _create_alerts(cursor)
     _create_options(cursor)
+    _create_run_log(cursor)
+
 
 def populate_options(conn, cursor: sqlite3.Cursor):
     """
     Creates options and sets their defaults.
 
     """
-    _default_options(conn, cursor, 'timezone', 'America/Denver')
-    _default_options(conn, cursor, 'alert-new-device', '1')
+    _set_default_options(conn, cursor, 'timezone', 'America/Denver')
+    _set_default_options(conn, cursor, 'alert-new-device', '1')
+    _set_default_options(conn, cursor, 'active-timeout', '5')
 
 
 def _create_devices(cursor: sqlite3.Cursor) -> bool:
@@ -57,7 +74,11 @@ def _create_devices(cursor: sqlite3.Cursor) -> bool:
         first_seen date,
         name text,
         hide integer,
+        favorite integer DEFAULT 0,
         icon text,
+        alert_online integer DEFAULT 0,
+        alert_offline integer DEFAULT 0,
+        alert_delta integer,
         update_ts date
     );
     """
@@ -97,10 +118,12 @@ def _create_alerts(cursor: sqlite3.Cursor) -> bool:
     sql = """
     CREATE TABLE IF NOT EXISTS alerts (
         id integer PRIMARY KEY,
-        device_id integer NOT NULL,
+        created_ts date NOT NULL,
+        device_id integer,
         alert_type integer NOT NULL,
         time_delta integer,
-        update_ts date
+        notification_sent integer,
+        alert_acked integer
     );
     """
     try:
@@ -132,7 +155,7 @@ def _create_options(cursor: sqlite3.Cursor) -> bool:
         return False
 
 
-def _default_options(conn, cursor, option_name, option_value):
+def _set_default_options(conn, cursor, option_name, option_value):
     """
     Checks if an option exists in the options table, if not creates it and sets it's default.
 
@@ -143,5 +166,28 @@ def _default_options(conn, cursor, option_name, option_value):
         option.name = option_name
         option.value = option_value
         option.create()
+
+
+def _create_run_log(cursor: sqlite3.Cursor) -> bool:
+    """
+    Creates the `run_log` table.
+
+    """
+    sql = """
+    CREATE TABLE IF NOT EXISTS run_log (
+        id integer PRIMARY KEY,
+        start_ts date NOT NULL,
+        end_ts date,
+        elapsed_time text,
+        completed integer,
+        success integer
+    );
+    """
+    try:
+        cursor.execute(sql)
+        return True
+    except Error as e:
+        print(e)
+        return False
 
 # End File: lan-nanny/modules/db.py

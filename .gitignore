@@ -2,3 +2,4 @@
 ./conf.py
 *.db
 *.xml
+*.DS_Store

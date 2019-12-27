@@ -60,7 +60,7 @@ class Option():
         """
         now = arrow.utcnow().datetime
         sql = """
-            UPDATE devices
+            UPDATE options
             SET
                 value = ?,
                 update_ts = ?
@@ -83,5 +83,6 @@ class Option():
         self.name = raw[1]
         self.value = raw[2]
         self.update_ts =  raw[3]
+
 
 # End File: lan-nanny/modules/option.py

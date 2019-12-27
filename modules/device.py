@@ -3,6 +3,8 @@
 """
 from datetime import datetime
 
+import arrow
+
 
 class Device():
 
@@ -18,7 +20,11 @@ class Device():
         self.first_seen = None
         self.name = None
         self.hide = None
+        self.favorite = 0
         self.icon = None
+        self.alert_online = 0
+        self.alert_offline = 0
+        self.alert_delta = None
         self.update_ts = None
 
     def __repr__(self):
@@ -63,11 +69,17 @@ class Device():
         
         self.last_seen = scan_time
         self.first_seen = scan_time
+        if not self.name:
+            self.name = self.vendor
+
+
+        self._set_icon()
 
         sql = """
             INSERT INTO devices
-            (mac, vendor, last_ip, last_seen, first_seen, name, hide, icon)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)"""
+            (mac, vendor, last_ip, last_seen, first_seen, name, hide, favorite, icon, alert_online,
+            alert_offline, alert_delta)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
         device = (
             self.mac,
@@ -77,8 +89,11 @@ class Device():
             self.first_seen,
             self.name,
             self.hide,
-            self.icon)
-
+            self.favorite,
+            self.icon,
+            self.alert_online,
+            self.alert_offline,
+            self.alert_delta)
 
         self.cursor.execute(sql, device)
         self.conn.commit()
@@ -101,7 +116,12 @@ class Device():
                 first_seen = ?,
                 name = ?,
                 hide = ?,
-                icon = ?
+                favorite = ?,
+                icon = ?,
+                alert_online = ?,
+                alert_offline = ?,
+                alert_delta = ?,
+                update_ts = ?
             WHERE id = ?"""
         the_update = (
             self.mac,
@@ -111,7 +131,12 @@ class Device():
             self.first_seen,
             self.name,
             self.hide,
+            self.favorite,
             self.icon,
+            self.alert_online,
+            self.alert_offline,
+            self.alert_delta,
+            arrow.utcnow().datetime,
             self.id)
         self.cursor.execute(sql, the_update)
         self.conn.commit()
@@ -131,8 +156,12 @@ class Device():
         self.first_seen = raw[5]
         self.name = raw[6]
         self.hide = raw[7]
-        self.icon = raw[8]
-        self.update_ts = raw[9]
+        self.favorite = raw[8]
+        self.icon = raw[9]
+        self.alert_online = raw[10]
+        self.alert_offline = raw[11]
+        self.alert_delta = raw[12]
+        self.update_ts = raw[13]
 
     def build_from_dict(self, raw_device:dict):
         """
@@ -154,7 +183,36 @@ class Device():
         if 'hide' in raw_device:
             self.hide = raw_device['hide']
 
+        if 'favorite' in raw_device:
+            self.favorite = raw_device['favorite']
+
         if 'icon' in raw_device:
             self.hide = raw_device['hide']
+
+        if 'alert_online' in raw_device:
+            self.alert_online = raw_device['alert_online']
+
+        if 'alert_offline' in raw_device:
+            self.alert_offline = raw_device['alert_offline']
+
+        if 'alert_delta' in raw_device:
+            self.alert_delta = raw_device['alert_delta']
+
+        if 'update_ts' in raw_device:
+            self.update_ts = raw_device['update_ts']
+
+
+    def _set_icon(self):
+        """
+        Attempts to set a device icon.
+        """
+        if self.icon:
+            return
+
+        if self.vendor == "Apple":
+            self.icon = "fab fa-apple"
+
+        if not self.name:
+            self.icon = "fas fa-question"
 
 # End File: lan-nanny/modules/device.py

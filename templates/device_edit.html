@@ -2,75 +2,111 @@
 {% block content %}
 <div class="row">
   <div class="col-lg-6">
-    {%if device.name%}
-      <h2><a href="/device/{{device.id}}">{{device.name}}</a></h2>
-    {%else%}
-      <h2><a href="/device/{{device.id}}">{{device.vendor}}</a></h2>
-    {%endif%}
+    <h2>{%if device.icon%}<i class="{{device.icon}} fa-2x"></i>  {%endif%}{{device.name}}</h2>
   </div>
 </div>
 <div class="row">
-  <div class="col-lg-6">
-    <h3>General</h3>
+  <div class="col-xl-6 col-lg-6">
     <form action="/device-save" method="POST">
 
       <input type="hidden" name="device_id" value="{{device.id}}">
-      <input type="hidden" name="device_icon" value="{%if device.icon%}{{device.icon}}{%endif%}">
 
-      <table class="table table-striped">
+      <div class="form-group">
+        <label for="device_name">Device Name</label>
+        <input type="text" class="form-control form-control-lg" id="device_name" name="device_name" value="{%if device.name%}{{device.name}}{%endif%}" aria-describedby="nameHelp">
+        <small id="nameHelp" class="form-text text-muted">Custom name for the device.</small>
+      </div>
 
-        <tr>
-          <td>
-            <b>Name</b>
-          </td>
-          <td>
-            <input type="text" name="device_name" value="{%if device.name%}{{device.name}}{%endif%}">
-          </td>
-        </tr>
+      <div class="form-group">
+        <label for="device_vendor">Vendor</label>
+        <input type="text" class="form-control" id="device_vendor" name="device_vendor" value="{%if device.vendor%}{{device.vendor}}{%endif%}" aria-describedby="vendorHelp">
+        <small id="vendorHelp" class="form-text text-muted">Vendor of the device (optional).</small>
+      </div>
 
-        <tr>
-          <td>
-            <b>IP</b>
-          </td>
-          <td>
-            {{device.ip}}
-          </td>
-        </tr>
+      <!-- Device icon select form -->
+      <div id="device_icon_select" class="form-group {%if custom_icon%}hidden{%endif%}">
+        <label for="device_icon_select">Icon</label>
+        <select class="form-control" id="device_icon_select" name="device_icon_select"  aria-describedby="iconSelectHelp">
+          <option value="none">None</option>
+          {% for icon_css, icon_name in icons.items()%}
+            {%if device.icon == icon_css %}selected{%endif%}
+            <option value="{{icon_css}}" {%if device.icon == icon_css %}selected{%endif%}>{{icon_name}}</option>
+          {%endfor%}
+        </select>
+        <small id="iconSelectHelp" class="form-text text-muted">Icon to use for the device.</small>
+        <br>
+        <a id="device-icon-custom-btn" class="btn btn-secondary float-right" href="#">Custom Icon</a>
+      </div>
 
-        <tr>
-          <td>
-            <b>Mac</b>
-          </td>
-          <td>
-            {{device.mac}}
-          </td>
-        </tr>
+      <!-- Device icon custom form -->
+      <div id="device_icon_custom" class="form-group {%if not custom_icon%}hidden{%endif%}">
+        <label for="device_vendor">Custom Icon</label>
+        <input type="text" class="form-control" id="device_icon_input" name="device_icon_input" value="{%if device.icon%}{{device.icon}}{%endif%}" aria-describedby="customIconHelp">
+        <small id="customIconHelp" class="form-text text-muted">
+          CSS classes to apply to icon. <a href="https://fontawesome.com/" target="_new">Font Awesome</a> icons are available.
+        </small>
+        <br>
+        <a id="device-icon-select-btn" class="btn btn-secondary float-right" href="#">Built in Icons</a>
+      </div>
 
-        <tr>
-          <td>
-            <b>Vendor</b>
-          </td>
-          <td>
-            <input type="text" name="device_vendor" value="{{device.vendor}}">
-          </td>
-        </tr>
+      {%if custom_icon%}
+        <input id="icon_form_choice" name="icon_form_choice" type="hidden" name="icon_choice" value="device_icon_input">
+      {%else%}
+        <input id="icon_form_choice" name="icon_form_choice" type="hidden" name="icon_choice" value="device_icon_select">
+      {%endif%}
 
-        <tr>
-          <td>
-            <b>Hide</b>
-          </td>
-          <td>
-            <div class="btn-group-toggle" data-toggle="buttons">
-              <label class="btn btn-secondary active">
-                <input type="checkbox" name="device_hide" {%if device.hide%}checked{%endif%} autocomplete="off"> Hidden
-              </label>
-            </div>
-          </td>
-        </tr>
+      <div class="form-group">
+        <label for="device_alert_online">Alert Online</label>
+        <br/>
+        <input type="checkbox" name="device_alert_online" {%if device.alert_online == 1%}checked{%endif%} data-toggle="toggle" aria-describedby="alertOnlineHelp">
+        <small id="alertOnlineHelp" class="form-text text-muted">Send alert when the device is seen on the network.</small>
+      </div>
 
-      </table>
+      <div class="form-group">
+        <label for="device_alert_offline">Alert Offline</label>
+        <br/>
+        <input type="checkbox" name="device_alert_offline" {%if device.alert_offline == 1%}checked{%endif%} data-toggle="toggle" aria-describedby="alertOfflineeHelp">
+        <small id="alertOfflineeHelp" class="form-text text-muted">Send alert when the device is seen on the network.</small>
+      </div>
+
+
       <button class="btn btn-success" type="submit">Save</button>
+
     </form>
   </div>
 </div>
+{%endblock%}
+
+{%block javascript%}
+<script type="text/javascript">
+  $( document ).ready(function() {
+
+    // Remove duplicates from the icon select
+    var map = {};
+    $('#device_icon_select option').each(function () {
+        if (map[this.value]) {
+            $(this).remove()
+        }
+        map[this.value] = true;
+    })
+
+    // Send ajax request to fav/ unfavorite device
+    $( "#device-icon-custom-btn" ).click(function(event){
+      event.preventDefault();
+      $( "#device_icon_select" ).addClass("hidden");
+      $( "#device_icon_custom" ).removeClass("hidden");
+      $( "#icon_form_choice").val("device_icon_input");
+    });
+
+    // Send ajax request to fav/ unfavorite device
+    $( "#device-icon-select-btn" ).click(function(event){
+      event.preventDefault();
+      $( "#device_icon_custom" ).addClass("hidden");
+      $( "#device_icon_select" ).removeClass("hidden");
+      $( "#icon_form_choice").val("device_icon_select");
+    });
+
+
+  });
+</script>
 {%endblock%}
