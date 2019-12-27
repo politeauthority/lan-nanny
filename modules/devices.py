@@ -9,9 +9,9 @@ from .device import Device
 
 class Devices():
 
-    def __init__(self):
-        self.conn = None
-        self.cursor = None
+    def __init__(self, conn=None, cursor=None):
+        self.conn = conn
+        self.cursor = cursor
 
     def get_all(self):
         """

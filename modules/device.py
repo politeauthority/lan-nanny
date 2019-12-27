@@ -28,6 +28,8 @@ class Device():
         self.update_ts = None
 
     def __repr__(self):
+        if self.name:
+            return "<Device %s>" % self.name
         return "<Device %s>" % self.mac
 
     def get_by_mac(self, mac: str):
@@ -200,7 +202,6 @@ class Device():
 
         if 'update_ts' in raw_device:
             self.update_ts = raw_device['update_ts']
-
 
     def _set_icon(self):
         """

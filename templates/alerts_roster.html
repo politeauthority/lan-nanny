@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+{% block content %}
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Alerts</h1>
+  </div>
+
+  <!-- Content Row -->
+  <div class="row">
+
+    <!-- Device Table -->
+    <div class="col-xl-12 col-lg-12">
+      <div class="card shadow mb-4">
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="table-responsive">
+            {%if alerts%}
+              <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                  <tr>
+                    <td></td>
+                  </tr>
+                </thead>
+                {% for alert in alerts %}
+                <tr>
+                  <td>{{alert.id}}</td>
+                </tr>
+                {%endfor%}
+              </table>
+            {%else%}
+              <div class="text-center">
+                No Alerts.
+              </div>
+            {%endif%}
+          </div>
+      </div>
+    </div>
+
+  </div>
+
+{%endblock%}

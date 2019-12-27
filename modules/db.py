@@ -99,6 +99,7 @@ def _create_witness(cursor: sqlite3.Cursor) -> bool:
     CREATE TABLE IF NOT EXISTS witness (
         id integer PRIMARY KEY,
         device_id integer NOT NULL,
+        run_id integer,
         witness_ts date
     );
     """
@@ -123,7 +124,8 @@ def _create_alerts(cursor: sqlite3.Cursor) -> bool:
         alert_type integer NOT NULL,
         time_delta integer,
         notification_sent integer,
-        alert_acked integer
+        acked integer,
+        active integer
     );
     """
     try:

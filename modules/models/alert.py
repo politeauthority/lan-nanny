@@ -1,7 +1,7 @@
 """Alert
 
 """
-from datetime import datetime
+import arrow
 
 
 class Alert():
@@ -16,25 +16,48 @@ class Alert():
         self.alert_type = None
         self.time_delta = None
         self.notification_sent = None
-        self.alert_acked = None
+        self.acked = None
+        self.active = None
 
     def __repr__(self):
-        return "<Alert %s>" % self.id
+        if self.id:
+            return "<Alert %s>" % self.id
+        return "<Alert>"
 
-    def get_by_id(self, device_id: int):
+    def get_by_id(self, alert_id: int):
         """
-        Gets a device from the devices table based on it's device ID.
+        Gets an alert from the `alerts` table based on it's alert ID.
 
         """
-        sql = """SELECT * FROM devices WHERE id=%s""" % device_id
+        sql = """SELECT * FROM alerts WHERE id=%s""" % alert_id
         self.cursor.execute(sql)
-        device_raw = self.cursor.fetchone()
-        if not device_raw:
+        alert_raw = self.cursor.fetchone()
+        if not alert_raw:
             return {}
         
-        self.build_from_list(device_raw)
+        self.build_from_list(alert_raw)
 
         return self
+
+    def check_active(self, device_id: int, alert_type: str) -> bool:
+        """
+        Checks the `alerts` table for active alerts for a device and alert type.
+
+        """
+        sql = """
+            SELECT * 
+            FROM alerts
+            WHERE
+                active=1 AND
+                device_id=? AND
+                alert_type=?
+            ORDER BY created_ts DESC
+            LIMIT 1 """
+        self.cursor.execute(sql, (device_id, alert_type))
+        alert_raw = self.cursor.fetchone()
+        if alert_raw:
+            return True
+        return False
 
     def create(self, raw_alert: dict={}):
         """
@@ -42,12 +65,14 @@ class Alert():
 
         """
         self.build_from_dict(raw_alert)
-        
+
+        if not self.created_ts:
+            self.created_ts = arrow.utcnow().datetime        
 
         sql = """
             INSERT INTO alerts
-            (created_ts, device_id, alert_type, time_delta, notification_sent, alert_acked)
-            VALUES (?, ?, ?, ?, ?, ?)"""
+            (created_ts, device_id, alert_type, time_delta, notification_sent, acked, active)
+            VALUES (?, ?, ?, ?, ?, ?, ?)"""
 
         alert = (
             self.created_ts,
@@ -55,10 +80,10 @@ class Alert():
             self.alert_type,
             self.time_delta,
             self.notification_sent,
-            self.alert_acked)
+            self.acked,
+            self.active)
 
-
-        self.cursor.execute(sql, device)
+        self.cursor.execute(sql, alert)
         self.conn.commit()
         self.id = self.cursor.lastrowid
         return self
@@ -77,7 +102,8 @@ class Alert():
                 alert_type = ?,
                 time_delta = ?,
                 notification_sent = ?,
-                alert_acked = ?
+                acked = ?,
+                active = ?
             WHERE id = ?"""
         the_update = (
             self.created_ts,
@@ -85,7 +111,8 @@ class Alert():
             self.alert_type,
             self.time_delta,
             self.notification_sent,
-            self.alert_acked
+            self.acked,
+            self.active,
             self.id)
         self.cursor.execute(sql, the_update)
         self.conn.commit()
@@ -103,6 +130,8 @@ class Alert():
         self.alert_type = raw[3]
         self.time_delta = raw[4]
         self.notification_sent = raw[5]
+        self.acked = raw[6]
+        self.active = raw[7]
 
     def build_from_dict(self, raw_alert:dict):
         """
@@ -124,5 +153,11 @@ class Alert():
         if 'notification_sent' in raw_alert:
             self.notification_sent = raw_alert['notification_sent']
 
+        if 'acked' in raw_alert:
+            self.acked = raw_alert['acked']
 
-# End File: lan-nanny/modules/alert.py
+        if 'active' in raw_alert:
+            self.active = raw_alert['active']
+
+
+# End File: lan-nanny/modules/models/alert.py

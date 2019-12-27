@@ -13,6 +13,7 @@ from modules.option import Option
 from modules.options import Options
 from modules.run_logs import RunLogs
 from modules.metrics import Metrics
+from modules.collections.alerts import Alerts
 from modules import filters
 
 from flask import Flask, redirect, render_template, request, g, jsonify
@@ -41,6 +42,17 @@ def get_settings():
     for option in all_options:
         opt_dict[option.name] = option
     g.options = opt_dict
+
+
+@app.before_request
+def get_alerts():
+    """
+    Gets and loads all active alerts in the the flask g options namespace.
+
+    """
+    conn, cursor = db.get_db_flask(DATABASE)
+    alerts = Alerts(conn, cursor)
+    g.alerts = alerts.get_active()
 
 
 @app.teardown_appcontext
@@ -106,9 +118,7 @@ def devices() -> str:
 
     """
     conn, cursor = db.get_db_flask(DATABASE)
-    devices = Devices()
-    devices.conn = conn
-    devices.cursor = cursor
+    devices = Devices(conn, cursor)
     data = {}
     data['active_page'] = 'devices'
     data['devices'] = devices.get_all()
@@ -248,6 +258,19 @@ def settings_save():
 
     return redirect('/settings')
 
+@app.route('/alerts')
+def alerts():
+    """
+    Alerts roster page.
+
+    """
+    conn, cursor = db.get_db_flask(DATABASE)
+    alerts = Alerts(conn, cursor)
+    data = {}
+    data['active_page'] = 'devices'
+    data['alerts'] = alerts.get_all()
+    return render_template('alerts_roster.html', **data)
+
 
 def register_jinja_funcs(app: Flask):
     """
@@ -271,7 +294,8 @@ def _device_icons() -> dict:
         "fas fa-tablet-alt": "Tablet",
         "fas fa-plug": "Smart Plug",
         "fas fa-laptop": "Laptop",
-        "fas fa-question": "Question Mark"
+        "fas fa-question": "Question Mark",
+        "fas fa-satellite": "Satellite"
     }
     return icons
 
