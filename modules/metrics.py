@@ -1,9 +1,9 @@
 """Metrics
 
 """
-from .devices import Devices
-from .run_log import RunLog
-from .run_logs import RunLogs
+from .collections.devices import Devices
+from .collections.run_logs import RunLogs
+from .models.run_log import RunLog
 
 
 class Metrics:

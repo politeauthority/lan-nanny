@@ -119,6 +119,16 @@ class Alert():
 
         return True
 
+    def delete_device(self, device_id: int) -> bool:
+        """
+        Deletes all records from the `alerts` table containing a device_id, this should be
+        performed when deleting a device.
+
+        """
+        sql = """DELETE FROM alerts WHERE device_id = %s """ % device_id
+        self.cursor.execute(sql)
+        return True
+
     def build_from_list(self, raw: list):
         """
         Creates a device from a raw row record.

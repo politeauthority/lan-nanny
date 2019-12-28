@@ -2,7 +2,7 @@
 Gets collections of options.
 
 """
-from .option import Option
+from ..models.option import Option
 
 
 class Options():
@@ -30,4 +30,4 @@ class Options():
             options.append(option)
         return options
 
-# End File: lan-nanny/modules/options.py
+# End File: lan-nanny/modules/collections/options.py

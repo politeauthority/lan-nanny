@@ -85,4 +85,4 @@ class Option():
         self.update_ts =  raw[3]
 
 
-# End File: lan-nanny/modules/option.py
+# End File: lan-nanny/modules/models/option.py

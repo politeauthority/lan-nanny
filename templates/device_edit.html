@@ -4,6 +4,13 @@
   <div class="col-lg-6">
     <h2>{%if device.icon%}<i class="{{device.icon}} fa-2x"></i>  {%endif%}{{device.name}}</h2>
   </div>
+  <div class="col-lg-2">
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteDeviceModal">
+      Delete
+    </button>
+    <!-- <a href="/device-danger/{{device.id}}" class="btn btn-primary">Delete</a> -->
+  </div>
 </div>
 <div class="row">
   <div class="col-xl-6 col-lg-6">
@@ -75,6 +82,30 @@
     </form>
   </div>
 </div>
+{%endblock%}
+
+{%block modal%}
+  <!-- Delete Device Modal -->
+  <div class="modal fade" id="deleteDeviceModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Delete Device: {{device.name}}</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to delete this device? This action cannot be undone. Keep in mind the device will come back if discovered in future scan.
+          {{device}}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <a href="/device-delete/{{device.id}}" type="button" class="btn btn-danger">Delete</a>
+        </div>
+      </div>
+    </div>
+  </div>
 {%endblock%}
 
 {%block javascript%}

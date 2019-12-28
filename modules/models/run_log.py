@@ -117,4 +117,4 @@ class RunLog():
         self.success = raw[5]
 
 
-# End File: lan-nanny/modules/run_log.py
+# End File: lan-nanny/modules/models/run_log.py

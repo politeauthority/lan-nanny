@@ -7,7 +7,7 @@ from sqlite3 import Error
 
 from flask import g
 
-from .option import Option
+from .models.option import Option
 
 
 def create_connection(database_file: str):

@@ -6,7 +6,7 @@ from datetime import datetime
 
 import arrow
 
-from .device import Device
+from ..models.device import Device
 
 
 class RunLogs():
@@ -31,4 +31,4 @@ class RunLogs():
         raw_ret = self.cursor.fetchone()
         return raw_ret[0]
 
-# End File: lan-nanny/modules/run_logs.py
+# End File: lan-nanny/modules/collections/run_logs.py

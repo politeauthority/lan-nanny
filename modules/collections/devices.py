@@ -4,7 +4,7 @@ Gets collections of devices.
 """
 from datetime import datetime
 
-from .device import Device
+from ..models.device import Device
 
 
 class Devices():
@@ -53,4 +53,4 @@ class Devices():
             devices.append(device)
         return devices
 
-# End File: lan-nanny/modules/devices.py
+# End File: lan-nanny/modules/collections/devices.py

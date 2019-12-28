@@ -145,6 +145,17 @@ class Device():
 
         return True
 
+    def delete(self) -> bool:
+        """
+        Deletes a device from the `devices` table.
+
+        """
+        sql = """DELETE FROM devices WHERE id = %s """ % self.id
+        print(sql)
+        self.cursor.execute(sql)
+        self.conn.commit()
+        return True
+
     def build_from_list(self, raw: list):
         """
         Creates a device from a raw row record.
@@ -216,4 +227,4 @@ class Device():
         if not self.name:
             self.icon = "fas fa-question"
 
-# End File: lan-nanny/modules/device.py
+# End File: lan-nanny/modules/models/device.py

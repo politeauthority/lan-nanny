@@ -76,6 +76,16 @@ class Witness():
             return True
         return False
 
+    def delete_device(self, device_id: int) -> bool:
+        """
+        Deletes all records from the `witness` table containing a device_id, this should be
+        performed when deleting a device.
+
+        """
+        sql = """DELETE FROM witness WHERE device_id = %s """ % device_id
+        self.cursor.execute(sql)
+        return True
+
     def build_from_list(self, raw: list):
         """
         Creates a witness from a raw row record.

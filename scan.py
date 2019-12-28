@@ -5,13 +5,14 @@ from datetime import datetime
 import subprocess
 
 import arrow
+
 from modules import parse_nmap
 from modules import db
-from modules.device import Device
-from modules.devices import Devices
-from modules.run_log import RunLog
+from modules.models.device import Device
+from modules.models.run_log import RunLog
 from modules.models.witness import Witness
 from modules.models.alert import Alert
+from modules.collections.devices import Devices
 
 NMAP_SCAN_FILE = "tmp.xml"
 NMAP_SCAN_RANGE = "1-255"

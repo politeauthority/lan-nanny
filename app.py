@@ -6,18 +6,21 @@ Web application entry point.
 import sqlite3
 import sys
 
-from modules import db
-from modules.device import Device
-from modules.devices import Devices
-from modules.option import Option
-from modules.options import Options
-from modules.run_logs import RunLogs
-from modules.metrics import Metrics
-from modules.collections.alerts import Alerts
-from modules import filters
-
 from flask import Flask, redirect, render_template, request, g, jsonify
 from flask_debug import Debug
+
+from modules import db
+from modules.models.device import Device
+from modules.models.option import Option
+from modules.models.alert import Alert
+from modules.models.witness import Witness
+from modules.collections.devices import Devices
+from modules.collections.alerts import Alerts
+from modules.collections.options import Options
+from modules.collections.run_logs import RunLogs
+from modules.metrics import Metrics
+from modules import filters
+
 
 app = Flask(__name__)
 # Debug(app)
@@ -108,7 +111,7 @@ def device(device_id: int) -> str:
     data = {}
     data['active_page'] = 'device'
     data['device'] = device
-    return render_template('device.html', **data)
+    return render_template('device_info.html', **data)
 
 
 @app.route('/devices')
@@ -226,6 +229,30 @@ def device_alert(device_id:int, alert_type: str, alert_value: int):
     return jsonify({"success": True})
 
 
+@app.route('/device-delete/<device_id>')
+def device_delete(device_id: int):
+    """
+    Device delete.
+
+    """
+    conn, cursor = db.get_db_flask(DATABASE)
+
+    # Delete the device
+    device = Device(conn, cursor)
+    device.get_by_id(device_id)
+    device.delete()
+
+    # Delete devices witness
+    witness = Witness(conn, cursor)
+    witness.delete_device(device.id)
+
+    # Delete device alerts
+    alert = Alert(conn, cursor)
+    alert.delete_device(device.id)
+
+    return redirect('/devices')
+
+
 @app.route('/settings')
 def settings() -> str:
     """
@@ -258,6 +285,7 @@ def settings_save():
 
     return redirect('/settings')
 
+
 @app.route('/alerts')
 def alerts():
     """
@@ -270,6 +298,20 @@ def alerts():
     data['active_page'] = 'devices'
     data['alerts'] = alerts.get_all()
     return render_template('alerts_roster.html', **data)
+
+
+@app.route('/alert-info/<alert_id>')
+def alert_info(alert_id: int):
+    """
+    Alert info page.
+
+    """
+    conn, cursor = db.get_db_flask(DATABASE)
+    alert = Alert(conn, cursor)
+    data = {}
+    data['active_page'] = 'alert-info'
+    data['alert'] = alert.get_by_id(alert_id)
+    return render_template('alert_info.html', **data)
 
 
 def register_jinja_funcs(app: Flask):
