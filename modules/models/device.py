@@ -25,6 +25,8 @@ class Device():
         self.alert_online = 0
         self.alert_offline = 0
         self.alert_delta = None
+        self.port_scan = None
+        self.last_port_scan = None
         self.update_ts = None
 
     def __repr__(self):
@@ -76,12 +78,13 @@ class Device():
 
 
         self._set_icon()
+        self.update_ts = arrow.utcnow().datetime
 
         sql = """
             INSERT INTO devices
             (mac, vendor, last_ip, last_seen, first_seen, name, hide, favorite, icon, alert_online,
-            alert_offline, alert_delta)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+            alert_offline, alert_delta, port_scan, last_port_scan, update_ts)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
         device = (
             self.mac,
@@ -95,7 +98,10 @@ class Device():
             self.icon,
             self.alert_online,
             self.alert_offline,
-            self.alert_delta)
+            self.alert_delta,
+            self.port_scan,
+            self.last_port_scan,
+            self.update_ts)
 
         self.cursor.execute(sql, device)
         self.conn.commit()
@@ -108,6 +114,7 @@ class Device():
 
         """
         self.build_from_dict(raw_device)
+        self.update_ts = arrow.utcnow().datetime
         sql = """
             UPDATE devices
             SET
@@ -123,6 +130,8 @@ class Device():
                 alert_online = ?,
                 alert_offline = ?,
                 alert_delta = ?,
+                port_scan = ?,
+                last_port_scan = ?,
                 update_ts = ?
             WHERE id = ?"""
         the_update = (
@@ -138,7 +147,9 @@ class Device():
             self.alert_online,
             self.alert_offline,
             self.alert_delta,
-            arrow.utcnow().datetime,
+            self.port_scan,
+            self.last_port_scan,
+            self.update_ts,
             self.id)
         self.cursor.execute(sql, the_update)
         self.conn.commit()
@@ -151,7 +162,6 @@ class Device():
 
         """
         sql = """DELETE FROM devices WHERE id = %s """ % self.id
-        print(sql)
         self.cursor.execute(sql)
         self.conn.commit()
         return True
@@ -174,7 +184,9 @@ class Device():
         self.alert_online = raw[10]
         self.alert_offline = raw[11]
         self.alert_delta = raw[12]
-        self.update_ts = raw[13]
+        self.port_scan = raw[13]
+        self.last_port_scan = raw[14]
+        self.update_ts = raw[15]
 
     def build_from_dict(self, raw_device:dict):
         """
@@ -211,12 +223,19 @@ class Device():
         if 'alert_delta' in raw_device:
             self.alert_delta = raw_device['alert_delta']
 
+        if 'port_scan' in raw_device:
+            self.port_scan = raw_device['port_scan']
+
+        if 'last_port_scan' in raw_device:
+            self.last_port_scan = raw_device['last_port_scan']
+
         if 'update_ts' in raw_device:
             self.update_ts = raw_device['update_ts']
 
     def _set_icon(self):
         """
         Attempts to set a device icon.
+
         """
         if self.icon:
             return

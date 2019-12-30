@@ -76,6 +76,27 @@ class Witness():
             return True
         return False
 
+    def get_device_last_online(self, device_id: int) -> bool:
+        """
+        Checks the witness table for the last witness of a device online.
+
+        """
+        sql = """
+            SELECT *
+            FROM witness
+            WHERE
+                device_id=?
+            ORDER BY witness_ts DESC
+        """
+        var = (device_id)
+
+        self.cursor.execute(sql, var)
+        witness_raw = self.cursor.fetchone()
+        witness = self.build_from_list(witness_raw)
+        if witness:
+            return witness
+        return False
+
     def delete_device(self, device_id: int) -> bool:
         """
         Deletes all records from the `witness` table containing a device_id, this should be

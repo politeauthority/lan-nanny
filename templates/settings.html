@@ -1,50 +1,47 @@
-{% extends "layout.html" %}
+  {% extends "layout.html" %}
 {% block content %}
-<div class="row">
-  <div class="col-lg-6">
-    <h2>Settings</h2>
+  <div class="row">
+    <div class="col-lg-6">
+      <h2>Settings</h2>
+    </div>
   </div>
-</div>
-<div class="row">
-  <div class="col-lg-6">
-    <h3>General</h3>
-    <form action="/settings-save" method="POST">
-       
-      <table class="table table-striped">
-        <tr>
-          <td>
-            <b>Time Zone</b>
-          </td>
-          <td>
-            <select name="settings_timezone">
-              <option selected>{{settings['timezone'].value}}</option>
-              <option>US/Alaska</option>
-              <option>US/Aleutian</option>
-              <option>US/Arizona</option>
-              <option>US/Central</option>
-              <option>US/East-Indiana</option>
-              <option>US/Eastern</option>
-              <option>US/Hawaii</option>
-              <option>US/Indiana-Starke</option>
-              <option>US/Michigan</option>
-              <option>US/Mountain</option>
-              <option>US/Pacific</option>
-              <option>US/Pacific-New</option>
-              <option>US/Samoa</option>
-              <option>UTC</option>
-            </select>
-          </td>
-        </tr>
-      </table>
+  <div class="row">
+    <div class="col-lg-6">
+      <h3>General</h3>
+      <form action="/settings-save" method="POST">
 
-      <div class="form-group">
-        <label for="setting_active_timeout">Active Device Timeout</label>
-        <input type="number" class="form-control" id="setting_active_timeout" placeholder="5" value="">
-      </div>
+        <!-- Timezone -->
+        <div class="form-group">
+          <label for="settings_timezone">Timezone</label>
+          <select class="form-control" id="settings_timezone" name="settings_timezone"  aria-describedby="timezoneHelp">
+            <option selected>{{settings['timezone'].value}}</option>
+            <option>US/Alaska</option>
+            <option>US/Aleutian</option>
+            <option>US/Arizona</option>
+            <option>US/Central</option>
+            <option>US/East-Indiana</option>
+            <option>US/Eastern</option>
+            <option>US/Hawaii</option>
+            <option>US/Indiana-Starke</option>
+            <option>US/Michigan</option>
+            <option>US/Mountain</option>
+            <option>US/Pacific</option>
+            <option>US/Pacific-New</option>
+            <option>US/Samoa</option>
+            <option>UTC</option>
+          </select>
+          <small id="timezoneHelp" class="form-text text-muted">Timezone for display</small>
+        </div>
 
-      <button class="btn btn-success" type="submit">Save</button>
-    </form>
+        <div class="form-group">
+          <label for="setting_active_timeout">Active Device Timeout</label>
+          <input type="number" class="form-control form-sm" id="setting_active_timeout" placeholder="5" value="">
+        </div>
+
+
+        <button class="btn btn-success" type="submit">Save</button>
+      </form>
+    </div>
   </div>
-</div>
 {%endblock%}
 

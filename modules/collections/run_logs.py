@@ -1,5 +1,5 @@
-"""Devices
-Gets collections of devices.
+"""Run Logs
+Gets collections of run logs.
 
 """
 from datetime import datetime

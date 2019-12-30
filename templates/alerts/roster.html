@@ -19,17 +19,38 @@
                 <thead>
                   <tr>
                     <td></td>
+                    <td>Device</td>
+                    <td>Alert Type</td>
+                    <td>Acknowledged</td>
+                    <td>Notification Sent</td>
                   </tr>
                 </thead>
                 {% for alert in alerts %}
                 <tr>
-                  <td>{{alert.id}}</td>
+                  <td>
+                    {%if alert.device.icon %}
+                      <i class="{{alert.device.icon}}"></i>
+                    {%endif%}
+                  </td>
+                  <td>
+                    <i class="fas fa-bolt {%if alert.device.last_seen|online %}connected_bolt{%endif%}"></i>
+                    <a href="/alert-info/{{alert.id}}">{{alert.device.name}}</a>
+                  </td>
+                  <td>{{alert.alert_type}}</td>
+                  <td>
+                    {% if alert.acked %}
+                      True
+                    {%else%}
+                      False
+                    {% endif %}
+                  </td>
+                  <td>{{alert.notification_sent}}</td>
                 </tr>
                 {%endfor%}
               </table>
             {%else%}
               <div class="text-center">
-                No Alerts.
+                No Alerts!
               </div>
             {%endif%}
           </div>

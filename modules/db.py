@@ -45,6 +45,7 @@ def create_tables(cursor: sqlite3.Cursor):
     _create_devices(cursor)
     _create_witness(cursor)
     _create_alerts(cursor)
+    _create_ports(cursor)
     _create_options(cursor)
     _create_run_log(cursor)
 
@@ -57,6 +58,8 @@ def populate_options(conn, cursor: sqlite3.Cursor):
     _set_default_options(conn, cursor, 'timezone', 'America/Denver')
     _set_default_options(conn, cursor, 'alert-new-device', '1')
     _set_default_options(conn, cursor, 'active-timeout', '5')
+    _set_default_options(conn, cursor, 'scan-hosts-enabled', '1')
+    _set_default_options(conn, cursor, 'scan-hosts-ports-default', '0')
 
 
 def _create_devices(cursor: sqlite3.Cursor) -> bool:
@@ -79,6 +82,8 @@ def _create_devices(cursor: sqlite3.Cursor) -> bool:
         alert_online integer DEFAULT 0,
         alert_offline integer DEFAULT 0,
         alert_delta integer,
+        port_scan integer,
+        last_port_scan date,
         update_ts date
     );
     """
@@ -126,6 +131,30 @@ def _create_alerts(cursor: sqlite3.Cursor) -> bool:
         notification_sent integer,
         acked integer,
         active integer
+    );
+    """
+    try:
+        cursor.execute(sql)
+        return True
+    except Error as e:
+        print(e)
+        return False
+
+
+def _create_ports(cursor: sqlite3.Cursor) -> bool:
+    """
+    Creates the `ports` table.
+
+    """
+    sql = """
+    CREATE TABLE IF NOT EXISTS ports (
+        id integer PRIMARY KEY,
+        device_id integer NOT NULL,
+        port text,
+        last_seen date,
+        status text,
+        service_name text,
+        update_ts date
     );
     """
     try:

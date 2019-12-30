@@ -51,7 +51,6 @@ def _get_host_ip(host: dict) -> str:
 
     return host_ip
 
-
 def _get_host_mac(host: dict) -> str:
     """
     Gets the host's MAC address from the parsed XML scan.
@@ -70,7 +69,6 @@ def _get_host_mac(host: dict) -> str:
 
     return host_vendor
 
-
 def _get_host_vendor(host: dict) -> str:
     """
     Gets the host's vendor from the parsed XML scan.
@@ -87,5 +85,13 @@ def _get_host_vendor(host: dict) -> str:
         break
 
     return host_vendor
+
+def parse_ports(phile):
+    """
+    Parses an NMap output file for port data, returning the relevant info.
+
+    """
+    phile = open(phile, "r") 
+    parsed = xmltodict.parse(phile.read())
 
 # End File: lan-nanny/modules/parse_nmap.py

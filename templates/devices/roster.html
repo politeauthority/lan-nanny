@@ -34,16 +34,13 @@
                     {%endif%}
                   </td>
                   <td>
-                    {%if device.name%}
-                      <a href="/device/{{device.id}}">{{device.name}}</a>
-                    {%else%}
-                      <a href="/device/{{device.id}}">{{device.vendor}}</a>
-                    {%endif%}
+                    <i class="fas fa-bolt {%if device.last_seen|online %}connected_bolt{%endif%}"></i>
+                    <a href="/device/{{device.id}}">{{device.name}}</a>
                   </td>
                   <td>{{device.ip}}</td>
                   <td>{{device.mac}}</td>
                   <td>{{device.last_seen|time_ago}}</td>
-                  <td>{{device.first_seen|first_seen}}</td>
+                  <td>{{device.first_seen|pretty_time}}</td>
                 </tr>
                 {%endfor%}
               </table>

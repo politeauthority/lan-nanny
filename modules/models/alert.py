@@ -3,6 +3,8 @@
 """
 import arrow
 
+from .device import Device
+
 
 class Alert():
 
@@ -19,12 +21,14 @@ class Alert():
         self.acked = None
         self.active = None
 
+        self.device = None
+
     def __repr__(self):
         if self.id:
             return "<Alert %s>" % self.id
         return "<Alert>"
 
-    def get_by_id(self, alert_id: int):
+    def get_by_id(self, alert_id: int, build_device: bool=None):
         """
         Gets an alert from the `alerts` table based on it's alert ID.
 
@@ -35,7 +39,7 @@ class Alert():
         if not alert_raw:
             return {}
         
-        self.build_from_list(alert_raw)
+        self.build_from_list(alert_raw, build_device)
 
         return self
 
@@ -129,7 +133,7 @@ class Alert():
         self.cursor.execute(sql)
         return True
 
-    def build_from_list(self, raw: list):
+    def build_from_list(self, raw: list, build_device: bool=False):
         """
         Creates a device from a raw row record.
 
@@ -142,6 +146,11 @@ class Alert():
         self.notification_sent = raw[5]
         self.acked = raw[6]
         self.active = raw[7]
+
+        if build_device:
+            self.device = Device(self.conn, self.cursor)
+            self.device.get_by_id(self.device_id)
+
 
     def build_from_dict(self, raw_alert:dict):
         """

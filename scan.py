@@ -13,6 +13,7 @@ from modules.models.run_log import RunLog
 from modules.models.witness import Witness
 from modules.models.alert import Alert
 from modules.collections.devices import Devices
+from modules.collections.options import Options
 
 NMAP_SCAN_FILE = "tmp.xml"
 NMAP_SCAN_RANGE = "1-255"
@@ -30,22 +31,50 @@ class Scan:
         Main entry point to scanning script.
 
         """
-        self.run_log = RunLog()
-        self.run_log.conn = conn
-        self.run_log.cursor = cursor
-        run_id = self.run_log.create()
-        
-        print('Running scan number %s' % run_id)
-        hosts = self.scan()
+        self._setup()
+        print('Running scan number %s' % self.run_log.id)
+    
+        if self.options['scan-hosts-enabled'] == 0:
+            print('Host scanning disabled. Go to settings to renable.')
+            self._abort_run()
+            exit(0)
 
-        self.run_log.completed = 1
-        self.run_log.success = 1
-        self.run_log.update(run_id)
+        hosts = self.scan()
+        self._complete_run()
 
         self.handle_devices(hosts)
 
         self.handle_alerts(hosts)
 
+        self.scan_ports(hosts)
+
+    def _setup(self):
+        """
+        Sets up run log and loads options.
+
+        """
+        self.run_log = RunLog(conn, cursor)
+        self.run_log.create()
+        options = Options(conn, cursor)
+        self.options = options.get_all_keyed()
+
+    def _complete_run(self):
+        """
+        Closes out the run log entry.
+
+        """
+        self.run_log.completed = 1
+        self.run_log.success = 1
+        self.run_log.update()
+
+    def _abort_run(self):
+        """
+        Closes out the run log entry.
+
+        """
+        self.run_log.completed = 0
+        self.run_log.success = 0
+        self.run_log.update()
 
     def scan (self) -> dict:
         """
@@ -53,7 +82,11 @@ class Scan:
 
         """
 
-        cmd = "nmap -sP 192.168.1.%s -oX %s" % (NMAP_SCAN_RANGE, NMAP_SCAN_FILE)
+        scan_range = "172.19.131.%s" % NMAP_SCAN_RANGE
+
+        print('Scan Range: %s' % scan_range)
+        cmd = "nmap -sP %s -oX %s" % (scan_range, NMAP_SCAN_FILE)
+        # cmd = "nmap -sP 192.168.1.%s -oX %s" % (NMAP_SCAN_RANGE, NMAP_SCAN_FILE)
         try:
             subprocess.check_output(cmd, shell=True)
         except subprocess.CalledProcessError:
@@ -65,7 +98,6 @@ class Scan:
         hosts = parse_nmap.parse_hosts(NMAP_SCAN_FILE)
 
         return hosts
-
 
     def handle_devices(self, hosts: list):
         """
@@ -98,7 +130,6 @@ class Scan:
 
             self.save_witness(device, scan_time)
 
-
     def save_witness(self, device: Device, scan_time: datetime) -> bool:
         """
         Creates a record in the `witness` table of the devices id and scan time.
@@ -112,9 +143,10 @@ class Scan:
 
         return True
 
-
     def handle_alerts(self, hosts: list):
         """
+        Handles alerts for devices online or offline.
+
         """
         print('Running alerts')
         device_collection = Devices(conn, cursor)
@@ -123,14 +155,33 @@ class Scan:
         witness = Witness(conn, cursor)
 
         for device in devices:
+
+            # Device offline check
             if device.alert_offline == 1:
                 device_in_scan = witness.get_device_for_scan(device.id, self.run_log.id)
-                if device_in_scan:
+                if not device_in_scan:
+                    self.create_alert(device, 'offline')
+
+            # Device online check
+            if device.alert_online == 1:
+                device_online = False
+                for host in hosts:
+                    if device.mac == host['mac']:
+                        device_online = True
+                        break
+
+                if not device_online:
                     continue
-                self.create_alert(device, 'offline')
+
+                last_online_witness = witness.get_device_last_online(device.id)
+
+                # if last_online_witness.witness_ts > 
+
 
     def create_alert(self, device: Device, alert_type: str):
         """
+        Creates an alert unless there's a current active alert for the device and alert type.
+
         """
         alert = Alert(conn, cursor)
         active_device_alert = alert.check_active(device.id, alert_type)
@@ -145,6 +196,32 @@ class Scan:
         alert.create()
         print('Created %s alert for %s' % (alert_type, device.name))
         self.new_alerts.append(alert.id)
+
+    def scan_ports(self, hosts: list):
+        """
+        Scans ports for hosts which appeared in the current scan, checking first if the device and
+        global settings allow for a device to be port scanned.
+
+        """
+        print("Running port scans")
+        port_scan_devices = []
+
+        for host in hosts:
+            device = Device(conn, cursor).get_by_mac(host['mac'])
+
+            if device.port_scan == 1:
+                port_scan_devices.append(device)
+
+        print(port_scan_devices)
+        
+        for device in port_scan_devices:
+            # cmd = "nmap -p 1-65535 -sV -sS -T4 %s -oX port_scan.xml" % device.ip
+            cmd = "nmap %s -oX port_scan.xml" % device.ip
+            print(cmd)
+            try:
+                subprocess.check_output(cmd, shell=True)
+            except subprocess.CalledProcessError:
+                print('Error running scan, please try again')
 
 
 if __name__ == '__main__':

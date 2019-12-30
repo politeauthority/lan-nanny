@@ -25,8 +25,8 @@ class Alerts():
         raw_alerts = self.cursor.fetchall()
         alerts = []
         for raw_alert in raw_alerts:
-            alert = Alert()
-            alert.build_from_list(raw_alert)
+            alert = Alert(self.conn, self.cursor)
+            alert.build_from_list(raw_alert, build_device=True)
             alerts.append(alert)
         return alerts
 

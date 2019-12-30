@@ -20,13 +20,11 @@ from modules.collections.options import Options
 from modules.collections.run_logs import RunLogs
 from modules.metrics import Metrics
 from modules import filters
+from modules import utils
 
-
-app = Flask(__name__)
-# Debug(app)
-# app.run(debug=True)
 
 DATABASE = "lan_nanny.db"
+app = Flask(__name__)
 
 
 @app.before_request
@@ -39,12 +37,7 @@ def get_settings():
     options = Options()
     options.conn = conn
     options.cursor = cursor
-
-    opt_dict = {}
-    all_options = options.get_all()
-    for option in all_options:
-        opt_dict[option.name] = option
-    g.options = opt_dict
+    g.options = options.get_all_keyed()
 
 
 @app.before_request
@@ -108,10 +101,13 @@ def device(device_id: int) -> str:
     device.cursor = cursor
     device.get_by_id(device_id)
 
+    if not device.id:
+        return page_not_found('Error')
+
     data = {}
-    data['active_page'] = 'device'
     data['device'] = device
-    return render_template('device_info.html', **data)
+    data['active_page'] = 'devices'
+    return render_template('devices/info.html', **data)
 
 
 @app.route('/devices')
@@ -125,7 +121,7 @@ def devices() -> str:
     data = {}
     data['active_page'] = 'devices'
     data['devices'] = devices.get_all()
-    return render_template('device_roster.html', **data)
+    return render_template('devices/roster.html', **data)
 
 
 @app.route('/device-edit/<device_id>')
@@ -140,7 +136,7 @@ def device_edit(device_id: int) -> str:
     device.cursor = cursor
     device.get_by_id(device_id)
 
-    icons = _device_icons()
+    icons = utils.device_icons()
 
     custom_icon = False
     if device.icon and device.icon not in icons:
@@ -150,7 +146,8 @@ def device_edit(device_id: int) -> str:
     data['device'] = device
     data['icons'] = icons
     data['custom_icon'] = custom_icon
-    return render_template('device_edit.html', **data)
+    data['active_page'] = 'devices'
+    return render_template('devices/edit.html', **data)
 
 
 @app.route('/device-save', methods=['POST'])
@@ -174,8 +171,10 @@ def device_save():
     else:
         device.icon = request.form['device_icon_input']
 
-    device.alert_online = _device_alert_checkbox_value('device_alert_online', request.form)
-    device.alert_offline = _device_alert_checkbox_value('device_alert_offline', request.form)
+    if request.form.get('device_port_scan'):
+        device.port_scan = 1
+    else:
+        device.port_scan = 0
 
     # @todo figure out how hide works.
     # device.hide = request.form['device_hide']
@@ -253,6 +252,35 @@ def device_delete(device_id: int):
     return redirect('/devices')
 
 
+@app.route('/alerts')
+def alerts():
+    """
+    Alerts roster page.
+
+    """
+    conn, cursor = db.get_db_flask(DATABASE)
+    alerts = Alerts(conn, cursor)
+    data = {}
+    data['alerts'] = alerts.get_all()
+    data['active_page'] = 'alerts'
+    return render_template('alerts/roster.html', **data)
+
+
+@app.route('/alert-info/<alert_id>')
+def alert_info(alert_id: int):
+    """
+    Alert info page.
+
+    """
+    conn, cursor = db.get_db_flask(DATABASE)
+    alert = Alert(conn, cursor)
+    data = {}
+    data['active_page'] = 'alert-info'
+    data['alert'] = alert.get_by_id(alert_id, build_device=True)
+    data['active_page'] = 'alerts'
+    return render_template('alerts/info.html', **data)
+
+
 @app.route('/settings')
 def settings() -> str:
     """
@@ -286,32 +314,14 @@ def settings_save():
     return redirect('/settings')
 
 
-@app.route('/alerts')
-def alerts():
+@app.errorhandler(404)
+def page_not_found(e):
     """
-    Alerts roster page.
+    404 Error page.
 
     """
-    conn, cursor = db.get_db_flask(DATABASE)
-    alerts = Alerts(conn, cursor)
-    data = {}
-    data['active_page'] = 'devices'
-    data['alerts'] = alerts.get_all()
-    return render_template('alerts_roster.html', **data)
-
-
-@app.route('/alert-info/<alert_id>')
-def alert_info(alert_id: int):
-    """
-    Alert info page.
-
-    """
-    conn, cursor = db.get_db_flask(DATABASE)
-    alert = Alert(conn, cursor)
-    data = {}
-    data['active_page'] = 'alert-info'
-    data['alert'] = alert.get_by_id(alert_id)
-    return render_template('alert_info.html', **data)
+    # note that we set the 404 status explicitly
+    return render_template('errors/404.html'), 404
 
 
 def register_jinja_funcs(app: Flask):
@@ -320,34 +330,9 @@ def register_jinja_funcs(app: Flask):
 
     """
     app.jinja_env.filters['time_ago'] = filters.time_ago
-    app.jinja_env.filters['first_seen'] = filters.first_seen
+    app.jinja_env.filters['pretty_time'] = filters.pretty_time
     app.jinja_env.filters['online'] = filters.online
 
-
-def _device_icons() -> dict:
-    """
-    Returns a dict keyed on font awesome CSS classes and corresponding names for those icons.
-
-    """
-    icons = {
-        "fab fa-apple": "Apple",
-        "fab fa-rasppberry-pi": "Raspberry Pi",
-        "fas fa-print": "Printer",
-        "fas fa-tablet-alt": "Tablet",
-        "fas fa-plug": "Smart Plug",
-        "fas fa-laptop": "Laptop",
-        "fas fa-question": "Question Mark",
-        "fas fa-satellite": "Satellite"
-    }
-    return icons
-
-def _device_alert_checkbox_value(name, form):
-    """
-    """
-    if name in form:
-        if form[name] == "on":
-            return 1
-    return 0
 
 if __name__ == '__main__':
     port = 5000

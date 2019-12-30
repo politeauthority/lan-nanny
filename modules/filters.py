@@ -15,13 +15,15 @@ def time_ago(seen_at) -> str:
     Gets a human readable 'time ago' date format.
 
     """
+    if not seen_at:
+        return  ''
     parsed = arrow.get(seen_at)
     return parsed.humanize()
 
 
-def first_seen(first_at) -> str:
+def pretty_time(first_at) -> str:
     """
-    Gets a human readable 'time ago' date format.
+    Gets a human readable 'time ago' date format, Mon Dec 30th 4:03:11 pm
 
     """
     parsed = arrow.get(first_at)
