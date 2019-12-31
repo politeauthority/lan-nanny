@@ -17,9 +17,7 @@ class Metrics:
         Gets all known devices.
 
         """
-        devices = Devices()
-        devices.conn = self.conn
-        devices.cursor = self.cursor
+        devices = Devices(conn, cursor)
         all_devices = devices.get_all()
         return all_devices
 
@@ -29,9 +27,7 @@ class Metrics:
         Gets all favorite devices.
 
         """
-        devices = Devices()
-        devices.conn = self.conn
-        devices.cursor = self.cursor
+        devices = Devices(conn, cursor)
         favorites = devices.get_favorites()
         return favorites
 
@@ -40,9 +36,7 @@ class Metrics:
         """
 
         """
-        run_logs = RunLogs()
-        run_logs.conn = self.conn
-        run_logs.cursor = self.cursor
+        run_logs = RunLogs(conn, cursor)
         run_logs_24 = run_logs.get_runs_24_hours()
         return run_logs_24
 
@@ -51,9 +45,7 @@ class Metrics:
         Gets the last run log.
 
         """
-        run_log = RunLog()
-        run_log.conn = self.conn
-        run_log.cursor = self.cursor
+        run_log = RunLog(conn, cursor)
         last_run_log = run_log.get_last()
         return last_run_log
 

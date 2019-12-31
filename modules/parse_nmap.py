@@ -1,6 +1,11 @@
+"""Parse NMap
+Tools for reading and traversing nmap output files.
+
+"""
+
 import xmltodict
 
-def parse_hosts(phile):
+def parse_hosts(phile: str):
     """
     Parses an NMAP output file and returns relevant host information.
 
@@ -86,7 +91,7 @@ def _get_host_vendor(host: dict) -> str:
 
     return host_vendor
 
-def parse_ports(phile):
+def parse_ports(phile: str):
     """
     Parses an NMap output file for port data, returning the relevant info.
 

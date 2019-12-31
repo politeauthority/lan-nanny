@@ -60,6 +60,7 @@ def populate_options(conn, cursor: sqlite3.Cursor):
     _set_default_options(conn, cursor, 'active-timeout', '5')
     _set_default_options(conn, cursor, 'scan-hosts-enabled', '1')
     _set_default_options(conn, cursor, 'scan-hosts-ports-default', '0')
+    _set_default_options(conn, cursor, 'scan-hosts-range', '192.168.1.1-255')
 
 
 def _create_devices(cursor: sqlite3.Cursor) -> bool:

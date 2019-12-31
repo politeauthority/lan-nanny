@@ -10,7 +10,7 @@ from flask import g
 
 from app import app
 
-def time_ago(seen_at) -> str:
+def time_ago(seen_at: datetime) -> str:
     """
     Gets a human readable 'time ago' date format.
 
@@ -21,7 +21,7 @@ def time_ago(seen_at) -> str:
     return parsed.humanize()
 
 
-def pretty_time(first_at) -> str:
+def pretty_time(first_at: datetime) -> str:
     """
     Gets a human readable 'time ago' date format, Mon Dec 30th 4:03:11 pm
 
@@ -31,7 +31,7 @@ def pretty_time(first_at) -> str:
     return user_time.format('ddd MMM Do h:mm:ss a')
 
 
-def online(seen_at):
+def online(seen_at: datetime):
     """
     Checks to see if the device's last_seen attribute has checked in within x minutes.
 
