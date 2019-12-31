@@ -8,7 +8,7 @@ import arrow
 
 from modules import parse_nmap
 from modules import db
-from modules.models.device import Device
+from modules.models.devices import Device
 from modules.models.run_log import RunLog
 from modules.models.witness import Witness
 from modules.models.alert import Alert
@@ -16,7 +16,6 @@ from modules.collections.devices import Devices
 from modules.collections.options import Options
 
 NMAP_SCAN_FILE = "tmp.xml"
-NMAP_SCAN_RANGE = "1-255"
 NMAP_DB = "lan_nanny.db"
 
 conn, cursor = db.create_connection(NMAP_DB)
@@ -82,11 +81,9 @@ class Scan:
 
         """
 
-        scan_range = "172.19.131.%s" % NMAP_SCAN_RANGE
-
+        scan_range = self.options['scan-hosts-range']
         print('Scan Range: %s' % scan_range)
         cmd = "nmap -sP %s -oX %s" % (scan_range, NMAP_SCAN_FILE)
-        # cmd = "nmap -sP 192.168.1.%s -oX %s" % (NMAP_SCAN_RANGE, NMAP_SCAN_FILE)
         try:
             subprocess.check_output(cmd, shell=True)
         except subprocess.CalledProcessError:
