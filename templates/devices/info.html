@@ -1,4 +1,9 @@
 {% extends "layout.html" %}
+
+{%block head%}
+  <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
+{%endblock%}
+
 {% block content %}
   <div class="row">
     <div class="col-lg-6">
@@ -84,13 +89,18 @@
           </h6>
         </div>
         <div class="card-body">
-          <b>Alert Online</b>
-          <br />
-          <input class="device-alert-toggle" type="checkbox" name="online" {%if device.alert_online == 1%}checked{%endif%} data-toggle="toggle">
-          <br />
-          <b>Alert Offline</b>
-          <br />
-          <input class="device-alert-toggle" type="checkbox" name="offline" {%if device.alert_offline == 1%}checked{%endif%} data-toggle="toggle">
+          <div class="form-group">
+            <label for="alert_online">Alert Online</label>
+            <input class="alert-toggle" type="checkbox" data-toggle="toggle" id="alert_online" aria-describedby="alertOnlineHelp">
+            <small id="alertOnlineHelp" class="form-text text-muted">Create an alert when the device comes online.</small>
+          </div>
+
+          <div class="form-group">
+            <label for="alert_offline">Alert Offline</label>
+            <input class="alert-toggle" type="checkbox" data-toggle="toggle" id="alert_offline" aria-describedby="alertOfflineHelp">
+            <small id="alertOfflineHelp" class="form-text text-muted">Create an alert when the device goes offline.</small>
+          </div>
+
         </div>
       </div>
     </div>
@@ -98,26 +108,48 @@
 {%endblock%}
 
 {%block javascript%}
+  <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
   <script type="text/javascript">
     $( document ).ready(function(){
 
       var device_id = {{device.id}};
+      var device_alert_online = {{device.alert_online}};
+      var device_alert_offline = {{device.alert_offline}};
+
+      // Set initial device states
+      if(device_alert_online == 1){
+        $('#alert_online').bootstrapToggle('on');
+      }
+      if(device_alert_offline == 1){
+        $('#alert_offline').bootstrapToggle('on');
+      }
 
       // Send ajax request to endable/ disable alerts
-      $( ".device-alert-toggle" ).change(function(){
-        var value;
-        if($(this).prop('checked')){
-          value = 1;
-        } else {
-          value = 0;
-        }
-        var alert_url = "/device-alert/" + device_id + "/" + $(this).attr('name') + "/" + value;
+      $(function() {
+        $('#alert_online').change(function() {
+          update_alert('online', $(this).prop('checked'))
+        })
+      })
 
+      $(function() {
+        $('#alert_offline').change(function() {
+          update_alert('offline', $(this).prop('checked'))
+        })
+      })
+
+      function update_alert(alert_type, alert_value){
+        var var_url_val;
+        if(alert_value){
+          var_url_val = 1;
+        } else {
+          var_url_val = 0;
+        }
+        var alert_url = "/device-alert/" + device_id + "/" + alert_type + "/" + var_url_val;
         $.ajax({
           url: alert_url,
           context: document.body
-        }).done(function(){});
-      });
+        }).done(function(){ });
+      }
 
       // Send ajax request to fav/ unfavorite device
       $( "#device-favorite" ).click(function(){

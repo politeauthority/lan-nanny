@@ -28,7 +28,7 @@ class Witness():
         device_raw = self.cursor.fetchone()
         if not device_raw:
             return {}
-        
+
         self.build_from_list(device_raw)
 
         return self
@@ -76,6 +76,7 @@ class Witness():
             return True
         return False
 
+
     def get_device_last_online(self, device_id: int) -> bool:
         """
         Checks the witness table for the last witness of a device online.
@@ -85,12 +86,10 @@ class Witness():
             SELECT *
             FROM witness
             WHERE
-                device_id=?
-            ORDER BY witness_ts DESC
-        """
-        var = (device_id)
+                device_id = %s
+            ORDER BY witness_ts DESC """ % device_id
 
-        self.cursor.execute(sql, var)
+        self.cursor.execute(sql)
         witness_raw = self.cursor.fetchone()
         witness = self.build_from_list(witness_raw)
         if witness:

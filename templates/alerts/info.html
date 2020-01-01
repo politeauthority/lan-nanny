@@ -1,6 +1,11 @@
+<!-- Alert - Info -->
 {% extends "layout.html" %}
-{% block content %}
 
+{%block head%}
+  <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
+{%endblock%}
+
+{% block content %}
   <div class="row">
     <div class="col-lg-6">
       <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -12,7 +17,7 @@
   <!-- Content Row -->
   <div class="row">
 
-    <!-- Device Info -->
+    <!-- Alert Info -->
     <div class="col-xl-6 col-lg-6">
       <div class="card shadow mb-4">
         <!-- Card Header -->
@@ -27,19 +32,116 @@
           <div class="table-responsive">
             <table class="table" id="dataTable" width="100%" cellspacing="0">
               <tr>
+                <td>Device</td>
+                <td>
+                  <a href="/device/{{alert.device.id}}">{{alert.device.name}}</a>
+                </td>
+              </tr>
+              <tr>
                 <td>Created</td>
-                <td>{{alert.created_ts|pretty_time}}</td>
+                <td>{{alert.created_ts|smart_time}}</td>
               </tr>
               <tr>
                 <td>Acknowledged</td>
-                <td>{{alert.acked}}</td>
+                <td>
+                  {%if alert.acked%}
+                    Acknowledged
+                  {%else%}
+                    Unacknowledged
+                  {%endif%}
+                </td>
               </tr>
+              <tr>
+                <td>Active</td>
+                <td>{{alert.active}}</td>
+              </tr>
+
             </table>
           </div>
         </div>
       </div>
     </div>
+
+  <!-- Alert Actions -->
+
+    <div class="col-xl-6 col-lg-6">
+
+      <div class="card shadow mb-4">
+        <!-- Card Header -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">
+            Alerts
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <!-- <label for="alert_acked">Alert Acknowledged</label> -->
+            <input data-on="Acknowledged" data-off="Unackwowledge" class="alert-toggle" type="checkbox" data-toggle="toggle" id="alert_acked" aria-describedby="alertAckedHelp">
+            <small id="alertAckedHelp" class="form-text text-muted">Ack/Unack an alert</small>
+          </div>
+
+          <div class="form-group">
+            <label for="alert_active">Deactivate Alert</label>
+            <input class="alert-toggle" type="checkbox" data-toggle="toggle" id="alert_active" aria-describedby="alertActiveHelp">
+            <small id="alertActiveHelp" class="form-text text-muted">Deactivate the alert.</small>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
   </div>
 
 {%endblock%}
 
+
+{%block javascript%}
+  <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
+  <script type="text/javascript">
+    $( document ).ready(function(){
+
+      var alert_id = {{alert.id}};
+      var alert_acked = {{alert.acked}};
+      var alert_active = {{alert.active}};
+
+      // Set initial device states
+      if(alert_acked == 1){
+        $('#alert_acked').bootstrapToggle('on');
+      }
+      if(alert_active == 1){
+        $('#alert_active').bootstrapToggle('on');
+      }
+
+      // Send ajax request to endable/ disable alerts
+      // $(function() {
+      //   $('#alert_online').change(function() {
+      //     update_alert('online', $(this).prop('checked'))
+      //   })
+      // });
+
+      // $(function() {
+      //   $('#alert_offline').change(function() {
+      //     update_alert('offline', $(this).prop('checked'))
+      //   })
+      // });
+
+      // function update_alert(alert_type, alert_value){
+      //   var var_url_val;
+      //   if(alert_value){
+      //     var_url_val = 1;
+      //   } else {
+      //     var_url_val = 0;
+      //   }
+      //   var alert_url = "/device-alert/" + device_id + "/" + alert_type + "/" + var_url_val;
+      //   $.ajax({
+      //     url: alert_url,
+      //     context: document.body
+      //   }).done(function(){ });
+      // }
+
+    });
+  </script>
+
+{%endblock%}
+
+<!-- END: Alert - Info -->

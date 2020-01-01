@@ -59,6 +59,11 @@
           <i class="fas fa-fw fas fa-bell"></i>
           <span>Alerts</span></a>
       </li>
+      <li class="nav-item {%if active_page == 'scans'%}active{%endif%}">
+        <a class="nav-link" href="/scans">
+          <i class="fas fa-fw fa-map"></i>
+          <span>Scans</span></a>
+      </li>
       <li class="nav-item {%if active_page == 'settings'%}active{%endif%}">
         <a class="nav-link" href="/settings">
           <i class="fas fa-fw fa-cog"></i>
@@ -117,7 +122,7 @@
                   </div>
                   <div>
                     <div class="small text-gray-500">{{alert.created_ts|time_ago}}</div>
-                    <span class="font-weight-bold">Device {{alert.device_id}} is {{alert.alert_type}}.</span>
+                    <span class="font-weight-bold">{{alert.device.name}} is {{alert.alert_type}}.</span>
                   </div>
                 </a>
                 {%endfor%}
@@ -164,7 +169,7 @@
         <!-- Begin Page Content -->
         <div class="container-fluid">
           {%block content%}{%endblock%}
-          
+
         </div>
         <!-- /.container-fluid -->
 
@@ -223,7 +228,6 @@
   <!-- Custom scripts for all pages-->
   <script src="/static/js/sb-admin-2.min.js"></script>
 
-  <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
   <script src="https://kit.fontawesome.com/7c2d391bcd.js" crossorigin="anonymous"></script>
   {%block javascript%}{%endblock%}
 

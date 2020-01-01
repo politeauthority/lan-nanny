@@ -10,7 +10,7 @@ def parse_hosts(phile: str):
     Parses an NMAP output file and returns relevant host information.
 
     """
-    phile = open(phile, "r") 
+    phile = open(phile, "r")
     parsed = xmltodict.parse(phile.read())
 
     hosts = []
@@ -96,7 +96,7 @@ def parse_ports(phile: str):
     Parses an NMap output file for port data, returning the relevant info.
 
     """
-    phile = open(phile, "r") 
+    phile = open(phile, "r")
     parsed = xmltodict.parse(phile.read())
 
 # End File: lan-nanny/modules/parse_nmap.py

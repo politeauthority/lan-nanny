@@ -6,6 +6,7 @@ Web application entry point.
 import sqlite3
 import sys
 
+import arrow
 from flask import Flask, redirect, render_template, request, g, jsonify
 from flask_debug import Debug
 
@@ -13,6 +14,7 @@ from modules import db
 from modules.models.device import Device
 from modules.models.option import Option
 from modules.models.alert import Alert
+from modules.models.run_log import RunLog
 from modules.models.witness import Witness
 from modules.collections.devices import Devices
 from modules.collections.alerts import Alerts
@@ -48,7 +50,7 @@ def get_alerts():
     """
     conn, cursor = db.get_db_flask(DATABASE)
     alerts = Alerts(conn, cursor)
-    g.alerts = alerts.get_active()
+    g.alerts = alerts.get_active_unacked(build_devices=True)
 
 
 @app.teardown_appcontext
@@ -274,12 +276,49 @@ def alert_info(alert_id: int):
     """
     conn, cursor = db.get_db_flask(DATABASE)
     alert = Alert(conn, cursor)
+    alert.get_by_id(alert_id, build_device=True)
+    if not alert.id:
+        return page_not_found('Alert not found')
+
+    if not alert.acked:
+        alert.acked = 1
+        alert.acked_ts = arrow.utcnow().datetime
+        alert.update()
     data = {}
     data['active_page'] = 'alert-info'
-    data['alert'] = alert.get_by_id(alert_id, build_device=True)
+    data['alert'] = alert
     data['active_page'] = 'alerts'
     return render_template('alerts/info.html', **data)
 
+@app.route('/scans')
+def scans():
+    """
+    Scans roster page.
+
+    """
+    conn, cursor = db.get_db_flask(DATABASE)
+    run_logs = RunLogs(conn, cursor)
+    data = {
+        'active_page': 'scans',
+        'scans': run_logs.get_all()
+    }
+    return render_template('scans/roster.html', **data)
+
+
+@app.route('/scan/<scan_id>')
+def scan(scan_id):
+    """
+    Scan info page.
+
+    """
+    conn, cursor = db.get_db_flask(DATABASE)
+    run_log = RunLog(conn, cursor)
+    scan = run_log.get_by_id(scan_id)
+    data = {}
+    data['active_page'] = 'scans'
+    data['scan'] = scan
+
+    return render_template('scans/info.html', **data)
 
 @app.route('/settings')
 def settings() -> str:
@@ -301,15 +340,11 @@ def settings_save():
 
     """
     conn, cursor = db.get_db_flask(DATABASE)
-    option = Option()
-    option.conn = conn
-    option.cursor = cursor
+    option = Option(conn, cursor)
 
-
-    # Save the timezone value
-    option.name = 'timezone'
-    option.value = request.form['settings_timezone']
-    option.update()
+    utils.update_setting(option, 'timezone', request.form['settings_timezone'])
+    utils.update_setting(option, 'scan-hosts-range', request.form['setting_scan_hosts_range'])
+    utils.update_setting(option, 'active-timeout', request.form['setting_active_timeout'])
 
     return redirect('/settings')
 
@@ -331,6 +366,7 @@ def register_jinja_funcs(app: Flask):
     """
     app.jinja_env.filters['time_ago'] = filters.time_ago
     app.jinja_env.filters['pretty_time'] = filters.pretty_time
+    app.jinja_env.filters['smart_time'] = filters.smart_time
     app.jinja_env.filters['online'] = filters.online
 
 

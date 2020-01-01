@@ -13,7 +13,7 @@ class Devices():
         self.conn = conn
         self.cursor = cursor
 
-    def get_all(self):
+    def get_all(self) -> list:
         """
         Gets all devices in the database.
 

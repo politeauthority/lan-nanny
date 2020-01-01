@@ -31,7 +31,26 @@ def pretty_time(first_at: datetime) -> str:
     return user_time.format('ddd MMM Do h:mm:ss a')
 
 
-def online(seen_at: datetime):
+def smart_time(date_val: datetime, format_switch_range_seconds: int=None) -> str:
+    """
+    Gets a human readable 'time ago' date format if the time is within x period, otherwise returns the pretty_time.
+
+    """
+    if not date_val:
+        return  ''
+    parsed = arrow.get(date_val)
+    if not format_switch_range_seconds:
+        format_switch_range_seconds = (60 * 60) * 12 # default 12 hours
+
+    delta = arrow.utcnow().datetime - parsed.datetime
+
+    if delta.seconds > format_switch_range_seconds:
+        return pretty_time(date_val)
+    else:
+        return parsed.humanize()
+
+
+def online(seen_at: datetime) -> bool:
     """
     Checks to see if the device's last_seen attribute has checked in within x minutes.
 
@@ -39,7 +58,7 @@ def online(seen_at: datetime):
     now = arrow.utcnow().datetime
     seen = arrow.get(seen_at).datetime
 
-    if now - seen > timedelta(minutes=5):
+    if now - seen > timedelta(minutes=int(g.options['active-timeout'].value)):
         return False
 
     return True

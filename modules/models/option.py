@@ -27,7 +27,7 @@ class Option():
         option_raw = self.cursor.fetchone()
         if not option_raw:
             return self
-        
+
         self.build_from_list(option_raw)
 
         return self
@@ -64,11 +64,11 @@ class Option():
             SET
                 value = ?,
                 update_ts = ?
-            WHERE name = ?"""
+            WHERE id = ?"""
         the_update = (
             self.value,
             now,
-            self.name)
+            self.id)
         self.cursor.execute(sql, the_update)
         self.conn.commit()
 

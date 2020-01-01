@@ -19,8 +19,8 @@ class Alert():
         self.time_delta = None
         self.notification_sent = None
         self.acked = None
+        self.acked_ts = None
         self.active = None
-
         self.device = None
 
     def __repr__(self):
@@ -38,7 +38,7 @@ class Alert():
         alert_raw = self.cursor.fetchone()
         if not alert_raw:
             return {}
-        
+
         self.build_from_list(alert_raw, build_device)
 
         return self
@@ -49,7 +49,7 @@ class Alert():
 
         """
         sql = """
-            SELECT * 
+            SELECT *
             FROM alerts
             WHERE
                 active=1 AND
@@ -71,12 +71,12 @@ class Alert():
         self.build_from_dict(raw_alert)
 
         if not self.created_ts:
-            self.created_ts = arrow.utcnow().datetime        
+            self.created_ts = arrow.utcnow().datetime
 
         sql = """
             INSERT INTO alerts
-            (created_ts, device_id, alert_type, time_delta, notification_sent, acked, active)
-            VALUES (?, ?, ?, ?, ?, ?, ?)"""
+            (created_ts, device_id, alert_type, time_delta, notification_sent, acked, acked_ts, active)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)"""
 
         alert = (
             self.created_ts,
@@ -85,6 +85,7 @@ class Alert():
             self.time_delta,
             self.notification_sent,
             self.acked,
+            self.acked_ts,
             self.active)
 
         self.cursor.execute(sql, alert)
@@ -99,7 +100,7 @@ class Alert():
         """
         self.build_from_dict(raw_alert)
         sql = """
-            UPDATE devices
+            UPDATE alerts
             SET
                 created_ts = ?,
                 device_id = ?,
@@ -107,6 +108,7 @@ class Alert():
                 time_delta = ?,
                 notification_sent = ?,
                 acked = ?,
+                acked_ts = ?,
                 active = ?
             WHERE id = ?"""
         the_update = (
@@ -116,6 +118,7 @@ class Alert():
             self.time_delta,
             self.notification_sent,
             self.acked,
+            self.acked_ts,
             self.active,
             self.id)
         self.cursor.execute(sql, the_update)
@@ -145,9 +148,11 @@ class Alert():
         self.time_delta = raw[4]
         self.notification_sent = raw[5]
         self.acked = raw[6]
-        self.active = raw[7]
+        self.acked_ts = raw[7]
+        self.active = raw[8]
 
         if build_device:
+            # import pdb; pdb.set_trace()∂∂∂∂∂
             self.device = Device(self.conn, self.cursor)
             self.device.get_by_id(self.device_id)
 
@@ -175,8 +180,41 @@ class Alert():
         if 'acked' in raw_alert:
             self.acked = raw_alert['acked']
 
+        if 'acked_ts' in raw_alert:
+            self.acked_ts = raw_alert['acked_ts']
+
         if 'active' in raw_alert:
             self.active = raw_alert['active']
+
+
+    # def build_from_dict_new(self, raw_alert:dict):
+    #     """
+    #     Creates the device object from a keyed dictionary.
+
+    #     """
+    #     if 'created_ts' in raw_alert:
+    #         self.created_ts = raw_alert['created_ts']
+
+    #     if 'device_id' in raw_alert:
+    #         self.device_id = raw_alert['device_id']
+
+    #     if 'alert_type' in raw_alert:
+    #         self.alert_type = raw_alert['alert_type']
+
+    #     if 'time_delta' in raw_alert:
+    #         self.time_delta = raw_alert['time_delta']
+
+    #     if 'notification_sent' in raw_alert:
+    #         self.notification_sent = raw_alert['notification_sent']
+
+    #     if 'acked' in raw_alert:
+    #         self.acked = raw_alert['acked']
+
+    #     if 'acked_ts' in raw_alert:
+    #         self.acked_ts = raw_alert['acked_ts']
+
+    #     if 'active' in raw_alert:
+    #         self.active = raw_alert['active']
 
 
 # End File: lan-nanny/modules/models/alert.py

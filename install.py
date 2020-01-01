@@ -16,8 +16,7 @@ def run():
     Main entry point to scanning script.
 
     """
-    conn, cursor = db.create_connection(NMAP_DB)
-    db.create_tables(cursor)
+    db.create_tables(conn, cursor)
     db.populate_options(conn, cursor)
 
 

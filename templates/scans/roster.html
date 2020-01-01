@@ -1,0 +1,55 @@
+<!-- Run Log - Roster -->
+
+{% extends "layout.html" %}
+{% block content %}
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Scans</h1>
+  </div>
+
+  <!-- Content Row -->
+  <div class="row">
+
+    <!-- Device Table -->
+    <div class="col-xl-12 col-lg-12">
+      <div class="card shadow mb-4">
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="table-responsive">
+            {%if scans%}
+              <table class="table" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                  <tr>
+                    <td>ID</td>
+                    <td>Start</td>
+                    <td>End</td>
+                    <td>Total Time</td>
+                    <td>Completed</td>
+                    <td>Devices</td>
+                  </tr>
+                </thead>
+                {% for scan in scans %}
+                <tr>
+                  <td>
+                    <a href="/scan/{{scan.id}}">{{scan.id}}</a>
+                  </td>
+                  <td>{{scan.start_ts}}</td>
+                  <td>{{scan.end_ts}}</td>
+                  <td>{{scan.elapsed_time}} sec</td>
+                  <td></td>
+                  <td></td>
+                </tr>
+                {%endfor%}
+              </table>
+            {%else%}
+              <div class="text-center">
+                No scan yets.
+              </div>
+            {%endif%}
+          </div>
+      </div>
+    </div>
+
+  </div>
+
+{%endblock%}

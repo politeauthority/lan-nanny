@@ -8,6 +8,7 @@ from sqlite3 import Error
 from flask import g
 
 from .models.option import Option
+from .models.alert_event import AlertEvent
 
 
 def create_connection(database_file: str):
@@ -37,11 +38,12 @@ def get_db_flask(database_file: str):
     return db, db.cursor()
 
 
-def create_tables(cursor: sqlite3.Cursor):
+def create_tables(conn, cursor):
     """
     Creates all the applications tables needed.
 
     """
+    AlertEvent(cursor=cursor).create_table()
     _create_devices(cursor)
     _create_witness(cursor)
     _create_alerts(cursor)
@@ -57,7 +59,7 @@ def populate_options(conn, cursor: sqlite3.Cursor):
     """
     _set_default_options(conn, cursor, 'timezone', 'America/Denver')
     _set_default_options(conn, cursor, 'alert-new-device', '1')
-    _set_default_options(conn, cursor, 'active-timeout', '5')
+    _set_default_options(conn, cursor, 'active-timeout', '8')
     _set_default_options(conn, cursor, 'scan-hosts-enabled', '1')
     _set_default_options(conn, cursor, 'scan-hosts-ports-default', '0')
     _set_default_options(conn, cursor, 'scan-hosts-range', '192.168.1.1-255')
@@ -131,6 +133,7 @@ def _create_alerts(cursor: sqlite3.Cursor) -> bool:
         time_delta integer,
         notification_sent integer,
         acked integer,
+        acked_ts date,
         active integer
     );
     """
@@ -212,7 +215,9 @@ def _create_run_log(cursor: sqlite3.Cursor) -> bool:
         end_ts date,
         elapsed_time text,
         completed integer,
-        success integer
+        success integer,
+        num_devices integer,
+        scan_range text
     );
     """
     try:

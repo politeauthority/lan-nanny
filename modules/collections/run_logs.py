@@ -6,14 +6,37 @@ from datetime import datetime
 
 import arrow
 
+from ..models.run_log import RunLog
 from ..models.device import Device
 
 
 class RunLogs():
 
-    def __init__(self):
-        self.conn = None
-        self.cursor = None
+    def __init__(self, conn=None, cursor=None):
+        self.conn = conn
+        self.cursor = cursor
+
+    def get_all(self) -> list:
+        """
+        Get all run logs.
+
+        """
+        sql = """
+            SELECT *
+            FROM run_log
+            ORDER BY start_ts DESC
+            LIMIT 20"""
+
+        self.cursor.execute(sql)
+        raw_runs = self.cursor.fetchall()
+        run_logs = []
+        for raw_run in raw_runs:
+            run = RunLog()
+            run.build_from_list(raw_run)
+            run_logs.append(run)
+        return run_logs
+
+
 
     def get_runs_24_hours(self):
         """

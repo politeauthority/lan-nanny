@@ -44,7 +44,7 @@ class Device():
         device_raw = self.cursor.fetchone()
         if not device_raw:
             return self
-        
+
         self.build_from_list(device_raw)
 
         return self
@@ -59,7 +59,7 @@ class Device():
         device_raw = self.cursor.fetchone()
         if not device_raw:
             return {}
-        
+
         self.build_from_list(device_raw)
 
         return self
@@ -70,7 +70,7 @@ class Device():
 
         """
         self.build_from_dict(raw_device)
-        
+
         self.last_seen = scan_time
         self.first_seen = scan_time
         if not self.name:
@@ -176,6 +176,8 @@ class Device():
         self.vendor = raw[2]
         self.ip =  raw[3]
         self.last_seen = raw[4]
+        if self.last_seen:
+            self.last_seen = arrow.get(self.last_seen).datetime
         self.first_seen = raw[5]
         self.name = raw[6]
         self.hide = raw[7]

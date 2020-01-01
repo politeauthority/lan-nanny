@@ -16,6 +16,8 @@ class RunLog():
         self.elapsed_time = None
         self.completed = None
         self.success = None
+        self.num_devices = None
+        self.scan_range = None
 
     def __repr__(self):
         return "<RunLog %s>" % self.id
@@ -30,7 +32,7 @@ class RunLog():
         run_raw = self.cursor.fetchone()
         if not run_raw:
             return {}
-        
+
         self.build_from_list(run_raw)
 
         return self
@@ -45,7 +47,7 @@ class RunLog():
         run_raw = self.cursor.fetchone()
         if not run_raw:
             return {}
-        
+
         self.build_from_list(run_raw)
 
         return self
@@ -91,13 +93,17 @@ class RunLog():
                 end_ts = ?,
                 elapsed_time = ?,
                 completed = ?,
-                success = ?
+                success = ?,
+                num_devices = ?,
+                scan_range = ?
             WHERE id = ?"""
         the_update = (
             self.end_ts,
             self.elapsed_time,
             self.completed,
             self.success,
+            self.num_devices,
+            self.scan_range,
             run_id)
         self.cursor.execute(sql, the_update)
         self.conn.commit()
@@ -115,6 +121,8 @@ class RunLog():
         self.elapsed_time = raw[3]
         self.completed = raw[4]
         self.success = raw[5]
+        self.num_devices = raw[6]
+        self.scan_range = raw[7]
 
 
 # End File: lan-nanny/modules/models/run_log.py

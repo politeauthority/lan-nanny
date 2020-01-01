@@ -30,7 +30,7 @@ class Alerts():
             alerts.append(alert)
         return alerts
 
-    def get_active(self) -> list:
+    def get_active(self, build_devices: bool=False) -> list:
         """
         Gets all active alerts from the `alerts` table.
 
@@ -45,8 +45,31 @@ class Alerts():
         raw_alerts = self.cursor.fetchall()
         alerts = []
         for raw_alert in raw_alerts:
-            alert = Alert()
-            alert.build_from_list(raw_alert)
+            alert = Alert(self.conn, self.cursor)
+            alert.build_from_list(raw_alert, build_devices)
+            alerts.append(alert)
+        return alerts
+
+
+    def get_active_unacked(self, build_devices: bool=False) -> list:
+        """
+        Gets all active alerts from the `alerts` table.
+
+        """
+        sql = """
+            SELECT *
+            FROM alerts
+            WHERE
+                active = 1 AND
+                acked = 0
+            ORDER BY created_ts DESC;"""
+
+        self.cursor.execute(sql)
+        raw_alerts = self.cursor.fetchall()
+        alerts = []
+        for raw_alert in raw_alerts:
+            alert = Alert(self.conn, self.cursor)
+            alert.build_from_list(raw_alert, build_devices)
             alerts.append(alert)
         return alerts
 
