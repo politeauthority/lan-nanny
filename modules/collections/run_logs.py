@@ -23,8 +23,8 @@ class RunLogs():
         """
         sql = """
             SELECT *
-            FROM run_log
-            ORDER BY start_ts DESC
+            FROM run_logs
+            ORDER BY created_ts DESC
             LIMIT 20"""
 
         self.cursor.execute(sql)
@@ -47,7 +47,7 @@ class RunLogs():
         hour_24 = now.shift(hours=-24).datetime
         sql = """
             SELECT COUNT(*)
-            FROM run_log
+            FROM run_logs
             WHERE end_ts >= '%s'""" % hour_24
 
         self.cursor.execute(sql)

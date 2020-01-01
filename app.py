@@ -342,7 +342,7 @@ def settings_save():
 
     utils.update_setting(conn, cursor, 'timezone', request.form['settings_timezone'])
     utils.update_setting(conn, cursor, 'scan-hosts-range', request.form['setting_scan_hosts_range'])
-    utils.update_setting(conn, cursor, 'active-timeout', request.form['setting_active_timeout'])
+    # utils.update_setting(conn, cursor, 'active-timeout', request.form['setting_active_timeout'])
     #
 
     return redirect('/settings')

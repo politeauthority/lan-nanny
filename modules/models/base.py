@@ -95,6 +95,7 @@ class Base():
             self.table_name,
             self.get_fields_sql(),
             self.get_parmaterized_num())
+        # print(insert_sql)
         self.cursor.execute(insert_sql, self.get_values_sql())
         self.conn.commit()
         self.id = self.cursor.lastrowid
@@ -104,7 +105,7 @@ class Base():
 
     def save(self, where: list=[], raw: dict={}) -> bool:
         """
-        Saves a model instance in the model table.
+        Saves a model instansece in the model table.
 
         """
         self._check_required_class_vars()
@@ -127,6 +128,7 @@ class Base():
             self.table_name,
             self.get_set_sql(),
             where_sql)
+        # print(update_sql)
         self.cursor.execute(update_sql, self.get_values_sql())
         self.conn.commit()
         # @todo: make into logging NOT print
@@ -166,7 +168,10 @@ class Base():
         """
         c = 0
         for field in self.total_map:
-            setattr(self, field['name'], raw[c])
+            if field['type'] == 'datetime':
+                setattr(self, field['name'], arrow.get(raw[c]).datetime)
+            else:
+                setattr(self, field['name'], raw[c])
             c += 1
         return True
 
@@ -177,9 +182,16 @@ class Base():
         """
         for field in self.total_map:
             if field['name'] in raw:
+                import pdb; pdb.set_trace()
+
                 setattr(self, field['name'], raw[field['name']])
 
         return True
+
+    # def get_field_in_raw(self, field, raw):
+    #     for
+
+
 
     def get_fields_sql(self) -> str:
         """
@@ -294,6 +306,8 @@ class Base():
             return 'date'
         elif field_type == 'str':
             return 'text'
+        elif field_type == 'bool':
+            return 'int'
 
 
 # End File: lan-nanny/modules/models/base.py

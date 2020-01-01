@@ -33,8 +33,7 @@
                   <td>
                     <a href="/scan/{{scan.id}}">{{scan.id}}</a>
                   </td>
-                  <td>{{scan.start_ts}}</td>
-                  <td>{{scan.end_ts}}</td>
+                  <td>{{scan.created_ts|pretty_time}}</td>
                   <td>{{scan.elapsed_time}} sec</td>
                   <td></td>
                   <td></td>

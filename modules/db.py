@@ -11,6 +11,9 @@ from .models.option import Option
 from .models.alert import Alert
 from .models.device import Device
 from .models.alert_event import AlertEvent
+from .models.run_log import RunLog
+from .models.witness import Witness
+from .models.port import Port
 
 
 def create_connection(database_file: str):
@@ -51,10 +54,9 @@ def create_tables(conn, cursor):
     Device(cursor=cursor, conn=conn).create_table()
     Option(cursor=cursor, conn=conn).create_table()
     populate_options(conn, cursor)
-
-    _create_witness(cursor)
-    _create_ports(cursor)
-    _create_run_log(cursor)
+    RunLog(cursor=cursor, conn=conn).create_table()
+    Witness(cursor=cursor, conn=conn).create_table()
+    Port(cursor=cursor, conn=conn).create_table()
 
 
 def populate_options(conn, cursor: sqlite3.Cursor):
@@ -67,53 +69,7 @@ def populate_options(conn, cursor: sqlite3.Cursor):
     _set_default_options(conn, cursor, 'active-timeout', '8', 'int')
     _set_default_options(conn, cursor, 'scan-hosts-enabled', '1', 'bool')
     _set_default_options(conn, cursor, 'scan-hosts-ports-default', '0', 'bool')
-    _set_default_options(conn, cursor, 'scan-hosts-range', '192.168.1.1-255', 'str')
-
-
-
-def _create_witness(cursor: sqlite3.Cursor) -> bool:
-    """
-    Creates the `witness` table.
-
-    """
-    sql = """
-    CREATE TABLE IF NOT EXISTS witness (
-        id integer PRIMARY KEY,
-        device_id integer NOT NULL,
-        run_id integer,
-        witness_ts date
-    );
-    """
-    try:
-        cursor.execute(sql)
-        return True
-    except Error as e:
-        print(e)
-        return False
-
-
-def _create_ports(cursor: sqlite3.Cursor) -> bool:
-    """
-    Creates the `ports` table.
-
-    """
-    sql = """
-    CREATE TABLE IF NOT EXISTS ports (
-        id integer PRIMARY KEY,
-        device_id integer NOT NULL,
-        port text,
-        last_seen date,
-        status text,
-        service_name text,
-        update_ts date
-    );
-    """
-    try:
-        cursor.execute(sql)
-        return True
-    except Error as e:
-        print(e)
-        return False
+    _set_default_options(conn, cursor, 'scan-hosts-range', '192.168.50.1-255', 'str')
 
 
 def _set_default_options(conn, cursor, option_name: str, option_value, option_type):
@@ -130,7 +86,7 @@ def _set_default_options(conn, cursor, option_name: str, option_value, option_ty
     else:
         option.value = option_value
     option.save()
-    print('Made opts: %s %s' % (option_name, option_value))
+    # print('Made opts: %s %s' % (option_name, option_value))
 
 
 def _create_run_log(cursor: sqlite3.Cursor) -> bool:

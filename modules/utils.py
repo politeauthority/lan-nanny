@@ -28,10 +28,11 @@ def device_icons() -> dict:
     return icons
 
 
-def update_setting(conn=None, cursor=None, option: Option=None, setting_name:str=None, setting_value:str=None):
+def update_setting(conn=None, cursor=None, setting_name:str=None, setting_value:str=None):
     """
     """
-    option.id = g.options[setting_name].id
+    option = Option(conn, cursor)
+    option.get_by_id(g.options[setting_name].id)
     option.value = setting_value
     option.save()
 

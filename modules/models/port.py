@@ -5,20 +5,46 @@ from datetime import datetime
 
 import arrow
 
+from .base import Base
 
-class Port():
+
+class Port(Base):
 
     def __init__(self, conn=None, cursor=None):
+        super(Port, self).__init__(conn, cursor)
         self.conn = conn
         self.cursor = cursor
 
-        self.id = None
-        self.device_id = None
-        self.port = None
-        self.last_seen = None
-        self.status = None
-        self.service_name = None
-        self.update_ts = None
+        self.model_name = 'Port'
+        self.table_name = 'ports'
+
+        self.field_map = [
+            {
+                'name': 'device_id',
+                'type': 'int'
+            },
+            {
+                'name': 'port',
+                'type': 'str'
+            },
+            {
+                'name': 'last_seen',
+                'type': 'datetime'
+            },
+            {
+                'name': 'status',
+                'type': 'str'
+            },
+            {
+                'name': 'service_name',
+                'type': 'str'
+            },
+            {
+                'name': 'updated_ts',
+                'type': 'datetime'
+            }
+        ]
+        self.set_defaults()
 
     def __repr__(self):
         return "<Port %s>" % self.id
@@ -33,7 +59,7 @@ class Port():
         device_raw = self.cursor.fetchone()
         if not device_raw:
             return {}
-        
+
         self.build_from_list(device_raw)
 
         return self

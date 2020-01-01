@@ -53,7 +53,7 @@ class Scan:
 
         """
         self.run_log = RunLog(conn, cursor)
-        self.run_log.create()
+        self.run_log.insert_run_start()
         options = Options(conn, cursor)
         self.options = options.get_all_keyed()
 
@@ -64,9 +64,10 @@ class Scan:
         """
         self.run_log.completed = 1
         self.run_log.success = 1
+        self.run_log.end_ts = arrow.utcnow().datetime
         self.run_log.num_devices = num_devices
         self.run_log.scan_range = self.options['scan-hosts-range'].value
-        self.run_log.update()
+        self.run_log.save()
 
     def _abort_run(self):
         """
@@ -75,7 +76,7 @@ class Scan:
         """
         self.run_log.completed = 0
         self.run_log.success = 0
-        self.run_log.update()
+        self.run_log.save()
 
     def scan (self) -> dict:
         """
@@ -83,6 +84,7 @@ class Scan:
 
         """
         scan_range = self.options['scan-hosts-range'].value
+        # import pdb; pdb.set_trace()
         print('Scan Range: %s' % scan_range)
         cmd = "nmap -sP %s -oX %s" % (scan_range, NMAP_SCAN_FILE)
         try:
@@ -139,9 +141,7 @@ class Scan:
         witness = Witness(conn, cursor)
         witness.device_id = device.id
         witness.run_id = self.run_log.id
-        witness.witness_ts = scan_time
-        witness.create()
-
+        witness.insert()
         return True
 
     def handle_alerts(self, hosts: list):
@@ -157,6 +157,8 @@ class Scan:
 
         for device in devices:
 
+            # if device.id == 6:
+            #     import pdb; pdb.set_trace()
             # Device offline check
             if device.alert_offline == 1:
                 device_in_scan = witness.get_device_for_scan(device.id, self.run_log.id)
@@ -198,7 +200,7 @@ class Scan:
         alert.alert_type = 'offline'
         alert.acked = 0
         alert.active = 1
-        alert.create()
+        alert.insert()
         print('Created %s alert for %s' % (alert_type, device.name))
         self.new_alerts.append(alert.id)
 
