@@ -24,6 +24,7 @@ class Options():
         self.cursor.execute(sql)
         raw_options = self.cursor.fetchall()
         options = []
+
         for raw_option in raw_options:
             option = Option()
             option.build_from_list(raw_option)
@@ -36,9 +37,11 @@ class Options():
 
         """
         opt_dict = {}
+
         all_options = self.get_all()
         for option in all_options:
             opt_dict[option.name] = option
+
         return opt_dict
 
 # End File: lan-nanny/modules/collections/options.py

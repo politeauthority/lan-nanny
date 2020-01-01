@@ -91,7 +91,7 @@
         <div class="card-body">
           <div class="form-group">
             <label for="alert_online">Alert Online</label>
-            <input class="alert-toggle" type="checkbox" data-toggle="toggle" id="alert_online" aria-describedby="alertOnlineHelp">
+            <input class="alert-toggle alert-nanny" type="checkbox" data-toggle="toggle" id="alert_online" aria-describedby="alertOnlineHelp">
             <small id="alertOnlineHelp" class="form-text text-muted">Create an alert when the device comes online.</small>
           </div>
 
@@ -113,8 +113,17 @@
     $( document ).ready(function(){
 
       var device_id = {{device.id}};
-      var device_alert_online = {{device.alert_online}};
-      var device_alert_offline = {{device.alert_offline}};
+      {%if device.alert_online%}
+        var device_alert_online = {{device.alert_online}};
+      {%else%}
+        var device_alert_online = 0;
+      {%endif%}
+
+      {%if device.alert_offline%}
+        var device_alert_offline = {{device.alert_offline}};
+      {%else%}
+        var device_alert_offline = 0;
+      {%endif%}
 
       // Set initial device states
       if(device_alert_online == 1){
@@ -145,6 +154,7 @@
           var_url_val = 0;
         }
         var alert_url = "/device-alert/" + device_id + "/" + alert_type + "/" + var_url_val;
+        console.log(alert_url);
         $.ajax({
           url: alert_url,
           context: document.body

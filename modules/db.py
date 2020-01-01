@@ -9,6 +9,7 @@ from flask import g
 
 from .models.option import Option
 from .models.alert import Alert
+from .models.device import Device
 from .models.alert_event import AlertEvent
 
 
@@ -44,12 +45,15 @@ def create_tables(conn, cursor):
     Creates all the applications tables needed.
 
     """
-    AlertEvent(cursor=cursor).create_table()
+    print('Starting create tables')
     Alert(cursor=cursor).create_table()
-    _create_devices(cursor)
+    AlertEvent(cursor=cursor).create_table()
+    Device(cursor=cursor, conn=conn).create_table()
+    Option(cursor=cursor, conn=conn).create_table()
+    populate_options(conn, cursor)
+
     _create_witness(cursor)
     _create_ports(cursor)
-    _create_options(cursor)
     _create_run_log(cursor)
 
 
@@ -58,45 +62,13 @@ def populate_options(conn, cursor: sqlite3.Cursor):
     Creates options and sets their defaults.
 
     """
-    _set_default_options(conn, cursor, 'timezone', 'America/Denver')
-    _set_default_options(conn, cursor, 'alert-new-device', '1')
-    _set_default_options(conn, cursor, 'active-timeout', '8')
-    _set_default_options(conn, cursor, 'scan-hosts-enabled', '1')
-    _set_default_options(conn, cursor, 'scan-hosts-ports-default', '0')
-    _set_default_options(conn, cursor, 'scan-hosts-range', '192.168.1.1-255')
+    _set_default_options(conn, cursor, 'timezone', 'America/Denver', 'str')
+    _set_default_options(conn, cursor, 'alert-new-device', '1', 'bool')
+    _set_default_options(conn, cursor, 'active-timeout', '8', 'int')
+    _set_default_options(conn, cursor, 'scan-hosts-enabled', '1', 'bool')
+    _set_default_options(conn, cursor, 'scan-hosts-ports-default', '0', 'bool')
+    _set_default_options(conn, cursor, 'scan-hosts-range', '192.168.1.1-255', 'str')
 
-
-def _create_devices(cursor: sqlite3.Cursor) -> bool:
-    """
-    Creates the `devices` table.
-
-    """
-    sql = """
-    CREATE TABLE IF NOT EXISTS devices (
-        id integer PRIMARY KEY,
-        mac text NOT NULL,
-        vendor text,
-        last_ip text,
-        last_seen date,
-        first_seen date,
-        name text,
-        hide integer,
-        favorite integer DEFAULT 0,
-        icon text,
-        alert_online integer DEFAULT 0,
-        alert_offline integer DEFAULT 0,
-        alert_delta integer,
-        port_scan integer,
-        last_port_scan date,
-        update_ts date
-    );
-    """
-    try:
-        cursor.execute(sql)
-        return True
-    except Error as e:
-        print(e)
-        return False
 
 
 def _create_witness(cursor: sqlite3.Cursor) -> bool:
@@ -144,28 +116,7 @@ def _create_ports(cursor: sqlite3.Cursor) -> bool:
         return False
 
 
-def _create_options(cursor: sqlite3.Cursor) -> bool:
-    """
-    Creates the `alerts` table.
-
-    """
-    sql = """
-    CREATE TABLE IF NOT EXISTS options (
-        id integer PRIMARY KEY,
-        name text NOT NULL,
-        value text,
-        update_ts date
-    );
-    """
-    try:
-        cursor.execute(sql)
-        return True
-    except Error as e:
-        print(e)
-        return False
-
-
-def _set_default_options(conn, cursor, option_name, option_value):
+def _set_default_options(conn, cursor, option_name: str, option_value, option_type):
     """
     Checks if an option exists in the options table, if not creates it and sets it's default.
 
@@ -175,7 +126,11 @@ def _set_default_options(conn, cursor, option_name, option_value):
     if not option.name:
         option.name = option_name
         option.value = option_value
-        option.create()
+        option.type = option_type
+    else:
+        option.value = option_value
+    option.save()
+    print('Made opts: %s %s' % (option_name, option_value))
 
 
 def _create_run_log(cursor: sqlite3.Cursor) -> bool:

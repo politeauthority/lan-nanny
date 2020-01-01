@@ -13,7 +13,7 @@
         <div class="form-group">
           <label for="settings_timezone">Timezone</label>
           <select class="form-control" id="settings_timezone" name="settings_timezone"  aria-describedby="timezoneHelp">
-            <option selected>{{settings['timezone'].value}}</option>
+
             <option>US/Alaska</option>
             <option>US/Aleutian</option>
             <option>US/Arizona</option>
@@ -31,20 +31,6 @@
           </select>
           <small id="timezoneHelp" class="form-text text-muted">Timezone for display</small>
         </div>
-
-        <div class="form-group">
-          <label for="setting_active_timeout">Active Device Timeout</label>
-          <input type="number" class="form-control form-sm" id="setting_active_timeout" name="setting_active_timeout" value="{{settings['active-timeout'].value}}" aria-describedby="activeTimeoutHelp">
-          <small id="activeTimeoutHelp" class="form-text text-muted">Minutes until considering a device offline.</small>
-        </div>
-
-<!--         <div class="form-group">
-          <label for="setting_alert_new_device">Active Device Timeout</label>
-          <input class="form-check-input" type="checkbox" id="setting_alert_new_device" {%if settings['alert-new-device'].value == 1%}checked{%else%}value="off"{%endif%} name="settings_alert_new_device">
-          <label class="form-check-label" for="setting_alert_new_device">
-            Alert for new devices
-          </label>
-        </div> -->
 
         <div class="form-group">
           <label for="setting_active_timeout">IP Scan Range</label>

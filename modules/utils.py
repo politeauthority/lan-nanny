@@ -28,12 +28,12 @@ def device_icons() -> dict:
     return icons
 
 
-def update_setting(option: Option, setting_name:str, setting_value:str):
+def update_setting(conn=None, cursor=None, option: Option=None, setting_name:str=None, setting_value:str=None):
     """
     """
     option.id = g.options[setting_name].id
     option.value = setting_value
-    option.update()
+    option.save()
 
 
 # End File: lan-nanny/modules/utils.py

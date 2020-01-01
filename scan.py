@@ -107,14 +107,17 @@ class Scan:
 
         scan_time = arrow.utcnow().datetime
         for host in hosts:
-            device = Device(conn, cursor).get_by_mac(host['mac'])
+            device = Device(conn, cursor)
+            device.get_by_mac(host['mac'])
             new = False
-            if not device.mac:
+            if not device.id:
                 new = True
-                device = device.create(scan_time, host)
+                device.last_seen = scan_time
+                host['name'] = host['vendor']
+                device.save(raw=host)
             else:
                 device.last_seen = scan_time
-                device.update()
+                device.save()
 
             new_device_str = ""
             if new:

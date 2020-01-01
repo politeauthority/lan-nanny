@@ -10,6 +10,7 @@ import arrow
 from flask import Flask, redirect, render_template, request, g, jsonify
 from flask_debug import Debug
 
+# from modules.controllers import auth as ctrl_auth
 from modules import db
 from modules.models.device import Device
 from modules.models.option import Option
@@ -98,13 +99,11 @@ def device(device_id: int) -> str:
 
     """
     conn, cursor = db.get_db_flask(DATABASE)
-    device = Device()
-    device.conn = conn
-    device.cursor = cursor
+    device = Device(conn, cursor)
     device.get_by_id(device_id)
 
     if not device.id:
-        return page_not_found('Error')
+        return page_not_found('Device not found')
 
     data = {}
     data['device'] = device
@@ -180,7 +179,7 @@ def device_save():
 
     # @todo figure out how hide works.
     # device.hide = request.form['device_hide']
-    device.update()
+    device.save()
 
     return redirect('/device/%s' % device.id)
 
@@ -201,7 +200,7 @@ def device_favorite(device_id):
         device.favorite = 0
     else:
         device.favorite = 1
-    device.update()
+    device.save()
 
     return jsonify({"success": True})
 
@@ -225,7 +224,7 @@ def device_alert(device_id:int, alert_type: str, alert_value: int):
     else:
         return jsonify({"success": False, "error": "Alert type is in correct."})
 
-    device.update()
+    device.save()
 
     return jsonify({"success": True})
 
@@ -340,11 +339,11 @@ def settings_save():
 
     """
     conn, cursor = db.get_db_flask(DATABASE)
-    option = Option(conn, cursor)
 
-    utils.update_setting(option, 'timezone', request.form['settings_timezone'])
-    utils.update_setting(option, 'scan-hosts-range', request.form['setting_scan_hosts_range'])
-    utils.update_setting(option, 'active-timeout', request.form['setting_active_timeout'])
+    utils.update_setting(conn, cursor, 'timezone', request.form['settings_timezone'])
+    utils.update_setting(conn, cursor, 'scan-hosts-range', request.form['setting_scan_hosts_range'])
+    utils.update_setting(conn, cursor, 'active-timeout', request.form['setting_active_timeout'])
+    #
 
     return redirect('/settings')
 
@@ -357,6 +356,15 @@ def page_not_found(e):
     """
     # note that we set the 404 status explicitly
     return render_template('errors/404.html'), 404
+
+
+def register_blueprints(app):
+    """
+    Connect the blueprints to the router.
+
+    """
+
+    app.register_blueprint(ctrl_auth)
 
 
 def register_jinja_funcs(app: Flask):
@@ -375,6 +383,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         port = sys.argv[1]
 
+    # register_blueprints(app)
     register_jinja_funcs(app)
     app.run(host="0.0.0.0", port=port, debug=True)
 

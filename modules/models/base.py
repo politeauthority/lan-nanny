@@ -5,8 +5,6 @@ from sqlite3 import Error
 
 import arrow
 
-from .device import Device
-
 
 class Base():
 
@@ -51,6 +49,7 @@ class Base():
             return True
         except Error as e:
             print(e)
+        print('Created table: %s' % self.table_name)
         return False
 
     def create_total_map(self) -> bool:
@@ -99,16 +98,17 @@ class Base():
         self.cursor.execute(insert_sql, self.get_values_sql())
         self.conn.commit()
         self.id = self.cursor.lastrowid
+        # @todo: make into logging NOT print
         print('New %s: %s' % (self.model_name, self))
         return True
 
-    def save(self, where: list=[], raw_alert: dict={}) -> bool:
+    def save(self, where: list=[], raw: dict={}) -> bool:
         """
         Saves a model instance in the model table.
 
         """
         self._check_required_class_vars()
-        self.build_from_dict(raw_alert)
+        self.build_from_dict(raw)
 
         if self.iodku and not self.id:
             return self.insert()
@@ -129,6 +129,7 @@ class Base():
             where_sql)
         self.cursor.execute(update_sql, self.get_values_sql())
         self.conn.commit()
+        # @todo: make into logging NOT print
         print('Updated %s: %s' % (self.model_name, self))
         return True
 
@@ -137,12 +138,12 @@ class Base():
         Deletes a model item by id.
 
         """
-
         if _id:
             self.id = _id
         sql = """DELETE FROM %s WHERE id = %s """ % (self.table_name, self.id)
         self.cursor.execute(sql)
         self.conn.commit()
+        print('Delete %s: %s' % (self.model_name, self))
         return True
 
     def get_by_id(self, model_id: int):
@@ -150,7 +151,7 @@ class Base():
         Gets an alert from the `alerts` table based on it's alert ID.
 
         """
-        sql = """SELECT * FROM %s WHERE id=%s""" % (self.table_name, model_id)
+        sql = """SELECT * FROM %s WHERE id = %s""" % (self.table_name, model_id)
         self.cursor.execute(sql)
         raw = self.cursor.fetchone()
         if not raw:
