@@ -15,12 +15,11 @@
       <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteDeviceModal">
         Delete
       </button>
-      <!-- <a href="/device-danger/{{device.id}}" class="btn btn-primary">Delete</a> -->
     </div>
   </div>
   <div class="row">
     <div class="col-xl-6 col-lg-6">
-      <form action="/device-save" method="POST">
+      <form action="/device/save" method="POST">
 
         <input type="hidden" name="device_id" value="{{device.id}}">
 
@@ -101,7 +100,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <a href="/device-delete/{{device.id}}" type="button" class="btn btn-danger">Delete</a>
+          <a href="/device/delete/{{device.id}}" type="button" class="btn btn-danger">Delete</a>
         </div>
       </div>
     </div>

@@ -2,8 +2,8 @@
 """
 from flask import Blueprint, request, redirect, session
 
-from app.utilities import auth
-from app.utilities import common
+# from app.utilities import auth
+# from app.utilities import common
 
 authenticate = Blueprint('Authenticate', __name__, url_prefix='/auth')
 
@@ -19,14 +19,14 @@ def index():
     if not request.form.get('username') or not request.form.get('password'):
         return redirect('/failed-login', 403)
 
-    if auth.check():
-        return redirect(common.admin_uri())
+    # if auth.check():
+    #     return redirect(common.admin_uri())
 
-    login = auth.login(request.form['username'], request.form['password'])
-    if not login:
-        return redirect('/failed-login', 403)
+    # login = auth.login(request.form['username'], request.form['password'])
+    # if not login:
+    #     return redirect('/failed-login', 403)
 
-    return redirect(common.admin_uri())
+    # return redirect(common.admin_uri())
 
 
 @authenticate.route('/logout')
@@ -39,7 +39,7 @@ def logout():
         session.pop('username')
     if session.get('authenticated'):
         session.pop('authenticated')
-    return redirect(common.admin_uri())
+    return redirect('/')
 
 
 def flask_admin_auth():
@@ -53,4 +53,4 @@ def flask_admin_auth():
         return index()
 
 
-# End File: simple-honey/app/controllers/authenticate.py
+# End File: lan-nanny/modlues/controllers/auth.py

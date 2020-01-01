@@ -118,13 +118,13 @@
                 <tr>
                   <td>
                     {%if device.icon %}
-                      <a href="/device/{{device.id}}"><i class="{{device.icon}}"></i></a>
+                      <a href="/device/info/{{device.id}}"><i class="{{device.icon}}"></i></a>
                     {%endif%}
                   </td>
                   <td>
                     <i class="fas fa-bolt {%if device.last_seen|online %}connected_bolt{%endif%}"></i>
                     {%if device.name%}
-                      <a href="/device/{{device.id}}">{{device.name}}</a>
+                      <a href="/device/info/{{device.id}}">{{device.name}}</a>
                     {%endif%}
                   </td>
                   <td>{{device.ip}}</td>

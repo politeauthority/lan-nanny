@@ -15,7 +15,7 @@
       <a id="device-favorite" href="#" class="btn btn-warning btn-circle btn-lg">
         <i class="fa {%if device.favorite == 0%}fa-star-o{%else%}fa-star{%endif%}"></i>
       </a>
-      <a href="/device-edit/{{device.id}}" class="btn btn-primary">Edit</a>
+      <a href="/device/edit/{{device.id}}" class="btn btn-primary">Edit</a>
     </div>
   </div>
 
@@ -153,7 +153,7 @@
         } else {
           var_url_val = 0;
         }
-        var alert_url = "/device-alert/" + device_id + "/" + alert_type + "/" + var_url_val;
+        var alert_url = "/device/alert/" + device_id + "/" + alert_type + "/" + var_url_val;
         console.log(alert_url);
         $.ajax({
           url: alert_url,
@@ -164,7 +164,7 @@
       // Send ajax request to fav/ unfavorite device
       $( "#device-favorite" ).click(function(){
         $.ajax({
-          url: "/device-favorite/" + device_id,
+          url: "/device/favorite/" + device_id,
           context: document.body
         }).done(function() {
 

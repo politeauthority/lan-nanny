@@ -8,7 +8,6 @@ import arrow
 
 from flask import g
 
-from app import app
 
 def time_ago(seen_at: datetime) -> str:
     """

@@ -11,6 +11,7 @@ from flask import Flask, redirect, render_template, request, g, jsonify
 from flask_debug import Debug
 
 # from modules.controllers import auth as ctrl_auth
+from modules.controllers.device import device as ctrl_device
 from modules import db
 from modules.models.device import Device
 from modules.models.option import Option
@@ -90,167 +91,6 @@ def index() -> str:
     data['runs_over_24'] = metrics.get_runs_24_hours()
     data['last_run'] = metrics.get_last_run_log()
     return render_template('index.html', **data)
-
-
-@app.route('/device/<device_id>')
-def device(device_id: int) -> str:
-    """
-    Device info page.
-
-    """
-    conn, cursor = db.get_db_flask(DATABASE)
-    device = Device(conn, cursor)
-    device.get_by_id(device_id)
-
-    if not device.id:
-        return page_not_found('Device not found')
-
-    data = {}
-    data['device'] = device
-    data['active_page'] = 'devices'
-    return render_template('devices/info.html', **data)
-
-
-@app.route('/devices')
-def devices() -> str:
-    """
-    Devices roster page.
-
-    """
-    conn, cursor = db.get_db_flask(DATABASE)
-    devices = Devices(conn, cursor)
-    data = {}
-    data['active_page'] = 'devices'
-    data['devices'] = devices.get_all()
-    return render_template('devices/roster.html', **data)
-
-
-@app.route('/device-edit/<device_id>')
-def device_edit(device_id: int) -> str:
-    """
-    Device edit page.
-
-    """
-    conn, cursor = db.get_db_flask(DATABASE)
-    device = Device()
-    device.conn = conn
-    device.cursor = cursor
-    device.get_by_id(device_id)
-
-    icons = utils.device_icons()
-
-    custom_icon = False
-    if device.icon and device.icon not in icons:
-        custom_icon = True
-
-    data = {}
-    data['device'] = device
-    data['icons'] = icons
-    data['custom_icon'] = custom_icon
-    data['active_page'] = 'devices'
-    return render_template('devices/edit.html', **data)
-
-
-@app.route('/device-save', methods=['POST'])
-def device_save():
-    """
-    Device save.
-
-    """
-    conn, cursor = db.get_db_flask(DATABASE)
-    device = Device()
-    device.conn = conn
-    device.cursor = cursor
-    device.get_by_id(request.form['device_id'])
-
-    device.name = request.form['device_name']
-    device.vendor = request.form['device_vendor']
-    if request.form["icon_form_choice"] == "device_icon_select":
-        device.icon = request.form['device_icon_select']
-        if device.icon == "none":
-            device.icon = None
-    else:
-        device.icon = request.form['device_icon_input']
-
-    if request.form.get('device_port_scan'):
-        device.port_scan = 1
-    else:
-        device.port_scan = 0
-
-    # @todo figure out how hide works.
-    # device.hide = request.form['device_hide']
-    device.save()
-
-    return redirect('/device/%s' % device.id)
-
-
-@app.route('/device-favorite/<device_id>')
-def device_favorite(device_id):
-    """
-    Web route for making a device a favorite or not.
-
-    """
-    conn, cursor = db.get_db_flask(DATABASE)
-    device = Device()
-    device.conn = conn
-    device.cursor = cursor
-    device.get_by_id(device_id)
-
-    if device.favorite == 1:
-        device.favorite = 0
-    else:
-        device.favorite = 1
-    device.save()
-
-    return jsonify({"success": True})
-
-
-@app.route('/device-alert/<device_id>/<alert_type>/<alert_value>')
-def device_alert(device_id:int, alert_type: str, alert_value: int):
-    """
-    Web route for making a device alert or not when coming on or off the network.
-
-    """
-    conn, cursor = db.get_db_flask(DATABASE)
-    device = Device()
-    device.conn = conn
-    device.cursor = cursor
-    device.get_by_id(device_id)
-
-    if alert_type == "online":
-        device.alert_online = alert_value
-    elif alert_type == "offline":
-        device.alert_offline = alert_value
-    else:
-        return jsonify({"success": False, "error": "Alert type is in correct."})
-
-    device.save()
-
-    return jsonify({"success": True})
-
-
-@app.route('/device-delete/<device_id>')
-def device_delete(device_id: int):
-    """
-    Device delete.
-
-    """
-    conn, cursor = db.get_db_flask(DATABASE)
-
-    # Delete the device
-    device = Device(conn, cursor)
-    device.get_by_id(device_id)
-    device.delete()
-
-    # Delete devices witness
-    witness = Witness(conn, cursor)
-    witness.delete_device(device.id)
-
-    # Delete device alerts
-    alert = Alert(conn, cursor)
-    alert.delete_device(device.id)
-
-    return redirect('/devices')
 
 
 @app.route('/alerts')
@@ -364,7 +204,8 @@ def register_blueprints(app):
 
     """
 
-    app.register_blueprint(ctrl_auth)
+    # app.register_blueprint(ctrl_auth)
+    app.register_blueprint(ctrl_device)
 
 
 def register_jinja_funcs(app: Flask):
@@ -383,7 +224,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         port = sys.argv[1]
 
-    # register_blueprints(app)
+    register_blueprints(app)
     register_jinja_funcs(app)
     app.run(host="0.0.0.0", port=port, debug=True)
 

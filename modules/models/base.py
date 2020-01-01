@@ -165,11 +165,18 @@ class Base():
 
     def build_from_list(self, raw: list):
         """
+        Builds a model from an ordered list, converting data types to their desired type where possible.
+
         """
         c = 0
         for field in self.total_map:
             if field['type'] == 'datetime':
                 setattr(self, field['name'], arrow.get(raw[c]).datetime)
+            elif field['type'] == 'bool':
+                if raw[c] == 1:
+                    setattr(self, field['name'], True)
+                else:
+                    setattr(self, field['name'], False)
             else:
                 setattr(self, field['name'], raw[c])
             c += 1
@@ -182,16 +189,8 @@ class Base():
         """
         for field in self.total_map:
             if field['name'] in raw:
-                import pdb; pdb.set_trace()
-
                 setattr(self, field['name'], raw[field['name']])
-
         return True
-
-    # def get_field_in_raw(self, field, raw):
-    #     for
-
-
 
     def get_fields_sql(self) -> str:
         """

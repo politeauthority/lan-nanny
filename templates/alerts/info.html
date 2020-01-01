@@ -34,7 +34,7 @@
               <tr>
                 <td>Device</td>
                 <td>
-                  <a href="/device/{{alert.device.id}}">{{alert.device.name}}</a>
+                  <a href="/device/info/{{alert.device.id}}">{{alert.device.name}}</a>
                 </td>
               </tr>
               <tr>
@@ -132,7 +132,7 @@
       //   } else {
       //     var_url_val = 0;
       //   }
-      //   var alert_url = "/device-alert/" + device_id + "/" + alert_type + "/" + var_url_val;
+      //   var alert_url = "/device/alert/" + device_id + "/" + alert_type + "/" + var_url_val;
       //   $.ajax({
       //     url: alert_url,
       //     context: document.body
