@@ -8,6 +8,7 @@ from sqlite3 import Error
 from flask import g
 
 from .models.option import Option
+from .models.alert import Alert
 from .models.alert_event import AlertEvent
 
 
@@ -44,9 +45,9 @@ def create_tables(conn, cursor):
 
     """
     AlertEvent(cursor=cursor).create_table()
+    Alert(cursor=cursor).create_table()
     _create_devices(cursor)
     _create_witness(cursor)
-    _create_alerts(cursor)
     _create_ports(cursor)
     _create_options(cursor)
     _create_run_log(cursor)
@@ -109,32 +110,6 @@ def _create_witness(cursor: sqlite3.Cursor) -> bool:
         device_id integer NOT NULL,
         run_id integer,
         witness_ts date
-    );
-    """
-    try:
-        cursor.execute(sql)
-        return True
-    except Error as e:
-        print(e)
-        return False
-
-
-def _create_alerts(cursor: sqlite3.Cursor) -> bool:
-    """
-    Creates the `alerts` table.
-
-    """
-    sql = """
-    CREATE TABLE IF NOT EXISTS alerts (
-        id integer PRIMARY KEY,
-        created_ts date NOT NULL,
-        device_id integer,
-        alert_type integer NOT NULL,
-        time_delta integer,
-        notification_sent integer,
-        acked integer,
-        acked_ts date,
-        active integer
     );
     """
     try:

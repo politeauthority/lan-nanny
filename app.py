@@ -283,7 +283,7 @@ def alert_info(alert_id: int):
     if not alert.acked:
         alert.acked = 1
         alert.acked_ts = arrow.utcnow().datetime
-        alert.update()
+        alert.save()
     data = {}
     data['active_page'] = 'alert-info'
     data['alert'] = alert

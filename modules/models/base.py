@@ -13,7 +13,7 @@ class Base():
     def __init__(self, conn=None, cursor=None):
         self.conn = conn
         self.cursor = cursor
-        self.iodku = False
+        self.iodku = True
 
         self.model_name = None
         self.table_name = None
@@ -99,6 +99,7 @@ class Base():
         self.cursor.execute(insert_sql, self.get_values_sql())
         self.conn.commit()
         self.id = self.cursor.lastrowid
+        print('New %s: %s' % (self.model_name, self))
         return True
 
     def save(self, where: list=[], raw_alert: dict={}) -> bool:
@@ -109,6 +110,8 @@ class Base():
         self._check_required_class_vars()
         self.build_from_dict(raw_alert)
 
+        if self.iodku and not self.id:
+            return self.insert()
         if not self.id and not where:
             raise AttributeError('Save failed, missing self.id or where list')
 
@@ -126,6 +129,7 @@ class Base():
             where_sql)
         self.cursor.execute(update_sql, self.get_values_sql())
         self.conn.commit()
+        print('Updated %s: %s' % (self.model_name, self))
         return True
 
     def delete(self, _id: int=None):

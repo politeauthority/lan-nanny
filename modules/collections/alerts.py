@@ -50,7 +50,6 @@ class Alerts():
             alerts.append(alert)
         return alerts
 
-
     def get_active_unacked(self, build_devices: bool=False) -> list:
         """
         Gets all active alerts from the `alerts` table.
@@ -69,7 +68,7 @@ class Alerts():
         alerts = []
         for raw_alert in raw_alerts:
             alert = Alert(self.conn, self.cursor)
-            alert.build_from_list(raw_alert, build_devices)
+            alert.build_from_list(raw_alert, build_device=build_devices)
             alerts.append(alert)
         return alerts
 
