@@ -23,16 +23,38 @@ function register_favorite_button(favorite_selector, base_ajax_uri){
 
 
 function register_toggle_ajax(input_selector, starting_value, base_ajax_uri){
+  /*
+  Will setup a toggle input for sending values on device change.
+  */
   // Set initial device states
+  var field_name = input_selector.replace('#','');
+
+  // Set the initial state of the toggle.
   if(starting_value == 'True'){
     $(input_selector).bootstrapToggle('on');
   }
 
   $(function(){
     $(input_selector).change(function() {
-      update_alert('online', $(this).prop('checked'));
+      console.log(input_selector.slice(1));
+      send_ajax_update(field_name, $(this).prop('checked'), base_ajax_uri);
     })
   });
+}
+
+function send_ajax_update(field_name, alert_value, base_ajax_uri){
+  var var_url_val;
+  if(alert_value){
+    var_url_val = 'true';
+  } else {
+    var_url_val = 'false';
+  }
+  var alert_url = base_ajax_uri + alert_value;
+  console.log(alert_url);
+  $.ajax({
+    url: alert_url,
+    context: document.body
+  }).done(function(){ });
 }
 
 function convert_str_bool(bool_str){

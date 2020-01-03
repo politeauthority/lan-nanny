@@ -17,10 +17,11 @@ from modules.collections.options import Options
 from modules.models.option import Option
 from modules.metrics import Metrics
 from modules import filters
+from config import default as default_config_obj
 
-
-DATABASE = "lan_nanny.db"
+DATABASE = "../lan_nanny.db"
 app = Flask(__name__)
+app.config.from_object(default_config_obj)
 
 
 @app.before_request
@@ -29,7 +30,7 @@ def get_settings():
     Gets and loads all settings in the the flask g options namespace.
 
     """
-    conn, cursor = db.get_db_flask(DATABASE)
+    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     options = Options()
     options.conn = conn
     options.cursor = cursor

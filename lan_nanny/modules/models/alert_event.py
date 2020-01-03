@@ -23,7 +23,7 @@ class AlertEvent(Base):
                 'type': 'str'
             }
         ]
-        self.set_defaults()
+        self.setup()
 
     def check_active(self, device_id: int, alert_type: str) -> bool:
         """

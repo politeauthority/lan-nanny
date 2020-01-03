@@ -9,6 +9,7 @@ from .. import db
 from ..models.alert import Alert
 from ..collections.alerts import Alerts
 
+from flask import current_app as app
 
 alert = Blueprint('Alert', __name__, url_prefix='/alert')
 
@@ -21,7 +22,7 @@ def alerts():
     Alerts roster page.
 
     """
-    conn, cursor = db.get_db_flask(DATABASE)
+    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     alerts = Alerts(conn, cursor)
     data = {}
     data['alerts'] = alerts.get_all()

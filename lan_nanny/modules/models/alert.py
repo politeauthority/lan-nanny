@@ -45,7 +45,7 @@ class Alert(Base):
             },
 
         ]
-        self.set_defaults()
+        self.setup()
         self.device = None
 
     def __repr__(self):

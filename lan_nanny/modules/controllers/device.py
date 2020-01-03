@@ -20,7 +20,7 @@ def devices() -> str:
     Devices roster page.
 
     """
-    conn, cursor = db.get_db_flask(DATABASE)
+    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     devices = Devices(conn, cursor)
     data = {}
     data['active_page'] = 'devices'
@@ -34,7 +34,7 @@ def info(device_id: int) -> str:
     Device info page.
 
     """
-    conn, cursor = db.get_db_flask(DATABASE)
+    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     device = Device(conn, cursor)
     device.get_by_id(device_id)
     if not device.id:
@@ -53,7 +53,7 @@ def edit(device_id: int) -> str:
     Device edit page.
 
     """
-    conn, cursor = db.get_db_flask(DATABASE)
+    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     device = Device()
     device.conn = conn
     device.cursor = cursor
@@ -79,7 +79,7 @@ def save():
     Device save.
 
     """
-    conn, cursor = db.get_db_flask(DATABASE)
+    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     device = Device()
     device.conn = conn
     device.cursor = cursor
@@ -115,7 +115,7 @@ def favorite(device_id):
     Web route for making a device a favorite or not.
 
     """
-    conn, cursor = db.get_db_flask(DATABASE)
+    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     device = Device()
     device.conn = conn
     device.cursor = cursor
@@ -134,13 +134,13 @@ def favorite(device_id):
     return jsonify({"success": True})
 
 
-@device.route('/alert/<device_id>/<alert_type>/<alert_value>')
-def alert(device_id: int, alert_type: str, alert_value: int) -> str:
+@device.route('/alert/<field_name>/<device_id>/<field_value>')
+def alert(field_name: str, device_id: int,  field_value: int) -> str:
     """
     Web route for making a device alert or not when coming on or off the network.
 
     """
-    conn, cursor = db.get_db_flask(DATABASE)
+    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     device = Device()
     device.conn = conn
     device.cursor = cursor
@@ -149,13 +149,8 @@ def alert(device_id: int, alert_type: str, alert_value: int) -> str:
         return 'ERROR 404: Route this to page_not_found method!', 404
         # return page_not_found('Device not found')
 
-    if alert_type == "online":
-        device.alert_online = alert_value
-    elif alert_type == "offline":
-        device.alert_offline = alert_value
-    else:
-        return jsonify({"success": False, "error": "Alert type is in correct."})
-
+    setattr(device, field_name, field_value)
+    import ipdb; ipdb.set_trace()
     device.save()
 
     return jsonify({"success": True})
@@ -167,7 +162,7 @@ def delete(device_id: int):
     Device delete.
 
     """
-    conn, cursor = db.get_db_flask(DATABASE)
+    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
 
     # Delete the device
     device = Device(conn, cursor)

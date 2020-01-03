@@ -40,7 +40,7 @@ class Witness(Base):
                 'type': 'str'
             }
         ]
-        self.set_defaults()
+        self.setup()
 
     def __repr__(self):
         return "<Witness %s>" % self.id

@@ -77,7 +77,7 @@ class Device(Base):
                 'type': 'datetime'
             },
         ]
-        self.set_defaults()
+        self.setup()
 
     def __repr__(self):
         if self.name:

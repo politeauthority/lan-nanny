@@ -82,6 +82,8 @@
       </div>
 
     </div>
+
+    <!-- Device Alert Settings -->
     <div class="col-xl-6 col-lg-6">
       <div class="card shadow mb-4">
         <!-- Card Header -->
@@ -93,7 +95,8 @@
         <div class="card-body">
           <div class="form-group">
             <label for="alert_online">Alert Online</label>
-            <input class="alert-toggle alert-nanny" type="checkbox" data-toggle="toggle" id="alert_online" aria-describedby="alertOnlineHelp">
+
+            <input id="alert_online" class="alert-toggle alert-nanny" type="checkbox" data-toggle="toggle" aria-describedby="alertOnlineHelp">
             <small id="alertOnlineHelp" class="form-text text-muted">Create an alert when the device comes online.</small>
           </div>
 
@@ -115,53 +118,27 @@
     $( document ).ready(function(){
 
       var device_id = {{device.id}};
-      {%if device.alert_online%}
-        var device_alert_online = {{device.alert_online}};
-      {%else%}
-        var device_alert_online = 0;
-      {%endif%}
 
-      {%if device.alert_offline%}
-        var device_alert_offline = {{device.alert_offline}};
-      {%else%}
-        var device_alert_offline = 0;
-      {%endif%}
-
-      // Set initial device states
-      if(device_alert_online == 1){
-        $('#alert_online').bootstrapToggle('on');
-      }
-      if(device_alert_offline == 1){
-        $('#alert_offline').bootstrapToggle('on');
-      }
+      var device_alert_online_initial_status = convert_str_bool("{{device.alert_online}}");
+      var device_alert_offline_initial_status = convert_str_bool("{{device.alert_online}}");
 
       // Send ajax request to endable/ disable alerts
-      $(function() {
-        $('#alert_online').change(function() {
-          update_alert('online', $(this).prop('checked'))
-        })
-      })
+      // $(function() {
+      //   $('#alert_online').change(function() {
+      //     update_alert('online', $(this).prop('checked'))
+      //   })
+      // })
 
-      $(function() {
-        $('#alert_offline').change(function() {
-          update_alert('offline', $(this).prop('checked'))
-        })
-      })
+      // $(function() {
+      //   $('#alert_offline').change(function() {
+      //     update_alert('offline', $(this).prop('checked'))
+      //   })
+      // })
 
-      function update_alert(alert_type, alert_value){
-        var var_url_val;
-        if(alert_value){
-          var_url_val = 1;
-        } else {
-          var_url_val = 0;
-        }
-        var alert_url = "/device/alert/" + device_id + "/" + alert_type + "/" + var_url_val;
-        console.log(alert_url);
-        $.ajax({
-          url: alert_url,
-          context: document.body
-        }).done(function(){ });
-      }
+      register_toggle_ajax(
+        '#alert_online',
+        device_alert_online_initial_status,
+        '/device/alert/alert_online/{{device.id}}/');
 
       // Send ajax request to fav/ unfavorite device
       $( "#device-favorite" ).click(function(){

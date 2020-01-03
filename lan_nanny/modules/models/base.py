@@ -29,8 +29,7 @@ class Base():
             }
         ]
         self.field_map = []
-        self.create_total_map()
-        self.set_defaults()
+        self.setup()
 
     def __repr__(self):
         if self.id:
@@ -54,7 +53,7 @@ class Base():
         print('Created table: %s' % self.table_name)
         return False
 
-    def create_total_map(self) -> bool:
+    def _create_total_map(self) -> bool:
         """
         Slams the base_map and models field_map together into self.total_map.
 
@@ -62,14 +61,12 @@ class Base():
         self.total_map = self.base_map + self.field_map
         return True
 
-    def set_defaults(self) -> bool:
+    def _set_defaults(self) -> bool:
         """
         Sets the defaults for the class field vars and populates the self.field_list var containing
         all table field names.
 
         """
-        self.create_total_map()
-
         self.field_list = []
         for field in self.total_map:
             name = field['name']
@@ -80,12 +77,24 @@ class Base():
             setattr(self, name, default)
         return True
 
+    def setup(self):
+        self._create_total_map()
+        self._set_defaults()
+        for field in self.total_map:
+            class_var_value = getattr(self, field['name'])
+            if field['type'] == 'bool' and type(class_var_value) != bool:
+
+                print(field['name'])
+                print(field['type'])
+                print(type(class_var_value))
+
+
     def insert(self, raw: dict={}):
         """
         Inserts a new record of the model.
 
         """
-        self._check_required_class_vars()
+        self.check_required_class_vars()
 
         if raw:
             self.build_from_dict()
@@ -109,7 +118,7 @@ class Base():
         Saves a model instance in the model table.
 
         """
-        self._check_required_class_vars()
+        self.check_required_class_vars()
         self.build_from_dict(raw)
 
         if self.iodku and not self.id:
@@ -244,20 +253,25 @@ class Base():
             set_sql += "%s = ?,\n" % field['name']
         return set_sql[:-2]
 
-    def _check_required_class_vars(self):
+    def check_required_class_vars(self, extra_class_vars: list=[]):
         """
         Quick class var checks to make sure the required class vars are set before proceeding with
         an operation.
 
         """
         if not self.conn:
-            AttributeError('Missing self.conn')
+            raise AttributeError('Missing self.conn')
 
         if not self.cursor:
-            AttributeError('Missing self.cursor')
+            raise AttributeError('Missing self.cursor')
 
         if not self.total_map:
-            AttributeError('Missing self.total_map')
+            raise AttributeError('Missing self.total_map')
+
+        for class_var in extra_class_vars:
+            if not getattr(self, class_var):
+                raise AttributeError('Missing self.%s' % class_var)
+
 
     def _generate_create_table_feilds(self) -> str:
         """

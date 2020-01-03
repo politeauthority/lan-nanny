@@ -19,7 +19,7 @@ def roster():
     Scans roster page.
 
     """
-    conn, cursor = db.get_db_flask(DATABASE)
+    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     run_logs = RunLogs(conn, cursor)
     data = {
         'active_page': 'scans',
@@ -34,7 +34,7 @@ def info(scan_id):
     Scan info page.
 
     """
-    conn, cursor = db.get_db_flask(DATABASE)
+    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     run_log = RunLog(conn, cursor)
     scan = run_log.get_by_id(scan_id)
     if not scan.id:

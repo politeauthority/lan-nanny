@@ -32,7 +32,7 @@ class Option(Base):
             }
 
         ]
-        self.set_defaults()
+        self.setup()
 
     def __repr__(self):
         return "<Option %s>" % self.name

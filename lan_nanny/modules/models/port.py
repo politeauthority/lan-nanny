@@ -40,7 +40,7 @@ class Port(Base):
                 'type': 'datetime'
             }
         ]
-        self.set_defaults()
+        self.setup()
 
     def __repr__(self):
         return "<Port %s>" % self.id

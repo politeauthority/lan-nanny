@@ -42,7 +42,7 @@ class RunLog(Base):
                 'type': 'str'
             }
         ]
-        self.set_defaults()
+        self.setup()
 
     def __repr__(self):
         return "<RunLog %s>" % self.id
