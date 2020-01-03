@@ -2,8 +2,6 @@
 Gets collections of devices.
 
 """
-from datetime import datetime
-
 from ..models.device import Device
 
 
@@ -31,7 +29,6 @@ class Devices():
             device.build_from_list(raw_device)
             devices.append(device)
         return devices
-
 
     def get_favorites(self):
         """

@@ -3,3 +3,7 @@
 *.db
 *.xml
 *.DS_Store
+.flake8
+Lan_nanny.egg-info/
+build
+dist

@@ -15,7 +15,7 @@ def time_ago(seen_at: datetime) -> str:
 
     """
     if not seen_at:
-        return  ''
+        return ''
     parsed = arrow.get(seen_at)
     return parsed.humanize()
 
@@ -36,10 +36,10 @@ def smart_time(date_val: datetime, format_switch_range_seconds: int=None) -> str
 
     """
     if not date_val:
-        return  ''
+        return ''
     parsed = arrow.get(date_val)
     if not format_switch_range_seconds:
-        format_switch_range_seconds = (60 * 60) * 12 # default 12 hours
+        format_switch_range_seconds = (60 * 60) * 12  # default 12 hours
 
     delta = arrow.utcnow().datetime - parsed.datetime
 
@@ -61,6 +61,7 @@ def online(seen_at: datetime) -> bool:
         return False
 
     return True
+
 
 def connected_devices(devices: list) -> int:
     """

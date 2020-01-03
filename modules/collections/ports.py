@@ -4,6 +4,7 @@ Gets collections of ports.
 """
 from ..models.port import Port
 
+
 class Ports():
 
     def __init__(self, conn=None, cursor=None):
@@ -25,7 +26,7 @@ class Ports():
         ports_raw = self.cursor.fetchall()
 
         ports = []
-        for raw_port in raw_ports:
+        for raw_port in ports_raw:
             port = Port(self.conn, self.cursor)
             port.build_from_list(raw_port)
 

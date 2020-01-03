@@ -21,7 +21,6 @@ class Metrics:
         all_devices = devices.get_all()
         return all_devices
 
-
     def get_favorite_devices(self) -> list:
         """
         Gets all favorite devices.
@@ -30,7 +29,6 @@ class Metrics:
         devices = Devices(self.conn, self.cursor)
         favorites = devices.get_favorites()
         return favorites
-
 
     def get_runs_24_hours(self):
         """

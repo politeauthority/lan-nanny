@@ -1,10 +1,7 @@
 """Alert Event
 
 """
-import arrow
-
 from .base import Base
-from .device import Device
 
 
 class AlertEvent(Base):
@@ -48,7 +45,6 @@ class AlertEvent(Base):
             return True
         return False
 
-
     def delete_device(self, device_id: int) -> bool:
         """
         Deletes all records from the `alerts` table containing a device_id, this should be
@@ -59,4 +55,4 @@ class AlertEvent(Base):
         self.cursor.execute(sql)
         return True
 
-
+# End File: lan-nanny/modules/models/alert_event.py

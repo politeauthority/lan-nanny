@@ -2,8 +2,8 @@
 Tools for reading and traversing nmap output files.
 
 """
-
 import xmltodict
+
 
 def parse_hosts(phile: str):
     """
@@ -29,6 +29,7 @@ def parse_hosts(phile: str):
 
     return hosts
 
+
 def _detect_local_host(host: dict) -> bool:
     """
     Detects if the host is the localhost since the xml makeup is different for the localhost.
@@ -37,6 +38,7 @@ def _detect_local_host(host: dict) -> bool:
     if host['status']['@state'] == 'up' and host['status']['@reason'] == 'localhost-response':
         return True
     return False
+
 
 def _get_host_ip(host: dict) -> str:
     """
@@ -56,6 +58,7 @@ def _get_host_ip(host: dict) -> str:
 
     return host_ip
 
+
 def _get_host_mac(host: dict) -> str:
     """
     Gets the host's MAC address from the parsed XML scan.
@@ -74,6 +77,7 @@ def _get_host_mac(host: dict) -> str:
 
     return host_vendor
 
+
 def _get_host_vendor(host: dict) -> str:
     """
     Gets the host's vendor from the parsed XML scan.
@@ -91,6 +95,7 @@ def _get_host_vendor(host: dict) -> str:
 
     return host_vendor
 
+
 def parse_ports(phile: str):
     """
     Parses an NMap output file for port data, returning the relevant info.
@@ -98,5 +103,6 @@ def parse_ports(phile: str):
     """
     phile = open(phile, "r")
     parsed = xmltodict.parse(phile.read())
+    print(parsed)
 
 # End File: lan-nanny/modules/parse_nmap.py

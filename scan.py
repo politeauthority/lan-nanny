@@ -20,6 +20,7 @@ NMAP_DB = "/home/pi/repos/lan-nanny/lan_nanny.db"
 
 conn, cursor = db.create_connection(NMAP_DB)
 
+
 class Scan:
 
     def __init__(self):
@@ -57,7 +58,7 @@ class Scan:
         options = Options(conn, cursor)
         self.options = options.get_all_keyed()
 
-    def _complete_run(self, num_devices:int):
+    def _complete_run(self, num_devices: int):
         """
         Closes out the run log entry.
 
@@ -78,7 +79,7 @@ class Scan:
         self.run_log.success = 0
         self.run_log.save()
 
-    def scan (self) -> dict:
+    def scan(self) -> dict:
         """
         Runs NMap scan.
 
@@ -179,11 +180,6 @@ class Scan:
 
                 if not device_online:
                     continue
-
-                last_online_witness = witness.get_device_last_online(device.id)
-
-                # if last_online_witness.witness_ts >
-
 
     def create_alert(self, device: Device, alert_type: str):
         """

@@ -1,8 +1,6 @@
-"""Device - Model
+"""Device Model
 
 """
-from datetime import datetime
-
 import arrow
 
 from .base import Base

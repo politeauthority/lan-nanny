@@ -2,9 +2,6 @@
 Random utility functions.
 
 """
-from flask import g
-
-from .models.option import Option
 
 
 def device_icons() -> dict:
@@ -26,15 +23,6 @@ def device_icons() -> dict:
         "fas fa-tv": "Tv",
     }
     return icons
-
-
-def update_setting(conn=None, cursor=None, setting_name:str=None, setting_value:str=None):
-    """
-    """
-    option = Option(conn, cursor)
-    option.get_by_id(g.options[setting_name].id)
-    option.value = setting_value
-    option.save()
 
 
 # End File: lan-nanny/modules/utils.py

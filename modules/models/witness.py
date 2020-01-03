@@ -1,8 +1,6 @@
-"""Witness
+"""Witness Model
 
 """
-from datetime import datetime
-
 from .base import Base
 
 
@@ -68,24 +66,24 @@ class Witness(Base):
             return True
         return False
 
-    def get_device_last_online(self, device_id: int) -> bool:
-        """
-        Checks the witness table for the last witness of a device online.
+    # def get_device_last_online(self, device_id: int) -> bool:
+    #     """
+    #     Checks the witness table for the last witness of a device online.
 
-        """
-        sql = """
-            SELECT *
-            FROM witness
-            WHERE
-                device_id = %s
-            ORDER BY created_ts DESC """ % device_id
+    #     """
+    #     sql = """
+    #         SELECT *
+    #         FROM witness
+    #         WHERE
+    #             device_id = %s
+    #         ORDER BY created_ts DESC """ % device_id
 
-        self.cursor.execute(sql)
-        witness_raw = self.cursor.fetchone()
-        witness = self.build_from_list(witness_raw)
-        if witness:
-            return witness
-        return False
+    #     self.cursor.execute(sql)
+    #     witness_raw = self.cursor.fetchone()
+    #     witness = self.build_from_list(witness_raw)
+    #     if witness:
+    #         return witness
+    #     return False
 
     def delete_device(self, device_id: int) -> bool:
         """
@@ -96,7 +94,5 @@ class Witness(Base):
         sql = """DELETE FROM witness WHERE device_id = %s """ % device_id
         self.cursor.execute(sql)
         return True
-
-
 
 # End File: lan-nanny/modules/models/witness.py

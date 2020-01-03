@@ -2,12 +2,10 @@
 Gets collections of run logs.
 
 """
-from datetime import datetime
 
 import arrow
 
 from ..models.run_log import RunLog
-from ..models.device import Device
 
 
 class RunLogs():
@@ -35,8 +33,6 @@ class RunLogs():
             run.build_from_list(raw_run)
             run_logs.append(run)
         return run_logs
-
-
 
     def get_runs_24_hours(self):
         """

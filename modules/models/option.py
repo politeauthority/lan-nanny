@@ -1,9 +1,8 @@
-"""Option
+"""Option Model
 
 """
-import arrow
-
 from .base import Base
+
 
 class Option(Base):
 
@@ -35,15 +34,19 @@ class Option(Base):
         ]
         self.set_defaults()
 
-
     def __repr__(self):
         return "<Option %s>" % self.name
 
-    def get_by_name(self, name: str):
+    def get_by_name(self, name: str=None):
         """
         Gets an option from the options table based on name.
 
         """
+        if not name:
+            name = self.name
+        if not name:
+            raise ValueError('Missing name class var and method argument.')
+
         sql = """SELECT * FROM options WHERE name='%s'""" % name
         self.cursor.execute(sql)
         option_raw = self.cursor.fetchone()
@@ -53,6 +56,5 @@ class Option(Base):
         self.build_from_list(option_raw)
 
         return self
-
 
 # End File: lan-nanny/modules/models/option.py

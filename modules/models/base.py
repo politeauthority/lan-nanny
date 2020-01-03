@@ -1,4 +1,6 @@
 """Base Model
+Parent class for all models to inherit, providing methods for creating tables, inserting, updating,
+selecting and deleting data.
 
 """
 from sqlite3 import Error
@@ -62,8 +64,8 @@ class Base():
 
     def set_defaults(self) -> bool:
         """
-        Sets the defaults for the class field vars and populates the self.field_list var containtaing all table field
-        names.
+        Sets the defaults for the class field vars and populates the self.field_list var containing
+        all table field names.
 
         """
         self.create_total_map()
@@ -73,7 +75,7 @@ class Base():
             name = field['name']
             default = None
             if 'default' in field:
-                default = feild['default']
+                default = field['default']
             self.field_list.append(name)
             setattr(self, name, default)
         return True
@@ -95,7 +97,6 @@ class Base():
             self.table_name,
             self.get_fields_sql(),
             self.get_parmaterized_num())
-        # print(insert_sql)
         self.cursor.execute(insert_sql, self.get_values_sql())
         self.conn.commit()
         self.id = self.cursor.lastrowid
@@ -105,7 +106,7 @@ class Base():
 
     def save(self, where: list=[], raw: dict={}) -> bool:
         """
-        Saves a model instansece in the model table.
+        Saves a model instance in the model table.
 
         """
         self._check_required_class_vars()
@@ -165,24 +166,25 @@ class Base():
 
     def build_from_list(self, raw: list):
         """
-        Builds a model from an ordered list, converting data types to their desired type where possible.
+        Builds a model from an ordered list, converting data types to their desired type where
+        possible.
 
         """
-        c = 0
+        count = 0
         for field in self.total_map:
             if field['type'] == 'datetime':
-                setattr(self, field['name'], arrow.get(raw[c]).datetime)
+                setattr(self, field['name'], arrow.get(raw[count]).datetime)
             elif field['type'] == 'bool':
-                if raw[c] == 1:
+                if raw[count] == 1:
                     setattr(self, field['name'], True)
                 else:
                     setattr(self, field['name'], False)
             else:
-                setattr(self, field['name'], raw[c])
-            c += 1
+                setattr(self, field['name'], raw[count])
+            count += 1
         return True
 
-    def build_from_dict(self, raw:dict):
+    def build_from_dict(self, raw: dict):
         """
         Creates a model object from a keyed dictionary.
 
@@ -206,7 +208,7 @@ class Base():
 
     def get_parmaterized_num(self) -> str:
         """
-        Generates the number of paramaterized "?" for the sql lite paramaterization.
+        Generates the number of parameterized "?" for the sql lite parameterization.
 
         """
         field_value_param_sql = ""
@@ -220,7 +222,7 @@ class Base():
 
     def get_values_sql(self) -> tuple:
         """
-        Generates the model values to send to the sql lite interperater as a tuple.
+        Generates the model values to send to the sql lite interpretor as a tuple.
 
         """
         vals = []
@@ -232,7 +234,7 @@ class Base():
 
     def get_set_sql(self):
         """
-        Generates teh models SET sql statements, ie SET key = value, other_key = other_value.
+        Generates the models SET sql statements, ie: SET key = value, other_key = other_value.
 
         """
         set_sql = ""
@@ -244,7 +246,8 @@ class Base():
 
     def _check_required_class_vars(self):
         """
-        Quick class var checks to make sure the required class vars are set before proceeding with an opperation.
+        Quick class var checks to make sure the required class vars are set before proceeding with
+        an operation.
 
         """
         if not self.conn:
@@ -307,6 +310,5 @@ class Base():
             return 'text'
         elif field_type == 'bool':
             return 'int'
-
 
 # End File: lan-nanny/modules/models/base.py

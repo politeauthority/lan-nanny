@@ -55,12 +55,12 @@
           <span>Devices</span></a>
       </li>
       <li class="nav-item {%if active_page == 'alerts'%}active{%endif%}">
-        <a class="nav-link" href="/alerts">
+        <a class="nav-link" href="/alert">
           <i class="fas fa-fw fas fa-bell"></i>
           <span>Alerts</span></a>
       </li>
       <li class="nav-item {%if active_page == 'scans'%}active{%endif%}">
-        <a class="nav-link" href="/scans">
+        <a class="nav-link" href="/scan">
           <i class="fas fa-fw fa-map"></i>
           <span>Scans</span></a>
       </li>
@@ -229,6 +229,8 @@
   <script src="/static/js/sb-admin-2.min.js"></script>
 
   <script src="https://kit.fontawesome.com/7c2d391bcd.js" crossorigin="anonymous"></script>
+
+  <script src="/static/js/main.js" crossorigin="anonymous"></script>
   {%block javascript%}{%endblock%}
 
 </body>

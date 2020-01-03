@@ -1,8 +1,6 @@
-"""Alert
+"""Alert - Model
 
 """
-import arrow
-
 from .base import Base
 from .device import Device
 
@@ -55,7 +53,6 @@ class Alert(Base):
             return "<Alert %s>" % self.id
         return "<Alert>"
 
-
     def check_active(self, device_id: int, alert_type: str) -> bool:
         """
         Checks the `alerts` table for active alerts for a device and alert type.
@@ -86,8 +83,6 @@ class Alert(Base):
         self.cursor.execute(sql)
         return True
 
-
-
     def get_by_id(self, model_id: int, build_device=None):
         """
         Gets an alert from the `alerts` table based on it's alert ID.
@@ -103,7 +98,6 @@ class Alert(Base):
         self.build_from_list(raw)
 
         return self
-
 
     def build_from_list(self, raw: list, build_device: bool=True):
         """
