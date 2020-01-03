@@ -76,13 +76,13 @@
         <div class="card-body">
           <div class="form-group">
             <!-- <label for="alert_acked">Alert Acknowledged</label> -->
-            <input data-on="Acknowledged" data-off="Unackwowledge" class="alert-toggle" type="checkbox" data-toggle="toggle" id="alert_acked" aria-describedby="alertAckedHelp">
+            <input id="acked" data-entity-id="{{alert.id}}" data-on="Acknowledged" data-off="Unackwowledge" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="alertAckedHelp">
             <small id="alertAckedHelp" class="form-text text-muted">Ack/Unack an alert</small>
           </div>
 
           <div class="form-group">
             <label for="alert_active">Deactivate Alert</label>
-            <input class="alert-toggle" type="checkbox" data-toggle="toggle" id="alert_active" aria-describedby="alertActiveHelp">
+            <input id="active" data-entity-id="{{alert.id}}" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="alertActiveHelp">
             <small id="alertActiveHelp" class="form-text text-muted">Deactivate the alert.</small>
           </div>
 
@@ -94,54 +94,22 @@
 
 {%endblock%}
 
-
 {%block javascript%}
   <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
   <script type="text/javascript">
     $( document ).ready(function(){
-
-      var alert_id = {{alert.id}};
-      var alert_acked = {{alert.acked}};
-      var alert_active = {{alert.active}};
-
-      // Set initial device states
-      if(alert_acked == 1){
-        $('#alert_acked').bootstrapToggle('on');
-      }
-      if(alert_active == 1){
-        $('#alert_active').bootstrapToggle('on');
-      }
-
-      // Send ajax request to endable/ disable alerts
-      // $(function() {
-      //   $('#alert_online').change(function() {
-      //     update_alert('online', $(this).prop('checked'))
-      //   })
-      // });
-
-      // $(function() {
-      //   $('#alert_offline').change(function() {
-      //     update_alert('offline', $(this).prop('checked'))
-      //   })
-      // });
-
-      // function update_alert(alert_type, alert_value){
-      //   var var_url_val;
-      //   if(alert_value){
-      //     var_url_val = 1;
-      //   } else {
-      //     var_url_val = 0;
-      //   }
-      //   var alert_url = "/device/alert/" + device_id + "/" + alert_type + "/" + var_url_val;
-      //   $.ajax({
-      //     url: alert_url,
-      //     context: document.body
-      //   }).done(function(){ });
-      // }
-
+      var alert_acked_initial_status = convert_str_bool("{{alert.acked}}");
+      var alert_active_initial_status = convert_str_bool("{{alert.active}}");
+      register_toggle_ajax(
+        '/alert/alert-quick-save',
+        '#acked',
+        alert_acked_initial_status);
+      register_toggle_ajax(
+        '/alert/alert-quick-save',
+        '#active',
+        alert_active_initial_status);
     });
   </script>
-
 {%endblock%}
 
 <!-- END: Alert - Info -->

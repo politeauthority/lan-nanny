@@ -69,8 +69,13 @@ class RunLog(Base):
         """
         if not self.created_ts:
             self.created_ts = arrow.utcnow().datetime
+        self.setup()
+        # self.check_required_class_vars()
 
         insert_sql = "INSERT INTO %s (created_ts, completed) VALUES (?, ?)" % (self.table_name)
+        print(insert_sql)
+        print((self.created_ts, 0))
+
         self.cursor.execute(insert_sql, (self.created_ts, 0))
         self.conn.commit()
         self.id = self.cursor.lastrowid

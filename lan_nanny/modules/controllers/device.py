@@ -1,7 +1,8 @@
-"""Device - Controller
+"""Device Controller
 
 """
 from flask import Blueprint, render_template, redirect, request, jsonify
+from flask import current_app as app
 
 from .. import db
 from .. import utils
@@ -11,7 +12,6 @@ from ..models.device import Device
 from ..models.witness import Witness
 
 device = Blueprint('Device', __name__, url_prefix='/device')
-DATABASE = "../../lan_nanny.db"
 
 
 @device.route('/')
@@ -133,24 +133,23 @@ def favorite(device_id):
 
     return jsonify({"success": True})
 
-
-@device.route('/alert/<field_name>/<device_id>/<field_value>')
-def alert(field_name: str, device_id: int,  field_value: int) -> str:
+@device.route('/alert-save', methods=['POST'])
+def alert_save() -> str:
     """
-    Web route for making a device alert or not when coming on or off the network.
+    Ajax web route for update a device alert settings or not when coming on or off the network.
 
     """
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
-    device = Device()
-    device.conn = conn
-    device.cursor = cursor
-    device.get_by_id(device_id)
+    device = Device(conn, cursor)
+    device.get_by_id(request.form.get('id'))
     if not device.id:
         return 'ERROR 404: Route this to page_not_found method!', 404
         # return page_not_found('Device not found')
 
-    setattr(device, field_name, field_value)
-    import ipdb; ipdb.set_trace()
+    if request.form.get('field_name') not in ['alert_online', 'alert_offline']:
+        return jsonify("error", "Forbidden field_name %s field_name"), 403
+
+    setattr(device, request.form.get('field_name'), bool(request.form.get('field_value')))
     device.save()
 
     return jsonify({"success": True})

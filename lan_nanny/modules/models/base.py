@@ -4,6 +4,7 @@ selecting and deleting data.
 
 """
 from sqlite3 import Error
+from datetime import datetime
 
 import arrow
 
@@ -53,49 +54,22 @@ class Base():
         print('Created table: %s' % self.table_name)
         return False
 
-    def _create_total_map(self) -> bool:
-        """
-        Slams the base_map and models field_map together into self.total_map.
-
-        """
-        self.total_map = self.base_map + self.field_map
-        return True
-
-    def _set_defaults(self) -> bool:
-        """
-        Sets the defaults for the class field vars and populates the self.field_list var containing
-        all table field names.
-
-        """
-        self.field_list = []
-        for field in self.total_map:
-            name = field['name']
-            default = None
-            if 'default' in field:
-                default = field['default']
-            self.field_list.append(name)
-            setattr(self, name, default)
-        return True
-
     def setup(self):
+        """
+        Sets up model class vars, sets class var defaults, and corrects types where possible.
+
+        """
         self._create_total_map()
         self._set_defaults()
-        for field in self.total_map:
-            class_var_value = getattr(self, field['name'])
-            if field['type'] == 'bool' and type(class_var_value) != bool:
-
-                print(field['name'])
-                print(field['type'])
-                print(type(class_var_value))
-
+        self._set_types()
 
     def insert(self, raw: dict={}):
         """
         Inserts a new record of the model.
 
         """
+        self.setup()
         self.check_required_class_vars()
-
         if raw:
             self.build_from_dict()
 
@@ -107,6 +81,7 @@ class Base():
             self.get_fields_sql(),
             self.get_parmaterized_num())
         self.cursor.execute(insert_sql, self.get_values_sql())
+
         self.conn.commit()
         self.id = self.cursor.lastrowid
         # @todo: make into logging NOT print
@@ -118,6 +93,7 @@ class Base():
         Saves a model instance in the model table.
 
         """
+        self.setup()
         self.check_required_class_vars()
         self.build_from_dict(raw)
 
@@ -138,7 +114,6 @@ class Base():
             self.table_name,
             self.get_set_sql(),
             where_sql)
-        # print(update_sql)
         self.cursor.execute(update_sql, self.get_values_sql())
         self.conn.commit()
         # @todo: make into logging NOT print
@@ -150,6 +125,7 @@ class Base():
         Deletes a model item by id.
 
         """
+        self.setup()
         if _id:
             self.id = _id
         sql = """DELETE FROM %s WHERE id = %s """ % (self.table_name, self.id)
@@ -203,42 +179,69 @@ class Base():
                 setattr(self, field['name'], raw[field['name']])
         return True
 
-    def get_fields_sql(self) -> str:
+    def get_fields_sql(self, skip_fields: list=['id']) -> str:
         """
         Gets all class table column fields in a comma separated list for sql cmds.
 
         """
         field_sql = ""
         for field in self.total_map:
-            if field['name'] == 'id':
+            # Skip fields we don't want included in db writes
+            if field['name'] in skip_fields:
                 continue
             field_sql += "%s, " % field['name']
         return field_sql[:-2]
 
-    def get_parmaterized_num(self) -> str:
+    def get_parmaterized_num(self,skip_fields: list=['id']) -> str:
         """
         Generates the number of parameterized "?" for the sql lite parameterization.
 
         """
         field_value_param_sql = ""
         for field in self.total_map:
-            if field['name'] == 'id':
+
+            # Skip fields we don't want included in db writes
+            if field['name'] in skip_fields:
                 continue
+
             field_value_param_sql += "?, "
 
         field_value_param_sql = field_value_param_sql[:-2]
         return field_value_param_sql
 
-    def get_values_sql(self) -> tuple:
+    def get_values_sql(self, skip_fields: list=['id']) -> tuple:
         """
         Generates the model values to send to the sql lite interpretor as a tuple.
 
         """
         vals = []
         for field in self.total_map:
-            if field['name'] == 'id':
+
+            # Skip fields we don't want included in db writes
+            if field['name'] in skip_fields:
                 continue
-            vals.append(getattr(self, field['name']))
+
+            field_value = getattr(self, field['name'])
+
+            # SQLite doesnt support bools, so we update them to ints before saving.
+            if field['type'] == 'bool':
+                if not field_value:
+                    field_value = "NULL"
+                    vals.append(field_value)
+                    continue
+
+                if field_value:
+                    field_value = 1
+                elif field_value == False:
+                    field_value = 0
+                else:
+                    raise AttributeError('Model %s var self.%s with type bool has value of %s' % (
+                        self.model_name,
+                        field['name'],
+                        field_value))
+
+            vals.append(field_value)
+
         return tuple(vals)
 
     def get_set_sql(self):
@@ -272,6 +275,57 @@ class Base():
             if not getattr(self, class_var):
                 raise AttributeError('Missing self.%s' % class_var)
 
+    def _create_total_map(self) -> bool:
+        """
+        Slams the base_map and models field_map together into self.total_map.
+
+        """
+        self.total_map = self.base_map + self.field_map
+        return True
+
+    def _set_defaults(self) -> bool:
+        """
+        Sets the defaults for the class field vars and populates the self.field_list var containing
+        all table field names.
+
+        """
+        self.field_list = []
+        for field in self.total_map:
+            name = field['name']
+            default = None
+            if 'default' in field:
+                default = field['default']
+            self.field_list.append(name)
+            if not getattr(self, name, None):
+                setattr(self, name, default)
+        return True
+
+    def _set_types(self) -> bool:
+        """
+        Sets the types of class table field vars and corrects their types where possible.
+
+        """
+        for field in self.total_map:
+            class_var_value = getattr(self, field['name'])
+            if class_var_value:
+                continue
+            # If the field its type bool, but not actually typed bool, typically 0 or 1 make it bool
+
+            if field['type'] == 'bool' and type(class_var_value) != bool:
+                if class_var_value == 1:
+                    setattr(self, field['name'], True)
+                elif class_var_value == 0:
+                    setattr(self, field['name'], False)
+                else:
+                    AttributeError('%s field %s should be type bool.' % (
+                        self.model_name,
+                        field['name']))
+
+            if field['type'] == 'datetime' and type(class_var_value) != datetime:
+                setattr(
+                    self,
+                    field['name'],
+                    arrow.get(class_var_value).datetime)
 
     def _generate_create_table_feilds(self) -> str:
         """

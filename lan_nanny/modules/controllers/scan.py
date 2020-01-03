@@ -2,15 +2,13 @@
 
 """
 from flask import Blueprint, render_template
+from flask import current_app as app
 
 from .. import db
 from ..models.run_log import RunLog
 from ..collections.run_logs import RunLogs
 
-
 scan = Blueprint('Scan', __name__, url_prefix='/scan')
-
-DATABASE = "../../lan_nanny.db"
 
 
 @scan.route('/')

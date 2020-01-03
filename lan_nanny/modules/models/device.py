@@ -99,32 +99,6 @@ class Device(Base):
 
         return self
 
-    def insert(self, raw: dict={}):
-        """
-        Inserts a new record of the model.
-
-        """
-        self._check_required_class_vars()
-
-        if raw:
-            self.build_from_dict()
-
-        if not self.created_ts:
-            self.created_ts = arrow.utcnow().datetime
-
-        # ONLY PART OF METHOD UNIQUE TO DEVICE
-        self.set_icon()
-
-        insert_sql = "INSERT INTO %s (%s) VALUES (%s)" % (
-            self.table_name,
-            self.get_fields_sql(),
-            self.get_parmaterized_num())
-        self.cursor.execute(insert_sql, self.get_values_sql())
-        self.conn.commit()
-        self.id = self.cursor.lastrowid
-        print('New %s: %s' % (self.model_name, self))
-        return True
-
     def set_icon(self):
         """
         Attempts to set a device icon.

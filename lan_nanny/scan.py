@@ -14,11 +14,11 @@ from modules.models.witness import Witness
 from modules.models.alert import Alert
 from modules.collections.devices import Devices
 from modules.collections.options import Options
+from config import default as config_default
 
 NMAP_SCAN_FILE = "tmp.xml"
-NMAP_DB = "/home/pi/repos/lan-nanny/lan_nanny.db"
 
-conn, cursor = db.create_connection(NMAP_DB)
+conn, cursor = db.create_connection(config_default.LAN_NANNY_DB_FILE)
 
 
 class Scan:

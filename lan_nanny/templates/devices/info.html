@@ -96,13 +96,13 @@
           <div class="form-group">
             <label for="alert_online">Alert Online</label>
 
-            <input id="alert_online" class="alert-toggle alert-nanny" type="checkbox" data-toggle="toggle" aria-describedby="alertOnlineHelp">
+            <input id="alert_online" data-entity-id="{{device.id}}" class="alert-toggle alert-nanny" type="checkbox" data-toggle="toggle" aria-describedby="alertOnlineHelp">
             <small id="alertOnlineHelp" class="form-text text-muted">Create an alert when the device comes online.</small>
           </div>
 
           <div class="form-group">
             <label for="alert_offline">Alert Offline</label>
-            <input class="alert-toggle" type="checkbox" data-toggle="toggle" id="alert_offline" aria-describedby="alertOfflineHelp">
+            <input id="alert_offline" data-entity-id="{{device.id}}" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="alertOfflineHelp">
             <small id="alertOfflineHelp" class="form-text text-muted">Create an alert when the device goes offline.</small>
           </div>
 
@@ -116,47 +116,18 @@
   <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
   <script type="text/javascript">
     $( document ).ready(function(){
-
-      var device_id = {{device.id}};
+      register_favorite_button('#device-favorite', '/device/favorite/{{device.id}}')
 
       var device_alert_online_initial_status = convert_str_bool("{{device.alert_online}}");
       var device_alert_offline_initial_status = convert_str_bool("{{device.alert_online}}");
-
-      // Send ajax request to endable/ disable alerts
-      // $(function() {
-      //   $('#alert_online').change(function() {
-      //     update_alert('online', $(this).prop('checked'))
-      //   })
-      // })
-
-      // $(function() {
-      //   $('#alert_offline').change(function() {
-      //     update_alert('offline', $(this).prop('checked'))
-      //   })
-      // })
-
       register_toggle_ajax(
+        '/device/alert-save',
         '#alert_online',
-        device_alert_online_initial_status,
-        '/device/alert/alert_online/{{device.id}}/');
-
-      // Send ajax request to fav/ unfavorite device
-      $( "#device-favorite" ).click(function(){
-        $.ajax({
-          url: "/device/favorite/" + device_id,
-          context: document.body
-        }).done(function() {
-
-          var icon = $(this).find('i');
-          if(icon.hasClass('fa-star-o')){
-            icon.removeClass('fa').removeClass('fa-star-o');
-            icon.addClass('fas').addClass('fa-star');
-          } else {
-            icon.removeClass('fas').removeClass('fa-star');
-            icon.addClass('fa').addClass('fa-star-o');
-          }
-        });
-      });
+        device_alert_online_initial_status);
+      register_toggle_ajax(
+        '/device/alert-save',
+        '#alert_offline',
+        device_alert_online_initial_status);
     });
   </script>
 {%endblock%}
