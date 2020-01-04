@@ -78,4 +78,21 @@ def alert_quick_save() -> str:
     alert.save()
 
     return jsonify({"success": True})
-# End File: lan-nanny/modules/controllers/alert.py
+
+@alert.route('/delete/<alert_id>')
+def delete(alert_id: int):
+    """
+    Alert delete.
+
+    """
+    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+
+    # Delete the device
+    alert = Alert(conn, cursor)
+    alert.get_by_id(alert_id)
+    alert.delete()
+    alert.delete_alert_events()
+
+    return redirect('/alert')
+
+# End File: lan-nanny/lan_nanny/modules/controllers/alert.py

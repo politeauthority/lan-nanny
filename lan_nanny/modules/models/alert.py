@@ -83,23 +83,31 @@ class Alert(Base):
         self.cursor.execute(sql)
         return True
 
-    def get_by_id(self, model_id: int, build_device=None):
+    def delete_alert_events(self) -> bool:
+        """
+        Deletes all alert_event records for an alert.
+
+        """
+        sql = """DELETE FROM alert_events WHERE alert_id = %s """ % self.id
+        self.cursor.execute(sql)
+        return True
+
+    def get_by_id(self, model_id: int, build_device: bool=False, build_alert_events: bool=False):
         """
         Gets an alert from the `alerts` table based on it's alert ID.
 
         """
         sql = """SELECT * FROM %s WHERE id=%s""" % (self.table_name, model_id)
-        print(sql)
         self.cursor.execute(sql)
         raw = self.cursor.fetchone()
         if not raw:
             return False
 
-        self.build_from_list(raw)
+        self.build_from_list(raw, build_device=build_device, build_alert_events=build_alert_events)
 
         return self
 
-    def build_from_list(self, raw: list, build_device: bool=True):
+    def build_from_list(self, raw: list, build_device: bool=True, build_alert_events: bool=False):
         """
         """
         c = 0
@@ -110,6 +118,11 @@ class Alert(Base):
             self.device = Device(self.conn, self.cursor)
             self.device.get_by_id(self.device_id)
 
+        if build_alert_events:
+            self.alert_events = AlertEvents()
+            self.alert_events = get_by_alert_id(self.alert_id)
+
+
         return True
 
-# End File: lan-nanny/modules/models/alert.py
+# End File: lan-nanny/lan_nanny/modules/models/alert.py

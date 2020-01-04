@@ -21,6 +21,7 @@ def device_icons() -> dict:
         "fas fa-music": "Audio Device",
         "fas fa-camera": "Camera",
         "fas fa-tv": "Tv",
+        "fas fa-phone": "Phone"
     }
     return icons
 

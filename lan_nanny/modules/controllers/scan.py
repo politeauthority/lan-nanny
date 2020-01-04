@@ -7,6 +7,7 @@ from flask import current_app as app
 from .. import db
 from ..models.run_log import RunLog
 from ..collections.run_logs import RunLogs
+from ..collections.witnesses import Witnesses
 
 scan = Blueprint('Scan', __name__, url_prefix='/scan')
 
@@ -38,10 +39,12 @@ def info(scan_id):
     if not scan.id:
         return 'ERROR 404: Route this to page_not_found method!', 404
         # return page_not_found('Scan not found')
+
+    witnesses = Witnesses(conn, cursor).get_by_scan_id(scan.id)
     data = {}
     data['active_page'] = 'scans'
     data['scan'] = scan
-
+    data['witnesses'] = witnesses
     return render_template('scans/info.html', **data)
 
 # End File: lan-nanny/modules/controllers/scan.py

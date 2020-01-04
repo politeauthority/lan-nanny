@@ -178,4 +178,4 @@ def delete(device_id: int):
 
     return redirect('/device')
 
-# End File: lan-nanny/modules/controllers/device.py
+# End File: lan-nanny/lan_nanny/modules/controllers/device.py

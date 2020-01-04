@@ -85,7 +85,7 @@ class Base():
         self.conn.commit()
         self.id = self.cursor.lastrowid
         # @todo: make into logging NOT print
-        print('New %s: %s' % (self.model_name, self))
+        # print('New %s: %s' % (self.model_name, self))
         return True
 
     def save(self, where: list=[], raw: dict={}) -> bool:
@@ -95,7 +95,8 @@ class Base():
         """
         self.setup()
         self.check_required_class_vars()
-        self.build_from_dict(raw)
+        if raw:
+            self.build_from_dict(raw)
 
         if self.iodku and not self.id:
             return self.insert()
@@ -117,7 +118,7 @@ class Base():
         self.cursor.execute(update_sql, self.get_values_sql())
         self.conn.commit()
         # @todo: make into logging NOT print
-        print('Updated %s: %s' % (self.model_name, self))
+        # print('Updated %s: %s' % (self.model_name, self))
         return True
 
     def delete(self, _id: int=None):
@@ -131,7 +132,7 @@ class Base():
         sql = """DELETE FROM %s WHERE id = %s """ % (self.table_name, self.id)
         self.cursor.execute(sql)
         self.conn.commit()
-        print('Delete %s: %s' % (self.model_name, self))
+        # print('Delete %s: %s' % (self.model_name, self))
         return True
 
     def get_by_id(self, model_id: int):

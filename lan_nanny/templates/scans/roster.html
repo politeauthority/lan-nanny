@@ -24,19 +24,17 @@
                     <td>Start</td>
                     <td>End</td>
                     <td>Total Time</td>
-                    <td>Completed</td>
                     <td>Devices</td>
                   </tr>
                 </thead>
                 {% for scan in scans %}
                 <tr>
                   <td>
-                    <a href="/scan/{{scan.id}}">{{scan.id}}</a>
+                    <a href="/scan/info/{{scan.id}}">{{scan.id}}</a>
                   </td>
                   <td>{{scan.created_ts|pretty_time}}</td>
                   <td>{{scan.elapsed_time}} sec</td>
-                  <td></td>
-                  <td></td>
+                  <td>{{scan.num_devices}}</td>
                 </tr>
                 {%endfor%}
               </table>

@@ -2,6 +2,7 @@
 
 """
 from .base import Base
+from .device import Device
 
 
 class Witness(Base):
@@ -41,6 +42,7 @@ class Witness(Base):
             }
         ]
         self.setup()
+        self.device = None
 
     def __repr__(self):
         return "<Witness %s>" % self.id
@@ -66,6 +68,22 @@ class Witness(Base):
             return True
         return False
 
+    def build_from_list(self, raw: list, build_device: bool=True):
+        """
+        Builds a witness from list
+        @todo: should be redone to use parent for intial load and this class for device load.
+
+        """
+        c = 0
+        for field in self.total_map:
+            setattr(self, field['name'], raw[c])
+            c += 1
+        if build_device:
+            self.device = Device(self.conn, self.cursor)
+            self.device.get_by_id(self.device_id)
+
+        return True
+
     def delete_device(self, device_id: int) -> bool:
         """
         Deletes all records from the `witness` table containing a device_id, this should be
@@ -76,4 +94,4 @@ class Witness(Base):
         self.cursor.execute(sql)
         return True
 
-# End File: lan-nanny/modules/models/witness.py
+# End File: lan-nanny/lan_nanny/modules/models/witness.py

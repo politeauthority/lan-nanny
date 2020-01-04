@@ -6,7 +6,10 @@ from datetime import datetime, timedelta
 
 import arrow
 
-from flask import g
+from flask import g, Markup
+from flask import Markup
+
+from .models.device import Device
 
 
 def time_ago(seen_at: datetime) -> str:
@@ -75,4 +78,22 @@ def connected_devices(devices: list) -> int:
 
     return num_online
 
-# End File: lan-nanny/modules/filters.py
+def device_icon_status(device: Device) -> int:
+    """
+    Takes a list of devices and determines the number of currently connected devices.
+
+    """
+    online = ''
+    online = ' connected_bolt'
+
+    html = """<i class="fas fa-bolt%(online)s"></i>
+      <a href="/device/info/%(id)s">%(name)s</a>
+    """ % {
+        'online': online,
+        'id': device.id,
+        'name': device.name
+    }
+    return Markup(html)
+
+
+# End File: lan-nanny/lan_nanny/modules/filters.py

@@ -12,6 +12,7 @@ from modules.models.device import Device
 from modules.models.run_log import RunLog
 from modules.models.witness import Witness
 from modules.models.alert import Alert
+from modules.models.alert_event import AlertEvent
 from modules.collections.devices import Devices
 from modules.collections.options import Options
 from config import default as config_default
@@ -34,19 +35,14 @@ class Scan:
         self._setup()
         print('Running scan number %s' % self.run_log.id)
 
-        if self.options['scan-hosts-enabled'].value == 0:
-            print('Host scanning disabled. Go to settings to renable.')
-            self._abort_run()
-            exit(0)
-
         hosts = self.scan()
-        self._complete_run(len(hosts))
 
-        self.handle_devices(hosts)
-
-        self.handle_alerts(hosts)
-
-        self.scan_ports(hosts)
+        # if host scanning is not enabled, hosts returns false
+        if type(hosts) == list:
+            self._complete_run(len(hosts))
+            self.handle_devices(hosts)
+            self.handle_alerts(hosts)
+            self.scan_ports(hosts)
 
     def _setup(self):
         """
@@ -84,6 +80,12 @@ class Scan:
         Runs NMap scan.
 
         """
+        if self.options['scan-hosts-enabled'].value != 1:
+            print('Host scanning disabled. Go to settings to renable.')
+            self._abort_run()
+            return False
+
+
         scan_range = self.options['scan-hosts-range'].value
         # import pdb; pdb.set_trace()
         print('Scan Range: %s' % scan_range)
@@ -193,12 +195,18 @@ class Scan:
             return
 
         alert.device_id = device.id
-        alert.alert_type = 'offline'
+        alert.alert_type = alert_type
         alert.acked = 0
         alert.active = 1
-        alert.insert()
+        alert.save()
+
+        alert_event = AlertEvent(conn, cursor)
+        alert_event.alert_id = alert.id
+        alert_event.event_type = 'created'
+        alert_event.save()
+
         print('Created %s alert for %s' % (alert_type, device.name))
-        self.new_alerts.append(alert.id)
+        self.new_alerts.append(alert)
 
     def scan_ports(self, hosts: list):
         """
@@ -230,4 +238,4 @@ class Scan:
 if __name__ == '__main__':
     Scan().run()
 
-# End File: lan-nanny/scan.py
+# End File: lan-nanny/lan_nanny/scan.py

@@ -67,6 +67,33 @@ function send_ajax_update(base_ajax_uri, data){
   }).done(function(){ });
 }
 
+function register_toggle_form(setting_name, setting_value){
+  /*
+  Sets up bootstrap 4 toggle for form submission.
+  requires the form to have a hidden #form div
+  */
+
+  var toggle_id = '#' + setting_name;
+  var toggle = $(toggle_id);
+  var form_input_id = 'manage_' + setting_name;
+  $('#hidden_forms').append('<input id="' + form_input_id + '" type="hidden" name="' + setting_name + '">');
+  var form_obj = $('#' + form_input_id);
+  if(setting_value == true){
+    toggle.bootstrapToggle('on');
+    form_obj.val('true');
+  } else {
+    form_obj.val('false');
+  }
+  $( toggle_id ).change(function(){
+    if(form_obj.val() == 'false'){
+      form_obj.val('true');
+    } else {
+      form_obj.val('false');
+    }
+  });
+}
+
+
 function convert_str_bool(bool_str){
   /*
   Returns a javascript bool from a string bool.
@@ -74,7 +101,11 @@ function convert_str_bool(bool_str){
   */
   if(bool_str == 'True'){
     return true;
+  } else if (bool_str == '1'){
+    return true;
   } else if (bool_str == 'False'){
+    return false;
+  } else if (bool_str == '0'){
     return false;
   } else if (bool_str == 'None'){
     return false;

@@ -11,6 +11,7 @@ from flask import Flask, redirect, render_template, request, g
 from modules.controllers.device import device as ctrl_device
 from modules.controllers.alert import alert as ctrl_alert
 from modules.controllers.scan import scan as ctrl_scan
+from modules.controllers.settings import settings as ctrl_settings
 from modules import db
 from modules.collections.alerts import Alerts
 from modules.collections.options import Options
@@ -86,42 +87,6 @@ def index() -> str:
     return render_template('index.html', **data)
 
 
-@app.route('/settings')
-def settings() -> str:
-    """
-    Settings page.
-
-    """
-    data = {
-        'active_page': 'settings',
-        'settings': g.options,
-    }
-    return render_template('settings.html', **data)
-
-
-@app.route('/settings-save', methods=['POST'])
-def settings_save():
-    """
-    Settings save.
-
-    """
-    conn, cursor = db.get_db_flask(DATABASE)
-    # Update timezone
-    option = Option(conn, cursor)
-    option.name = 'timezone'
-    option.value = request.form['settings_timezone']
-    option.get_by_name()
-    option.save()
-
-    # Update Scan Hosts Range
-    option = Option(conn, cursor)
-    option.name = 'scan-hosts-range'
-    option.value = request.form['setting_scan_hosts_range']
-    option.get_by_name()
-    option.save()
-    return redirect('/settings')
-
-
 @app.errorhandler(404)
 def page_not_found(e: str):
     """
@@ -141,6 +106,7 @@ def register_blueprints(app: Flask):
     app.register_blueprint(ctrl_device)
     app.register_blueprint(ctrl_alert)
     app.register_blueprint(ctrl_scan)
+    app.register_blueprint(ctrl_settings)
 
 
 def register_jinja_funcs(app: Flask):
@@ -152,6 +118,7 @@ def register_jinja_funcs(app: Flask):
     app.jinja_env.filters['pretty_time'] = filters.pretty_time
     app.jinja_env.filters['smart_time'] = filters.smart_time
     app.jinja_env.filters['online'] = filters.online
+    app.jinja_env.filters['device_icon_status'] = filters.device_icon_status
 
 
 if __name__ == '__main__':
