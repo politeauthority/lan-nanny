@@ -1,7 +1,7 @@
 """Alert - Controller
 
 """
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, redirect, jsonify
 from flask import current_app as app
 
 import arrow
@@ -9,13 +9,14 @@ import arrow
 from .. import db
 from ..models.alert import Alert
 from ..collections.alerts import Alerts
+from ..collections.devices import Devices
 
 
 alert = Blueprint('Alert', __name__, url_prefix='/alert')
 
 
 @alert.route('/')
-def alerts():
+def roster():
     """
     Alerts roster page.
 
@@ -25,18 +26,19 @@ def alerts():
     data = {}
     data['alerts'] = alerts.get_all()
     data['active_page'] = 'alerts'
+    data['devices'] = Devices(conn, cursor).with_alerts_on()
     return render_template('alerts/roster.html', **data)
 
 
 @alert.route('/info/<alert_id>')
-def alert_info(alert_id: int):
+def info(alert_id: int):
     """
     Alert info page.
 
     """
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     alert = Alert(conn, cursor)
-    alert.get_by_id(alert_id, build_device=True)
+    alert.get_by_id(alert_id, build_device=True, build_alert_events=True)
     if not alert.id:
         return 'ERROR 404: Route this to page_not_found method!', 404
         # return page_not_found('Alert not found')
@@ -61,7 +63,6 @@ def alert_quick_save() -> str:
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     alert = Alert(conn, cursor)
     alert.get_by_id(request.form.get('id'))
-    # import ipdb; ipdb.set_trace()
 
     if not alert.id:
         return 'ERROR 404: Route this to page_not_found method!', 404

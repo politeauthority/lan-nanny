@@ -11,7 +11,7 @@ class AlertEvents():
         self.conn = conn
         self.cursor = cursor
 
-    def get_by_alert_id(self, alert_id: int):
+    def get_by_alert_id(self, alert_id: int) -> list:
         sql = """
             SELECT *
             FROM alert_events
@@ -23,8 +23,9 @@ class AlertEvents():
         alert_events = []
         for raw_event_alert in raw_alert_events:
             event_alert = AlertEvent(self.conn, self.cursor)
-            event_alert.build_from_list(raw_alert, build_device=True)
-            event_alert.append(alert)
+            event_alert.build_from_list(raw_event_alert)
+            alert_events.append(event_alert)
+
         return alert_events
 
 # End File: lan-nanny/lan_nanny/modules/collections/alert_events.py

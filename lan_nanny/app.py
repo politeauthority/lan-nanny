@@ -17,10 +17,10 @@ from modules.collections.alerts import Alerts
 from modules.collections.options import Options
 from modules.models.option import Option
 from modules.metrics import Metrics
+from modules import utils
 from modules import filters
 from config import default as default_config_obj
 
-DATABASE = "../lan_nanny.db"
 app = Flask(__name__)
 app.config.from_object(default_config_obj)
 
@@ -39,12 +39,12 @@ def get_settings():
 
 
 @app.before_request
-def get_alerts():
+def get_active_alerts():
     """
     Gets and loads all active alerts in the the flask g options namespace.
 
     """
-    conn, cursor = db.get_db_flask(DATABASE)
+    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     alerts = Alerts(conn, cursor)
     g.alerts = alerts.get_active_unacked(build_devices=True)
 
@@ -66,7 +66,7 @@ def index() -> str:
     App home page.
 
     """
-    conn, cursor = db.get_db_flask(DATABASE)
+    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     metrics = Metrics(conn, cursor)
 
     # Get favorite devices, if theres none get all devices.
@@ -84,8 +84,23 @@ def index() -> str:
     data['devices'] = devices
     data['runs_over_24'] = metrics.get_runs_24_hours()
     data['last_run'] = metrics.get_last_run_log()
-    return render_template('index.html', **data)
+    return render_template('dashboard.html', **data)
 
+
+@app.route('/about')
+def about() -> str:
+    """
+    About page
+
+    """
+    # conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    # metrics = Metrics(conn, cursor)
+
+    data = {
+        'active_page': 'about',
+        'db_size': utils.get_db_size(app.config['LAN_NANNY_DB_FILE'])
+    }
+    return render_template('about.html', **data)
 
 @app.errorhandler(404)
 def page_not_found(e: str):
@@ -120,6 +135,10 @@ def register_jinja_funcs(app: Flask):
     app.jinja_env.filters['online'] = filters.online
     app.jinja_env.filters['device_icon_status'] = filters.device_icon_status
 
+def install():
+    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    Options(conn, cursor).create_deaults()
+
 
 if __name__ == '__main__':
     port = 5000
@@ -128,6 +147,7 @@ if __name__ == '__main__':
 
     register_blueprints(app)
     register_jinja_funcs(app)
+    # install()
     app.run(host="0.0.0.0", port=port, debug=True)
 
 

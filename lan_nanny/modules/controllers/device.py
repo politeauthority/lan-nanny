@@ -1,7 +1,7 @@
 """Device Controller
 
 """
-from flask import Blueprint, render_template, redirect, request, jsonify
+from flask import Blueprint, render_template, redirect, request, jsonify, g
 from flask import current_app as app
 
 from .. import db
@@ -25,6 +25,22 @@ def devices() -> str:
     data = {}
     data['active_page'] = 'devices'
     data['devices'] = devices.get_all()
+    return render_template('devices/roster.html', **data)
+
+
+@device.route('/online')
+def online() -> str:
+    """
+    Devices roster page for only online devices
+
+    """
+    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    devices = Devices(conn, cursor)
+
+    active_time_value = utils.get_active_timeout_from_now(int(g.options['active-timeout'].value))
+    data = {}
+    data['active_page'] = 'devices'
+    data['devices'] = devices.get_online(active_time_value)
     return render_template('devices/roster.html', **data)
 
 
@@ -149,9 +165,13 @@ def alert_save() -> str:
     if request.form.get('field_name') not in ['alert_online', 'alert_offline']:
         return jsonify("error", "Forbidden field_name %s field_name"), 403
 
-    setattr(device, request.form.get('field_name'), bool(request.form.get('field_value')))
-    device.save()
+    if request.form.get('field_value') == 'true'.lower():
+        val = True
+    else:
+        val = False
 
+    setattr(device, request.form.get('field_name'), val)
+    device.save()
     return jsonify({"success": True})
 
 

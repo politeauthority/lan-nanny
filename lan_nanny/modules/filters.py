@@ -7,7 +7,6 @@ from datetime import datetime, timedelta
 import arrow
 
 from flask import g, Markup
-from flask import Markup
 
 from .models.device import Device
 
@@ -83,12 +82,24 @@ def device_icon_status(device: Device) -> int:
     Takes a list of devices and determines the number of currently connected devices.
 
     """
-    online = ''
-    online = ' connected_bolt'
+    now = arrow.utcnow().datetime
+    seen = arrow.get(device.last_seen).datetime
 
-    html = """<i class="fas fa-bolt%(online)s"></i>
-      <a href="/device/info/%(id)s">%(name)s</a>
+    online = ''
+    if now - seen < timedelta(minutes=int(g.options['active-timeout'].value)):
+        online = ' connected_bolt'
+
+    icon = ''
+    if device.icon:
+        icon = '<a href="/device/info/%s"><i class="%s"></i></a>' % (
+            device.id, device.icon)
+
+    html = """
+    <i class="fas fa-bolt icon-pad%(online)s"></i>
+    %(icon)s
+    <a href="/device/info/%(id)s">%(name)s</a>
     """ % {
+        'icon': icon,
         'online': online,
         'id': device.id,
         'name': device.name

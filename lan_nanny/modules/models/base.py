@@ -113,8 +113,10 @@ class Base():
             WHERE
             %s""" % (
             self.table_name,
-            self.get_set_sql(),
+            self.get_update_set_sql(),
             where_sql)
+        # print(update_sql)
+        # print(self.get_values_sql())
         self.cursor.execute(update_sql, self.get_values_sql())
         self.conn.commit()
         # @todo: make into logging NOT print
@@ -226,7 +228,11 @@ class Base():
 
             # SQLite doesnt support bools, so we update them to ints before saving.
             if field['type'] == 'bool':
-                if not field_value:
+                if field_value == False:
+                    field_value = 0
+                    vals.append(field_value)
+                    continue
+                elif not field_value:
                     field_value = "NULL"
                     vals.append(field_value)
                     continue
@@ -245,7 +251,7 @@ class Base():
 
         return tuple(vals)
 
-    def get_set_sql(self):
+    def get_update_set_sql(self):
         """
         Generates the models SET sql statements, ie: SET key = value, other_key = other_value.
 

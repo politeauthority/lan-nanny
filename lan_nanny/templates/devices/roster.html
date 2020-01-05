@@ -1,4 +1,8 @@
+<!-- Device Roster -->
 {% extends "layout.html" %}
+{% block head%}
+  <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+{%endblock%}
 {% block content %}
   <!-- Page Heading -->
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -18,10 +22,8 @@
               <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                   <tr>
-                    <td></td>
                     <td>Name</td>
                     <td>IP</td>
-                    <td>Mac</td>
                     <td>Last Seen</td>
                     <td>First Seen</td>
                   </tr>
@@ -29,16 +31,9 @@
                 {% for device in devices %}
                 <tr>
                   <td>
-                    {%if device.icon %}
-                      <a href="/device/info/{{device.id}}"><i class="{{device.icon}}"></i></a>
-                    {%endif%}
-                  </td>
-                  <td>
-                    <i class="fas fa-bolt {%if device.last_seen|online %}connected_bolt{%endif%}"></i>
-                    <a href="/device/info/{{device.id}}">{{device.name}}</a>
+                    {{device|device_icon_status}}
                   </td>
                   <td>{{device.ip}}</td>
-                  <td>{{device.mac}}</td>
                   <td>{{device.last_seen|time_ago}}</td>
                   <td>{{device.first_seen|pretty_time}}</td>
                 </tr>
@@ -56,3 +51,9 @@
   </div>
 
 {%endblock%}
+
+{%block javascript%}
+  <script src="vendor/datatables/jquery.dataTables.min.js"></script>
+  <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
+{%endblock%}
+<!-- EndFile: lan-nanny/lan_nanny/templates/devices/roster.html -->

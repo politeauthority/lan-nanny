@@ -20,54 +20,7 @@
     </div>
   </div>
 
-  <!-- Content Row -->
   <div class="row">
-
-    <!-- Alert Info -->
-    <div class="col-xl-6 col-lg-6">
-      <div class="card shadow mb-4">
-        <!-- Card Header -->
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">
-            Info
-          </h6>
-        </div>
-
-        <!-- Card Body -->
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table" id="dataTable" width="100%" cellspacing="0">
-              <tr>
-                <td>Device</td>
-                <td>
-                  <a href="/device/info/{{alert.device.id}}">{{alert.device.name}}</a>
-                </td>
-              </tr>
-              <tr>
-                <td>Created</td>
-                <td>{{alert.created_ts|smart_time}}</td>
-              </tr>
-              <tr>
-                <td>Acknowledged</td>
-                <td>
-                  {%if alert.acked%}
-                    Acknowledged
-                  {%else%}
-                    Unacknowledged
-                  {%endif%}
-                </td>
-              </tr>
-              <tr>
-                <td>Active</td>
-                <td>{{alert.active}}</td>
-              </tr>
-
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
   <!-- Alert Actions -->
 
     <div class="col-xl-6 col-lg-6">
@@ -98,6 +51,34 @@
 
   </div>
 
+  <div class="row">
+    <div class="col-xl-6 col-lg-6">
+
+      <div class="card shadow mb-4">
+        <!-- Card Header -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">
+            Alert Events
+
+          </h6>
+        </div>
+        <div class="card-body">
+          {%if alert.events %}
+            {%for event in alert.events %}
+              {{event.event_type}} : {{event.created_ts|smart_time}}<br/>
+
+              
+            {%endfor%}
+          {%else%}
+            No alert events.
+          {%endif%}
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
 {%endblock%}
 
 {%block modal%}
@@ -106,13 +87,13 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Delete Alert: {{alert.device.name}}</h5>
+          <h5 class="modal-title" id="exampleModalLabel">Delete Alert</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <div class="modal-body">
-          Are you sure you want to delete this alert? This action cannot be undone.
+          Are you sure you want to delete this alert?
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

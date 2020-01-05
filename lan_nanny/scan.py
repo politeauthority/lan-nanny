@@ -1,8 +1,10 @@
 """Scan
 
 """
+import argparse
 from datetime import datetime, timedelta
 import subprocess
+import sys
 
 import arrow
 
@@ -24,7 +26,8 @@ conn, cursor = db.create_connection(config_default.LAN_NANNY_DB_FILE)
 
 class Scan:
 
-    def __init__(self):
+    def __init__(self, args: list=[]):
+        self.force_scan = False
         self.new_alerts = []
 
     def run(self):
@@ -41,7 +44,7 @@ class Scan:
         if type(hosts) == list:
             self._complete_run(len(hosts))
             self.handle_devices(hosts)
-            self.handle_alerts(hosts)
+            # self.handle_alerts(hosts)
             self.scan_ports(hosts)
 
     def _setup(self):
@@ -80,10 +83,13 @@ class Scan:
         Runs NMap scan.
 
         """
-        if self.options['scan-hosts-enabled'].value != 1:
-            print('Host scanning disabled. Go to settings to renable.')
-            self._abort_run()
-            return False
+        if not self.force_scan:
+            if self.options['scan-hosts-enabled'].value != str(1):
+                print('Host scanning disabled. Go to settings to renable.')
+                self._abort_run()
+                return False
+        else:
+            print('Forcing scan')
 
 
         scan_range = self.options['scan-hosts-range'].value
@@ -154,23 +160,34 @@ class Scan:
         """
         print('Running alerts')
         device_collection = Devices(conn, cursor)
-        devices = device_collection.get_all()
-
+        devices = device_collection.with_alerts_on()
         witness = Witness(conn, cursor)
 
         for device in devices:
 
-            # if device.id == 6:
-            #     import pdb; pdb.set_trace()
             # Device offline check
-            if device.alert_offline == 1:
+            if device.alert_offline:
+                device_alert = Alert(conn, cursor)
+                device_active_offline_alert = device_alert.get_active(device.id, 'offline')
+
+
+                # If the device is not in the most recent scan, register the alert.
                 device_in_scan = witness.get_device_for_scan(device.id, self.run_log.id)
                 if not device_in_scan:
-                    device_off_line = arrow.utcnow().datetime - device.last_seen
-                    delta = timedelta(minutes=int(self.options['active-timeout'].value))
+                    device_offline_seconds = (arrow.utcnow().datetime - device.last_seen).seconds
+                    timeout_seconds = int(self.options['active-timeout'].value) * 60
 
-                    if device_off_line > delta:
+                    # if the device has been offline longer than the active time out, alert.
+                    if device_offline_seconds > timeout_seconds:
                         self.create_alert(device, 'offline')
+                    else:
+                        time_til_alert = timeout_seconds - device_offline_seconds
+                        print("Device %s is offline, but has not passed active time out yet, %s seconds until alert" % (
+                            device, time_til_alert))
+
+                # If the device has an active alert and IS online, we need to set the alert inactive
+                else:
+                    self.deactivate_alert(device_alert)
 
             # Device online check
             if device.alert_online == 1:
@@ -189,9 +206,10 @@ class Scan:
 
         """
         alert = Alert(conn, cursor)
-        active_device_alert = alert.check_active(device.id, alert_type)
+        active_device_alert = alert.get_active(device.id, alert_type)
         if active_device_alert:
             print('Device %s already has an active %s alert.' % (device.name, alert_type))
+            self.maintain_active_alert(alert)
             return
 
         alert.device_id = device.id
@@ -207,6 +225,25 @@ class Scan:
 
         print('Created %s alert for %s' % (alert_type, device.name))
         self.new_alerts.append(alert)
+
+    def maintain_active_alert(self, alert: Alert):
+        """
+        """
+        alert_event = AlertEvent(conn, cursor)
+        alert_event.alert_id = alert.id
+        alert_event.event_type = 'still_active'
+        alert_event.save()
+
+    def deactivate_alert(self, alert: Alert):
+        """
+        """
+        alert.active = False
+        alert.save()
+        alert_event = AlertEvent(conn, cursor)
+        alert_event.alert_id = alert.id
+        alert_event.event_type = 'deactivate'
+        alert_event.save()
+
 
     def scan_ports(self, hosts: list):
         """
@@ -235,7 +272,27 @@ class Scan:
                 print('Error running scan, please try again')
 
 
+def parse_args():
+    """
+    Parses args from the cli with ArgumentParser
+    :returns: Parsed arguments
+    :rtype: <Namespace> obj
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-s",
+        "--force-scan",
+        default=False,
+        action='store_true',
+        help="")
+    args = parser.parse_args()
+    print(args)
+    return args
+
+
 if __name__ == '__main__':
+    # args = parse_args()
+    # Scan(args).run()
     Scan().run()
 
 # End File: lan-nanny/lan_nanny/scan.py

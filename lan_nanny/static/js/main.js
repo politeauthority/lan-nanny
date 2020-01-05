@@ -34,7 +34,7 @@ function register_toggle_ajax(base_ajax_uri, input_selector, starting_value){
   var field_name = input_selector.replace('#','');
 
   // Set the initial state of the toggle.
-  if(starting_value == 'True'){
+  if(starting_value){
     $(input_selector).bootstrapToggle('on');
   }
 
@@ -59,6 +59,7 @@ function send_ajax_update(base_ajax_uri, data){
   @todo: return notification on success, error.
 
   */
+  console.log(data);
   $.ajax({
     type: 'POST',
     data: data,

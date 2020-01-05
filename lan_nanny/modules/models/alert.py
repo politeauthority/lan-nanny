@@ -3,6 +3,7 @@
 """
 from .base import Base
 from .device import Device
+from ..collections.alert_events import AlertEvents
 
 
 class Alert(Base):
@@ -47,13 +48,14 @@ class Alert(Base):
         ]
         self.setup()
         self.device = None
+        self.events = []
 
     def __repr__(self):
         if self.id:
             return "<Alert %s>" % self.id
         return "<Alert>"
 
-    def check_active(self, device_id: int, alert_type: str) -> bool:
+    def get_active(self, device_id: int, alert_type: str) -> bool:
         """
         Checks the `alerts` table for active alerts for a device and alert type.
 
@@ -70,27 +72,9 @@ class Alert(Base):
         self.cursor.execute(sql, (device_id, alert_type))
         alert_raw = self.cursor.fetchone()
         if alert_raw:
+            self.build_from_list(alert_raw, build_device=False)
             return True
         return False
-
-    def delete_device(self, device_id: int) -> bool:
-        """
-        Deletes all records from the `alerts` table containing a device_id, this should be
-        performed when deleting a device.
-
-        """
-        sql = """DELETE FROM alerts WHERE device_id = %s """ % device_id
-        self.cursor.execute(sql)
-        return True
-
-    def delete_alert_events(self) -> bool:
-        """
-        Deletes all alert_event records for an alert.
-
-        """
-        sql = """DELETE FROM alert_events WHERE alert_id = %s """ % self.id
-        self.cursor.execute(sql)
-        return True
 
     def get_by_id(self, model_id: int, build_device: bool=False, build_alert_events: bool=False):
         """
@@ -109,20 +93,44 @@ class Alert(Base):
 
     def build_from_list(self, raw: list, build_device: bool=True, build_alert_events: bool=False):
         """
+        Builds an alert object from list.
+        @todo: redo this method to cite the base model.
+
         """
         c = 0
         for field in self.total_map:
             setattr(self, field['name'], raw[c])
             c += 1
+
+        # This is unique to this model
         if build_device:
             self.device = Device(self.conn, self.cursor)
             self.device.get_by_id(self.device_id)
-
+        
+        # This is unique to this model
         if build_alert_events:
-            self.alert_events = AlertEvents()
-            self.alert_events = get_by_alert_id(self.alert_id)
+            alert_events = AlertEvents(self.conn, self.cursor)
+            self.events = alert_events.get_by_alert_id(self.id)
 
+        return True
 
+    def delete_device(self, device_id: int) -> bool:
+        """
+        Deletes all records from the `alerts` table containing a device_id, this should be
+        performed when deleting a device.
+
+        """
+        sql = """DELETE FROM alerts WHERE device_id = %s """ % device_id
+        self.cursor.execute(sql)
+        return True
+
+    def delete_alert_events(self) -> bool:
+        """
+        Deletes all alert_event records for an alert.
+
+        """
+        sql = """DELETE FROM alert_events WHERE alert_id = %s """ % self.id
+        self.cursor.execute(sql)
         return True
 
 # End File: lan-nanny/lan_nanny/modules/models/alert.py
