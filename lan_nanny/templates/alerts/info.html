@@ -1,0 +1,125 @@
+<!-- Alert - Info -->
+{% extends "layout.html" %}
+
+{%block head%}
+  <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
+{%endblock%}
+
+{% block content %}
+  <div class="row">
+    <div class="col-lg-6">
+      <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Alert - {{alert.device.name}}</h1>
+      </div>
+    </div>
+    <div class="col-lg-6 text-right">
+      <!-- Button trigger modal -->
+      <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteAlertModal">
+        Delete
+      </button>
+    </div>
+  </div>
+
+  <div class="row">
+  <!-- Alert Actions -->
+
+    <div class="col-xl-6 col-lg-6">
+
+      <div class="card shadow mb-4">
+        <!-- Card Header -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">
+            Alerts
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <!-- <label for="alert_acked">Alert Acknowledged</label> -->
+            <input id="acked" data-entity-id="{{alert.id}}" data-on="Acknowledged" data-off="Unackwowledge" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="alertAckedHelp">
+            <small id="alertAckedHelp" class="form-text text-muted">Ack/Unack an alert</small>
+          </div>
+
+          <div class="form-group">
+            <label for="alert_active">Deactivate Alert</label>
+            <input id="active" data-entity-id="{{alert.id}}" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="alertActiveHelp">
+            <small id="alertActiveHelp" class="form-text text-muted">Deactivate the alert.</small>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="row">
+    <div class="col-xl-6 col-lg-6">
+
+      <div class="card shadow mb-4">
+        <!-- Card Header -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">
+            Alert Events
+
+          </h6>
+        </div>
+        <div class="card-body">
+          {%if alert.events %}
+            {%for event in alert.events %}
+              {{event.event_type}} : {{event.created_ts|smart_time}}<br/>
+
+              
+            {%endfor%}
+          {%else%}
+            No alert events.
+          {%endif%}
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+{%endblock%}
+
+{%block modal%}
+  <!-- Delete Alert Modal -->
+  <div class="modal fade" id="deleteAlertModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Delete Alert</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to delete this alert?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <a href="/alert/delete/{{alert.id}}" type="button" class="btn btn-danger">Delete</a>
+        </div>
+      </div>
+    </div>
+  </div>
+{%endblock%}
+
+{%block javascript%}
+  <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
+  <script type="text/javascript">
+    $( document ).ready(function(){
+      var alert_acked_initial_status = convert_str_bool("{{alert.acked}}");
+      var alert_active_initial_status = convert_str_bool("{{alert.active}}");
+      register_toggle_ajax(
+        '/alert/alert-quick-save',
+        '#acked',
+        alert_acked_initial_status);
+      register_toggle_ajax(
+        '/alert/alert-quick-save',
+        '#active',
+        alert_active_initial_status);
+    });
+  </script>
+{%endblock%}
+
+<!-- END: Alert - Info -->

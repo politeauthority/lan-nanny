@@ -6,7 +6,7 @@ import subprocess
 
 from modules import db
 
-NMAP_DB = "lan_nanny.db"
+NMAP_DB = "../lan_nanny.db"
 
 conn, cursor = db.create_connection(NMAP_DB)
 

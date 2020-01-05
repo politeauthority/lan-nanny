@@ -1,0 +1,27 @@
+.hidden {
+    display:none;
+}
+
+
+.bg-gradient-primary {
+    background-color: #1B0273;
+    /*background-image: linear-gradient(180deg, #BF1784 10%, #1B0273 100%);*/
+    background-image: linear-gradient(180deg, #F2059F 10%, #011F26 100%);
+    background-size: cover;
+}
+.connected_bolt {
+  animation-name: connected;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+}
+
+@keyframes connected {
+  0% {color: #ffffff;}
+  50% {color: #1cc88a; }
+  100% {color: #ffffff;}
+}
+
+
+.icon-pad {
+  padding-right: 3px;
+}

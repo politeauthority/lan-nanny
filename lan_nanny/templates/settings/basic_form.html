@@ -1,0 +1,83 @@
+<!-- Settings -->
+
+{% extends "layout.html" %}
+
+{%block head%}
+  <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
+{%endblock%}
+
+{% block content %}
+  <div class="row">
+    <div class="col-lg-6">
+      <h2>Settings</h2>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-6">
+      <form action="/settings/save" method="POST">
+        <h3>General</h3>
+        <!-- Timezone -->
+        <div class="form-group">
+          <label for="settings_timezone">Timezone</label>
+          <select class="form-control" id="settings_timezone" name="settings_timezone"  aria-describedby="timezoneHelp">
+            <option selected="selected">{{settings['timezone'].value}}</option>
+            <option>US/Alaska</option>
+            <option>US/Aleutian</option>
+            <option>US/Arizona</option>
+            <option>US/Central</option>
+            <option>US/East-Indiana</option>
+            <option>US/Eastern</option>
+            <option>US/Hawaii</option>
+            <option>US/Indiana-Starke</option>
+            <option>US/Michigan</option>
+            <option>US/Mountain</option>
+            <option>US/Pacific</option>
+            <option>US/Pacific-New</option>
+            <option>US/Samoa</option>
+            <option>UTC</option>
+          </select>
+          <small id="timezoneHelp" class="form-text text-muted">Timezone for display</small>
+        </div>
+
+        <div class="form-group">
+          <label for="setting_active_timeout">IP Scan Range</label>
+          <input type="text" class="form-control form-sm" id="setting_scan_hosts_range" name="setting_scan_hosts_range" value="{{settings['scan-hosts-range'].value}}" aria-describedby="scanRangeHelp">
+          <small id="scanRangeHelp" class="form-text text-muted">IP range for device scans.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="setting_scan_hosts_enabled">Scans Hosts</label>
+          <input id="setting_scan_hosts_enabled" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="scanHostsEnabledeHelp">
+          <small id="scanHostsEnabledeHelp" class="form-text text-muted">Enable regular host scanning.</small>
+        </div>
+
+<!--         <div class="form-group">
+          <label for="setting_scan_hosts_enabled">Alert on new devices</label>
+          <input id="setting_alert_new_device" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="scanHostsEnabledeHelp">
+          <small id="scanHostsEnabledeHelp" class="form-text text-muted">Enable regular host scanning.</small>
+        </div> -->
+
+
+          <div id="hidden_forms" class="hidden">
+          </div>
+        <br/>
+        <button class="btn btn-success" type="submit">Save</button>
+      </form>
+    </div>
+  </div>
+{%endblock%}
+
+{%block javascript%}
+  <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
+  <script type="text/javascript">
+    $( document ).ready(function(){
+      // var alert_new_device_value = convert_str_bool("{{settings['alert-new-device'].value}}");
+      // register_toggle_form('setting_alert_new_device', alert_new_device_value);
+
+      var scan_hosts_enabled_value = convert_str_bool("{{settings['scan-hosts-enabled'].value}}");
+      register_toggle_form('setting_scan_hosts_enabled', scan_hosts_enabled_value);
+    });
+  </script>
+{%endblock%}
+
+<!-- EndFile: lan-nanny/lan_nanny/templates/settings.html -->
