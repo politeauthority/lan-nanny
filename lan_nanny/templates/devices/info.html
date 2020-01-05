@@ -14,20 +14,24 @@
       </div>
     </div>
     <div class="col-lg-6 text-right">
+      <!-- <i class="fas fa-bolt"></i> -->
+
+
       <a id="device-favorite" href="#" class="btn btn-warning btn-circle btn-lg">
         <i class="fa {%if device.favorite == 0%}fa-star-o{%else%}fa-star{%endif%}"></i>
       </a>
       <a href="/device/edit/{{device.id}}" class="btn btn-primary">Edit</a>
     </div>
   </div>
-  <div class="row">
+  <!-- Breadcrums -->
+<!--   <div class="row">
     <div class="col-lg-6">
       <ul>
         <li>Devices</li>
         <li>{{device.name}}</li>
       </ul>
     </div>
-  </div>
+  </div> -->
 
   <!-- Content Row -->
   <div class="row">
@@ -140,4 +144,4 @@
   </script>
 {%endblock%}
 
-<!-- End File: lan-nanny/templates/devices/info.html -->
+<!-- End File: lan-nanny/templates/devices/info.html
