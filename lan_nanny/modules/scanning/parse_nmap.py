@@ -103,6 +103,64 @@ def parse_ports(phile: str):
     """
     phile = open(phile, "r")
     parsed = xmltodict.parse(phile.read())
-    print(parsed)
+    # print(parsed['nmaprun']['host']['ports'].keys())
+    # print(parsed['nmaprun']['host']['ports'])
+    ports = []
+    if 'host' not in parsed['nmaprun']:
+        return False
+    for port in parsed['nmaprun']['host']['ports']['port']:
+        found = {
+            'number': _get_port_number(port),
+            'protocol': _get_port_protocol(port),
+            'state': _get_port_state(port),
+            'service': _get_port_service(port),
+        }
+        ports.append(found)
+    return ports
+
+def _get_port_number(port: dict) -> int:
+    """
+    Gets the port's number from the parsed XML scan.
+
+    """
+    if '@portid' not in port:
+        return None
+    if type('@portid') == str:
+        return None
+    return int(port['@portid'])
+
+def _get_port_protocol(port: dict) -> str:
+    """
+    Gets the port's protocol from the parsed XML scan.
+
+    """
+    if '@protocol' not in port:
+        return ''
+    if type(port) == str:
+        return ''
+    return port['@protocol']
+
+def _get_port_state(port: dict) -> str:
+    """
+    Gets the port's state from the parsed XML scan.
+
+    """
+    if 'state' not in port:
+        return ''
+    if port['state']['@state'] == 'open':
+        return 'open'
+
+def _get_port_service(port: dict) -> str:
+    """
+    Gets the port's service from the parsed XML scan.
+
+    """
+    if 'service' not in port:
+        return ''
+    service_name = ''
+    if '@name' in port['service']:
+        service_name = port['service']['@name']
+    return service_name
+
 
 # End File: lan-nanny/modules/parse_nmap.py

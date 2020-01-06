@@ -36,6 +36,14 @@ class Port(Base):
                 'type': 'str'
             },
             {
+                'name': 'custom_service_name',
+                'type': 'str'
+            },
+            {
+                'name': 'protocol',
+                'type': 'str'
+            },
+            {
                 'name': 'updated_ts',
                 'type': 'datetime'
             }
@@ -45,4 +53,35 @@ class Port(Base):
     def __repr__(self):
         return "<Port %s>" % self.id
 
-# End File: lan-nanny/modules/models/port.py
+    def get_by_device_port_protocol(
+        self,
+        device_id: int=None,
+        port_number: str=None,
+        protocol: str=None):
+        """
+        """
+        if not device_id and self.device_id:
+            device_id = self.device_id
+
+        if not port_number and self.port:
+            port_number = self.port
+
+        if not protocol and self.protocol:
+            protocol = self.protocol
+
+        sql = """
+        SELECT *
+        FROM ports
+        WHERE
+            device_id = ? AND
+            port = ? AND
+            protocol = ? """
+        vals = (device_id, port_number, protocol)
+        self.cursor.execute(sql, vals)
+        port_raw = self.cursor.fetchone()
+        if not port_raw:
+            return False
+
+        self.build_from_list(port_raw)
+
+# End File: lan-nanny/lan_nanny/modules/models/port.py

@@ -2,7 +2,9 @@
 Gets collections of devices.
 
 """
-from datetime import datetime
+from datetime import datetime, timedelta
+
+import arrow
 
 from ..models.device import Device
 
@@ -94,6 +96,30 @@ class Devices():
             devices.append(device)
         return devices
 
+    def for_port_scanning(self, limit: int=None):
+        """
+        Gets Devices with alerts_online OR alerts_offline
+
+        """
+        hours_24 = arrow.utcnow().datetime - timedelta(hours=24)
+        limit = ''
+        if limit:
+            "LIMIT %s" % limit
+        sql = """
+            SELECT *
+            FROM devices
+            WHERE
+                port_scan = 1 AND
+                last_port_scan <= '%s'
+            ORDER BY last_port_scan ASC %s;""" % (hours_24, limit)
+        self.cursor.execute(sql)
+        raw_devices = self.cursor.fetchall()
+        devices = []
+        for raw_device in raw_devices:
+            device = Device()
+            device.build_from_list(raw_device)
+            devices.append(device)
+        return devices
 
 
 # End File: lan-nanny/modules/collections/devices.py

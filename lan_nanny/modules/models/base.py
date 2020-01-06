@@ -81,7 +81,6 @@ class Base():
             self.get_fields_sql(),
             self.get_parmaterized_num())
         self.cursor.execute(insert_sql, self.get_values_sql())
-
         self.conn.commit()
         self.id = self.cursor.lastrowid
         # @todo: make into logging NOT print

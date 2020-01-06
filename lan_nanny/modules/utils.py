@@ -19,13 +19,15 @@ def device_icons() -> dict:
         "fas fa-print": "Printer",
         "fas fa-tablet-alt": "Tablet",
         "fas fa-plug": "Smart Plug",
+        "fas fa-lightbulb": "Light",
         "fas fa-laptop": "Laptop",
         "fas fa-question": "Question Mark",
         "fas fa-satellite": "Satellite",
         "fas fa-music": "Audio Device",
         "fas fa-camera": "Camera",
         "fas fa-tv": "Tv",
-        "fas fa-phone": "Phone"
+        "fas fa-phone": "Phone",
+        "fa fa-mobile": "Smart Phone",
     }
     return icons
 

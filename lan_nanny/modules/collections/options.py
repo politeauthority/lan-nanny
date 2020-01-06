@@ -51,8 +51,9 @@ class Options():
         _create_default('alert-new-device', '1', 'bool')
         _create_default('active-timeout', '8', 'int')
         _create_default('scan-hosts-enabled', '1', 'bool')
-        _create_default('scan-hosts-ports-default', '0', 'bool')
+        _create_default('scan-hosts-ports', '0', 'bool')
         _create_default('scan-hosts-range', '192.168.50.1-255', 'str')
+        _create_default('beta-features', 0, 'bool')
 
     def _create_default(option_name, option_value, option_type):
         option = Option(self.conn, self.cursor)

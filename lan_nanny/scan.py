@@ -3,20 +3,24 @@
 """
 import argparse
 from datetime import datetime, timedelta
+import os
 import subprocess
 import sys
 
 import arrow
 
-from modules import parse_nmap
 from modules import db
+from modules.scanning import parse_nmap
 from modules.models.device import Device
 from modules.models.run_log import RunLog
 from modules.models.witness import Witness
 from modules.models.alert import Alert
 from modules.models.alert_event import AlertEvent
+from modules.models.port import Port
 from modules.collections.devices import Devices
 from modules.collections.options import Options
+
+from modules.scanning.scan_ports import ScanPorts
 from config import default as config_default
 
 NMAP_SCAN_FILE = "tmp.xml"
@@ -95,6 +99,7 @@ class Scan:
         scan_range = self.options['scan-hosts-range'].value
         # import pdb; pdb.set_trace()
         print('Scan Range: %s' % scan_range)
+        # cmd = "nmap -Pn -sn %s -oX %s" % (scan_range, NMAP_SCAN_FILE)
         cmd = "nmap -sP %s -oX %s" % (scan_range, NMAP_SCAN_FILE)
         try:
             subprocess.check_output(cmd, shell=True)
@@ -252,24 +257,8 @@ class Scan:
 
         """
         print("Running port scans")
-        port_scan_devices = []
+        ScanPorts(self.options, conn, cursor).run(hosts)
 
-        for host in hosts:
-            device = Device(conn, cursor).get_by_mac(host['mac'])
-
-            if device.port_scan == 1:
-                port_scan_devices.append(device)
-
-        print(port_scan_devices)
-
-        for device in port_scan_devices:
-            # cmd = "nmap -p 1-65535 -sV -sS -T4 %s -oX port_scan.xml" % device.ip
-            cmd = "nmap %s -oX port_scan.xml" % device.ip
-            print(cmd)
-            try:
-                subprocess.check_output(cmd, shell=True)
-            except subprocess.CalledProcessError:
-                print('Error running scan, please try again')
 
 
 def parse_args():

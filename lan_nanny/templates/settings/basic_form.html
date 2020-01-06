@@ -46,11 +46,15 @@
         </div>
 
         <div class="form-group">
-          <label for="setting_scan_hosts_enabled">Scans Hosts</label>
+          <label for="setting_scan_hosts_enabled">Scan Hosts</label>
           <input id="setting_scan_hosts_enabled" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="scanHostsEnabledeHelp">
           <small id="scanHostsEnabledeHelp" class="form-text text-muted">Enable regular host scanning.</small>
         </div>
-
+        <div class="form-group">
+          <label for="setting_scan_hosts_ports_enabled">Scan Ports</label>
+          <input id="setting_scan_hosts_ports_enabled" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="scanHostsPortsEnabledeHelp">
+          <small id="scanHostsPortsEnabledeHelp" class="form-text text-muted">Enable regular host port scanning.</small>
+        </div>
 <!--         <div class="form-group">
           <label for="setting_scan_hosts_enabled">Alert on new devices</label>
           <input id="setting_alert_new_device" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="scanHostsEnabledeHelp">
@@ -76,6 +80,10 @@
 
       var scan_hosts_enabled_value = convert_str_bool("{{settings['scan-hosts-enabled'].value}}");
       register_toggle_form('setting_scan_hosts_enabled', scan_hosts_enabled_value);
+
+      var scan_hosts_port_enabled_value = convert_str_bool("{{settings['scan-hosts-ports'].value}}");
+      register_toggle_form('setting_scan_hosts_ports_enabled', scan_hosts_port_enabled_value);
+      
     });
   </script>
 {%endblock%}
