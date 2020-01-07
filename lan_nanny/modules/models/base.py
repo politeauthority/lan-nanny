@@ -42,7 +42,8 @@ class Base():
         Creates a table based on the self.table_name, and self.field_map.
 
         """
-        self.create_total_map()
+        print('Creating %s' % self.__class__.__name__)
+        self._create_total_map()
         if not self.table_name:
             raise AttributeError('Model table name not set, (self.table_name)')
         sql = "CREATE TABLE IF NOT EXISTS %s \n(%s)" % (self.table_name, self._generate_create_table_feilds())
@@ -136,7 +137,7 @@ class Base():
         # print('Delete %s: %s' % (self.model_name, self))
         return True
 
-    def get_by_id(self, model_id: int):
+    def get_by_id(self, model_id: int) -> bool:
         """
         Gets an alert from the `alerts` table based on it's alert ID.
 
@@ -149,7 +150,7 @@ class Base():
 
         self.build_from_list(raw)
 
-        return self
+        return True
 
     def build_from_list(self, raw: list):
         """

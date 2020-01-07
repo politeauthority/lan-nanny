@@ -12,7 +12,7 @@ import arrow
 from modules import db
 from modules.scanning import parse_nmap
 from modules.models.device import Device
-from modules.models.run_log import RunLog
+from modules.models.scan_log import ScanLog
 from modules.models.witness import Witness
 from modules.models.alert import Alert
 from modules.models.alert_event import AlertEvent
@@ -23,7 +23,7 @@ from modules.collections.options import Options
 from modules.scanning.scan_ports import ScanPorts
 from config import default as config_default
 
-NMAP_SCAN_FILE = "tmp.xml"
+NMAP_SCAN_FILE = "/opt/lan_nanny/hosts.xml"
 
 conn, cursor = db.create_connection(config_default.LAN_NANNY_DB_FILE)
 
@@ -40,7 +40,7 @@ class Scan:
 
         """
         self._setup()
-        print('Running scan number %s' % self.run_log.id)
+        print('Running scan number %s' % self.scan_log.id)
 
         hosts = self.scan()
 
@@ -56,8 +56,8 @@ class Scan:
         Sets up run log and loads options.
 
         """
-        self.run_log = RunLog(conn, cursor)
-        self.run_log.insert_run_start()
+        self.scan_log = ScanLog(conn, cursor)
+        self.scan_log.insert_run_start()
         options = Options(conn, cursor)
         self.options = options.get_all_keyed()
 
@@ -66,21 +66,21 @@ class Scan:
         Closes out the run log entry.
 
         """
-        self.run_log.completed = 1
-        self.run_log.success = 1
-        self.run_log.end_ts = arrow.utcnow().datetime
-        self.run_log.num_devices = num_devices
-        self.run_log.scan_range = self.options['scan-hosts-range'].value
-        self.run_log.save()
+        self.scan_log.completed = 1
+        self.scan_log.success = 1
+        self.scan_log.end_ts = arrow.utcnow().datetime
+        self.scan_log.num_devices = num_devices
+        self.scan_log.scan_range = self.options['scan-hosts-range'].value
+        self.scan_log.save()
 
     def _abort_run(self):
         """
         Closes out the run log entry.
 
         """
-        self.run_log.completed = 0
-        self.run_log.success = 0
-        self.run_log.save()
+        self.scan_log.completed = 0
+        self.scan_log.success = 0
+        self.scan_log.save()
 
     def scan(self) -> dict:
         """
@@ -105,9 +105,9 @@ class Scan:
             subprocess.check_output(cmd, shell=True)
         except subprocess.CalledProcessError:
             print('Error running scan, please try again')
-            self.run_log.completed = 1
-            self.run_log.success = 0
-            self.run_log.update()
+            self.scan_log.completed = 1
+            self.scan_log.success = 0
+            self.scan_log.update()
             exit(1)
         hosts = parse_nmap.parse_hosts(NMAP_SCAN_FILE)
 
@@ -154,7 +154,7 @@ class Scan:
         """
         witness = Witness(conn, cursor)
         witness.device_id = device.id
-        witness.run_id = self.run_log.id
+        witness.run_id = self.scan_log.id
         witness.insert()
         return True
 
@@ -177,7 +177,7 @@ class Scan:
 
 
                 # If the device is not in the most recent scan, register the alert.
-                device_in_scan = witness.get_device_for_scan(device.id, self.run_log.id)
+                device_in_scan = witness.get_device_for_scan(device.id, self.scan_log.id)
                 if not device_in_scan:
                     device_offline_seconds = (arrow.utcnow().datetime - device.last_seen).seconds
                     timeout_seconds = int(self.options['active-timeout'].value) * 60
@@ -257,8 +257,10 @@ class Scan:
 
         """
         print("Running port scans")
+        if self.options['scan-hosts-enabled'] != True:
+            print('Port Scanning disabled')
+            return
         ScanPorts(self.options, conn, cursor).run(hosts)
-
 
 
 def parse_args():

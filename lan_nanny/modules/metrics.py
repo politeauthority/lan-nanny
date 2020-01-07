@@ -2,8 +2,8 @@
 
 """
 from .collections.devices import Devices
-from .collections.run_logs import RunLogs
-from .models.run_log import RunLog
+from .collections.scan_logs import ScanLogs
+from .models.scan_log import ScanLog
 
 
 class Metrics:
@@ -34,17 +34,17 @@ class Metrics:
         """
 
         """
-        run_logs = RunLogs(self.conn, self.cursor)
-        run_logs_24 = run_logs.get_runs_24_hours()
-        return run_logs_24
+        scan_logs = ScanLogs(self.conn, self.cursor)
+        scan_logs_24 = scan_logs.get_runs_24_hours()
+        return scan_logs_24
 
-    def get_last_run_log(self) -> RunLog:
+    def get_last_run_log(self) -> ScanLog:
         """
         Gets the last run log.
 
         """
-        run_log = RunLog(self.conn, self.cursor)
-        last_run_log = run_log.get_last()
-        return last_run_log
+        scan_log = ScanLog(self.conn, self.cursor)
+        last_scan_log = scan_log.get_last()
+        return last_scan_log
 
-# End File: lan-nanny/modules/metrics.py
+# End File: lan-nanny/lan_nanny/modules/metrics.py

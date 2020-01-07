@@ -1,4 +1,4 @@
-"""Run Log - Model
+"""Scan Log - Model
 
 """
 import arrow
@@ -6,15 +6,15 @@ import arrow
 from .base import Base
 
 
-class RunLog(Base):
+class ScanLog(Base):
 
     def __init__(self, conn=None, cursor=None):
-        super(RunLog, self).__init__(conn, cursor)
+        super(ScanLog, self).__init__(conn, cursor)
         self.conn = conn
         self.cursor = cursor
 
-        self.model_name = 'RunLog'
-        self.table_name = 'run_logs'
+        self.model_name = 'ScanLog'
+        self.table_name = 'scan_log'
 
         self.field_map = [
             {
@@ -23,7 +23,7 @@ class RunLog(Base):
             },
             {
                 'name': 'elapsed_time',
-                'type': 'str'
+                'type': 'int'
             },
             {
                 'name': 'completed',
@@ -35,21 +35,17 @@ class RunLog(Base):
             },
             {
                 'name': 'num_devices',
-                'type': 'str'
-            },
-            {
-                'name': 'scan_name',
-                'type': 'str'
+                'type': 'int'
             }
         ]
         self.setup()
 
     def __repr__(self):
-        return "<RunLog %s>" % self.id
+        return "<ScanLog %s>" % self.id
 
     def get_last(self):
         """
-        Gets the last run log form the `run_log` table.
+        Gets the last run log form the `scan_log` table.
 
         """
         sql = """SELECT * FROM %s ORDER BY created_ts DESC LIMIT 1""" % self.table_name
@@ -77,8 +73,7 @@ class RunLog(Base):
         self.conn.commit()
         self.id = self.cursor.lastrowid
         # @todo: make into logging NOT print
-        print('New %s: %s' % (self.model_name, self))
+        # print('New %s: %s' % (self.model_name, self))
         return True
 
-
-# End File: lan-nanny/lan_nanny/modules/models/run_log.py
+# End File: lan-nanny/lan_nanny/modules/models/scan_log.py

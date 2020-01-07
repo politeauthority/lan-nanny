@@ -49,9 +49,11 @@ def _get_host_ip(host: dict) -> str:
         return ''
 
     host_ip = ''
+    print(host)
     for addr in host['address']:
         if '@addrtype' not in addr:
             continue
+        print(addr)
         if addr['@addrtype'] == 'ipv4':
             host_ip = addr['@addr']
             break
@@ -108,7 +110,13 @@ def parse_ports(phile: str):
     ports = []
     if 'host' not in parsed['nmaprun']:
         return False
+
+    print(len(parsed['nmaprun']['host']['ports']))
+    print(parsed['nmaprun']['host']['ports'])
+
+    import ipdb; ipdb.set_trace()
     for port in parsed['nmaprun']['host']['ports']['port']:
+        print("PORT: %s" % port)
         found = {
             'number': _get_port_number(port),
             'protocol': _get_port_protocol(port),
@@ -147,6 +155,7 @@ def _get_port_state(port: dict) -> str:
     """
     if 'state' not in port:
         return ''
+    print(port)
     if port['state']['@state'] == 'open':
         return 'open'
 
@@ -163,4 +172,4 @@ def _get_port_service(port: dict) -> str:
     return service_name
 
 
-# End File: lan-nanny/modules/parse_nmap.py
+# End File: lan-nanny/lan_nanny/modules/scanning/parse_nmap.py

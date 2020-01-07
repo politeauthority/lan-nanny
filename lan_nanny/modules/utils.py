@@ -32,13 +32,18 @@ def device_icons() -> dict:
     return icons
 
 
-def get_db_size(db_file_loc: str):
+def get_db_size(db_file_loc: str) -> str:
     """
+    Gets the size of the database on disk.
+
     """
-    return sizeof_fmt(os.path.getsize(db_file_loc))
+    return size_of_fmt(os.path.getsize(db_file_loc))
 
 
-def sizeof_fmt(num, suffix='B'):
+def size_of_fmt(num: int, suffix: str='B') -> str:
+    """
+    Gets the size of a file in human readable format.
+    """
     for unit in ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']:
         if abs(num) < 1024.0:
             return "%3.1f%s%s" % (num, unit, suffix)

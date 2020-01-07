@@ -1,4 +1,4 @@
-"""Device Controller
+"""Settings Controller
 
 """
 from flask import Blueprint, render_template, redirect, request, g
@@ -21,6 +21,7 @@ def basic() -> str:
         'settings': g.options,
     }
     return render_template('settings/basic_form.html', **data)
+
 
 @settings.route('/save', methods=['POST'])
 def settings_save():
@@ -51,6 +52,7 @@ def settings_save():
         'bool')
 
     return redirect('/settings')
+
 
 def _save_setting(conn, cursor, option_name, option_value, option_type):
     """

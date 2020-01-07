@@ -21,7 +21,7 @@ class Witness(Base):
                 'type': 'int'
             },
             {
-                'name': 'run_id',
+                'name': 'scan_id',
                 'type': 'int'
             },
             {
@@ -58,7 +58,7 @@ class Witness(Base):
             FROM witness
             WHERE
                 device_id=? AND
-                run_id = ?
+                scan_id = ?
         """
         var = (device_id, scan_id)
 

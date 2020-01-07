@@ -37,7 +37,7 @@ class Option(Base):
     def __repr__(self):
         return "<Option %s>" % self.name
 
-    def get_by_name(self, name: str=None):
+    def get_by_name(self, name: str=None) -> bool:
         """
         Gets an option from the options table based on name.
 
@@ -55,6 +55,13 @@ class Option(Base):
 
         self.build_from_list(option_raw)
 
-        return self
+        return True
 
-# End File: lan-nanny/modules/models/option.py
+    def save_by_name(self):
+        """
+        Saves an option by name.
+
+        """
+        self.save(where=['name', self.name])
+
+# End File: lan-nanny/lan_nanny/modules/models/option.py

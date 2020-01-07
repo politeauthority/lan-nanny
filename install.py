@@ -4,9 +4,9 @@ Creates the lan nanny db and tables, as well as populating options and their def
 """
 import subprocess
 
-from modules import db
+from .modules import db
 
-NMAP_DB = "lan_nanny.db"
+NMAP_DB = "galapago.db"
 
 conn, cursor = db.create_connection(NMAP_DB)
 
@@ -16,8 +16,9 @@ def run():
     Main entry point to scanning script.
 
     """
-    db.create_tables(conn, cursor)
     db.populate_options(conn, cursor)
+
+    db.create_tables(conn, cursor)
 
 
 def pip_requiredments():
