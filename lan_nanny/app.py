@@ -98,6 +98,7 @@ def about() -> str:
 
     data = {
         'active_page': 'about',
+        'db_name': app.config['LAN_NANNY_DB_FILE'],
         'db_size': utils.get_db_size(app.config['LAN_NANNY_DB_FILE'])
     }
     return render_template('about.html', **data)
