@@ -3,8 +3,9 @@ Parent class for all models to inherit, providing methods for creating tables, i
 selecting and deleting data.
 
 """
-from sqlite3 import Error
 from datetime import datetime
+import logging
+from sqlite3 import Error
 
 import arrow
 
@@ -16,7 +17,6 @@ class Base():
         self.cursor = cursor
         self.iodku = True
 
-        self.model_name = None
         self.table_name = None
         self.base_map = [
             {
@@ -34,8 +34,8 @@ class Base():
 
     def __repr__(self):
         if self.id:
-            return "<%s %s>" % (self.model_name, self.id)
-        return "<%s>" % self.model_name
+            return "<%s %s>" % (__class__.__name__, self.id)
+        return "<%s>" % self.__class__.__name__
 
     def create_table(self) -> bool:
         """
@@ -84,8 +84,6 @@ class Base():
         self.cursor.execute(insert_sql, self.get_values_sql())
         self.conn.commit()
         self.id = self.cursor.lastrowid
-        # @todo: make into logging NOT print
-        # print('New %s: %s' % (self.model_name, self))
         return True
 
     def save(self, where: list=[], raw: dict={}) -> bool:
@@ -119,8 +117,6 @@ class Base():
         # print(self.get_values_sql())
         self.cursor.execute(update_sql, self.get_values_sql())
         self.conn.commit()
-        # @todo: make into logging NOT print
-        # print('Updated %s: %s' % (self.model_name, self))
         return True
 
     def delete(self, _id: int=None):
@@ -134,7 +130,6 @@ class Base():
         sql = """DELETE FROM %s WHERE id = %s """ % (self.table_name, self.id)
         self.cursor.execute(sql)
         self.conn.commit()
-        # print('Delete %s: %s' % (self.model_name, self))
         return True
 
     def get_by_id(self, model_id: int) -> bool:
@@ -243,7 +238,7 @@ class Base():
                     field_value = 0
                 else:
                     raise AttributeError('Model %s var self.%s with type bool has value of %s' % (
-                        self.model_name,
+                        __class__.__name__,
                         field['name'],
                         field_value))
 
@@ -297,12 +292,15 @@ class Base():
 
         """
         self.field_list = []
+
         for field in self.total_map:
             name = field['name']
             default = None
             if 'default' in field:
                 default = field['default']
             self.field_list.append(name)
+
+            # Sets all class field vars with defaults.
             if not getattr(self, name, None):
                 setattr(self, name, default)
         return True
@@ -313,26 +311,60 @@ class Base():
 
         """
         for field in self.total_map:
-            class_var_value = getattr(self, field['name'])
-            if class_var_value:
+            class_var_name = field['name']
+            class_var_value = getattr(self, class_var_name)
+            if not class_var_value:
                 continue
-            # If the field its type bool, but not actually typed bool, typically 0 or 1 make it bool
+
+            if field['type'] == 'int' and type(class_var_value) != int:
+                converted_value = self._convert_ints(class_var_name, class_var_value)
+                setattr(self, class_var_name, converted_value)
+                continue
 
             if field['type'] == 'bool' and type(class_var_value) != bool:
-                if class_var_value == 1:
-                    setattr(self, field['name'], True)
-                elif class_var_value == 0:
-                    setattr(self, field['name'], False)
-                else:
-                    AttributeError('%s field %s should be type bool.' % (
-                        self.model_name,
-                        field['name']))
+                converted_value = self._convert_bools(class_var_name, class_var_value)
+                setattr(self, class_var_name, converted_value)
+                continue
 
             if field['type'] == 'datetime' and type(class_var_value) != datetime:
                 setattr(
                     self,
                     field['name'],
                     arrow.get(class_var_value).datetime)
+                continue
+
+    def _convert_ints(self, name:str, value) -> bool:
+        """
+        Attempts to convert ints to a usable value or raises an AttributeError.
+
+        """
+        if isinstance(value, int):
+            return value
+        if isinstance(value, str) and value.isdigit():
+            logging.warning('Class %s field %s value %s is not int, changed to int.' % (
+                __class__.__name__, name, value))
+            return int(value)
+        raise AttributeError('Class %s field %s value %s is not int.' % (
+            __class__.__name__, name, value))
+
+    def _convert_bools(self, name:str, value) -> bool:
+        """
+        Attempts to convert bools into usable value or raises an AttributeError.
+
+        """
+        if isinstance(value, bool):
+            return value
+
+        value = str(value).lower()
+        # Try to convert values to the positive.
+        if value == '1' or value == 'true':
+            return True
+        # Try to convert values to the negative.
+        elif value == '0' or value == 'false':
+            return False
+        else:
+            AttributeError('%s field %s should be type bool.' % (
+                __class__.__name__, name))
 
     def _generate_create_table_feilds(self) -> str:
         """
