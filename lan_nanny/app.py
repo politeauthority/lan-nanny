@@ -8,9 +8,11 @@ import sys
 from flask import Flask, redirect, render_template, request, g
 
 # from modules.controllers import auth as ctrl_auth
-from modules.controllers.device import device as ctrl_device
 from modules.controllers.alert import alert as ctrl_alert
+from modules.controllers.device import device as ctrl_device
+from modules.controllers.ports import ports as ctrl_ports
 from modules.controllers.scan import scan as ctrl_scan
+
 from modules.controllers.settings import settings as ctrl_settings
 from modules import db
 from modules.collections.alerts import Alerts
@@ -83,7 +85,7 @@ def index() -> str:
     data['device_favorites'] = favorites
     data['devices'] = devices
     data['runs_over_24'] = metrics.get_runs_24_hours()
-    data['last_run'] = metrics.get_last_run_log()
+    # data['last_run'] = metrics.get_last_run_log()
     return render_template('dashboard.html', **data)
 
 
@@ -152,4 +154,4 @@ if __name__ == '__main__':
     app.run(host="0.0.0.0", port=port, debug=True)
 
 
-# End File: lan-nanny/app.py
+# End File: lan-nanny/lan_nanny/app.py

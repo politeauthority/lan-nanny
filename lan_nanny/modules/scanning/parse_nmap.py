@@ -49,11 +49,9 @@ def _get_host_ip(host: dict) -> str:
         return ''
 
     host_ip = ''
-    print(host)
     for addr in host['address']:
         if '@addrtype' not in addr:
             continue
-        print(addr)
         if addr['@addrtype'] == 'ipv4':
             host_ip = addr['@addr']
             break
@@ -105,18 +103,11 @@ def parse_ports(phile: str):
     """
     phile = open(phile, "r")
     parsed = xmltodict.parse(phile.read())
-    # print(parsed['nmaprun']['host']['ports'].keys())
-    # print(parsed['nmaprun']['host']['ports'])
     ports = []
     if 'host' not in parsed['nmaprun']:
         return False
 
-    print(len(parsed['nmaprun']['host']['ports']))
-    print(parsed['nmaprun']['host']['ports'])
-
-    import ipdb; ipdb.set_trace()
     for port in parsed['nmaprun']['host']['ports']['port']:
-        print("PORT: %s" % port)
         found = {
             'number': _get_port_number(port),
             'protocol': _get_port_protocol(port),
@@ -155,7 +146,6 @@ def _get_port_state(port: dict) -> str:
     """
     if 'state' not in port:
         return ''
-    print(port)
     if port['state']['@state'] == 'open':
         return 'open'
 

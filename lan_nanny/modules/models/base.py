@@ -13,6 +13,11 @@ import arrow
 class Base():
 
     def __init__(self, conn=None, cursor=None):
+        """
+        Base model constructor
+        @unit-tested
+
+        """
         self.conn = conn
         self.cursor = cursor
         self.iodku = True
@@ -64,15 +69,13 @@ class Base():
         self._set_defaults()
         self._set_types()
 
-    def insert(self, raw: dict={}):
+    def insert(self):
         """
         Inserts a new record of the model.
 
         """
         self.setup()
         self.check_required_class_vars()
-        if raw:
-            self.build_from_dict()
 
         if not self.created_ts:
             self.created_ts = arrow.utcnow().datetime
@@ -135,6 +138,7 @@ class Base():
     def get_by_id(self, model_id: int) -> bool:
         """
         Gets an alert from the `alerts` table based on it's alert ID.
+        @unit-tested
 
         """
         sql = """SELECT * FROM %s WHERE id = %s""" % (self.table_name, model_id)
@@ -151,30 +155,25 @@ class Base():
         """
         Builds a model from an ordered list, converting data types to their desired type where
         possible.
+        @unit-tested
 
         """
         count = 0
+
         for field in self.total_map:
-            if field['type'] == 'datetime':
-                setattr(self, field['name'], arrow.get(raw[count]).datetime)
-            elif field['type'] == 'bool':
-                if raw[count] == 1:
-                    setattr(self, field['name'], True)
-                else:
-                    setattr(self, field['name'], False)
-            else:
-                setattr(self, field['name'], raw[count])
+
+            # if field['type'] == 'datetime':
+            #     setattr(self, field['name'], arrow.get(raw[count]).datetime)
+            # elif field['type'] == 'bool':
+            #     if raw[count] == 1:
+            #         setattr(self, field['name'], True)
+            #     else:
+            #         setattr(self, field['name'], False)
+            # else:
+            #     setattr(self, field['name'], raw[count])
+
+            setattr(self, field['name'], raw[count])
             count += 1
-        return True
-
-    def build_from_dict(self, raw: dict):
-        """
-        Creates a model object from a keyed dictionary.
-
-        """
-        for field in self.total_map:
-            if field['name'] in raw:
-                setattr(self, field['name'], raw[field['name']])
         return True
 
     def get_fields_sql(self, skip_fields: list=['id']) -> str:
@@ -280,6 +279,7 @@ class Base():
     def _create_total_map(self) -> bool:
         """
         Slams the base_map and models field_map together into self.total_map.
+        @unit-tested
 
         """
         self.total_map = self.base_map + self.field_map
@@ -289,6 +289,7 @@ class Base():
         """
         Sets the defaults for the class field vars and populates the self.field_list var containing
         all table field names.
+        @unit-tested
 
         """
         self.field_list = []
@@ -308,6 +309,7 @@ class Base():
     def _set_types(self) -> bool:
         """
         Sets the types of class table field vars and corrects their types where possible.
+        @unit-tested
 
         """
         for field in self.total_map:
@@ -350,6 +352,7 @@ class Base():
     def _convert_bools(self, name:str, value) -> bool:
         """
         Attempts to convert bools into usable value or raises an AttributeError.
+        @unit-tested
 
         """
         if isinstance(value, bool):

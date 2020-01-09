@@ -107,7 +107,7 @@ class Scan:
             print('Error running scan, please try again')
             self.scan_log.completed = 1
             self.scan_log.success = 0
-            self.scan_log.update()
+            self.scan_log.save()
             exit(1)
         hosts = parse_nmap.parse_hosts(NMAP_SCAN_FILE)
 

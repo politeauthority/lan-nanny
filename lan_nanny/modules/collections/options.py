@@ -39,10 +39,11 @@ class Options():
         opt_dict = {}
 
         all_options = self.get_all()
+        ret_options = {}
         for option in all_options:
-            opt_dict[option.name] = option
+            ret_options[option.name] = option
 
-        return opt_dict
+        return ret_options
 
     def create_deaults(self):
         """

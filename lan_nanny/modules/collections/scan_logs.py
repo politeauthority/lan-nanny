@@ -13,7 +13,7 @@ class ScanLogs():
     def __init__(self, conn=None, cursor=None):
         self.conn = conn
         self.cursor = cursor
-        self.table_name = 'scan_log'
+        self.table_name = ScanLog().table_name
 
     def get_all(self) -> list:
         """

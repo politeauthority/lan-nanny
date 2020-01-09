@@ -13,8 +13,7 @@ class ScanLog(Base):
         self.conn = conn
         self.cursor = cursor
 
-        self.model_name = 'ScanLog'
-        self.table_name = 'scan_log'
+        self.table_name = 'scan_logs'
 
         self.field_map = [
             {
@@ -35,8 +34,13 @@ class ScanLog(Base):
             },
             {
                 'name': 'num_devices',
-                'type': 'int'
-            }
+                'type': 'int',
+                'default': 0,
+            },
+            {
+                'name': 'scan_type',
+                'type': 'str'
+            },
         ]
         self.setup()
 

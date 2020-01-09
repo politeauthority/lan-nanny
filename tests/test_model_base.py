@@ -154,10 +154,49 @@ class TestModelBase():
         # with pytest.raises(AttributeError):
         #     base._convert_bools('test_str_3_false', '5')
 
+    def test__generate_create_table_feilds(self):
+        """
+        """
+        base = Base()
+        base.field_map = GENERIC_FIELDS
+        base._generate_create_table_feilds()
+
+    def test_build_from_list(self):
+        """
+        Tests the build_from_list method to make sure it builds out the class.
+
+        """
+        base = Base()
+        base.field_map = GENERIC_FIELDS
+        base.setup()
+
+        sql_ret = [
+            1,                              # id
+            datetime(2020, 1, 8, 5, 1, 48), # created_ts
+            1,                              # field_three
+            'TEST',                         # field_four
+            5,                              # field_five
+            datetime(2020, 1, 8, 5, 1, 48), # field_six
+            0]                              # field_seven
+        base.build_from_list(sql_ret)
+        assert base.id == 1
+        assert base.created_ts == datetime(2020, 1, 8, 5, 1, 48)
+        assert base.field_three == True
+        assert base.field_four == 'TEST'
+        assert base.field_five == 5
+        assert base.field_six == datetime(2020, 1, 8, 5, 1, 48)
+        assert base.field_seven == 0
+
 
 if __name__ == '__main__':
     base = Base()
     base._convert_bools('test_str_3_false', '5')
-    import ipdb; ipdb.set_trace()    
+    base = Base()
+    base.field_map = GENERIC_FIELDS
+    x = base._generate_create_table_feilds()
+
+    print(x)
+    import ipdb; ipdb.set_trace()
+
 
 # EndFile: lan-nanny/tests/test_model_base.py
