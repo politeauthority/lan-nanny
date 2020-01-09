@@ -89,15 +89,13 @@ class Base():
         self.id = self.cursor.lastrowid
         return True
 
-    def save(self, where: list=[], raw: dict={}) -> bool:
+    def save(self, where: list=[]) -> bool:
         """
         Saves a model instance in the model table.
 
         """
         self.setup()
         self.check_required_class_vars()
-        if raw:
-            self.build_from_dict(raw)
 
         if self.iodku and not self.id:
             return self.insert()
@@ -189,7 +187,7 @@ class Base():
             field_sql += "%s, " % field['name']
         return field_sql[:-2]
 
-    def get_parmaterized_num(self,skip_fields: list=['id']) -> str:
+    def get_parmaterized_num(self, skip_fields: list=['id']) -> str:
         """
         Generates the number of parameterized "?" for the sql lite parameterization.
 
@@ -324,7 +322,7 @@ class Base():
                 continue
 
             if field['type'] == 'bool' and type(class_var_value) != bool:
-                converted_value = self._convert_bools(class_var_name, class_var_value)
+                converted_value = self.convert_bools(class_var_name, class_var_value)
                 setattr(self, class_var_name, converted_value)
                 continue
 
@@ -335,7 +333,7 @@ class Base():
                     arrow.get(class_var_value).datetime)
                 continue
 
-    def _convert_ints(self, name:str, value) -> bool:
+    def _convert_ints(self, name: str, value) -> bool:
         """
         Attempts to convert ints to a usable value or raises an AttributeError.
 
@@ -349,7 +347,7 @@ class Base():
         raise AttributeError('Class %s field %s value %s is not int.' % (
             __class__.__name__, name, value))
 
-    def _convert_bools(self, name:str, value) -> bool:
+    def convert_bools(self, name: str, value) -> bool:
         """
         Attempts to convert bools into usable value or raises an AttributeError.
         @unit-tested

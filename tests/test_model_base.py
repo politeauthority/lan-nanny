@@ -34,7 +34,7 @@ GENERIC_FIELDS = [
     {
         'name': 'field_seven',
         'type': 'bool',
-    },]
+    }]
 
 
 class TestModelBase():
@@ -110,7 +110,7 @@ class TestModelBase():
         Tests the _set_types method, making sure we set the correct types for each type.
 
         """
-        base = Base()   
+        base = Base()
         base.field_map = GENERIC_FIELDS
         base._create_total_map()
         base._set_defaults()
@@ -138,7 +138,7 @@ class TestModelBase():
         assert base.field_three
         assert base.field_seven == False
 
-    def test__convert_bools(self):
+    def test_convert_bools(self):
         """
         Tests the convert_bool method to make sure we translate accepted values to bool.
 
@@ -171,13 +171,13 @@ class TestModelBase():
         base.setup()
 
         sql_ret = [
-            1,                              # id
-            datetime(2020, 1, 8, 5, 1, 48), # created_ts
-            1,                              # field_three
-            'TEST',                         # field_four
-            5,                              # field_five
-            datetime(2020, 1, 8, 5, 1, 48), # field_six
-            0]                              # field_seven
+            1,                               # id
+            datetime(2020, 1, 8, 5, 1, 48),  # created_ts
+            1,                               # field_three
+            'TEST',                          # field_four
+            5,                               # field_five
+            datetime(2020, 1, 8, 5, 1, 48),  # field_six
+            0]                               # field_seven
         base.build_from_list(sql_ret)
         assert base.id == 1
         assert base.created_ts == datetime(2020, 1, 8, 5, 1, 48)
@@ -194,9 +194,6 @@ if __name__ == '__main__':
     base = Base()
     base.field_map = GENERIC_FIELDS
     x = base._generate_create_table_feilds()
-
-    print(x)
-    import ipdb; ipdb.set_trace()
 
 
 # EndFile: lan-nanny/tests/test_model_base.py

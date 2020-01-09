@@ -50,6 +50,8 @@ def _get_host_ip(host: dict) -> str:
 
     host_ip = ''
     for addr in host['address']:
+        if isinstance(addr, str):
+            continue
         if '@addrtype' not in addr:
             continue
         if addr['@addrtype'] == 'ipv4':
@@ -69,6 +71,8 @@ def _get_host_mac(host: dict) -> str:
 
     host_vendor = ''
     for addr in host['address']:
+        if isinstance(addr, str):
+            continue
         if '@addrtype' not in addr:
             continue
         if addr['@addrtype'] == 'mac':

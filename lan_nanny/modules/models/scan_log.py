@@ -33,12 +33,16 @@ class ScanLog(Base):
                 'type': 'bool'
             },
             {
-                'name': 'num_devices',
+                'name': 'units',
                 'type': 'int',
                 'default': 0,
             },
             {
                 'name': 'scan_type',
+                'type': 'str'
+            },
+            {
+                'name': 'command',
                 'type': 'str'
             },
         ]
@@ -47,22 +51,28 @@ class ScanLog(Base):
     def __repr__(self):
         return "<ScanLog %s>" % self.id
 
-    def get_last(self):
+    def get_last(self, scan_type):
         """
         Gets the last run log form the `scan_log` table.
 
         """
-        sql = """SELECT * FROM %s ORDER BY created_ts DESC LIMIT 1""" % self.table_name
-        self.cursor.execute(sql)
+        sql = """
+            SELECT *
+            FROM %s
+            WHERE
+                scan_type=?
+            ORDER BY created_ts DESC
+            LIMIT 1""" % self.table_name
+        self.cursor.execute(sql, (scan_type))
         run_raw = self.cursor.fetchone()
         if not run_raw:
-            return {}
+            return False
 
         self.build_from_list(run_raw)
 
-        return self
+        return True
 
-    def insert_run_start(self):
+    def insert_run_start(self, scan_type: str):
         """
         Inserts a new record of the model.
 
@@ -71,13 +81,21 @@ class ScanLog(Base):
             self.created_ts = arrow.utcnow().datetime
         self.setup()
 
-        insert_sql = "INSERT INTO %s (created_ts, completed) VALUES (?, ?)" % (self.table_name)
+        insert_sql = """
+            INSERT INTO %s
+            (created_ts, completed, scan_type)
+            VALUES (?, ?, ?)""" % (self.table_name)
 
-        self.cursor.execute(insert_sql, (self.created_ts, 0))
+        self.cursor.execute(insert_sql, (self.created_ts, 0, scan_type))
         self.conn.commit()
         self.id = self.cursor.lastrowid
-        # @todo: make into logging NOT print
-        # print('New %s: %s' % (self.model_name, self))
+        self.scan_type = scan_type
         return True
+
+    def end_run(self):
+        self.end_ts = arrow.utcnow()
+        self.elapsed_time = arrow.utcnow() - self.created_ts
+        self.completed = True
+        self.save()
 
 # End File: lan-nanny/lan_nanny/modules/models/scan_log.py
