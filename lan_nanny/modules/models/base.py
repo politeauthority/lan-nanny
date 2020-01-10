@@ -45,19 +45,22 @@ class Base():
     def create_table(self) -> bool:
         """
         Creates a table based on the self.table_name, and self.field_map.
+        @unit-tested
 
         """
         print('Creating %s' % self.__class__.__name__)
         self._create_total_map()
         if not self.table_name:
             raise AttributeError('Model table name not set, (self.table_name)')
-        sql = "CREATE TABLE IF NOT EXISTS %s \n(%s)" % (self.table_name, self._generate_create_table_feilds())
+        sql = "CREATE TABLE IF NOT EXISTS %s \n(%s)" % (
+            self.table_name,
+            self._generate_create_table_feilds())
         try:
             self.cursor.execute(sql)
             return True
         except Error as e:
             print(e)
-        print('Created table: %s' % self.table_name)
+        print(sql)
         return False
 
     def setup(self):
@@ -72,6 +75,7 @@ class Base():
     def insert(self):
         """
         Inserts a new record of the model.
+        @unit-tested
 
         """
         self.setup()
@@ -92,6 +96,7 @@ class Base():
     def save(self, where: list=[]) -> bool:
         """
         Saves a model instance in the model table.
+        @unit-tested
 
         """
         self.setup()
@@ -114,8 +119,8 @@ class Base():
             self.table_name,
             self.get_update_set_sql(),
             where_sql)
-        # print(update_sql)
-        # print(self.get_values_sql())
+        logging.debug(update_sql)
+        logging.debug(self.get_values_sql())
         self.cursor.execute(update_sql, self.get_values_sql())
         self.conn.commit()
         return True
@@ -133,13 +138,19 @@ class Base():
         self.conn.commit()
         return True
 
-    def get_by_id(self, model_id: int) -> bool:
+    def get_by_id(self, model_id: int=None) -> bool:
         """
         Gets an alert from the `alerts` table based on it's alert ID.
-        @unit-tested
 
         """
-        sql = """SELECT * FROM %s WHERE id = %s""" % (self.table_name, model_id)
+        if model_id:
+            self.id = model_id
+        elif not self.id:
+            AttributeError('%s is missing an id attribute.' % __class__.__name__)
+        sql = """
+            SELECT *
+            FROM %s
+            WHERE id = %s""" % (self.table_name, self.id)
         self.cursor.execute(sql)
         raw = self.cursor.fetchone()
         if not raw:
@@ -177,6 +188,7 @@ class Base():
     def get_fields_sql(self, skip_fields: list=['id']) -> str:
         """
         Gets all class table column fields in a comma separated list for sql cmds.
+        @unit-tested
 
         """
         field_sql = ""
@@ -190,6 +202,7 @@ class Base():
     def get_parmaterized_num(self, skip_fields: list=['id']) -> str:
         """
         Generates the number of parameterized "?" for the sql lite parameterization.
+        @unit-tested
 
         """
         field_value_param_sql = ""
@@ -207,6 +220,7 @@ class Base():
     def get_values_sql(self, skip_fields: list=['id']) -> tuple:
         """
         Generates the model values to send to the sql lite interpretor as a tuple.
+        @unit-tested
 
         """
         vals = []
@@ -246,6 +260,7 @@ class Base():
     def get_update_set_sql(self):
         """
         Generates the models SET sql statements, ie: SET key = value, other_key = other_value.
+        @unit-tested
 
         """
         set_sql = ""
@@ -259,6 +274,7 @@ class Base():
         """
         Quick class var checks to make sure the required class vars are set before proceeding with
         an operation.
+        @unit-tested
 
         """
         if not self.conn:
@@ -322,7 +338,7 @@ class Base():
                 continue
 
             if field['type'] == 'bool' and type(class_var_value) != bool:
-                converted_value = self.convert_bools(class_var_name, class_var_value)
+                converted_value = self._convert_bools(class_var_name, class_var_value)
                 setattr(self, class_var_name, converted_value)
                 continue
 
@@ -336,6 +352,7 @@ class Base():
     def _convert_ints(self, name: str, value) -> bool:
         """
         Attempts to convert ints to a usable value or raises an AttributeError.
+        @unit-tested
 
         """
         if isinstance(value, int):
@@ -347,7 +364,7 @@ class Base():
         raise AttributeError('Class %s field %s value %s is not int.' % (
             __class__.__name__, name, value))
 
-    def convert_bools(self, name: str, value) -> bool:
+    def _convert_bools(self, name: str, value) -> bool:
         """
         Attempts to convert bools into usable value or raises an AttributeError.
         @unit-tested
@@ -370,6 +387,7 @@ class Base():
     def _generate_create_table_feilds(self) -> str:
         """
         Generates all fields column create sql statements.
+        @unit-tested
 
         """
         field_sql = ""
@@ -378,7 +396,7 @@ class Base():
         for field in self.total_map:
             primary_stmt = ''
             if 'primary' in field and field['primary']:
-                primary_stmt = ' PRIMARY KEY'
+                primary_stmt = ' PRIMARY KEY AUTOINCREMENT'
 
             not_null_stmt = ''
             if 'not_null' in field and field['not_null']:
@@ -401,22 +419,23 @@ class Base():
                 field_sql = field_sql[:-1]
             field_sql += "\n"
             c += 1
-
+        field_sql = field_sql[:-1]
         return field_sql
 
     def _xlate_field_type(self, field_type):
         """
         Translates field types into sql lite column types.
         @todo: create better class var for xlate map.
+        @unit-tested
 
         """
         if field_type == 'int':
-            return 'integer'
+            return 'INTEGER'
         elif field_type == 'datetime':
-            return 'date'
+            return 'DATE'
         elif field_type == 'str':
-            return 'text'
+            return 'TEXT'
         elif field_type == 'bool':
-            return 'int'
+            return 'INTEGER'
 
 # End File: lan-nanny/modules/models/base.py

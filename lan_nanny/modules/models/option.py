@@ -34,7 +34,7 @@ class Option(Base):
         self.setup()
 
     def __repr__(self):
-        return "<Option %s>" % self.name
+        return "<Option %s:%s>" % (self.name, self.value)
 
     def get_by_name(self, name: str=None) -> bool:
         """

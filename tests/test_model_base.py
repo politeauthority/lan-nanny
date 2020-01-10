@@ -2,13 +2,16 @@
 
 """
 from datetime import datetime
+import os
 
+import arrow
 import pytest
 
 from lan_nanny.modules import db
 from lan_nanny.modules.models.base import Base
 
-conn, cursor = db.create_connection('test.db')
+test_db = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'test.db')
+conn, cursor = db.create_connection(test_db)
 
 
 GENERIC_FIELDS = [
@@ -138,9 +141,9 @@ class TestModelBase():
         assert base.field_three
         assert base.field_seven == False
 
-    def test_convert_bools(self):
+    def test__convert_bools(self):
         """
-        Tests the convert_bool method to make sure we translate accepted values to bool.
+        Tests the _convert_bool method to make sure we translate accepted values to bool.
 
         """
         base = Base()
@@ -154,12 +157,47 @@ class TestModelBase():
         # with pytest.raises(AttributeError):
         #     base._convert_bools('test_str_3_false', '5')
 
+    def test__convert_ints(self):
+        """
+        Tests the _convert_int method to make sure we translate accepted values.
+        """
+        base = Base()
+        assert base._convert_ints('test_int_1', 1) == 1
+        assert base._convert_ints('test_str_1', '1') == 1
+        assert base._convert_ints('test_int_1_false', 0) == 0
+        assert base._convert_ints('test_str_1_false', '0') == 0
+        with pytest.raises(AttributeError):
+            assert base._convert_ints('test_str_2_false', 'false') == False
+
     def test__generate_create_table_feilds(self):
         """
+        Tests the _generate_create_table_feilds method to make sure it creates the sql needed to
+        create custom fields.
+
         """
         base = Base()
         base.field_map = GENERIC_FIELDS
-        base._generate_create_table_feilds()
+        base.setup()
+        generated_fields = base._generate_create_table_feilds()
+        fields = """id INTEGER PRIMARY KEY AUTOINCREMENT,
+created_ts DATE,
+field_three INTEGER,
+field_four TEXT DEFAULT test,
+field_five INTEGER DEFAULT 7,
+field_six DATE,
+field_seven INTEGER"""
+        assert generated_fields == fields
+
+    def test__xlate_field_type(self):
+        """
+        Tests the _xlate_field_type method to make sure we turn python types to sql lite types.
+
+        """
+        base = Base()
+        assert base._xlate_field_type('int') == 'INTEGER'
+        assert base._xlate_field_type('datetime') == 'DATE'
+        assert base._xlate_field_type('str') == 'TEXT'
+        assert base._xlate_field_type('bool') == 'INTEGER'
 
     def test_build_from_list(self):
         """
@@ -187,13 +225,179 @@ class TestModelBase():
         assert base.field_six == datetime(2020, 1, 8, 5, 1, 48)
         assert base.field_seven == 0
 
+    def test_check_required_class_vars(self):
+        """
+        Tests the check_required_class_vars to make sure we're requiring the right class vars or
+        throwing an AttributeError.
 
-if __name__ == '__main__':
-    base = Base()
-    base._convert_bools('test_str_3_false', '5')
-    base = Base()
-    base.field_map = GENERIC_FIELDS
-    x = base._generate_create_table_feilds()
+        """
+        base = Base(conn, cursor)
+        base.field_map = GENERIC_FIELDS
+        base.setup()
+        base.check_required_class_vars()
+        with pytest.raises(AttributeError):
+            base.check_required_class_vars(['test'])
 
+    def test_get_update_set_sql(self):
+        """
+        Tests the get_update_set_sql method to make sure it creates the correct SET pairs for an
+        update.
+
+        """
+        base = Base()
+        base.field_map = GENERIC_FIELDS
+        base.setup()
+        generated_set = base.get_update_set_sql()
+        updated_set = """created_ts = ?,
+field_three = ?,
+field_four = ?,
+field_five = ?,
+field_six = ?,
+field_seven = ?"""
+        assert generated_set == updated_set
+
+    def test_get_parmaterized_num(self):
+        """
+        Tests the get_parmaterized_num method to make sure it supplies the right amount of
+        parameterized values.
+
+        """
+        base = Base()
+        base.field_map = GENERIC_FIELDS
+        base.setup()
+        param_str = base.get_parmaterized_num()
+        assert param_str == "?, ?, ?, ?, ?, ?"
+        param_str = base.get_parmaterized_num(['id', 'field_three'])
+        assert param_str == "?, ?, ?, ?, ?"
+
+    def test_get_values_sql(self):
+        """
+        Tests the get_values_sql method to make sure its grabbing the right values to send the the
+        db.
+
+        """
+        base = Base()
+        base.field_map = GENERIC_FIELDS
+        base.setup()
+        base.field_three = True
+        base.field_four = 'testing'
+        base.field_five = 5
+        base.field_six = datetime(2020, 1, 1)
+        base.field_seven = False
+        value_tuple = base.get_values_sql()
+        assert len(value_tuple) == 6
+        assert isinstance(value_tuple[1], int)
+        assert value_tuple[2] == 'testing'
+
+    def test_get_fields_sql(self):
+        """
+        Tests the get_parmaterized_num method to make sure it supplies the right amount of
+        parameterized values.
+
+        """
+        base = Base()
+        base.field_map = GENERIC_FIELDS
+        base.setup()
+        base.field_three = True
+        base.field_four = 'testing'
+        base.field_five = 5
+        base.field_six = datetime(2020, 1, 1)
+        base.field_seven = False
+        field_sql = base.get_fields_sql()
+        assert field_sql == \
+            'created_ts, field_three, field_four, field_five, field_six, field_seven'
+
+    def test_create_table(self):
+        """
+        Tests the create_table method making sure it can actually make a table.
+
+        """
+        base = Base(conn, cursor)
+        base.field_map = GENERIC_FIELDS
+        base.table_name = 'test_table'
+        base.setup()
+        base.create_table()
+        assert self.get_table(base.table_name)
+
+    def test_insert(self):
+        """
+        Tests the insert method making sure it can actually make a table.
+
+        """
+        base = Base(conn, cursor)
+        base.field_map = GENERIC_FIELDS
+        base.table_name = 'test_table'
+        base.setup()
+        base.field_three = True
+        base.field_four = 'test'
+        base.field_five = 8
+        base.field_six = datetime(2020, 1, 1)
+        base.field_seven = False
+        base.insert()
+        data = self.get_data('test_table')
+        assert len(data) == 1
+        assert isinstance(arrow.get(data[0][1]).datetime, datetime)
+
+    def test_get_by_id(self):
+        """
+        """
+        base = Base(conn, cursor)
+        base.field_map = GENERIC_FIELDS
+        base.table_name = 'test_table'
+        base.setup()
+        base.get_by_id(1)
+        assert base.id == 1
+
+    def test_save(self):
+        """
+        Tests the save method making sure it can actually make a table.
+
+        """
+        base = Base(conn, cursor)
+        base.field_map = GENERIC_FIELDS
+        base.table_name = 'test_table'
+        base.setup()
+        base.get_by_id(1)
+        base.field_three = False
+        base.field_four = 'testy'
+        base.field_five = 9
+        base.save()
+        data = self.get_data('test_table')[0]
+        assert data[2] == 0
+        assert data[3] == 'testy'
+        assert data[4] == 9
+
+    def get_table(self, table_name: str):
+        sql = """
+            SELECT
+                name
+            FROM
+                sqlite_master
+            WHERE
+                type ='table' AND
+                name='%s';""" % table_name
+        cursor.execute(sql)
+        table = cursor.fetchone()
+        if table_name in table:
+            return True
+        return False
+
+    def get_data(self, table_name: str):
+        """
+        Gets data from the sql lite box.
+
+        """
+        sql = "SELECT * FROM %s;" % table_name
+        cursor.execute(sql)
+        data = cursor.fetchall()
+        return data
+
+    @classmethod
+    def teardown_class(cls):
+        """
+        Tears down the sqlite database after tests finish.
+
+        """
+        os.remove(test_db)
 
 # EndFile: lan-nanny/tests/test_model_base.py

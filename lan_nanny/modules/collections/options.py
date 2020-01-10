@@ -45,28 +45,5 @@ class Options():
 
         return ret_options
 
-    def create_deaults(self):
-        """
-        """
-        _create_default('timezone', 'America/Denver', 'str')
-        _create_default('alert-new-device', '1', 'bool')
-        _create_default('active-timeout', '8', 'int')
-        _create_default('scan-hosts-enabled', '1', 'bool')
-        _create_default('scan-hosts-ports', '0', 'bool')
-        _create_default('scan-hosts-range', '192.168.50.1-255', 'str')
-        _create_default('beta-features', 0, 'bool')
-
-    def _create_default(option_name, option_value, option_type):
-        option = Option(self.conn, self.cursor)
-        option.get_by_name(option_name)
-        if not option.name:
-            option.name = option_name
-            option.value = option_value
-            option.type = option_type
-        else:
-            option.value = option_value
-        option.save()
-
-
 
 # End File: lan-nanny/modules/collections/options.py
