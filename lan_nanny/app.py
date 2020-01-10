@@ -12,6 +12,7 @@ from modules.controllers.alert import alert as ctrl_alert
 from modules.controllers.device import device as ctrl_device
 from modules.controllers.ports import ports as ctrl_ports
 from modules.controllers.scan import scan as ctrl_scan
+from modules.controllers.search import search as ctrl_search
 
 from modules.controllers.settings import settings as ctrl_settings
 from modules import db
@@ -123,8 +124,10 @@ def register_blueprints(app: Flask):
     # app.register_blueprint(ctrl_auth)
     app.register_blueprint(ctrl_device)
     app.register_blueprint(ctrl_alert)
+    app.register_blueprint(ctrl_ports)
     app.register_blueprint(ctrl_scan)
     app.register_blueprint(ctrl_settings)
+    app.register_blueprint(ctrl_search)
 
 
 def register_jinja_funcs(app: Flask):

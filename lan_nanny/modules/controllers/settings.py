@@ -37,19 +37,44 @@ def settings_save():
     option.value = request.form['settings_timezone']
     option.save()
 
-    # Update Scan Hosts Range
+    # Save "scan-hosts-range"
     option = Option(conn, cursor)
     option.name = 'scan-hosts-range'
     option.get_by_name()
     option.value = request.form['setting_scan_hosts_range']
     option.save()
 
+    # Save "active-timeout"
+    _save_setting(
+        conn,
+        cursor,
+        'active-timeout',
+        request.form['setting_active_timeout'],
+        'int')
+
+    # Save "scan-hosts-enabled"
     _save_setting(
         conn,
         cursor,
         'scan-hosts-enabled',
         request.form['setting_scan_hosts_enabled'],
         'bool')
+
+    # Save "scan-ports-enabled"
+    _save_setting(
+        conn,
+        cursor,
+        'scan-ports-enabled',
+        request.form['setting_scan_ports_enabled'],
+        'bool')
+
+    # Save "scan-device-ports-default"
+    # _save_setting(
+    #     conn,
+    #     cursor,
+    #     'scan-device-ports-default',
+    #     request.form['setting_scan_device_ports_default'],
+    #     'bool')
 
     return redirect('/settings')
 

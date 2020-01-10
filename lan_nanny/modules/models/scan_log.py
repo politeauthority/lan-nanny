@@ -45,6 +45,10 @@ class ScanLog(Base):
                 'name': 'command',
                 'type': 'str'
             },
+            {
+                'name': 'trigger',
+                'type': 'str'
+            },
         ]
         self.setup()
 
@@ -80,13 +84,12 @@ class ScanLog(Base):
         if not self.created_ts:
             self.created_ts = arrow.utcnow().datetime
         self.setup()
-
         insert_sql = """
             INSERT INTO %s
-            (created_ts, completed, scan_type)
-            VALUES (?, ?, ?)""" % (self.table_name)
+            (created_ts, completed, scan_type, trigger)
+            VALUES (?, ?, ?, ?)""" % (self.table_name)
 
-        self.cursor.execute(insert_sql, (self.created_ts, 0, scan_type))
+        self.cursor.execute(insert_sql, (self.created_ts, 0, scan_type, self.trigger))
         self.conn.commit()
         self.id = self.cursor.lastrowid
         self.scan_type = scan_type
@@ -94,7 +97,7 @@ class ScanLog(Base):
 
     def end_run(self):
         self.end_ts = arrow.utcnow()
-        self.elapsed_time = arrow.utcnow() - self.created_ts
+        self.elapsed_time = (arrow.utcnow() - self.created_ts).seconds
         self.completed = True
         self.save()
 

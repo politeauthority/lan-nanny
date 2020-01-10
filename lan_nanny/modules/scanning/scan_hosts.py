@@ -20,6 +20,7 @@ class ScanHosts:
         self.options = scan.options
         self.tmp_dir = scan.tmp_dir
         self.scan_file = os.path.join(self.tmp_dir, 'host-scan.xml')
+        self.trigger = scan.trigger
 
     def run(self) -> list:
         """
@@ -34,6 +35,7 @@ class ScanHosts:
             return []
 
         self.hosts = self.scan()
+        self._complete_run()
         self.handle_devices()
 
         return self.hosts
@@ -42,6 +44,7 @@ class ScanHosts:
         """
         """
         self.scan_log = ScanLog(self.conn, self.cursor)
+        self.scan_log.trigger = self.trigger
         self.scan_log.insert_run_start('host')
 
     def scan(self):
@@ -49,6 +52,7 @@ class ScanHosts:
         """
         scan_range = self.options['scan-hosts-range'].value
         print('Scan Range: %s' % scan_range)
+        self.scan_log.command = "nmap -sP %s" % scan_range
         cmd = "nmap -sP %s -oX %s" % (scan_range, self.scan_file)
         try:
             subprocess.check_output(cmd, shell=True)
@@ -58,7 +62,7 @@ class ScanHosts:
             self.scan_log.success = True
             self.scan_log.save()
             exit(1)
-        hosts = parse_nmap.parse_hosts(self.scan_file)
+        hosts = parse_nmap.parse_xml(self.scan_file, 'hosts')
         return hosts
 
     def handle_devices(self):
@@ -76,12 +80,16 @@ class ScanHosts:
             new = False
             if not device.id:
                 new = True
-                device.last_seen = scan_time
-                host['name'] = host['vendor']
-                device.save(raw=host)
-            else:
-                device.last_seen = scan_time
-                device.save()
+                device.first_seen = scan_time
+                device.name = host['vendor']
+                if self.options['scan-ports-default'].value:
+                    device.port_scan = True
+            device.last_seen = scan_time
+            device.ip = host['ip']
+            device.mac = host['mac']
+            device.vendor = host['vendor']
+            print(device.first_seen)
+            device.save()
 
             new_device_str = ""
             if new:
@@ -106,7 +114,7 @@ class ScanHosts:
         witness.insert()
         return True
 
-    def _complete_run(self, num_devices: int):
+    def _complete_run(self):
         """
         Closes out the run log entry.
 
@@ -114,7 +122,7 @@ class ScanHosts:
         self.scan_log.completed = 1
         self.scan_log.success = 1
         self.scan_log.end_ts = arrow.utcnow().datetime
-        self.scan_log.num_devices = num_devices
+        # self.scan_log.num_devices = len(self.hosts)
         self.scan_log.scan_range = self.options['scan-hosts-range'].value
         self.scan_log.save()
 

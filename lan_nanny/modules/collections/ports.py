@@ -17,16 +17,17 @@ class Ports():
 
         """
         sql = """
-            SELECT DISTINCT *
+            SELECT DISTINCT(port)
             FROM ports
             """
 
         self.cursor.execute(sql)
-        ports_raw = self.cursor.fetchall()
+        distinct_ports_raw = self.cursor.fetchall()
+
         ports = []
-        for raw_port in ports_raw:
+        for distinct_port in distinct_ports_raw:
             port = Port(self.conn, self.cursor)
-            port.build_from_list(raw_port)
+            port.get_by_port_number(distinct_port)
             ports.append(port)
 
         return ports
@@ -53,5 +54,32 @@ class Ports():
             ports.append(port)
 
         return ports
+
+    def search(self, phrase):
+        """
+        """
+        port_sql = self._gen_like_sql('port', phrase)
+        service_name_sql = self._gen_like_sql('service_name', phrase)
+        sql = """
+            SELECT *
+            FROM ports
+            WHERE
+            %(port)s OR
+            %(service_name)s """ % {
+            'port': port_sql,
+            'service_name': service_name_sql}
+        print(sql)
+        self.cursor.execute(sql)
+        raw_ports = self.cursor.fetchall()
+        ports = []
+        print('\n\n%s\n\n' % raw_ports)
+        for raw_port in raw_ports:
+            port = Port(self.conn, self.cursor)
+            port.build_from_list(raw_port)
+            ports.append(port)
+        return ports
+
+    def _gen_like_sql(self, field, phrase):
+        return field + """ LIKE '%""" + phrase + """%' """
 
 # End File: lan-nanny/modules/collections/ports.py

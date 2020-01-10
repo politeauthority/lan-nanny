@@ -39,7 +39,7 @@ class Base():
 
     def __repr__(self):
         if self.id:
-            return "<%s %s>" % (__class__.__name__, self.id)
+            return "<%s: %s>" % (__class__.__name__, self.id)
         return "<%s>" % self.__class__.__name__
 
     def create_table(self) -> bool:
@@ -110,6 +110,7 @@ class Base():
         where_sql = "id = %s" % self.id
         if where:
                 where_sql = "%s = %s" % (where[0], where[1])
+
         update_sql = """
             UPDATE %s
             SET
@@ -257,15 +258,15 @@ class Base():
 
         return tuple(vals)
 
-    def get_update_set_sql(self):
+    def get_update_set_sql(self, skip_fields=['id']):
         """
         Generates the models SET sql statements, ie: SET key = value, other_key = other_value.
-        @unit-tested
+        @unit-tested - @todo needs updating for "skip_fields"
 
         """
         set_sql = ""
         for field in self.total_map:
-            if field['name'] == 'id':
+            if field['name'] in skip_fields:
                 continue
             set_sql += "%s = ?,\n" % field['name']
         return set_sql[:-2]

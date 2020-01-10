@@ -19,7 +19,9 @@ class Scan:
     def __init__(self, args):
         self.conn = conn
         self.cursor = cursor
+        self.args = args
         self.force_scan = False
+        self.trigger = 'manual'
         self.new_alerts = []
         self.hosts = []
 
@@ -31,6 +33,8 @@ class Scan:
         options = Options(conn, cursor)
         self.options = options.get_all_keyed()
         self.tmp_dir = TMP_DIR
+        if self.args.cron:
+            self.trigger = 'cron'
 
     def run(self):
         """
@@ -51,7 +55,6 @@ class Scan:
 
         """
         print("Running port scans")
-        print(self.options['scan-hosts-enabled'].value)
         if self.options['scan-hosts-enabled'] == True:
             print('Port Scanning disabled')
             return
@@ -68,6 +71,11 @@ def parse_args():
     parser.add_argument(
         "-s",
         "--force-scan",
+        default=False,
+        action='store_true',
+        help="")
+    parser.add_argument(
+        "--cron",
         default=False,
         action='store_true',
         help="")

@@ -78,7 +78,6 @@ class Port(Base):
             protocol = ?
         LIMIT 1"""
 
-        where
         vals = (device_id, port_number, protocol)
         self.cursor.execute(sql, vals)
         port_raw = self.cursor.fetchone()
@@ -87,5 +86,20 @@ class Port(Base):
 
         self.build_from_list(port_raw)
         return True
+
+    def get_by_port_number(self, port_number):
+        sql = """
+        SELECT *
+        FROM ports
+        WHERE
+            port = %s""" % port_number
+        vals = (port_number)
+        print(sql)
+        self.cursor.execute(sql)
+        port_raw = self.cursor.fetchone()
+        if not port_raw:
+            return False
+
+        self.build_from_list(port_raw)
 
 # End File: lan-nanny/lan_nanny/modules/models/port.py

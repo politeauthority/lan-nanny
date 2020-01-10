@@ -34,7 +34,8 @@ def pretty_time(first_at: datetime) -> str:
 
 def smart_time(date_val: datetime, format_switch_range_seconds: int=None) -> str:
     """
-    Gets a human readable 'time ago' date format if the time is within x period, otherwise returns the pretty_time.
+    Gets a human readable 'time ago' date format if the time is within x period, otherwise returns
+    the pretty_time.
 
     """
     if not date_val:
@@ -76,6 +77,7 @@ def connected_devices(devices: list) -> int:
             num_online += 1
 
     return num_online
+
 
 def device_icon_status(device: Device) -> int:
     """

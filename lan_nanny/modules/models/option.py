@@ -1,6 +1,8 @@
 """Option Model
 
 """
+import logging
+
 from .base import Base
 
 
@@ -92,5 +94,29 @@ class Option(Base):
         # Try to convert values to the negative.
         elif value == '0' or value == 'false':
             return False
+
+    def save(self) -> bool:
+        """
+        Saves a model instance in the model table.
+
+        """
+        self.setup()
+        self.check_required_class_vars()
+
+        update_sql = """
+            UPDATE %s
+            SET
+            %s
+            WHERE
+            name=%s""" % (
+            self.table_name,
+            self.get_update_set_sql(['id', 'type', 'name']),
+            self.name)
+        logging.debug(update_sql)
+        logging.debug(self.get_values_sql())
+        self.cursor.execute(update_sql, self.get_values_sql())
+        self.conn.commit()
+        return True
+
 
 # End File: lan-nanny/lan_nanny/modules/models/option.py

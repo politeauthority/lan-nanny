@@ -68,7 +68,7 @@ def populate_options(conn, cursor: sqlite3.Cursor):
     _set_default_options(conn, cursor, 'active-timeout', '8', 'int')
     _set_default_options(conn, cursor, 'scan-hosts-enabled', '1', 'bool')
     _set_default_options(conn, cursor, 'scan-ports-enabled', '1', 'bool')
-    _set_default_options(conn, cursor, 'scan-ports-default', '0', 'bool')
+    _set_default_options(conn, cursor, 'scan-ports-default', '1', 'bool')
     _set_default_options(conn, cursor, 'scan-hosts-range', '192.168.50.1-255', 'str')
     _set_default_options(conn, cursor, 'static-locally', '0', 'bool')
 
@@ -86,6 +86,6 @@ def _set_default_options(conn, cursor, option_name: str, option_value: str, opti
         option.type = option_type
     else:
         option.value = option_value
-    option.save()
+    option.insert()
 
 # End File: lan-nanny/lan_nanny/modules/db.py

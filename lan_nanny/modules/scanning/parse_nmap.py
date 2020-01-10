@@ -2,16 +2,35 @@
 Tools for reading and traversing nmap output files.
 
 """
+import logging
+import xml
+
 import xmltodict
 
 
-def parse_hosts(phile: str):
+def parse_xml(phile, scan_type:str):
+    try:
+        phile = open(phile, "r")
+        parsed = xmltodict.parse(phile.read())
+    except xml.parsers.expat.ExpatError:
+        print('Error reading xml: %s' % phile)
+        return False
+
+    if scan_type == 'hosts':
+        return parse_hosts(parsed)
+    elif scan_type == 'ports':
+        return parse_ports(parsed)
+    else:
+        print('Error, unsure what type of NMAP file to parse.')
+        exit(1)
+        return False
+
+
+def parse_hosts(parsed):
     """
     Parses an NMAP output file and returns relevant host information.
 
     """
-    phile = open(phile, "r")
-    parsed = xmltodict.parse(phile.read())
 
     hosts = []
     for host in parsed['nmaprun']['host']:
@@ -50,8 +69,6 @@ def _get_host_ip(host: dict) -> str:
 
     host_ip = ''
     for addr in host['address']:
-        if isinstance(addr, str):
-            continue
         if '@addrtype' not in addr:
             continue
         if addr['@addrtype'] == 'ipv4':
@@ -71,8 +88,6 @@ def _get_host_mac(host: dict) -> str:
 
     host_vendor = ''
     for addr in host['address']:
-        if isinstance(addr, str):
-            continue
         if '@addrtype' not in addr:
             continue
         if addr['@addrtype'] == 'mac':
@@ -100,15 +115,13 @@ def _get_host_vendor(host: dict) -> str:
     return host_vendor
 
 
-def parse_ports(phile: str):
+def parse_ports(parsed):
     """
     Parses an NMap output file for port data, returning the relevant info.
 
     """
-    phile = open(phile, "r")
-    parsed = xmltodict.parse(phile.read())
     ports = []
-    if 'host' not in parsed['nmaprun']:
+    if 'ports' not in parsed['nmaprun']:
         return False
 
     for port in parsed['nmaprun']['host']['ports']['port']:
@@ -118,8 +131,12 @@ def parse_ports(phile: str):
             'state': _get_port_state(port),
             'service': _get_port_service(port),
         }
+        if found['number'] == '':
+            logging.warning('Found invalid port, skipping')
+            continue
         ports.append(found)
     return ports
+
 
 def _get_port_number(port: dict) -> int:
     """
@@ -127,10 +144,14 @@ def _get_port_number(port: dict) -> int:
 
     """
     if '@portid' not in port:
-        return None
-    if type('@portid') == str:
-        return None
-    return int(port['@portid'])
+        return ''
+    try:
+        if type(port['@portid']) == str:
+            return port['@portid']
+    except TypeError:
+        return ''
+    return ''
+
 
 def _get_port_protocol(port: dict) -> str:
     """
@@ -143,6 +164,7 @@ def _get_port_protocol(port: dict) -> str:
         return ''
     return port['@protocol']
 
+
 def _get_port_state(port: dict) -> str:
     """
     Gets the port's state from the parsed XML scan.
@@ -152,6 +174,7 @@ def _get_port_state(port: dict) -> str:
         return ''
     if port['state']['@state'] == 'open':
         return 'open'
+
 
 def _get_port_service(port: dict) -> str:
     """
