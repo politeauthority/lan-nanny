@@ -28,6 +28,12 @@ def device_icons() -> dict:
         "fas fa-tv": "Tv",
         "fas fa-phone": "Phone",
         "fa fa-mobile": "Smart Phone",
+        "fas fa-server": "Sever",
+        "fas fa-thermometer-half": "Thermostat",
+        # "fas fa-router": "Router",
+        "fas fa-wifi": "Wifi Access Point",
+        "fas fa-desktop": "Desktop",
+        "fad fa-microchip": "Microchip",
     }
     return icons
 
