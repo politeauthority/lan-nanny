@@ -75,6 +75,7 @@ class ScanHosts:
 
         scan_time = arrow.utcnow().datetime
         for host in self.hosts:
+
             device = Device(self.conn, self.cursor)
             device.get_by_mac(host['mac'])
             new = False
@@ -82,11 +83,11 @@ class ScanHosts:
                 new = True
                 device.first_seen = scan_time
                 device.name = host['vendor']
+                device.mac = host['mac']
                 if self.options['scan-ports-default'].value:
                     device.port_scan = True
             device.last_seen = scan_time
             device.ip = host['ip']
-            device.mac = host['mac']
             device.vendor = host['vendor']
             print(device.first_seen)
             device.save()

@@ -1,6 +1,8 @@
 """Device Controller
 
 """
+import arrow
+
 from flask import Blueprint, render_template, redirect, request, jsonify, g
 from flask import current_app as app
 
@@ -57,12 +59,20 @@ def info(device_id: int) -> str:
     if not device.id:
         return 'ERROR 404: Route this to page_not_found method!', 404
         # return page_not_found('Device not found')
+
+    # @todo this can be more centralized logic
+    online = False
+    # now = arrow.utcnow().datetime
+    # if now - device.last_seen < timedelta(minutes=int(g.options['active-timeout'].value)):
+    #     online = True
+
     ports_collection = Ports(conn, cursor)
     ports = ports_collection.get_by_device(device.id)
 
 
     data = {}
     data['device'] = device
+    data['online'] = online
     data['ports'] = ports
     data['active_page'] = 'devices'
     return render_template('devices/info.html', **data)
@@ -227,6 +237,10 @@ def delete(device_id: int):
     # Delete device alerts
     alert = Alert(conn, cursor)
     alert.delete_device(device.id)
+
+    # Delete device alerts
+    ports = Ports(conn, cursor)
+    ports.delete_device(device.id)
 
     return redirect('/device')
 

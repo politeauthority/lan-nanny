@@ -47,7 +47,8 @@ class Device(Base):
             },
             {
                 'name': 'favorite',
-                'type': 'bool'
+                'type': 'bool',
+                'default': 0,
             },
             {
                 'name': 'icon',

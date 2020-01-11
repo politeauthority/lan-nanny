@@ -2,19 +2,27 @@
 
 */
 
-function register_favorite_button(favorite_selector, base_ajax_uri){
+function register_favorite_button(favorite_selector, load_state, base_ajax_uri){
   /*
   Registers a div as favorite button, which will star or unstar an item and send an ajax request.
 
   */
+
+  var icon = $(favorite_selector).children('i');
+
+  if(load_state){
+    icon.addClass('fas').addClass('fa-star');
+  } else {
+    icon.addClass('fa').addClass('fa-star-o');
+  }
+
+
   $( favorite_selector ).click(function(){
     $.ajax({
       url: base_ajax_uri,
       context: document.body
     }).done(function() {
 
-      var icon = $(favorite_selector).children('i');
-      console.log($(favorite_selector));
       if(icon.hasClass('fa-star-o')){
         icon.removeClass('fa').removeClass('fa-star-o');
         icon.addClass('fas').addClass('fa-star');

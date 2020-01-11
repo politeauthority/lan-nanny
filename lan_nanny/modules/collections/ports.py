@@ -82,4 +82,18 @@ class Ports():
     def _gen_like_sql(self, field, phrase):
         return field + """ LIKE '%""" + phrase + """%' """
 
+    def delete_device(self, device_id: int) -> list:
+        """
+        Delete all ports containing a device.
+
+        """
+        sql = """
+            DELETE FROM ports
+            WHERE device_id = %s """ % device_id
+
+        self.cursor.execute(sql)
+        self.conn.commit()
+
+        return True
+
 # End File: lan-nanny/modules/collections/ports.py

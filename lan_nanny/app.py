@@ -72,6 +72,7 @@ def index() -> str:
     metrics = Metrics(conn, cursor)
 
     # Get favorite devices, if theres none get all devices.
+    # @todo filter already selected devices, not two pulls from db
     favorites = True
     devices = metrics.get_favorite_devices()
     all_devices = metrics.get_all_devices()
@@ -85,7 +86,7 @@ def index() -> str:
     data['device_favorites'] = favorites
     data['devices'] = devices
     data['runs_over_24'] = metrics.get_runs_24_hours()
-    # data['last_run'] = metrics.get_last_run_log()
+    data['host_scan'] = metrics.get_last_host_scan()
     return render_template('dashboard.html', **data)
 
 
