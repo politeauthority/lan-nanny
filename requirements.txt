@@ -1,3 +1,4 @@
+arrow==0.13.0
 Flask==1.1.1
 Flask-Debug==0.4.3
 xmltodict==0.12.0

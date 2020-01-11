@@ -33,6 +33,9 @@ def parse_hosts(parsed):
     """
 
     hosts = []
+    if 'host' not in parsed['nmaprun']:
+        print('No hosts found, this could be a configuration error.')
+        return []
     for host in parsed['nmaprun']['host']:
         # Check if this host is the localhost and skip
         is_local_host = _detect_local_host(host)

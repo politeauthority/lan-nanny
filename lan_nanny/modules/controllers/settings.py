@@ -31,11 +31,13 @@ def settings_save():
     """
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     # Update timezone
-    option = Option(conn, cursor)
-    option.name = 'timezone'
-    option.get_by_name()
-    option.value = request.form['settings_timezone']
-    option.save()
+    _save_setting(
+        conn,
+        cursor,
+        'timezone',
+        request.form['settings_timezone'],
+        'str')
+
 
     # Save "scan-hosts-range"
     option = Option(conn, cursor)
