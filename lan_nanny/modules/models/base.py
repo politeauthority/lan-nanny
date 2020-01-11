@@ -93,7 +93,7 @@ class Base():
         self.id = self.cursor.lastrowid
         return True
 
-    def save(self, where: list=[]) -> bool:
+    def save(self, where: list = []) -> bool:
         """
         Saves a model instance in the model table.
         @unit-tested
@@ -109,7 +109,7 @@ class Base():
 
         where_sql = "id = %s" % self.id
         if where:
-                where_sql = "%s = %s" % (where[0], where[1])
+            where_sql = "%s = %s" % (where[0], where[1])
 
         update_sql = """
             UPDATE %s
@@ -126,7 +126,7 @@ class Base():
         self.conn.commit()
         return True
 
-    def delete(self, _id: int=None):
+    def delete(self, _id: int = None):
         """
         Deletes a model item by id.
 
@@ -139,7 +139,7 @@ class Base():
         self.conn.commit()
         return True
 
-    def get_by_id(self, model_id: int=None) -> bool:
+    def get_by_id(self, model_id: int = None) -> bool:
         """
         Gets an alert from the `alerts` table based on it's alert ID.
 
@@ -186,7 +186,7 @@ class Base():
             count += 1
         return True
 
-    def get_fields_sql(self, skip_fields: list=['id']) -> str:
+    def get_fields_sql(self, skip_fields: list = ['id']) -> str:
         """
         Gets all class table column fields in a comma separated list for sql cmds.
         @unit-tested
@@ -200,7 +200,7 @@ class Base():
             field_sql += "%s, " % field['name']
         return field_sql[:-2]
 
-    def get_parmaterized_num(self, skip_fields: list=['id']) -> str:
+    def get_parmaterized_num(self, skip_fields: list = ['id']) -> str:
         """
         Generates the number of parameterized "?" for the sql lite parameterization.
         @unit-tested
@@ -218,7 +218,7 @@ class Base():
         field_value_param_sql = field_value_param_sql[:-2]
         return field_value_param_sql
 
-    def get_values_sql(self, skip_fields: list=['id']) -> tuple:
+    def get_values_sql(self, skip_fields: list = ['id']) -> tuple:
         """
         Generates the model values to send to the sql lite interpretor as a tuple.
         @unit-tested
@@ -271,7 +271,7 @@ class Base():
             set_sql += "%s = ?,\n" % field['name']
         return set_sql[:-2]
 
-    def check_required_class_vars(self, extra_class_vars: list=[]):
+    def check_required_class_vars(self, extra_class_vars: list = []):
         """
         Quick class var checks to make sure the required class vars are set before proceeding with
         an operation.

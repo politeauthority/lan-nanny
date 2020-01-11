@@ -5,7 +5,7 @@ Web application entry point.
 
 import sys
 
-from flask import Flask, redirect, render_template, request, g
+from flask import Flask, render_template, g
 
 # from modules.controllers import auth as ctrl_auth
 from modules.controllers.alert import alert as ctrl_alert
@@ -18,7 +18,6 @@ from modules.controllers.settings import settings as ctrl_settings
 from modules import db
 from modules.collections.alerts import Alerts
 from modules.collections.options import Options
-from modules.models.option import Option
 from modules.metrics import Metrics
 from modules import utils
 from modules import filters
@@ -106,6 +105,7 @@ def about() -> str:
     }
     return render_template('about.html', **data)
 
+
 @app.errorhandler(404)
 def page_not_found(e: str):
     """
@@ -140,6 +140,7 @@ def register_jinja_funcs(app: Flask):
     app.jinja_env.filters['smart_time'] = filters.smart_time
     app.jinja_env.filters['online'] = filters.online
     app.jinja_env.filters['device_icon_status'] = filters.device_icon_status
+
 
 def install():
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
