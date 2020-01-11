@@ -10,12 +10,16 @@
   <div class="row">
     <div class="col-lg-6">
       <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">{%if device.icon%}<i class="{{device.icon}} fa-2x"></i>  {%endif%}{%if device.name%}{{device.name}}{%endif%}</h1>
+        <h1 class="h3 mb-0 text-gray-800">
+          {%if device.last_seen|online%}
+            <i class="fa fa-bolt fa-2x connected_bolt"></i>      
+          {%else%}
+          {%endif%}
+          {%if device.icon%}<i class="{{device.icon}} fa-2x"></i>  {%endif%}
+          {%if device.name%}{{device.name}}{%endif%}</h1>
       </div>
     </div>
     <div class="col-lg-6 text-right">
-      <!-- <i class="fas fa-bolt"></i> -->
-
 
       <a id="device-favorite" href="#" class="btn btn-warning btn-circle btn-lg">
         <i class="fa {%if device.favorite == 0%}fa-star-o{%else%}fa-star{%endif%}"></i>
