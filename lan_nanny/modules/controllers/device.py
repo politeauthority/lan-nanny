@@ -7,6 +7,7 @@ from flask import current_app as app
 from .. import db
 from .. import utils
 from ..collections.devices import Devices
+from ..collections.ports import Ports
 from ..models.alert import Alert
 from ..models.device import Device
 from ..models.witness import Witness
@@ -56,9 +57,13 @@ def info(device_id: int) -> str:
     if not device.id:
         return 'ERROR 404: Route this to page_not_found method!', 404
         # return page_not_found('Device not found')
+    ports_collection = Ports(conn, cursor)
+    ports = ports_collection.get_by_device(device.id)
+
 
     data = {}
     data['device'] = device
+    data['ports'] = ports
     data['active_page'] = 'devices'
     return render_template('devices/info.html', **data)
 
@@ -171,6 +176,33 @@ def alert_save() -> str:
         val = False
 
     setattr(device, request.form.get('field_name'), val)
+    device.save()
+    return jsonify({"success": True})
+
+
+@device.route('/quick-save', methods=['POST'])
+def quick_save() -> str:
+    """
+    Ajax web route for update a device alert settings or not when coming on or off the network.
+
+    """
+    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    device = Device(conn, cursor)
+    device.get_by_id(request.form.get('id'))
+    if not device.id:
+        return 'ERROR 404: Route this to page_not_found method!', 404
+        # return page_not_found('Device not found')
+
+    if request.form.get('field_name') not in ['port_scan', 'alert_online', 'alert_offline']:
+        return jsonify("error", "Forbidden field_name %s field_name"), 403
+
+    if request.form.get('field_value') == 'true'.lower():
+        val = True
+    else:
+        val = False
+
+    setattr(device, request.form.get('field_name'), val)
+    print(device, request.form.get('field_name'), val)
     device.save()
     return jsonify({"success": True})
 

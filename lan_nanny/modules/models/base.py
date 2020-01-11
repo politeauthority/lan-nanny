@@ -3,8 +3,9 @@ Parent class for all models to inherit, providing methods for creating tables, i
 selecting and deleting data.
 
 """
-from sqlite3 import Error
 from datetime import datetime
+import logging
+from sqlite3 import Error
 
 import arrow
 
@@ -12,11 +13,15 @@ import arrow
 class Base():
 
     def __init__(self, conn=None, cursor=None):
+        """
+        Base model constructor
+        @unit-tested
+
+        """
         self.conn = conn
         self.cursor = cursor
         self.iodku = True
 
-        self.model_name = None
         self.table_name = None
         self.base_map = [
             {
@@ -34,24 +39,28 @@ class Base():
 
     def __repr__(self):
         if self.id:
-            return "<%s %s>" % (self.model_name, self.id)
-        return "<%s>" % self.model_name
+            return "<%s: %s>" % (__class__.__name__, self.id)
+        return "<%s>" % self.__class__.__name__
 
     def create_table(self) -> bool:
         """
         Creates a table based on the self.table_name, and self.field_map.
+        @unit-tested
 
         """
-        self.create_total_map()
+        print('Creating %s' % self.__class__.__name__)
+        self._create_total_map()
         if not self.table_name:
             raise AttributeError('Model table name not set, (self.table_name)')
-        sql = "CREATE TABLE IF NOT EXISTS %s \n(%s)" % (self.table_name, self._generate_create_table_feilds())
+        sql = "CREATE TABLE IF NOT EXISTS %s \n(%s)" % (
+            self.table_name,
+            self._generate_create_table_feilds())
         try:
             self.cursor.execute(sql)
             return True
         except Error as e:
             print(e)
-        print('Created table: %s' % self.table_name)
+        print(sql)
         return False
 
     def setup(self):
@@ -63,15 +72,14 @@ class Base():
         self._set_defaults()
         self._set_types()
 
-    def insert(self, raw: dict={}):
+    def insert(self):
         """
         Inserts a new record of the model.
+        @unit-tested
 
         """
         self.setup()
         self.check_required_class_vars()
-        if raw:
-            self.build_from_dict()
 
         if not self.created_ts:
             self.created_ts = arrow.utcnow().datetime
@@ -81,22 +89,18 @@ class Base():
             self.get_fields_sql(),
             self.get_parmaterized_num())
         self.cursor.execute(insert_sql, self.get_values_sql())
-
         self.conn.commit()
         self.id = self.cursor.lastrowid
-        # @todo: make into logging NOT print
-        # print('New %s: %s' % (self.model_name, self))
         return True
 
-    def save(self, where: list=[], raw: dict={}) -> bool:
+    def save(self, where: list = []) -> bool:
         """
         Saves a model instance in the model table.
+        @unit-tested
 
         """
         self.setup()
         self.check_required_class_vars()
-        if raw:
-            self.build_from_dict(raw)
 
         if self.iodku and not self.id:
             return self.insert()
@@ -105,7 +109,8 @@ class Base():
 
         where_sql = "id = %s" % self.id
         if where:
-                where_sql = "%s = %s" % (where[0], where[1])
+            where_sql = "%s = %s" % (where[0], where[1])
+
         update_sql = """
             UPDATE %s
             SET
@@ -115,15 +120,13 @@ class Base():
             self.table_name,
             self.get_update_set_sql(),
             where_sql)
-        # print(update_sql)
-        # print(self.get_values_sql())
+        logging.debug(update_sql)
+        logging.debug(self.get_values_sql())
         self.cursor.execute(update_sql, self.get_values_sql())
         self.conn.commit()
-        # @todo: make into logging NOT print
-        # print('Updated %s: %s' % (self.model_name, self))
         return True
 
-    def delete(self, _id: int=None):
+    def delete(self, _id: int = None):
         """
         Deletes a model item by id.
 
@@ -134,15 +137,21 @@ class Base():
         sql = """DELETE FROM %s WHERE id = %s """ % (self.table_name, self.id)
         self.cursor.execute(sql)
         self.conn.commit()
-        # print('Delete %s: %s' % (self.model_name, self))
         return True
 
-    def get_by_id(self, model_id: int):
+    def get_by_id(self, model_id: int = None) -> bool:
         """
         Gets an alert from the `alerts` table based on it's alert ID.
 
         """
-        sql = """SELECT * FROM %s WHERE id = %s""" % (self.table_name, model_id)
+        if model_id:
+            self.id = model_id
+        elif not self.id:
+            AttributeError('%s is missing an id attribute.' % __class__.__name__)
+        sql = """
+            SELECT *
+            FROM %s
+            WHERE id = %s""" % (self.table_name, self.id)
         self.cursor.execute(sql)
         raw = self.cursor.fetchone()
         if not raw:
@@ -150,41 +159,37 @@ class Base():
 
         self.build_from_list(raw)
 
-        return self
+        return True
 
     def build_from_list(self, raw: list):
         """
         Builds a model from an ordered list, converting data types to their desired type where
         possible.
+        @unit-tested
 
         """
         count = 0
+
         for field in self.total_map:
-            if field['type'] == 'datetime':
-                setattr(self, field['name'], arrow.get(raw[count]).datetime)
-            elif field['type'] == 'bool':
-                if raw[count] == 1:
-                    setattr(self, field['name'], True)
-                else:
-                    setattr(self, field['name'], False)
-            else:
-                setattr(self, field['name'], raw[count])
+
+            # if field['type'] == 'datetime':
+            #     setattr(self, field['name'], arrow.get(raw[count]).datetime)
+            # elif field['type'] == 'bool':
+            #     if raw[count] == 1:
+            #         setattr(self, field['name'], True)
+            #     else:
+            #         setattr(self, field['name'], False)
+            # else:
+            #     setattr(self, field['name'], raw[count])
+
+            setattr(self, field['name'], raw[count])
             count += 1
         return True
 
-    def build_from_dict(self, raw: dict):
-        """
-        Creates a model object from a keyed dictionary.
-
-        """
-        for field in self.total_map:
-            if field['name'] in raw:
-                setattr(self, field['name'], raw[field['name']])
-        return True
-
-    def get_fields_sql(self, skip_fields: list=['id']) -> str:
+    def get_fields_sql(self, skip_fields: list = ['id']) -> str:
         """
         Gets all class table column fields in a comma separated list for sql cmds.
+        @unit-tested
 
         """
         field_sql = ""
@@ -195,9 +200,10 @@ class Base():
             field_sql += "%s, " % field['name']
         return field_sql[:-2]
 
-    def get_parmaterized_num(self,skip_fields: list=['id']) -> str:
+    def get_parmaterized_num(self, skip_fields: list = ['id']) -> str:
         """
         Generates the number of parameterized "?" for the sql lite parameterization.
+        @unit-tested
 
         """
         field_value_param_sql = ""
@@ -212,9 +218,10 @@ class Base():
         field_value_param_sql = field_value_param_sql[:-2]
         return field_value_param_sql
 
-    def get_values_sql(self, skip_fields: list=['id']) -> tuple:
+    def get_values_sql(self, skip_fields: list = ['id']) -> tuple:
         """
         Generates the model values to send to the sql lite interpretor as a tuple.
+        @unit-tested
 
         """
         vals = []
@@ -243,7 +250,7 @@ class Base():
                     field_value = 0
                 else:
                     raise AttributeError('Model %s var self.%s with type bool has value of %s' % (
-                        self.model_name,
+                        __class__.__name__,
                         field['name'],
                         field_value))
 
@@ -251,22 +258,24 @@ class Base():
 
         return tuple(vals)
 
-    def get_update_set_sql(self):
+    def get_update_set_sql(self, skip_fields=['id']):
         """
         Generates the models SET sql statements, ie: SET key = value, other_key = other_value.
+        @unit-tested - @todo needs updating for "skip_fields"
 
         """
         set_sql = ""
         for field in self.total_map:
-            if field['name'] == 'id':
+            if field['name'] in skip_fields:
                 continue
             set_sql += "%s = ?,\n" % field['name']
         return set_sql[:-2]
 
-    def check_required_class_vars(self, extra_class_vars: list=[]):
+    def check_required_class_vars(self, extra_class_vars: list = []):
         """
         Quick class var checks to make sure the required class vars are set before proceeding with
         an operation.
+        @unit-tested
 
         """
         if not self.conn:
@@ -285,6 +294,7 @@ class Base():
     def _create_total_map(self) -> bool:
         """
         Slams the base_map and models field_map together into self.total_map.
+        @unit-tested
 
         """
         self.total_map = self.base_map + self.field_map
@@ -294,15 +304,19 @@ class Base():
         """
         Sets the defaults for the class field vars and populates the self.field_list var containing
         all table field names.
+        @unit-tested
 
         """
         self.field_list = []
+
         for field in self.total_map:
             name = field['name']
             default = None
             if 'default' in field:
                 default = field['default']
             self.field_list.append(name)
+
+            # Sets all class field vars with defaults.
             if not getattr(self, name, None):
                 setattr(self, name, default)
         return True
@@ -310,33 +324,71 @@ class Base():
     def _set_types(self) -> bool:
         """
         Sets the types of class table field vars and corrects their types where possible.
+        @unit-tested
 
         """
         for field in self.total_map:
-            class_var_value = getattr(self, field['name'])
-            if class_var_value:
+            class_var_name = field['name']
+            class_var_value = getattr(self, class_var_name)
+            if not class_var_value:
                 continue
-            # If the field its type bool, but not actually typed bool, typically 0 or 1 make it bool
+
+            if field['type'] == 'int' and type(class_var_value) != int:
+                converted_value = self._convert_ints(class_var_name, class_var_value)
+                setattr(self, class_var_name, converted_value)
+                continue
 
             if field['type'] == 'bool' and type(class_var_value) != bool:
-                if class_var_value == 1:
-                    setattr(self, field['name'], True)
-                elif class_var_value == 0:
-                    setattr(self, field['name'], False)
-                else:
-                    AttributeError('%s field %s should be type bool.' % (
-                        self.model_name,
-                        field['name']))
+                converted_value = self._convert_bools(class_var_name, class_var_value)
+                setattr(self, class_var_name, converted_value)
+                continue
 
             if field['type'] == 'datetime' and type(class_var_value) != datetime:
                 setattr(
                     self,
                     field['name'],
                     arrow.get(class_var_value).datetime)
+                continue
+
+    def _convert_ints(self, name: str, value) -> bool:
+        """
+        Attempts to convert ints to a usable value or raises an AttributeError.
+        @unit-tested
+
+        """
+        if isinstance(value, int):
+            return value
+        if isinstance(value, str) and value.isdigit():
+            logging.warning('Class %s field %s value %s is not int, changed to int.' % (
+                __class__.__name__, name, value))
+            return int(value)
+        raise AttributeError('Class %s field %s value %s is not int.' % (
+            __class__.__name__, name, value))
+
+    def _convert_bools(self, name: str, value) -> bool:
+        """
+        Attempts to convert bools into usable value or raises an AttributeError.
+        @unit-tested
+
+        """
+        if isinstance(value, bool):
+            return value
+
+        value = str(value).lower()
+        # Try to convert values to the positive.
+        if value == '1' or value == 'true':
+            return True
+        # Try to convert values to the negative.
+        elif value == '0' or value == 'false':
+            return False
+        else:
+            AttributeError('%s field %s should be type bool.' % (
+                __class__.__name__, name))
 
     def _generate_create_table_feilds(self) -> str:
         """
         Generates all fields column create sql statements.
+        @unit-tested
 
         """
         field_sql = ""
@@ -345,7 +397,7 @@ class Base():
         for field in self.total_map:
             primary_stmt = ''
             if 'primary' in field and field['primary']:
-                primary_stmt = ' PRIMARY KEY'
+                primary_stmt = ' PRIMARY KEY AUTOINCREMENT'
 
             not_null_stmt = ''
             if 'not_null' in field and field['not_null']:
@@ -368,22 +420,23 @@ class Base():
                 field_sql = field_sql[:-1]
             field_sql += "\n"
             c += 1
-
+        field_sql = field_sql[:-1]
         return field_sql
 
     def _xlate_field_type(self, field_type):
         """
         Translates field types into sql lite column types.
         @todo: create better class var for xlate map.
+        @unit-tested
 
         """
         if field_type == 'int':
-            return 'integer'
+            return 'INTEGER'
         elif field_type == 'datetime':
-            return 'date'
+            return 'DATE'
         elif field_type == 'str':
-            return 'text'
+            return 'TEXT'
         elif field_type == 'bool':
-            return 'int'
+            return 'INTEGER'
 
 # End File: lan-nanny/modules/models/base.py

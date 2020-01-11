@@ -67,14 +67,6 @@
           <input id="icon_form_choice" name="icon_form_choice" type="hidden" name="icon_choice" value="device_icon_select">
         {%endif%}
 
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="device_port_scan" {%if device.port_scan == 1%}checked{%else%}value="off"{%endif%} name="device_port_scan">
-          <label class="form-check-label" for="device_port_scan">
-            Port Scan
-          </label>
-          <small id="device_port_scan" class="form-text text-muted">Whether or not to run port scans on device.</small>
-        </div>
-
         <br/>
         <button class="btn btn-success" type="submit">Save</button>
 

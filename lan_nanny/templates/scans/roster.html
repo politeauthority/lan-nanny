@@ -21,10 +21,10 @@
                 <thead>
                   <tr>
                     <td>ID</td>
-                    <td>Start</td>
-                    <td>End</td>
+                    <td>Type</td>
+                    <td>Trigger</td>
+                    <td>Started</td>
                     <td>Total Time</td>
-                    <td>Devices</td>
                   </tr>
                 </thead>
                 {% for scan in scans %}
@@ -32,9 +32,10 @@
                   <td>
                     <a href="/scan/info/{{scan.id}}">{{scan.id}}</a>
                   </td>
+                  <td>{{scan.scan_type}}</td>
+                  <td>{{scan.trigger}}</td>
                   <td>{{scan.created_ts|pretty_time}}</td>
                   <td>{{scan.elapsed_time}} sec</td>
-                  <td>{{scan.num_devices}}</td>
                 </tr>
                 {%endfor%}
               </table>

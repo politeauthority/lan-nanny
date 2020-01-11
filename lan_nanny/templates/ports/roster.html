@@ -1,0 +1,53 @@
+<!-- Ports Roster -->
+{% extends "layout.html" %}
+
+{% block content %}
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Ports</h1>
+  </div>
+
+  <!-- Content Row -->
+  <div class="row">
+
+    <!-- Ports Table -->
+    <div class="col-xl-12 col-lg-12">
+      <div class="card shadow mb-4">
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="table-responsive">
+            {%if ports%}
+              <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                  <tr>
+                    <td>Name</td>
+                    <td>Service Name</td>
+                    <td>Protocol</td>
+                  </tr>
+                </thead>
+                {% for port in ports %}
+                <tr>
+                  <td><a href="/ports/info/{{port.port}}">{{port.port}}</a></td>
+                  <td>{{port.service_name}}</td>
+                  <td>{{port.protocol}}</td>
+                </tr>
+                {%endfor%}
+              </table>
+            {%else%}
+              <div class="text-center">
+                No Ports Found.
+              </div>
+            {%endif%}
+          </div>
+      </div>
+    </div>
+
+  </div>
+
+{%endblock%}
+
+{%block javascript%}
+  <script src="vendor/datatables/jquery.dataTables.min.js"></script>
+  <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
+{%endblock%}
+<!-- EndFile: lan-nanny/lan_nanny/templates/ports/roster.html -->

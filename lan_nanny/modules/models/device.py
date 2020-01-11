@@ -4,6 +4,7 @@
 import arrow
 
 from .base import Base
+from ..collections.ports import Ports
 
 
 class Device(Base):
@@ -73,10 +74,16 @@ class Device(Base):
                 'type': 'datetime'
             },
             {
+                'name': 'flagged_for_scan',
+                'type': 'bool',
+                'default': '0'
+            },
+            {
                 'name': 'update_ts',
                 'type': 'datetime'
             },
         ]
+        self.ports = []
         self.setup()
 
     def __repr__(self):
@@ -112,5 +119,25 @@ class Device(Base):
 
         if not self.name:
             self.icon = "fas fa-question"
+
+    def build_from_list(self, raw: list, build_ports: bool=False):
+        """
+        Builds a model from an ordered list, converting data types to their desired type where
+        possible.
+        @unit-tested
+
+        """
+        count = 0
+
+        for field in self.total_map:
+            setattr(self, field['name'], raw[count])
+            count += 1
+
+        # This is unique to this model
+        if build_ports:
+            self.check_required_class_vars()
+            ports = Ports(self.conn, self.cursor)
+            self.ports = ports.get_by_device(self.id)
+        return True
 
 # End File: lan-nanny/modules/models/device.py

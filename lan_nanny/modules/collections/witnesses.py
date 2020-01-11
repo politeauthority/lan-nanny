@@ -19,7 +19,7 @@ class Witnesses():
         sql = """
             SELECT *
             FROM witness
-            WHERE run_id = %s
+            WHERE scan_id = %s
             ORDER BY created_ts DESC;""" % scan_id
 
         self.cursor.execute(sql)
