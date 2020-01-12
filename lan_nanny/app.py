@@ -1,8 +1,10 @@
-"""App
+"""
+App Entry Point.
 Web application entry point.
 
 """
 
+import os
 import sys
 
 from flask import Flask, render_template, g
@@ -29,10 +31,7 @@ app.config.from_object(default_config_obj)
 
 @app.before_request
 def get_settings():
-    """
-    Gets and loads all settings in the the flask g options namespace.
-
-    """
+    """Get and loads all settings in the the flask g options namespace."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     options = Options()
     options.conn = conn
@@ -42,10 +41,7 @@ def get_settings():
 
 @app.before_request
 def get_active_alerts():
-    """
-    Gets and loads all active alerts in the the flask g options namespace.
-
-    """
+    """Get and loads all active alerts in the the flask g options namespace."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     alerts = Alerts(conn, cursor)
     g.alerts = alerts.get_active_unacked(build_devices=True)
@@ -53,10 +49,7 @@ def get_active_alerts():
 
 @app.teardown_appcontext
 def close_connection(exception: str):
-    """
-    Close SQLlite connection on app tear down.
-
-    """
+    """Close SQLlite connection on app tear down."""
     db = getattr(g, '_database', None)
     if db is not None:
         db.close()
@@ -64,10 +57,7 @@ def close_connection(exception: str):
 
 @app.route('/')
 def index() -> str:
-    """
-    App home page.
-
-    """
+    """App dashboard."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     metrics = Metrics(conn, cursor)
 
@@ -91,16 +81,11 @@ def index() -> str:
 
 @app.route('/about')
 def about() -> str:
-    """
-    About page
-
-    """
+    """About page"""
     # conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
-    # metrics = Metrics(conn, cursor)
-
     data = {
         'active_page': 'about',
-        'db_name': app.config['LAN_NANNY_DB_FILE'],
+        'db_name': os.path.normpath(app.config['LAN_NANNY_DB_FILE']),
         'db_size': utils.get_db_size(app.config['LAN_NANNY_DB_FILE'])
     }
     return render_template('about.html', **data)
@@ -108,18 +93,12 @@ def about() -> str:
 
 @app.errorhandler(404)
 def page_not_found(e: str):
-    """
-    404 Error page.
-
-    """
+    """404 Error page."""
     return render_template('errors/404.html', error=e), 404
 
 
 def register_blueprints(app: Flask):
-    """
-    Connect the blueprints to the router.
-
-    """
+    """Connect the blueprints to the router."""
 
     # app.register_blueprint(ctrl_auth)
     app.register_blueprint(ctrl_device)
@@ -140,6 +119,7 @@ def register_jinja_funcs(app: Flask):
     app.jinja_env.filters['smart_time'] = filters.smart_time
     app.jinja_env.filters['online'] = filters.online
     app.jinja_env.filters['device_icon_status'] = filters.device_icon_status
+    app.jinja_env.filters['time_switch'] = filters.time_switch
 
 
 def install():

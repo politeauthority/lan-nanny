@@ -22,7 +22,7 @@
     <div class="col-lg-6 text-right">
 
       <a id="device-favorite" href="#" class="btn btn-warning btn-circle btn-lg">
-        <i class="fa {%if device.favorite == 0%}fa-star-o{%else%}fa-star{%endif%}"></i>
+        <i></i>
       </a>
       <a href="/device/edit/{{device.id}}" class="btn btn-primary">Edit</a>
     </div>
@@ -76,11 +76,11 @@
               </tr>
               <tr>
                 <td><b>Last Seen</b></td>
-                <td>{{device.last_seen|time_ago}}</td>
+                <td class="time_switch">{{device.last_seen|time_switch}}</td>
               </tr>
               <tr>
                 <td><b>First Seen</b></td>
-                <td>{{device.first_seen|pretty_time}}</td>
+                <td class="time_switch">{{device.first_seen|pretty_time}}</td>
               </tr>
               <tr>
                 <td><b>Port Scan</b></td>
@@ -205,7 +205,18 @@
   <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
   <script type="text/javascript">
     $( document ).ready(function(){
-      register_favorite_button('#device-favorite', '/device/favorite/{{device.id}}')
+      // $('.time_switch').each(function(){
+      //   console.log($(this));
+      //   $(this).append('<icon class="fas fa-clock time_click hidden"></i>');
+      // });
+
+      // $('.time_switch').hover(function(){
+      //   console.log($(this).find('icon').show());
+      // });
+
+      var device_favorite_initial_status = convert_str_bool("{{device.favorite}}");
+
+      register_favorite_button('#device-favorite', device_favorite_initial_status, '/device/favorite/{{device.id}}')
 
       var device_alert_online_initial_status = convert_str_bool("{{device.alert_online}}");
       var device_alert_offline_initial_status = convert_str_bool("{{device.alert_online}}");

@@ -23,10 +23,7 @@ class ScanHosts:
         self.trigger = scan.trigger
 
     def run(self) -> list:
-        """
-        Runs NMap scan.
-
-        """
+        """Runs NMap scan."""
         self.setup()
 
         if self.options['scan-hosts-enabled'].value != True:
@@ -41,8 +38,7 @@ class ScanHosts:
         return self.hosts
 
     def setup(self):
-        """
-        """
+        """Sets up the scan hosts run."""
         self.scan_log = ScanLog(self.conn, self.cursor)
         self.scan_log.trigger = self.trigger
         self.scan_log.insert_run_start('host')
@@ -71,24 +67,30 @@ class ScanHosts:
         already known devices and saving witness for all found devices.
 
         """
+        if not self.hosts:
+            print('No hosts found or error encountered.')
+            return False
         print('Found %s devices:' % len(self.hosts))
 
         scan_time = arrow.utcnow().datetime
         for host in self.hosts:
+            if not host['mac']:
+                print('Couldnt find mac for device, skipping')
+                continue
             device = Device(self.conn, self.cursor)
             device.get_by_mac(host['mac'])
             new = False
             if not device.id:
                 new = True
                 device.first_seen = scan_time
-                device.name = host['vendor']
+                device.mac = host['mac']
                 if self.options['scan-ports-default'].value:
                     device.port_scan = True
+
+            device.vendor = host['vendor']
+            device.name = self._set_device_name(device, host)
             device.last_seen = scan_time
             device.ip = host['ip']
-            device.mac = host['mac']
-            device.vendor = host['vendor']
-            print(device.first_seen)
             device.save()
 
             new_device_str = ""
@@ -102,6 +104,30 @@ class ScanHosts:
                 print('\t%s - %s%s' % (device.mac, device.ip, new_device_str))
 
             self.save_witness(device, scan_time)
+
+    def _set_device_name(self, device: Device, host: dict):
+        """Set the device name to the host name if available, then the vendor if nothing else is
+        available it sets the device name to the mac address.
+
+        """
+        # if we dont have a device name and we have a hostname, use the hostname
+        if not device.name and host['hostname']:
+            return host['hostname']
+
+        # if the device name is the same as vendor, and we have a hostname, use the hostname
+        if device.name == device.vendor and host['hostname']:
+            return host['hostname']
+
+        # at this point if we have a device name, lets use that.
+        if device.name:
+            return device.name
+
+        # if no device name, but vendor, use the vendor
+        if device.vendor:
+            return device.vendor
+
+        # if nothing else, use the mac as the device name
+        return device.mac
 
     def save_witness(self, device: Device, scan_time: datetime) -> bool:
         """

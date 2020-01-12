@@ -5,17 +5,14 @@ Gets collections of ports.
 from ..models.port import Port
 
 
-class Ports():
+class Ports:
 
     def __init__(self, conn=None, cursor=None):
         self.conn = conn
         self.cursor = cursor
 
     def get_distinct(self) -> list:
-        """
-        Gets all ports by a device_id.
-
-        """
+        """Get all ports by a device_id."""
         sql = """
             SELECT DISTINCT(port)
             FROM ports
@@ -56,8 +53,7 @@ class Ports():
         return ports
 
     def search(self, phrase):
-        """
-        """
+        """Collect ports matching a search phrase, matching the port number or service name."""
         port_sql = self._gen_like_sql('port', phrase)
         service_name_sql = self._gen_like_sql('service_name', phrase)
         sql = """
@@ -68,11 +64,9 @@ class Ports():
             %(service_name)s """ % {
             'port': port_sql,
             'service_name': service_name_sql}
-        print(sql)
         self.cursor.execute(sql)
         raw_ports = self.cursor.fetchall()
         ports = []
-        print('\n\n%s\n\n' % raw_ports)
         for raw_port in raw_ports:
             port = Port(self.conn, self.cursor)
             port.build_from_list(raw_port)
