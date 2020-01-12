@@ -109,4 +109,14 @@ def device_icon_status(device: Device) -> int:
     return Markup(html)
 
 
+def time_switch(the_time):
+    the_arrow = arrow.get(the_time)
+    human_time = the_arrow.humanize()
+    pretty_time = the_arrow.to(g.options['timezone'].value).format('ddd MMM Do h:mm:ss a')
+    html = ''
+    html += '<span class="time-pretty">%s</span>' % arrow.get(the_time).humanize()
+    html += '<span class="time-long hidden">%s</span>' % pretty_time
+    return Markup(html)
+
+
 # End File: lan-nanny/lan_nanny/modules/filters.py

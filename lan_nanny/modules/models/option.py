@@ -60,7 +60,7 @@ class Option(Base):
 
     def build_from_list(self, raw: list):
         """
-        Builds a model from an ordered list, converting data types to their desired type where
+        Build a model from an ordered list, converting data types to their desired type where
         possible.
 
         """
@@ -75,12 +75,15 @@ class Option(Base):
 
         return True
 
-    def save_by_name(self):
-        """
-        Saves an option by name.
+    def update(self):
+        """Save an option with Option types preserved."""
+        if self.type == 'bool':
+            if self.value == 'true':
+                self.value = 1
+            elif self.value == 'false':
+                self.value = 0
+        return self.save()
 
-        """
-        self.save(where=['name', self.name])
 
     def _set_bool(self, value) -> bool:
         """

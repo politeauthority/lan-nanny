@@ -55,9 +55,12 @@ class Scan:
 
         """
         print("Running port scans")
-        if self.options['scan-hosts-enabled'] == True:
+        if not self.hosts:
+            print('No hosts found in last scan, skipping port scan')
+            return False
+        if self.options['scan-ports-enabled'].value != True:
             print('Port Scanning disabled')
-            return
+            return False
         ScanPorts(self).run()
 
 

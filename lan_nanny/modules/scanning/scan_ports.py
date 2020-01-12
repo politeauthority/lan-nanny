@@ -30,20 +30,11 @@ class ScanPorts:
         """
         port_scan_candidates = self.get_port_scan_candidates()
 
-        print("Found %s devices for port scan candidates" % len(port_scan_candidates))
+        print("Port Scanning %s devices" % len(port_scan_candidates))
 
         if not port_scan_candidates:
             print('No devices ready for port scan, skipping.')
             return
-
-        limit = 3
-        if len(port_scan_candidates) > limit:
-            if limit == 1:
-                devices = [port_scan_candidates[0]]
-            else:
-                devices = port_scan_candidates[0:limit - 1]
-
-            print("Limiting port scan to %s devices" % limit)
 
         for device in port_scan_candidates:
             device_og_port_scan = device.last_port_scan
@@ -76,7 +67,9 @@ class ScanPorts:
 
     def get_port_scan_candidates(self):
         """
-        Gets 
+        Get the device candidates for port scanning that appeared in the last host scan and are
+        ready for a port scan, also limit the number of hosts to port scan based on the setting.
+
         """
         devices = Devices(self.conn, self.cursor).for_port_scanning()
         port_scan_devices = []
@@ -86,6 +79,18 @@ class ScanPorts:
                 if d.mac == host['mac']:
                     port_scan_devices.append(d)
                     continue
+
+        print('Found %s Port Scan candidates' % len(port_scan_devices))
+
+        limit = int(self.options['scan-ports-per-run'].value)
+        if len(port_scan_devices) > limit:
+            if limit == 1:
+                port_scan_devices = [port_scan_devices[0]]
+            else:
+                port_scan_devices = port_scan_devices[0:limit]
+
+            print("Limiting port scan to %s devices because of app setting" % limit)
+
         return port_scan_devices
 
     def scan_ports(self, device: Device) -> list:

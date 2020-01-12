@@ -2,6 +2,7 @@
 Tools for reading and traversing nmap output files.
 
 """
+from collections import OrderedDict
 import logging
 import xml
 
@@ -39,13 +40,12 @@ def parse_hosts(parsed):
     for host in parsed['nmaprun']['host']:
         # Check if this host is the localhost and skip
         is_local_host = _detect_local_host(host)
-        if is_local_host:
-            continue
 
         found = {
             'ip': _get_host_ip(host),
             'mac': _get_host_mac(host),
-            'vendor': _get_host_vendor(host)
+            'vendor': _get_host_vendor(host),
+            'hostname': _get_host_hostname(host)
         }
         hosts.append(found)
 
@@ -71,9 +71,15 @@ def _get_host_ip(host: dict) -> str:
         return ''
 
     host_ip = ''
+
+    if isinstance(host['address'], OrderedDict):
+        host_ip = host['address']['@addr']
+        return host_ip
+
     for addr in host['address']:
         if '@addrtype' not in addr:
             continue
+
         if addr['@addrtype'] == 'ipv4':
             host_ip = addr['@addr']
             break
@@ -90,6 +96,10 @@ def _get_host_mac(host: dict) -> str:
         return ''
 
     host_vendor = ''
+
+    if isinstance(host['address'], OrderedDict):
+        return ''
+
     for addr in host['address']:
         if '@addrtype' not in addr:
             continue
@@ -116,6 +126,15 @@ def _get_host_vendor(host: dict) -> str:
         break
 
     return host_vendor
+
+def _get_host_hostname(host: dict) -> str:
+    """
+    Get the host's hostname, if available.
+
+    """
+    if 'hostnames' not in host or not host['hostnames']:
+        return ''
+    return host['hostnames']['hostname']['@name']
 
 
 def parse_ports(parsed):
