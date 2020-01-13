@@ -142,6 +142,7 @@ def parse_ports(parsed):
     Parses an NMap output file for port data, returning the relevant info.
 
     """
+    import ipdb; ipdb.set_trace()
     ports = []
     if 'ports' not in parsed['nmaprun']:
         return False

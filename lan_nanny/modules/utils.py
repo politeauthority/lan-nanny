@@ -3,9 +3,21 @@ Random utility functions.
 
 """
 from datetime import datetime, timedelta
+from functools import wraps
 import os
 
+from flask import session, redirect
+
 import arrow
+
+
+def authenticate(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if 'auth' not in session or not session['auth']:
+            return redirect('/login'), 403
+        return f(*args, **kwargs)
+    return wrapper
 
 
 def device_icons() -> dict:

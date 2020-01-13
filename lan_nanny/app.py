@@ -7,9 +7,9 @@ Web application entry point.
 import os
 import sys
 
-from flask import Flask, render_template, g
+from flask import Flask, render_template, request, redirect, session, g
 
-# from modules.controllers import auth as ctrl_auth
+from modules.controllers import auth as ctrl_auth
 from modules.controllers.alert import alert as ctrl_alert
 from modules.controllers.device import device as ctrl_device
 from modules.controllers.ports import ports as ctrl_ports
@@ -55,9 +55,30 @@ def close_connection(exception: str):
         db.close()
 
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """Login form and form response"""
+    if not request.form:
+        return render_template('login.html')
+
+    print(request.form['password'])
+    print(g.options['console-password'].value)
+    if request.form['password'] == g.options['console-password'].value:
+        session['auth'] = True
+        return redirect('/')
+
+    return render_template('login.html', error="Incorrect password."), 403
+
+@app.route('/logout')
+def logout():
+    session.pop('auth')
+    return redirect('/login')
+
 @app.route('/')
+@utils.authenticate
 def index() -> str:
     """App dashboard."""
+    print(session['auth'])
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     metrics = Metrics(conn, cursor)
 
@@ -80,6 +101,7 @@ def index() -> str:
 
 
 @app.route('/about')
+@utils.authenticate
 def about() -> str:
     """About page"""
     # conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
@@ -100,13 +122,13 @@ def page_not_found(e: str):
 def register_blueprints(app: Flask):
     """Connect the blueprints to the router."""
 
-    # app.register_blueprint(ctrl_auth)
     app.register_blueprint(ctrl_device)
     app.register_blueprint(ctrl_alert)
     app.register_blueprint(ctrl_ports)
     app.register_blueprint(ctrl_scan)
     app.register_blueprint(ctrl_settings)
     app.register_blueprint(ctrl_search)
+    # app.register_blueprint(ctrl_auth)
 
 
 def register_jinja_funcs(app: Flask):
@@ -131,7 +153,8 @@ if __name__ == '__main__':
     port = 5000
     if len(sys.argv) > 1:
         port = sys.argv[1]
-
+    app.secret_key = 'super secret key'
+    app.config['SESSION_TYPE'] = 'filesystem'
     register_blueprints(app)
     register_jinja_funcs(app)
     # install()

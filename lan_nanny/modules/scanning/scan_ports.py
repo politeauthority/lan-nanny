@@ -101,13 +101,15 @@ class ScanPorts:
         """
         scan_log = ScanLog(self.conn, self.cursor)
         scan_log.trigger = self.trigger
-        scan_log.command = "nmap %s --host-timeout 120 --max-retries 5" % device.ip
+        #  back_off = "--host-timeout 120 --max-retries 5"
+        scan_log.command = "nmap %s" % device.ip
         scan_log.insert_run_start('port')
 
         port_scan_file = os.path.join(self.tmp_dir, "port_scan_%s.xml" % device.id)
         cmd = "%s -oX %s" % (scan_log.command, port_scan_file)
         print('Running port scan for %s' % device)
         print('\tCmd: %s' % scan_log.command)
+
         try:
             subprocess.check_output(cmd, shell=True)
             scan_log.success = True
@@ -118,7 +120,6 @@ class ScanPorts:
             return False
 
         ports = parse_nmap.parse_xml(port_scan_file, 'ports')
-
         # scan_log.units = len(ports)
         scan_log.completed = True
         scan_log.end_run()
