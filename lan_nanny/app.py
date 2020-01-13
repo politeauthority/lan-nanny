@@ -9,7 +9,6 @@ import sys
 
 from flask import Flask, render_template, request, redirect, session, g
 
-from modules.controllers import auth as ctrl_auth
 from modules.controllers.alert import alert as ctrl_alert
 from modules.controllers.device import device as ctrl_device
 from modules.controllers.ports import ports as ctrl_ports
@@ -78,7 +77,6 @@ def logout():
 @utils.authenticate
 def index() -> str:
     """App dashboard."""
-    print(session['auth'])
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     metrics = Metrics(conn, cursor)
 
@@ -96,7 +94,7 @@ def index() -> str:
     data['device_favorites'] = favorites
     data['devices'] = devices
     data['runs_over_24'] = metrics.get_runs_24_hours()
-    # data['last_run'] = metrics.get_last_run_log()
+    data['last_scan'] = metrics.get_last_run_log('host')
     return render_template('dashboard.html', **data)
 
 
@@ -104,7 +102,6 @@ def index() -> str:
 @utils.authenticate
 def about() -> str:
     """About page"""
-    # conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     data = {
         'active_page': 'about',
         'db_name': os.path.normpath(app.config['LAN_NANNY_DB_FILE']),

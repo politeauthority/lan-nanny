@@ -26,6 +26,7 @@ def devices() -> str:
     devices = Devices(conn, cursor)
     data = {}
     data['active_page'] = 'devices'
+    data['active_page_devices'] = 'all'
     data['devices'] = devices.get_all()
     return render_template('devices/roster.html', **data)
 
@@ -40,11 +41,29 @@ def online() -> str:
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     devices = Devices(conn, cursor)
 
-    active_time_value = utils.get_active_timeout_from_now(int(g.options['active-timeout'].value))
     data = {}
     data['active_page'] = 'devices'
-    data['devices'] = devices.get_online(active_time_value)
+    data['active_page_devices'] = 'online'
+    data['devices'] = devices.get_online(int(g.options['active-timeout'].value))
     return render_template('devices/roster.html', **data)
+
+
+@device.route('/offline')
+@utils.authenticate
+def offline() -> str:
+    """
+    Devices roster page for only online devices
+
+    """
+    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    devices = Devices(conn, cursor)
+
+    data = {}
+    data['active_page'] = 'devices'
+    data['active_page_devices'] = 'offline'
+    data['devices'] = devices.get_offline(int(g.options['active-timeout'].value))
+    return render_template('devices/roster.html', **data)
+
 
 
 @device.route('/info/<device_id>')
