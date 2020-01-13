@@ -172,8 +172,11 @@ class Base():
 
         for field in self.total_map:
 
-            # if field['type'] == 'datetime':
-            #     setattr(self, field['name'], arrow.get(raw[count]).datetime)
+            if field['type'] == 'datetime':
+                setattr(self, field['name'], arrow.get(raw[count]).datetime)
+            else:
+                setattr(self, field['name'], raw[count])
+
             # elif field['type'] == 'bool':
             #     if raw[count] == 1:
             #         setattr(self, field['name'], True)
@@ -182,7 +185,6 @@ class Base():
             # else:
             #     setattr(self, field['name'], raw[count])
 
-            setattr(self, field['name'], raw[count])
             count += 1
         return True
 

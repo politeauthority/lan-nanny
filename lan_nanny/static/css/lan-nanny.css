@@ -20,6 +20,16 @@
   100% {color: #ffffff;}
 }
 
+.roster_nav li .active{
+  color: black;
+  font-weight: 700;
+  background-color: white;
+  border-radius: 25px;
+}
+
+.roster_nav {
+  margin-bottom: 10px;
+}
 
 .icon-pad {
   padding-right: 3px;
