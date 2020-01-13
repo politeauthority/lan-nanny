@@ -63,7 +63,6 @@ function send_ajax_update(base_ajax_uri, data){
   @todo: return notification on success, error.
 
   */
-  console.log(data);
   $.ajax({
     type: 'POST',
     data: data,

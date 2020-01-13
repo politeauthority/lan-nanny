@@ -14,6 +14,7 @@ ports = Blueprint('Port', __name__, url_prefix='/ports')
 
 
 @ports.route('/')
+@utils.authenticate
 def roster() -> str:
     """
     Port roster page.
@@ -28,6 +29,7 @@ def roster() -> str:
 
 
 @ports.route('/info/<port_number>')
+@utils.authenticate
 def info(port_number: str) -> str:
     """
     Port info page.

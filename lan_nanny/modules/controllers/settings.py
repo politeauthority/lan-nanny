@@ -5,12 +5,14 @@ from flask import Blueprint, render_template, redirect, request, g
 from flask import current_app as app
 
 from .. import db
+from .. import utils
 from ..models.option import Option
 
 settings = Blueprint('Settings', __name__, url_prefix='/settings')
 
 
 @settings.route('/')
+@utils.authenticate
 def basic() -> str:
     """Setting page."""
     data = {
@@ -21,6 +23,7 @@ def basic() -> str:
 
 
 @settings.route('/save', methods=['POST'])
+@utils.authenticate
 def settings_save():
     """Settings save."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
@@ -47,8 +50,6 @@ def settings_save():
         cursor,
         'scan-ports-per-run',
         request.form['setting_scan_ports_per_run'])
-
-
     return redirect('/settings')
 
 

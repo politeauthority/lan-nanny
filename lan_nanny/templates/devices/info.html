@@ -27,15 +27,7 @@
       <a href="/device/edit/{{device.id}}" class="btn btn-primary">Edit</a>
     </div>
   </div>
-  <!-- Breadcrums -->
-<!--   <div class="row">
-    <div class="col-lg-6">
-      <ul>
-        <li>Devices</li>
-        <li>{{device.name}}</li>
-      </ul>
-    </div>
-  </div> -->
+
 
   <!-- Content Row -->
   <div class="row">
@@ -59,14 +51,6 @@
                 <td>{{device.ip}}</td>
               </tr>
               <tr>
-                <td><b>Status</b></td>
-                {%if device.last_seen|online%}
-                  <td>Online</td>
-                {%else%}
-                  <td>Disconnected</td>
-                {%endif%}
-              </tr>
-              <tr>
                 <td><b>Mac</b></td>
                 <td>{{device.mac}}</td>
               </tr>
@@ -81,6 +65,14 @@
               <tr>
                 <td><b>First Seen</b></td>
                 <td class="time_switch">{{device.first_seen|pretty_time}}</td>
+              </tr>
+              <tr>
+                <td><b>Status</b></td>
+                {%if device.last_seen|online%}
+                  <td>Online</td>
+                {%else%}
+                  <td>Disconnected</td>
+                {%endif%}
               </tr>
               <tr>
                 <td><b>Port Scan</b></td>
@@ -102,9 +94,10 @@
                   {%endif%}
                 </td>
               </tr>
+              {%if g.options['beta-features'].value %}
               <tr>
                 <td><b>Flagged for Port Scan</b></td>
-                <td>
+                <td>{{g.options}}
                   {% if device.flagged_for_scan%}
                     Yes
                   {%else%}
@@ -112,6 +105,7 @@
                   {%endif%}
                 </td>
               </tr>
+              {%endif%}
 
             </table>
           </div>
@@ -132,10 +126,16 @@
         <div class="card-body">
           <div class="form-group">
             <label for="port_scan">Port Scan</label>
-            <input id="port_scan" data-entity-id="{{device.id}}" class="alert-toggle alert-nanny" type="checkbox" data-toggle="toggle" aria-describedby="portScanHelp">
+            <input id="port_scan" data-entity-id="{{device.id}}" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="portScanHelp">
             <small id="portScanHelp" class="form-text text-muted">Enable port scanning of device.</small>
           </div>
 
+<!--           <div class="form-group">
+            <label for="port_scan_flagged">Flag for Port Scan</label>
+            <input id="port_scan_flagged" data-entity-id="{{device.id}}" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="portScanFlaggedHelp">
+            <small id="portScanFlaggedHelp" class="form-text text-muted">Resets device port scan timeout and puts the device in the front of the line for the next port scan.</small>
+          </div>
+ -->
           <!--
           <div class="form-group">
             <label for="alert_online">Alert Online</label>
@@ -153,9 +153,10 @@
 
         </div>
       </div>
-    </div>
+    </div><!-- END Device Options -->
   </div>
 
+  <!-- Device Ports -->
   <div class="row">
     <!-- Device Ports -->
     <div class="col-xl-6 col-lg-6">
@@ -166,7 +167,6 @@
             Ports
           </h6>
         </div>
-
         <!-- Card Body -->
         <div class="card-body">
           <div class="table-responsive">
@@ -195,10 +195,8 @@
           </div>
         </div>
       </div>
-
     </div>
-
-  </div>
+  </div><!-- END Device Ports -->
 {%endblock%}
 
 {%block javascript%}
@@ -215,25 +213,30 @@
       // });
 
       var device_favorite_initial_status = convert_str_bool("{{device.favorite}}");
-
       register_favorite_button('#device-favorite', device_favorite_initial_status, '/device/favorite/{{device.id}}')
 
-      var device_alert_online_initial_status = convert_str_bool("{{device.alert_online}}");
-      var device_alert_offline_initial_status = convert_str_bool("{{device.alert_online}}");
-      register_toggle_ajax(
-        '/device/alert-save',
-        '#alert_online',
-        device_alert_online_initial_status);
-      register_toggle_ajax(
-        '/device/alert-save',
-        '#alert_offline',
-        device_alert_online_initial_status);
+      // var device_alert_online_initial_status = convert_str_bool("{{device.alert_online}}");
+      // var device_alert_offline_initial_status = convert_str_bool("{{device.alert_online}}");
+      // register_toggle_ajax(
+      //   '/device/alert-save',
+      //   '#alert_online',
+      //   device_alert_online_initial_status);
+      // register_toggle_ajax(
+      //   '/device/alert-save',
+      //   '#alert_offline',
+      //   device_alert_online_initial_status);
 
       var device_port_scan_status = convert_str_bool("{{device.port_scan}}");
       register_toggle_ajax(
         '/device/quick-save',
         '#port_scan',
         device_port_scan_status);
+
+      // var device_port_scan_flagged_status = convert_str_bool("{{device.flagged_for_scan}}");
+      // register_toggle_ajax(
+      //   '/device/quick-save',
+      //   '#port_scan_flagged',
+      //   device_port_scan_flagged_status);
     });
   </script>
 {%endblock%}

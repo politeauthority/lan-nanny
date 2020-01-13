@@ -1,7 +1,7 @@
 """Device Controller
 
 """
-from flask import Blueprint, render_template, redirect, request, jsonify, g
+from flask import Blueprint, render_template, redirect, request, session, jsonify, g
 from flask import current_app as app
 
 from .. import db
@@ -16,6 +16,7 @@ device = Blueprint('Device', __name__, url_prefix='/device')
 
 
 @device.route('/')
+@utils.authenticate
 def devices() -> str:
     """
     Devices roster page.
@@ -30,6 +31,7 @@ def devices() -> str:
 
 
 @device.route('/online')
+@utils.authenticate
 def online() -> str:
     """
     Devices roster page for only online devices
@@ -46,6 +48,7 @@ def online() -> str:
 
 
 @device.route('/info/<device_id>')
+@utils.authenticate
 def info(device_id: int) -> str:
     """
     Device info page.
@@ -59,8 +62,6 @@ def info(device_id: int) -> str:
         # return page_not_found('Device not found')
     ports_collection = Ports(conn, cursor)
     ports = ports_collection.get_by_device(device.id)
-
-
     data = {}
     data['device'] = device
     data['ports'] = ports
@@ -69,6 +70,7 @@ def info(device_id: int) -> str:
 
 
 @device.route('/edit/<device_id>')
+@utils.authenticate
 def edit(device_id: int) -> str:
     """
     Device edit page.
@@ -95,6 +97,7 @@ def edit(device_id: int) -> str:
 
 
 @device.route('/save', methods=['POST'])
+@utils.authenticate
 def save():
     """
     Device save.
@@ -131,6 +134,7 @@ def save():
 
 
 @device.route('/favorite/<device_id>')
+@utils.authenticate
 def favorite(device_id):
     """
     Web route for making a device a favorite or not.
@@ -155,6 +159,7 @@ def favorite(device_id):
     return jsonify({"success": True})
 
 @device.route('/alert-save', methods=['POST'])
+@utils.authenticate
 def alert_save() -> str:
     """
     Ajax web route for update a device alert settings or not when coming on or off the network.
@@ -181,6 +186,7 @@ def alert_save() -> str:
 
 
 @device.route('/quick-save', methods=['POST'])
+@utils.authenticate
 def quick_save() -> str:
     """
     Ajax web route for update a device alert settings or not when coming on or off the network.
@@ -202,12 +208,12 @@ def quick_save() -> str:
         val = False
 
     setattr(device, request.form.get('field_name'), val)
-    print(device, request.form.get('field_name'), val)
     device.save()
     return jsonify({"success": True})
 
 
 @device.route('/delete/<device_id>')
+@utils.authenticate
 def delete(device_id: int):
     """
     Device delete.
