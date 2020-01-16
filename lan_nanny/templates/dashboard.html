@@ -35,7 +35,11 @@
             <div class="col mr-2">
               <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Scan Status</div>
               <div class="h5 mb-0 font-weight-bold text-gray-800">
-                {{last_scan.created_ts|time_ago}}
+                {%if host_scan.completed%}
+                  Completed {{host_scan.end_ts|smart_time}}
+                {%else%}
+                  Currently Running
+                {%endif%}
               </div>
             </div>
             <div class="col-auto">

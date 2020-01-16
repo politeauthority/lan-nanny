@@ -77,12 +77,15 @@ class ScanHosts:
             if not host['mac']:
                 print('Couldnt find mac for device, skipping')
                 continue
+
             device = Device(self.conn, self.cursor)
             device.get_by_mac(host['mac'])
             new = False
             if not device.id:
                 new = True
                 device.first_seen = scan_time
+                device.name = host['vendor']
+
                 device.mac = host['mac']
                 if self.options['scan-ports-default'].value:
                     device.port_scan = True
@@ -91,6 +94,9 @@ class ScanHosts:
             device.name = self._set_device_name(device, host)
             device.last_seen = scan_time
             device.ip = host['ip']
+            device.vendor = host['vendor']
+            print(device.first_seen)
+
             device.save()
 
             new_device_str = ""

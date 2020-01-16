@@ -1,4 +1,4 @@
-"""Scan Ports
+"""ScanPorts is the modules which controls device port scanning efforts.
 
 """
 import os
@@ -67,8 +67,9 @@ class ScanPorts:
 
     def get_port_scan_candidates(self):
         """
-        Get the device candidates for port scanning that appeared in the last host scan and are
-        ready for a port scan, also limit the number of hosts to port scan based on the setting.
+        Gets devices available in last scan which meet port scanning criteria.
+        @todo if sys default allows port scanning, put new devices in front of the line.
+
 
         """
         devices = Devices(self.conn, self.cursor).for_port_scanning()
@@ -79,17 +80,10 @@ class ScanPorts:
                 if d.mac == host['mac']:
                     port_scan_devices.append(d)
                     continue
-
-        print('Found %s Port Scan candidates' % len(port_scan_devices))
-
-        limit = int(self.options['scan-ports-per-run'].value)
+        limit = 1
         if len(port_scan_devices) > limit:
-            if limit == 1:
-                port_scan_devices = [port_scan_devices[0]]
-            else:
-                port_scan_devices = port_scan_devices[0:limit]
-
-            print("Limiting port scan to %s devices because of app setting" % limit)
+            port_scan_devices = port_scan_devices[0:limit]
+            print("Limiting port scan to %s devices" % limit)
 
         return port_scan_devices
 

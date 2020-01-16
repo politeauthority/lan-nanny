@@ -1,4 +1,5 @@
-"""Devices
+"""Devices Collection.
+
 Gets collections of devices.
 
 """
@@ -9,7 +10,7 @@ import arrow
 from ..models.device import Device
 
 
-class Devices():
+class Devices:
 
     def __init__(self, conn=None, cursor=None):
         self.conn = conn
@@ -139,7 +140,10 @@ class Devices():
                     last_port_scan <= '%s' OR
                     last_port_scan is NULL OR
                     flagged_for_scan = 1)
-            ORDER BY last_port_scan ASC %s;""" % (hours_24, limit)
+            ORDER BY last_port_scan ASC
+            %s ;""" % (hours_24, limit)
+        print(sql)
+        print(hours_24, limit)
         self.cursor.execute(sql)
         raw_devices = self.cursor.fetchall()
         devices = []
@@ -150,6 +154,8 @@ class Devices():
         return devices
 
     def get_with_open_port(self, port):
+        """
+        """
         sql = """
             SELECT device_id
             FROM ports
@@ -167,6 +173,7 @@ class Devices():
 
     def search(self, phrase):
         """
+        Device search method, currently checks against device name, mac, ip and vendor.
 
         """
         name_sql = self._gen_like_sql('name', phrase)

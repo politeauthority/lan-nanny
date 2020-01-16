@@ -27,6 +27,8 @@ def pretty_time(first_at: datetime) -> str:
     Gets a human readable 'time ago' date format, Mon Dec 30th 4:03:11 pm
 
     """
+    if not first_at:
+        return ''
     parsed = arrow.get(first_at)
     user_time = parsed.to(g.options['timezone'].value)
     return user_time.format('ddd MMM Do h:mm:ss a')

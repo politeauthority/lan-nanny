@@ -38,13 +38,14 @@ class Metrics:
         scan_logs_24 = scan_logs.get_runs_24_hours()
         return scan_logs_24
 
-    def get_last_run_log(self, scan_type) -> ScanLog:
+    def get_last_host_scan(self) -> ScanLog:
+
         """
         Gets the last run log.
 
         """
         scan_log = ScanLog(self.conn, self.cursor)
-        last_scan_log = scan_log.get_last(scan_type)
-        return last_scan_log
+        scan_log.get_last('host')
+        return scan_log
 
 # End File: lan-nanny/lan_nanny/modules/metrics.py

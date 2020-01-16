@@ -165,18 +165,7 @@ class Base():
         """
         Builds a model from an ordered list, converting data types to their desired type where
         possible.
-        @unit-tested
-
-        """
-        count = 0
-
-        for field in self.total_map:
-
-            if field['type'] == 'datetime':
-                setattr(self, field['name'], arrow.get(raw[count]).datetime)
-            else:
-                setattr(self, field['name'], raw[count])
-
+        @unit-tested *
             # elif field['type'] == 'bool':
             #     if raw[count] == 1:
             #         setattr(self, field['name'], True)
@@ -184,6 +173,14 @@ class Base():
             #         setattr(self, field['name'], False)
             # else:
             #     setattr(self, field['name'], raw[count])
+        """
+        count = 0
+
+        for field in self.total_map:
+            if field['type'] == 'datetime':
+                setattr(self, field['name'], arrow.get(raw[count]).datetime)
+            else:
+                setattr(self, field['name'], raw[count])
 
             count += 1
         return True
