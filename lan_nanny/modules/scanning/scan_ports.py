@@ -30,12 +30,11 @@ class ScanPorts:
         """
         port_scan_candidates = self.get_port_scan_candidates()
 
-        print("Found %s devices for port scan candidates" % len(port_scan_candidates))
+        print("Port Scanning %s devices" % len(port_scan_candidates))
 
         if not port_scan_candidates:
             print('No devices ready for port scan, skipping.')
             return
-
 
         for device in port_scan_candidates:
             device_og_port_scan = device.last_port_scan
@@ -71,6 +70,7 @@ class ScanPorts:
         Gets devices available in last scan which meet port scanning criteria.
         @todo if sys default allows port scanning, put new devices in front of the line.
 
+
         """
         devices = Devices(self.conn, self.cursor).for_port_scanning()
         port_scan_devices = []
@@ -84,6 +84,7 @@ class ScanPorts:
         if len(port_scan_devices) > limit:
             port_scan_devices = port_scan_devices[0:limit]
             print("Limiting port scan to %s devices" % limit)
+
         return port_scan_devices
 
     def scan_ports(self, device: Device) -> list:
@@ -94,13 +95,15 @@ class ScanPorts:
         """
         scan_log = ScanLog(self.conn, self.cursor)
         scan_log.trigger = self.trigger
-        scan_log.command = "nmap %s --host-timeout 120 --max-retries 5" % device.ip
+        #  back_off = "--host-timeout 120 --max-retries 5"
+        scan_log.command = "nmap %s" % device.ip
         scan_log.insert_run_start('port')
 
         port_scan_file = os.path.join(self.tmp_dir, "port_scan_%s.xml" % device.id)
         cmd = "%s -oX %s" % (scan_log.command, port_scan_file)
         print('Running port scan for %s' % device)
         print('\tCmd: %s' % scan_log.command)
+
         try:
             subprocess.check_output(cmd, shell=True)
             scan_log.success = True
@@ -111,7 +114,6 @@ class ScanPorts:
             return False
 
         ports = parse_nmap.parse_xml(port_scan_file, 'ports')
-
         # scan_log.units = len(ports)
         scan_log.completed = True
         scan_log.end_run()

@@ -3,6 +3,8 @@
 """
 import arrow
 
+from flask import g
+
 from .base import Base
 from ..collections.ports import Ports
 
@@ -120,6 +122,15 @@ class Device(Base):
 
         if not self.name:
             self.icon = "fas fa-question"
+
+    def online(self):
+        if not self.last_seen:
+            return False
+        online_delta = arrow.utcnow().datetime - self.last_seen
+        if online_delta < timedelta(minutes=g.options['active-timeout'].value):
+            return True
+        return False
+
 
     def build_from_list(self, raw: list, build_ports: bool=False):
         """

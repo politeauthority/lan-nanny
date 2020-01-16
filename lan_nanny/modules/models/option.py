@@ -60,7 +60,7 @@ class Option(Base):
 
     def build_from_list(self, raw: list):
         """
-        Builds a model from an ordered list, converting data types to their desired type where
+        Build a model from an ordered list, converting data types to their desired type where
         possible.
 
         """
@@ -75,12 +75,15 @@ class Option(Base):
 
         return True
 
-    def save_by_name(self):
-        """
-        Saves an option by name.
+    def update(self):
+        """Save an option with Option types preserved."""
+        if self.type == 'bool':
+            if self.value == 'true':
+                self.value = 1
+            elif self.value == 'false':
+                self.value = 0
+        return self.save()
 
-        """
-        self.save(where=['name', self.name])
 
     def _set_bool(self, value) -> bool:
         """
@@ -94,29 +97,6 @@ class Option(Base):
         # Try to convert values to the negative.
         elif value == '0' or value == 'false':
             return False
-
-    def save(self) -> bool:
-        """
-        Saves a model instance in the model table.
-
-        """
-        self.setup()
-        self.check_required_class_vars()
-
-        update_sql = """
-            UPDATE %s
-            SET
-            %s
-            WHERE
-            name=%s""" % (
-            self.table_name,
-            self.get_update_set_sql(['id', 'type', 'name']),
-            self.name)
-        logging.debug(update_sql)
-        logging.debug(self.get_values_sql())
-        self.cursor.execute(update_sql, self.get_values_sql())
-        self.conn.commit()
-        return True
 
 
 # End File: lan-nanny/lan_nanny/modules/models/option.py

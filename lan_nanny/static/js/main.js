@@ -3,19 +3,19 @@
 */
 
 function register_favorite_button(favorite_selector, load_state, base_ajax_uri){
+
   /*
   Registers a div as favorite button, which will star or unstar an item and send an ajax request.
 
   */
-
   var icon = $(favorite_selector).children('i');
 
   if(load_state){
+
     icon.addClass('fas').addClass('fa-star');
   } else {
     icon.addClass('fa').addClass('fa-star-o');
   }
-
 
   $( favorite_selector ).click(function(){
     $.ajax({
@@ -67,7 +67,6 @@ function send_ajax_update(base_ajax_uri, data){
   @todo: return notification on success, error.
 
   */
-  console.log(data);
   $.ajax({
     type: 'POST',
     data: data,
@@ -117,6 +116,8 @@ function convert_str_bool(bool_str){
   } else if (bool_str == '0'){
     return false;
   } else if (bool_str == 'None'){
+    return false;
+  } else if (bool_str == 'NULL'){
     return false;
   } else {
     return false;

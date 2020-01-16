@@ -1,13 +1,14 @@
-"""App
+"""
+App Entry Point.
 Web application entry point.
 
 """
 
+import os
 import sys
 
-from flask import Flask, render_template, g
+from flask import Flask, render_template, request, redirect, session, g
 
-# from modules.controllers import auth as ctrl_auth
 from modules.controllers.alert import alert as ctrl_alert
 from modules.controllers.device import device as ctrl_device
 from modules.controllers.ports import ports as ctrl_ports
@@ -29,10 +30,7 @@ app.config.from_object(default_config_obj)
 
 @app.before_request
 def get_settings():
-    """
-    Gets and loads all settings in the the flask g options namespace.
-
-    """
+    """Get and loads all settings in the the flask g options namespace."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     options = Options()
     options.conn = conn
@@ -42,10 +40,7 @@ def get_settings():
 
 @app.before_request
 def get_active_alerts():
-    """
-    Gets and loads all active alerts in the the flask g options namespace.
-
-    """
+    """Get and loads all active alerts in the the flask g options namespace."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     alerts = Alerts(conn, cursor)
     g.alerts = alerts.get_active_unacked(build_devices=True)
@@ -53,21 +48,35 @@ def get_active_alerts():
 
 @app.teardown_appcontext
 def close_connection(exception: str):
-    """
-    Close SQLlite connection on app tear down.
-
-    """
+    """Close SQLlite connection on app tear down."""
     db = getattr(g, '_database', None)
     if db is not None:
         db.close()
 
 
-@app.route('/')
-def index() -> str:
-    """
-    App home page.
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """Login form and form response"""
+    if not request.form:
+        return render_template('login.html')
 
-    """
+    print(request.form['password'])
+    print(g.options['console-password'].value)
+    if request.form['password'] == g.options['console-password'].value:
+        session['auth'] = True
+        return redirect('/')
+
+    return render_template('login.html', error="Incorrect password."), 403
+
+@app.route('/logout')
+def logout():
+    session.pop('auth')
+    return redirect('/login')
+
+@app.route('/')
+@utils.authenticate
+def index() -> str:
+    """App dashboard."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     metrics = Metrics(conn, cursor)
 
@@ -91,17 +100,12 @@ def index() -> str:
 
 
 @app.route('/about')
+@utils.authenticate
 def about() -> str:
-    """
-    About page
-
-    """
-    # conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
-    # metrics = Metrics(conn, cursor)
-
+    """About page"""
     data = {
         'active_page': 'about',
-        'db_name': app.config['LAN_NANNY_DB_FILE'],
+        'db_name': os.path.normpath(app.config['LAN_NANNY_DB_FILE']),
         'db_size': utils.get_db_size(app.config['LAN_NANNY_DB_FILE'])
     }
     return render_template('about.html', **data)
@@ -109,26 +113,20 @@ def about() -> str:
 
 @app.errorhandler(404)
 def page_not_found(e: str):
-    """
-    404 Error page.
-
-    """
+    """404 Error page."""
     return render_template('errors/404.html', error=e), 404
 
 
 def register_blueprints(app: Flask):
-    """
-    Connect the blueprints to the router.
+    """Connect the blueprints to the router."""
 
-    """
-
-    # app.register_blueprint(ctrl_auth)
     app.register_blueprint(ctrl_device)
     app.register_blueprint(ctrl_alert)
     app.register_blueprint(ctrl_ports)
     app.register_blueprint(ctrl_scan)
     app.register_blueprint(ctrl_settings)
     app.register_blueprint(ctrl_search)
+    # app.register_blueprint(ctrl_auth)
 
 
 def register_jinja_funcs(app: Flask):
@@ -141,6 +139,7 @@ def register_jinja_funcs(app: Flask):
     app.jinja_env.filters['smart_time'] = filters.smart_time
     app.jinja_env.filters['online'] = filters.online
     app.jinja_env.filters['device_icon_status'] = filters.device_icon_status
+    app.jinja_env.filters['time_switch'] = filters.time_switch
 
 
 def install():
@@ -152,7 +151,8 @@ if __name__ == '__main__':
     port = 5000
     if len(sys.argv) > 1:
         port = sys.argv[1]
-
+    app.secret_key = 'super secret key'
+    app.config['SESSION_TYPE'] = 'filesystem'
     register_blueprints(app)
     register_jinja_funcs(app)
     # install()

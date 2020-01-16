@@ -10,7 +10,6 @@
   <div class="row">
     <div class="col-lg-6">
       <div class="d-sm-flex align-items-center justify-content-between mb-4">
-
         <h1 class="h3 mb-0 text-gray-800">
           {%if device.last_seen|online%}
             <i class="fas fa-bolt fa-2x device_info_connect connected_bolt"></i>
@@ -28,7 +27,6 @@
       <a href="/device/edit/{{device.id}}" class="btn btn-primary">Edit</a>
     </div>
   </div>
-
   <!-- Content Row -->
   <div class="row">
 
@@ -71,11 +69,19 @@
               </tr>
               <tr>
                 <td><b>Last Seen</b></td>
-                <td>{{device.last_seen|time_ago}}</td>
+                <td class="time_switch">{{device.last_seen|time_switch}}</td>
               </tr>
               <tr>
                 <td><b>First Seen</b></td>
-                <td>{{device.first_seen|pretty_time}}</td>
+                <td class="time_switch">{{device.first_seen|pretty_time}}</td>
+              </tr>
+              <tr>
+                <td><b>Status</b></td>
+                {%if device.last_seen|online%}
+                  <td>Online</td>
+                {%else%}
+                  <td>Disconnected</td>
+                {%endif%}
               </tr>
               <tr>
                 <td><b>Port Scan</b></td>
@@ -97,16 +103,18 @@
                   {%endif%}
                 </td>
               </tr>
-              <tr>
-                <td><b>Flagged for Port Scan</b></td>
-                <td>
-                  {% if device.flagged_for_scan%}
-                    Yes
-                  {%else%}
-                    No
-                  {%endif%}
-                </td>
-              </tr>
+              {%if g.options['beta-features'].value %}
+                <tr>
+                  <td><b>Flagged for Port Scan</b></td>
+                  <td>
+                    {% if device.flagged_for_scan%}
+                      Yes
+                    {%else%}
+                      No
+                    {%endif%}
+                  </td>
+                </tr>
+              {%endif%}
 
             </table>
           </div>
@@ -127,10 +135,16 @@
         <div class="card-body">
           <div class="form-group">
             <label for="port_scan">Port Scan</label>
-            <input id="port_scan" data-entity-id="{{device.id}}" class="alert-toggle alert-nanny" type="checkbox" data-toggle="toggle" aria-describedby="portScanHelp">
+            <input id="port_scan" data-entity-id="{{device.id}}" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="portScanHelp">
             <small id="portScanHelp" class="form-text text-muted">Enable port scanning of device.</small>
           </div>
 
+<!--           <div class="form-group">
+            <label for="port_scan_flagged">Flag for Port Scan</label>
+            <input id="port_scan_flagged" data-entity-id="{{device.id}}" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="portScanFlaggedHelp">
+            <small id="portScanFlaggedHelp" class="form-text text-muted">Resets device port scan timeout and puts the device in the front of the line for the next port scan.</small>
+          </div>
+ -->
           <!--
           <div class="form-group">
             <label for="alert_online">Alert Online</label>
@@ -148,9 +162,10 @@
 
         </div>
       </div>
-    </div>
+    </div><!-- END Device Options -->
   </div>
 
+  <!-- Device Ports -->
   <div class="row">
     <!-- Device Ports -->
     <div class="col-xl-6 col-lg-6">
@@ -161,7 +176,6 @@
             Ports
           </h6>
         </div>
-
         <!-- Card Body -->
         <div class="card-body">
           <div class="table-responsive">
@@ -190,18 +204,14 @@
           </div>
         </div>
       </div>
-
     </div>
-
-  </div>
+  </div><!-- END Device Ports -->
 {%endblock%}
 
 {%block javascript%}
   <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
   <script type="text/javascript">
     $( document ).ready(function(){
-      
-
       // $( ".copy" ).each(function( index ) {
       //   $(this).append('<i class="fas fa-copy hidden"></i>');
       // });
@@ -217,8 +227,6 @@
       // });
       var device_favorite_status = convert_str_bool("{{device.favorite}}");
       register_favorite_button('#device-favorite', device_favorite_status, '/device/favorite/{{device.id}}')
-
-
 
       var device_alert_online_initial_status = convert_str_bool("{{device.alert_online}}");
       var device_alert_offline_initial_status = convert_str_bool("{{device.alert_online}}");
@@ -237,6 +245,12 @@
         '/device/quick-save',
         '#port_scan',
         device_port_scan_status);
+
+      // var device_port_scan_flagged_status = convert_str_bool("{{device.flagged_for_scan}}");
+      // register_toggle_ajax(
+      //   '/device/quick-save',
+      //   '#port_scan_flagged',
+      //   device_port_scan_flagged_status);
     });
   </script>
 {%endblock%}

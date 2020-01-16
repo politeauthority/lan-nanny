@@ -3,9 +3,21 @@ Random utility functions.
 
 """
 from datetime import datetime, timedelta
+from functools import wraps
 import os
 
+from flask import session, redirect
+
 import arrow
+
+
+def authenticate(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if 'auth' not in session or not session['auth']:
+            return redirect('/login'), 403
+        return f(*args, **kwargs)
+    return wrapper
 
 
 def device_icons() -> dict:
@@ -14,20 +26,27 @@ def device_icons() -> dict:
 
     """
     icons = {
+        "fas fa-music": "Audio Device",
         "fab fa-apple": "Apple",
-        "fab fa-rasppberry-pi": "Raspberry Pi",
-        "fas fa-print": "Printer",
-        "fas fa-tablet-alt": "Tablet",
-        "fas fa-plug": "Smart Plug",
-        "fas fa-lightbulb": "Light",
+        "fas fa-camera": "Camera",
+        "fas fa-desktop": "Desktop",
         "fas fa-laptop": "Laptop",
+        "fas fa-lightbulb": "Light",
+        "fad fa-microchip": "Microchip",
+        "fas fa-phone": "Phone",
+        "fas fa-print": "Printer",
         "fas fa-question": "Question Mark",
         "fas fa-satellite": "Satellite",
-        "fas fa-music": "Audio Device",
-        "fas fa-camera": "Camera",
-        "fas fa-tv": "Tv",
-        "fas fa-phone": "Phone",
+        "fas fa-server": "Sever",
+        "fas fa-plug": "Smart Plug",
         "fa fa-mobile": "Smart Phone",
+        # "fas fa-router": "Router",
+        "fab fa-rasppberry-pi": "Raspberry Pi",
+        "fas fa-tablet-alt": "Tablet",
+        "fas fa-thermometer-half": "Thermostat",
+        "fas fa-tv": "Tv",
+        "fas fa-wifi": "Wifi Access Point",
+
     }
     return icons
 

@@ -67,7 +67,7 @@ class ScanLog(Base):
                 scan_type = '%s'
             ORDER BY created_ts DESC
             LIMIT 1""" % (self.table_name, scan_type)
-        print(sql)
+
         self.cursor.execute(sql)
         run_raw = self.cursor.fetchone()
         if not run_raw:
@@ -75,7 +75,7 @@ class ScanLog(Base):
 
         self.build_from_list(run_raw)
 
-        return True
+        return self
 
     def insert_run_start(self, scan_type: str):
         """

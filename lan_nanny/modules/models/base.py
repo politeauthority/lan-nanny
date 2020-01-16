@@ -180,9 +180,8 @@ class Base():
             if field['type'] == 'datetime':
                 setattr(self, field['name'], arrow.get(raw[count]).datetime)
             else:
-
-
                 setattr(self, field['name'], raw[count])
+
             count += 1
         return True
 
@@ -226,7 +225,6 @@ class Base():
         """
         vals = []
         for field in self.total_map:
-
             # Skip fields we don't want included in db writes
             if field['name'] in skip_fields:
                 continue
@@ -253,6 +251,10 @@ class Base():
                         __class__.__name__,
                         field['name'],
                         field_value))
+
+
+            if field['name'] == 'update_ts' and not self.update_ts:
+                self.update_ts = arrow.utcnow().datetime
 
             vals.append(field_value)
 

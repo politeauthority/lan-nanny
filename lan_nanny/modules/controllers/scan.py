@@ -5,6 +5,7 @@ from flask import Blueprint, render_template
 from flask import current_app as app
 
 from .. import db
+from .. import utils
 from ..models.scan_log import ScanLog
 from ..collections.scan_logs import ScanLogs
 from ..collections.witnesses import Witnesses
@@ -13,6 +14,7 @@ scan = Blueprint('Scan', __name__, url_prefix='/scan')
 
 
 @scan.route('/')
+@utils.authenticate
 def roster():
     """
     Scans roster page.
@@ -28,6 +30,7 @@ def roster():
 
 
 @scan.route('/info/<scan_id>')
+@utils.authenticate
 def info(scan_id):
     """
     Scan info page.

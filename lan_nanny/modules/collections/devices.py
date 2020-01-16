@@ -35,16 +35,17 @@ class Devices:
             devices.append(device)
         return devices
 
-    def get_online(self, since: datetime) -> list:
+    def get_online(self, since: int) -> list:
         """
-        Gets all devices in the database.
+        Gets all online devices in the database.
 
         """
+        last_online = arrow.utcnow().datetime - timedelta(minutes=since)
         sql = """
             SELECT *
             FROM devices
             WHERE last_seen >= '%s'
-            ORDER BY last_seen DESC;""" % since
+            ORDER BY last_seen DESC;""" % last_online
 
         self.cursor.execute(sql)
         raw_devices = self.cursor.fetchall()
@@ -54,6 +55,29 @@ class Devices:
             device.build_from_list(raw_device)
             devices.append(device)
         return devices
+
+
+    def get_offline(self, since: int) -> list:
+        """
+        Gets all offline devices in the database.
+
+        """
+        last_online = arrow.utcnow().datetime - timedelta(minutes=since)
+        sql = """
+            SELECT *
+            FROM devices
+            WHERE last_seen <= '%s'
+            ORDER BY last_seen DESC;""" % last_online
+
+        self.cursor.execute(sql)
+        raw_devices = self.cursor.fetchall()
+        devices = []
+        for raw_device in raw_devices:
+            device = Device()
+            device.build_from_list(raw_device)
+            devices.append(device)
+        return devices
+
 
     def get_favorites(self):
         """

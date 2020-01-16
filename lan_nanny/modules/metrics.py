@@ -39,6 +39,7 @@ class Metrics:
         return scan_logs_24
 
     def get_last_host_scan(self) -> ScanLog:
+
         """
         Gets the last run log.
 
