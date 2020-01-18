@@ -41,9 +41,7 @@ class Ports:
             WHERE device_id = %s """ % device_id
 
         self.cursor.execute(sql)
-
         ports_raw = self.cursor.fetchall()
-
         ports = []
         for raw_port in ports_raw:
             port = Port(self.conn, self.cursor)

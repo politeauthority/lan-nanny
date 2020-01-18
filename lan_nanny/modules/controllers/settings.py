@@ -28,7 +28,6 @@ def settings_save():
     """Settings save."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
 
-
     # General Settings
     # Update timezone
     _save_setting(conn, cursor, 'timezone', request.form['settings_timezone'])
@@ -50,6 +49,9 @@ def settings_save():
         cursor,
         'scan-ports-per-run',
         request.form['setting_scan_ports_per_run'])
+
+    _save_setting(conn, cursor, 'scan-ports-default', request.form['setting_scan_ports_default'])
+
     return redirect('/settings')
 
 

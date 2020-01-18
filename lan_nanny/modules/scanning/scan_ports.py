@@ -74,12 +74,12 @@ class ScanPorts:
         """
         devices = Devices(self.conn, self.cursor).for_port_scanning()
         port_scan_devices = []
-
         for host in self.hosts:
             for d in devices:
                 if d.mac == host['mac']:
                     port_scan_devices.append(d)
                     continue
+                    
         limit = 1
         if len(port_scan_devices) > limit:
             port_scan_devices = port_scan_devices[0:limit]

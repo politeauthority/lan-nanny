@@ -116,7 +116,11 @@
               <input type="number" class="form-control form-sm" id="setting_scan_ports_per_run" name="setting_scan_ports_per_run" value="{{settings['scan-ports-per-run'].value}}" aria-describedby="scanPortsPerRunHelp">
               <small id="scanPortsPerRunHelp" class="form-text text-muted">Max number of devices to run a port scan per scan run.</small>
             </div>
-
+            <div class="form-group">
+              <label for="setting_scan_ports_default">Scan Device Ports by Default</label>
+              <input id="setting_scan_ports_default" type="checkbox" data-toggle="toggle" aria-describedby="scanPortsDefaultHelp">
+              <small id="scanPortsDefaultHelp" class="form-text text-muted">Will automatically set new devices to be port scanned.</small>
+            </div>
           </div>
         </div>
       </div><!-- End Port Settings-->
@@ -140,6 +144,9 @@
 
       var scan_ports_enabled_value = convert_str_bool("{{settings['scan-ports-enabled'].value}}");
       register_toggle_form('setting_scan_ports_enabled', scan_ports_enabled_value);
+
+      var scan_hosts_default_value = convert_str_bool("{{settings['scan-ports-default'].value}}");
+      register_toggle_form('setting_scan_ports_default', scan_hosts_default_value);
       
     });
   </script>
