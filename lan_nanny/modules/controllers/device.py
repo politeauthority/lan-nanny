@@ -67,6 +67,22 @@ def offline() -> str:
     return render_template('devices/roster.html', **data)
 
 
+@device.route('/new')
+@utils.authenticate
+def new() -> str:
+    """
+    Devices roster page for devices new within the last 24 hours
+
+    """
+    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    devices = Devices(conn, cursor)
+
+    data = {}
+    data['active_page'] = 'devices'
+    data['active_page_devices'] = 'new'
+    data['devices'] = devices.get_new()
+    return render_template('devices/roster.html', **data)
+
 
 @device.route('/info/<device_id>')
 @utils.authenticate

@@ -11,13 +11,19 @@
   <div class="row">
 
     <!-- Ports Table -->
-    <div class="col-xl-12 col-lg-12">
+    <div class="col-xl-6 col-lg-6">
       <div class="card shadow mb-4">
+        <!-- Card Header -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">
+            Discovered Ports
+          </h6>
+        </div>
         <!-- Card Body -->
         <div class="card-body">
           <div class="table-responsive">
             {%if ports%}
-              <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+              <table class="table" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                   <tr>
                     <td>Name</td>
@@ -39,6 +45,39 @@
               </div>
             {%endif%}
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Devices with port scanning -->
+    <div class="col-xl-6 col-lg-6">
+      <div class="card shadow mb-4">
+        <!-- Card Header -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">
+            Devices with Port Scanning Enabled
+          </h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="table-responsive">
+
+            {%if devices%}
+              <table class="table" id="dataTable" width="100%" cellspacing="0">
+                {% for device in devices %}
+                <tr>
+                  <td>{{device|device_icon_status}}</td>
+                  <td>{{device.last_port_scan|smart_time}}</td>
+                </tr>
+                {%endfor%}
+              </table>
+            {%else%}
+              <div class="text-center">
+                No devices with port scanning enabled.
+              </div>
+            {%endif%}
+          </div>
+        </div>
       </div>
     </div>
 

@@ -142,7 +142,10 @@ class Device(Base):
         count = 0
 
         for field in self.total_map:
-            setattr(self, field['name'], raw[count])
+            if field['type'] == 'datetime':
+                setattr(self, field['name'], arrow.get(raw[count]).datetime)
+            else:
+                setattr(self, field['name'], raw[count])
             count += 1
 
         # This is unique to this model

@@ -17,10 +17,7 @@ class Devices:
         self.cursor = cursor
 
     def get_all(self) -> list:
-        """
-        Gets all devices in the database.
-
-        """
+        """Get all devices in the database."""
         sql = """
             SELECT *
             FROM devices
@@ -28,18 +25,11 @@ class Devices:
 
         self.cursor.execute(sql)
         raw_devices = self.cursor.fetchall()
-        devices = []
-        for raw_device in raw_devices:
-            device = Device()
-            device.build_from_list(raw_device)
-            devices.append(device)
+        devices = self._build_raw_devices(raw_devices)
         return devices
 
     def get_online(self, since: int) -> list:
-        """
-        Gets all online devices in the database.
-
-        """
+        """Get all online devices in the database."""
         last_online = arrow.utcnow().datetime - timedelta(minutes=since)
         sql = """
             SELECT *
@@ -49,11 +39,7 @@ class Devices:
 
         self.cursor.execute(sql)
         raw_devices = self.cursor.fetchall()
-        devices = []
-        for raw_device in raw_devices:
-            device = Device()
-            device.build_from_list(raw_device)
-            devices.append(device)
+        devices = self._build_raw_devices(raw_devices)
         return devices
 
 
@@ -71,11 +57,7 @@ class Devices:
 
         self.cursor.execute(sql)
         raw_devices = self.cursor.fetchall()
-        devices = []
-        for raw_device in raw_devices:
-            device = Device()
-            device.build_from_list(raw_device)
-            devices.append(device)
+        devices = self._build_raw_devices(raw_devices)
         return devices
 
 
@@ -92,11 +74,40 @@ class Devices:
 
         self.cursor.execute(sql)
         raw_devices = self.cursor.fetchall()
-        devices = []
-        for raw_device in raw_devices:
-            device = Device()
-            device.build_from_list(raw_device)
-            devices.append(device)
+        devices = self._build_raw_devices(raw_devices)
+        return devices
+
+    def get_new_count(self) -> int:
+        """
+        Gets new devices from the last 24 hours
+
+        """
+        new_since = arrow.utcnow().datetime - timedelta(hours=24)
+        sql = """
+            SELECT count(*)
+            FROM devices
+            WHERE first_seen > "%s"
+            ORDER BY last_seen DESC;""" % new_since
+
+        self.cursor.execute(sql)
+        raw_count = self.cursor.fetchone()
+        return raw_count[0]
+
+    def get_new(self) -> int:
+        """
+        Gets new devices from the last 24 hours
+
+        """
+        new_since = arrow.utcnow().datetime - timedelta(hours=24)
+        sql = """
+            SELECT *
+            FROM devices
+            WHERE first_seen > "%s"
+            ORDER BY last_seen DESC;""" % new_since
+
+        self.cursor.execute(sql)
+        raw_devices = self.cursor.fetchall()
+        devices = self._build_raw_devices(raw_devices)
         return devices
 
     def with_alerts_on(self):
@@ -114,11 +125,7 @@ class Devices:
 
         self.cursor.execute(sql)
         raw_devices = self.cursor.fetchall()
-        devices = []
-        for raw_device in raw_devices:
-            device = Device()
-            device.build_from_list(raw_device)
-            devices.append(device)
+        devices = self._build_raw_devices(raw_devices)
         return devices
 
     def for_port_scanning(self, limit: int=None):
@@ -142,18 +149,28 @@ class Devices:
                     flagged_for_scan = 1)
             ORDER BY last_port_scan ASC
             %s ;""" % (hours_24, limit)
-        print(sql)
-        print(hours_24, limit)
         self.cursor.execute(sql)
         raw_devices = self.cursor.fetchall()
-        devices = []
-        for raw_device in raw_devices:
-            device = Device(self.conn, self.cursor)
-            device.build_from_list(raw_device, build_ports=True)
-            devices.append(device)
+        devices = self._build_raw_devices(raw_devices)
         return devices
 
-    def get_with_open_port(self, port):
+    def with_enabled_port_scanning(self):
+        """
+        Get devices with port_scanning enabled.
+
+        """
+        sql = """
+            SELECT *
+            FROM devices
+            WHERE
+                port_scan = 1
+            ORDER BY last_port_scan DESC;"""
+        self.cursor.execute(sql)
+        raw_devices = self.cursor.fetchall()
+        devices = self._build_raw_devices(raw_devices)
+        return devices
+
+    def get_with_open_port(self, port: str):
         """
         """
         sql = """
@@ -164,14 +181,10 @@ class Devices:
                 status = 'open' """ % (port)
         self.cursor.execute(sql)
         raw_device_ids = self.cursor.fetchall()
-        devices = []
-        for raw_device in raw_device_ids:
-            device = Device(self.conn, self.cursor)
-            device.get_by_id(raw_device[0])
-            devices.append(device)
+        devices = self._build_raw_devices(raw_devices)
         return devices
 
-    def search(self, phrase):
+    def search(self, phrase:str):
         """
         Device search method, currently checks against device name, mac, ip and vendor.
 
@@ -195,14 +208,19 @@ class Devices:
 
         self.cursor.execute(sql)
         raw_devices = self.cursor.fetchall()
+        devices = self._build_raw_devices(raw_devices)
+        return devices
+
+    def _gen_like_sql(self, field: str, phrase: str) -> str:
+        return field + """ LIKE '%""" + phrase + """%' """
+
+    def _build_raw_devices(self, raw_devices) -> list:
+        """Build raw devices into a list of fully built device objects."""
         devices = []
         for raw_device in raw_devices:
             device = Device(self.conn, self.cursor)
-            device.build_from_list(raw_device)
+            device.build_from_list(raw_device, build_ports=True)
             devices.append(device)
         return devices
-
-    def _gen_like_sql(self, field, phrase):
-        return field + """ LIKE '%""" + phrase + """%' """
 
 # End File: lan-nanny/modules/collections/devices.py

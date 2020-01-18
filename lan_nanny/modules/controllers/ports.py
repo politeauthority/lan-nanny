@@ -22,9 +22,11 @@ def roster() -> str:
     """
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     ports = Ports(conn, cursor)
+    devices = Devices(conn, cursor).with_enabled_port_scanning()
     data = {}
     data['active_page'] = 'ports'
     data['ports'] = ports.get_distinct()
+    data['devices'] = devices
     return render_template('ports/roster.html', **data)
 
 

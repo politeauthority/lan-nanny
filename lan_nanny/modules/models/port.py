@@ -88,13 +88,13 @@ class Port(Base):
         return True
 
     def get_by_port_number(self, port_number):
+        """Get a port object by its port_number"""
         sql = """
         SELECT *
         FROM ports
         WHERE
             port = %s""" % port_number
         vals = (port_number)
-        print(sql)
         self.cursor.execute(sql)
         port_raw = self.cursor.fetchone()
         if not port_raw:

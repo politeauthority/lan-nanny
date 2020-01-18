@@ -6,6 +6,7 @@ import os
 import subprocess
 
 import arrow
+
 from . import parse_nmap
 from ..models.scan_log import ScanLog
 from ..models.device import Device
@@ -23,7 +24,7 @@ class ScanHosts:
         self.trigger = scan.trigger
 
     def run(self) -> list:
-        """Runs NMap scan."""
+        """Run NMap scan."""
         self.setup()
 
         if self.options['scan-hosts-enabled'].value != True:
@@ -38,14 +39,13 @@ class ScanHosts:
         return self.hosts
 
     def setup(self):
-        """Sets up the scan hosts run."""
+        """Set up the scan hosts run."""
         self.scan_log = ScanLog(self.conn, self.cursor)
         self.scan_log.trigger = self.trigger
         self.scan_log.insert_run_start('host')
 
     def scan(self):
-        """
-        """
+        """Run the port scan operation."""
         scan_range = self.options['scan-hosts-range'].value
         print('Scan Range: %s' % scan_range)
         self.scan_log.command = "nmap -sP %s" % scan_range
@@ -95,8 +95,6 @@ class ScanHosts:
             device.last_seen = scan_time
             device.ip = host['ip']
             device.vendor = host['vendor']
-            print(device.first_seen)
-
             device.save()
 
             new_device_str = ""

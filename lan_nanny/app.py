@@ -1,11 +1,13 @@
-"""
-App Entry Point.
+"""App Entry Point.
 Web application entry point.
 
 """
 
+from datetime import timedelta
 import os
 import sys
+
+import arrow
 
 from flask import Flask, render_template, request, redirect, session, g
 
@@ -14,10 +16,10 @@ from modules.controllers.device import device as ctrl_device
 from modules.controllers.ports import ports as ctrl_ports
 from modules.controllers.scan import scan as ctrl_scan
 from modules.controllers.search import search as ctrl_search
-
 from modules.controllers.settings import settings as ctrl_settings
 from modules import db
 from modules.collections.alerts import Alerts
+from modules.collections.devices import Devices
 from modules.collections.options import Options
 from modules.metrics import Metrics
 from modules import utils
@@ -89,11 +91,14 @@ def index() -> str:
         favorites = False
         devices = all_devices
 
+    new_devices = Devices(conn, cursor).get_new_count()
+
     data = {}
     data['active_page'] = 'dashboard'
     data['num_connected'] = filters.connected_devices(all_devices)
     data['device_favorites'] = favorites
     data['devices'] = devices
+    data['new_devices'] = new_devices
     data['runs_over_24'] = metrics.get_runs_24_hours()
     data['host_scan'] = metrics.get_last_host_scan()
     return render_template('dashboard.html', **data)
