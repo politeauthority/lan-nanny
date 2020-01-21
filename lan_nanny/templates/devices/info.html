@@ -122,9 +122,9 @@
 
     </div>
 
-    <!-- Device Options -->
     <div class="col-xl-6 col-lg-6">
-      <div class="card shadow mb-4">
+
+      <div class="card shadow mb-4"><!-- Device Options -->
         <!-- Card Header -->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h6 class="m-0 font-weight-bold text-primary">
@@ -160,8 +160,24 @@
         -->
 
         </div>
-      </div>
-    </div><!-- END Device Options -->
+      </div><!-- END Device Options -->
+
+      <!-- Device online Chart -->
+      <div class="card shadow mb-4">
+        <div class="card-header py-3">
+          <h6 class="m-0 font-weight-bold text-primary">Area Chart</h6>
+        </div>
+        <div class="card-body">
+          <div class="chart-area">
+            <canvas id="myAreaChart"></canvas>
+          </div>
+          <hr>
+          Styling for the area chart can be found in the <code>/js/demo/chart-area-demo.js</code> file.
+        </div>
+      </div><!-- End Device online chart -->
+
+
+    </div>
   </div>
 
   <!-- Device Ports -->
@@ -211,6 +227,8 @@
 
 {%block javascript%}
   <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
+  <script src="/static/vendor/chart.js/Chart.min.js"></script>
+  <script src="/static/js/device-chart.js"></script>
   <script type="text/javascript">
     $( document ).ready(function(){
       // $( ".copy" ).each(function( index ) {

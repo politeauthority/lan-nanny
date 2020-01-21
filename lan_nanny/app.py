@@ -14,6 +14,7 @@ from modules.controllers.ports import ports as ctrl_ports
 from modules.controllers.scan import scan as ctrl_scan
 from modules.controllers.search import search as ctrl_search
 from modules.controllers.settings import settings as ctrl_settings
+from modules.controllers.api import api as ctrl_api
 from modules import db
 from modules.collections.alerts import Alerts
 from modules.collections.devices import Devices
@@ -59,8 +60,6 @@ def login():
     if not request.form:
         return render_template('login.html')
 
-    print(request.form['password'])
-    print(g.options['console-password'].value)
     if request.form['password'] == g.options['console-password'].value:
         session['auth'] = True
         return redirect('/')
@@ -131,7 +130,7 @@ def register_blueprints(app: Flask):
     app.register_blueprint(ctrl_scan)
     app.register_blueprint(ctrl_settings)
     app.register_blueprint(ctrl_search)
-    # app.register_blueprint(ctrl_auth)
+    app.register_blueprint(ctrl_api)
 
 
 def register_jinja_funcs(app: Flask):

@@ -2,6 +2,7 @@
 Gets collections of scan logs.
 
 """
+from datetime import timedelta
 
 import arrow
 
@@ -36,10 +37,6 @@ class ScanLogs():
         return scan_logs
 
     def get_runs_24_hours(self):
-        """
-        Gets all devices in the database.
-
-        """
         now = arrow.utcnow()
         hour_24 = now.shift(hours=-24).datetime
         sql = """
@@ -50,5 +47,26 @@ class ScanLogs():
         self.cursor.execute(sql)
         raw_ret = self.cursor.fetchone()
         return raw_ret[0]
+
+    def get_host_scans_24_hours(self):
+        """Get all host scans from the last 24 hours
+
+        """
+        hours_24 = arrow.utcnow().datetime - timedelta(hours=24)
+        sql = """
+            SELECT *
+            FROM scan_logs
+            WHERE
+                scan_type = "host" AND
+                created_ts >= "%s"
+            ORDER BY created_ts DESC;""" % hours_24
+        raw_scans = self.cursor.fetchall()
+        import ipdb; ipdb.set_trace()
+        scan_logs = []
+        for raw_scan in raw_scans:
+            scan = ScanLog(self.conn, self.cursor)
+            scan.build_from_list(raw_scan)
+            scan_logs.append(scan)
+        return scan_logs
 
 # End File: lan-nanny/modules/collections/scan_logs.py
