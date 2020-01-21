@@ -18,6 +18,8 @@ from modules import db
 from modules.collections.alerts import Alerts
 from modules.collections.devices import Devices
 from modules.collections.options import Options
+from modules.collections.witnesses import Witnesses
+from modules.collections.scan_logs import ScanLogs
 from modules.metrics import Metrics
 from modules import utils
 from modules import filters
@@ -68,13 +70,6 @@ def login():
     return render_template('login.html', error="Incorrect password."), 403
 
 
-@app.route('/logout')
-def logout():
-    """Public route to logout, destroying current session auth."""
-    session.pop('auth')
-    return redirect('/login')
-
-
 @app.route('/')
 @utils.authenticate
 def index() -> str:
@@ -108,12 +103,22 @@ def index() -> str:
 @utils.authenticate
 def about() -> str:
     """About page."""
+    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     data = {
         'active_page': 'about',
         'db_name': os.path.normpath(app.config['LAN_NANNY_DB_FILE']),
-        'db_size': utils.get_db_size(app.config['LAN_NANNY_DB_FILE'])
+        'db_size': utils.get_db_size(app.config['LAN_NANNY_DB_FILE']),
+        'db_witness_length': Witnesses(conn, cursor).get_row_length(),
+        'db_scan_length': ScanLogs(conn, cursor).get_row_length()
     }
     return render_template('about.html', **data)
+
+
+@app.route('/logout')
+def logout():
+    """Public route to logout, destroying current session auth."""
+    session.pop('auth')
+    return redirect('/login')
 
 
 @app.errorhandler(404)
@@ -124,7 +129,6 @@ def page_not_found(e: str):
 
 def register_blueprints(app: Flask):
     """Connect the blueprints to the router."""
-
     app.register_blueprint(ctrl_device)
     app.register_blueprint(ctrl_alert)
     app.register_blueprint(ctrl_ports)
@@ -142,6 +146,7 @@ def register_jinja_funcs(app: Flask):
     app.jinja_env.filters['online'] = filters.online
     app.jinja_env.filters['device_icon_status'] = filters.device_icon_status
     app.jinja_env.filters['time_switch'] = filters.time_switch
+    app.jinja_env.filters['number'] = filters.number
 
 
 if __name__ == '__main__':
