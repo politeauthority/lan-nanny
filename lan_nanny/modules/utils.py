@@ -69,6 +69,7 @@ def size_of_fmt(num: int, suffix: str='B') -> str:
         num /= 1024.0
     return "%.1f%s%s" % (num, 'Yi', suffix)
 
+
 def get_active_timeout_from_now(timeout: int) -> datetime:
     """
     Gets a datetime object representing the time from now to declare a device active.
@@ -76,5 +77,10 @@ def get_active_timeout_from_now(timeout: int) -> datetime:
     """
     now = arrow.utcnow().datetime - timedelta(minutes=timeout)
     return now
+
+
+def gen_like_sql(self, field:str, phrase:str) -> str:
+    """Generates a SQLite like statement for a given field and phrase"""
+    return field + """ LIKE '%""" + phrase + """%' """
 
 # End File: lan-nanny/lan_nanny/modules/utils.py

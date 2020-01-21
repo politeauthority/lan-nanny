@@ -16,10 +16,7 @@ ports = Blueprint('Port', __name__, url_prefix='/ports')
 @ports.route('/')
 @utils.authenticate
 def roster() -> str:
-    """
-    Port roster page.
-
-    """
+    """Port roster page."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     ports = Ports(conn, cursor)
     devices = Devices(conn, cursor).with_enabled_port_scanning()
@@ -33,10 +30,7 @@ def roster() -> str:
 @ports.route('/info/<port_number>')
 @utils.authenticate
 def info(port_number: str) -> str:
-    """
-    Port info page.
-
-    """
+    """Port info page."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     port = Port(conn, cursor)
     port.get_by_port_number(port_number)

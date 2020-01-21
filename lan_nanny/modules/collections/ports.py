@@ -3,6 +3,7 @@ Gets collections of ports.
 
 """
 from ..models.port import Port
+from .. import utils
 
 
 class Ports:
@@ -29,7 +30,6 @@ class Ports:
 
         return ports
 
-
     def get_by_device(self, device_id: int) -> list:
         """
         Gets all ports by a device_id.
@@ -52,8 +52,8 @@ class Ports:
 
     def search(self, phrase):
         """Collect ports matching a search phrase, matching the port number or service name."""
-        port_sql = self._gen_like_sql('port', phrase)
-        service_name_sql = self._gen_like_sql('service_name', phrase)
+        port_sql = utils.gen_like_sql('port', phrase)
+        service_name_sql = utils.gen_like_sql('service_name', phrase)
         sql = """
             SELECT *
             FROM ports
@@ -71,14 +71,8 @@ class Ports:
             ports.append(port)
         return ports
 
-    def _gen_like_sql(self, field, phrase):
-        return field + """ LIKE '%""" + phrase + """%' """
-
     def delete_device(self, device_id: int) -> list:
-        """
-        Delete all ports containing a device.
-
-        """
+        """Delete all ports containing a device."""
         sql = """
             DELETE FROM ports
             WHERE device_id = %s """ % device_id
