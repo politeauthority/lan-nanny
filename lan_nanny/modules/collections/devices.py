@@ -3,16 +3,19 @@
 Gets collections of devices.
 
 """
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import arrow
 
 from ..models.device import Device
+from .. import utils
 
 
 class Devices:
+    """Collection class for gathering groups of devices."""
 
     def __init__(self, conn=None, cursor=None):
+        """Class init, mostly just for supplying SQLite connection."""
         self.conn = conn
         self.cursor = cursor
 
@@ -22,7 +25,6 @@ class Devices:
             SELECT *
             FROM devices
             ORDER BY last_seen DESC;"""
-
         self.cursor.execute(sql)
         raw_devices = self.cursor.fetchall()
         devices = self._build_raw_devices(raw_devices)
@@ -42,12 +44,8 @@ class Devices:
         devices = self._build_raw_devices(raw_devices)
         return devices
 
-
     def get_offline(self, since: int) -> list:
-        """
-        Gets all offline devices in the database.
-
-        """
+        """Get all offline devices in the database."""
         last_online = arrow.utcnow().datetime - timedelta(minutes=since)
         sql = """
             SELECT *
@@ -60,12 +58,8 @@ class Devices:
         devices = self._build_raw_devices(raw_devices)
         return devices
 
-
     def get_favorites(self):
-        """
-        Gets favorite devices in the database.
-
-        """
+        """Get favorite devices in the database."""
         sql = """
             SELECT *
             FROM devices
@@ -78,10 +72,7 @@ class Devices:
         return devices
 
     def get_new_count(self) -> int:
-        """
-        Gets new devices from the last 24 hours
-
-        """
+        """Get new devices from the last 24 hours."""
         new_since = arrow.utcnow().datetime - timedelta(hours=24)
         sql = """
             SELECT count(*)
@@ -94,10 +85,7 @@ class Devices:
         return raw_count[0]
 
     def get_new(self) -> int:
-        """
-        Gets new devices from the last 24 hours
-
-        """
+        """Get new devices from the last 24 hours."""
         new_since = arrow.utcnow().datetime - timedelta(hours=24)
         sql = """
             SELECT *
@@ -111,10 +99,7 @@ class Devices:
         return devices
 
     def with_alerts_on(self):
-        """
-        Gets Devices with alerts_online OR alerts_offline
-
-        """
+        """Get Devices with alerts_online OR alerts_offline."""
         sql = """
             SELECT *
             FROM devices
@@ -130,7 +115,7 @@ class Devices:
 
     def for_port_scanning(self, limit: int=None):
         """
-        Gets Devices with port_scan enabled and either have never had a port scan, or their port
+        Get Devices with port_scan enabled and either have never had a port scan, or their port
         scan was done x time ago and should be run again.
 
         """
@@ -154,11 +139,8 @@ class Devices:
         devices = self._build_raw_devices(raw_devices)
         return devices
 
-    def with_enabled_port_scanning(self):
-        """
-        Get devices with port_scanning enabled.
-
-        """
+    def with_enabled_port_scanning(self) -> list:
+        """Get devices with port_scanning enabled."""
         sql = """
             SELECT *
             FROM devices
@@ -170,29 +152,29 @@ class Devices:
         devices = self._build_raw_devices(raw_devices)
         return devices
 
-    def get_with_open_port(self, port: str):
-        """
-        """
+    def get_with_open_port(self, port: str) -> list:
+        """Get devices with a specific port open."""
         sql = """
-            SELECT device_id
-            FROM ports
+            SELECT %s
+            FROM devices
+            JOIN ports
+                ON devices.id = ports.device_id
             WHERE
-                port = %s AND
-                status = 'open' """ % (port)
+                ports.port = %s AND
+                ports.status = 'open' """ % (
+            ','.join(self._get_device_field_map(True)),
+            port)
         self.cursor.execute(sql)
-        raw_device_ids = self.cursor.fetchall()
+        raw_devices = self.cursor.fetchall()
         devices = self._build_raw_devices(raw_devices)
         return devices
 
-    def search(self, phrase:str):
-        """
-        Device search method, currently checks against device name, mac, ip and vendor.
-
-        """
-        name_sql = self._gen_like_sql('name', phrase)
-        mac_sql = self._gen_like_sql('mac', phrase)
-        ip_sql = self._gen_like_sql('ip', phrase)
-        vendor_sql = self._gen_like_sql('vendor', phrase)
+    def search(self, phrase: str) -> list:
+        """Device search method, currently checks against device name, mac, ip and vendor."""
+        name_sql = utils.gen_like_sql('name', phrase)
+        mac_sql = utils.gen_like_sql('mac', phrase)
+        ip_sql = utils.gen_like_sql('ip', phrase)
+        vendor_sql = utils.gen_like_sql('vendor', phrase)
         sql = """
             SELECT *
             FROM devices
@@ -211,16 +193,25 @@ class Devices:
         devices = self._build_raw_devices(raw_devices)
         return devices
 
-    def _gen_like_sql(self, field: str, phrase: str) -> str:
-        return field + """ LIKE '%""" + phrase + """%' """
-
-    def _build_raw_devices(self, raw_devices) -> list:
+    def _build_raw_devices(self, raw_devices, build_ports=False) -> list:
         """Build raw devices into a list of fully built device objects."""
         devices = []
         for raw_device in raw_devices:
             device = Device(self.conn, self.cursor)
-            device.build_from_list(raw_device, build_ports=True)
+            device.build_from_list(raw_device, build_ports=build_ports)
             devices.append(device)
         return devices
+
+    def _get_device_field_map(self, append_table_name=False) -> list:
+        """Get flattened table for a model as a list with just field names."""
+        device = Device()
+        fields = []
+        for field in device.total_map:
+            if append_table_name:
+                fields.append("devices.%s" % field['name'])
+            else:
+                fields.append(field['name'])
+        return fields
+
 
 # End File: lan-nanny/modules/collections/devices.py

@@ -1,6 +1,8 @@
 """Device Model
 
 """
+import logging
+
 import arrow
 
 from flask import g
@@ -10,12 +12,13 @@ from ..collections.ports import Ports
 
 
 class Device(Base):
+    """Device object, representing a LanNanny registered device."""
 
     def __init__(self, conn=None, cursor=None):
+        """Device init for a new device object, passing SQLite connection parameters."""
         super(Device, self).__init__(conn, cursor)
         self.conn = conn
         self.cursor = cursor
-        self.model_name = 'Device'
         self.table_name = 'devices'
 
         self.field_map = [
@@ -90,15 +93,11 @@ class Device(Base):
         self.setup()
 
     def __repr__(self):
-        if self.name:
-            return "<Device %s>" % self.name
-        return "<Device %s>" % self.mac
+        """Device representationm show the name if we have one."""
+        return "<Device %s>" % self.name
 
     def get_by_mac(self, mac: str):
-        """
-        Gets a device from the devices table based on mac address.
-
-        """
+        """Get a device from the devices table based on mac address."""
         sql = """SELECT * FROM devices WHERE mac='%s'""" % mac
         self.cursor.execute(sql)
         device_raw = self.cursor.fetchone()
@@ -110,20 +109,18 @@ class Device(Base):
         return self
 
     def set_icon(self):
-        """
-        Attempts to set a device icon.
-
-        """
+        """Attempt to set a device icon."""
         if self.icon:
             return
 
         if self.vendor == "Apple":
             self.icon = "fab fa-apple"
 
-        if not self.name:
+        if self.name == self.mac:
             self.icon = "fas fa-question"
 
-    def online(self):
+    def online(self) -> bool:
+        """Determine if a device is considered 'online' currently."""
         if not self.last_seen:
             return False
         online_delta = arrow.utcnow().datetime - self.last_seen
@@ -131,24 +128,13 @@ class Device(Base):
             return True
         return False
 
-
     def build_from_list(self, raw: list, build_ports: bool=False):
         """
-        Builds a model from an ordered list, converting data types to their desired type where
+        Build a model from an ordered list, converting data types to their desired type where
         possible.
-        @unit-tested
 
         """
-        count = 0
-
-        for field in self.total_map:
-            if field['type'] == 'datetime':
-                setattr(self, field['name'], arrow.get(raw[count]).datetime)
-            else:
-                setattr(self, field['name'], raw[count])
-            count += 1
-
-        # This is unique to this model
+        super(Device, self).build_from_list(raw)
         if build_ports:
             self.check_required_class_vars()
             ports = Ports(self.conn, self.cursor)

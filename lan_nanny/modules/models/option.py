@@ -65,13 +65,11 @@ class Option(Base):
 
         """
         count = 0
-
         for field in self.total_map:
             setattr(self, field['name'], raw[count])
             count += 1
-
-        if self.type == 'bool':
-            self.value = self._set_bool(self.value)
+            if self.type == 'bool':
+                self.value = self._set_bool(self.value)
 
         return True
 

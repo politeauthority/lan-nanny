@@ -94,19 +94,15 @@ class Alert(Base):
     def build_from_list(self, raw: list, build_device: bool=True, build_alert_events: bool=False):
         """
         Builds an alert object from list.
-        @todo: redo this method to cite the base model.
 
         """
-        c = 0
-        for field in self.total_map:
-            setattr(self, field['name'], raw[c])
-            c += 1
+        super(Alert, self).build_from_list(raw)
 
         # This is unique to this model
         if build_device:
             self.device = Device(self.conn, self.cursor)
             self.device.get_by_id(self.device_id)
-        
+
         # This is unique to this model
         if build_alert_events:
             alert_events = AlertEvents(self.conn, self.cursor)

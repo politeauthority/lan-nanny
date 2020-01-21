@@ -3,11 +3,8 @@ Web application entry point.
 
 """
 
-from datetime import timedelta
 import os
 import sys
-
-import arrow
 
 from flask import Flask, render_template, request, redirect, session, g
 
@@ -70,10 +67,13 @@ def login():
 
     return render_template('login.html', error="Incorrect password."), 403
 
+
 @app.route('/logout')
 def logout():
+    """Public route to logout, destroying current session auth."""
     session.pop('auth')
     return redirect('/login')
+
 
 @app.route('/')
 @utils.authenticate
@@ -107,7 +107,7 @@ def index() -> str:
 @app.route('/about')
 @utils.authenticate
 def about() -> str:
-    """About page"""
+    """About page."""
     data = {
         'active_page': 'about',
         'db_name': os.path.normpath(app.config['LAN_NANNY_DB_FILE']),
@@ -135,21 +135,13 @@ def register_blueprints(app: Flask):
 
 
 def register_jinja_funcs(app: Flask):
-    """
-    Makes functions available to jinja templates.
-
-    """
+    """Makes functions available to jinja templates."""
     app.jinja_env.filters['time_ago'] = filters.time_ago
     app.jinja_env.filters['pretty_time'] = filters.pretty_time
     app.jinja_env.filters['smart_time'] = filters.smart_time
     app.jinja_env.filters['online'] = filters.online
     app.jinja_env.filters['device_icon_status'] = filters.device_icon_status
     app.jinja_env.filters['time_switch'] = filters.time_switch
-
-
-def install():
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
-    Options(conn, cursor).create_deaults()
 
 
 if __name__ == '__main__':

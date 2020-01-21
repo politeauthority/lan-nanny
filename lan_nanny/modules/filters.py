@@ -34,7 +34,7 @@ def pretty_time(first_at: datetime) -> str:
     return user_time.format('ddd MMM Do h:mm:ss a')
 
 
-def smart_time(date_val: datetime, format_switch_range_seconds: int=None) -> str:
+def smart_time(date_val: datetime, format_switch_range_seconds: int = None) -> str:
     """
     Gets a human readable 'time ago' date format if the time is within x period, otherwise returns
     the pretty_time.
@@ -112,8 +112,8 @@ def device_icon_status(device: Device) -> int:
 
 
 def time_switch(the_time):
+    """Draw a datetime var in "time ago" with a hidden span containing the pretty time."""
     the_arrow = arrow.get(the_time)
-    human_time = the_arrow.humanize()
     pretty_time = the_arrow.to(g.options['timezone'].value).format('ddd MMM Do h:mm:ss a')
     html = ''
     html += '<span class="time-pretty">%s</span>' % arrow.get(the_time).humanize()
