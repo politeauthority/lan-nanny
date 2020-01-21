@@ -155,11 +155,15 @@ class Devices:
     def get_with_open_port(self, port: str) -> list:
         """Get devices with a specific port open."""
         sql = """
-            SELECT *
-            FROM ports
+            SELECT %s
+            FROM devices
+            JOIN ports
+                ON devices.id = ports.device_id
             WHERE
-                port = %s AND
-                status = 'open' """ % (port)
+                ports.port = %s AND
+                ports.status = 'open' """ % (
+            ','.join(self._get_device_field_map(True)),
+            port)
         self.cursor.execute(sql)
         raw_devices = self.cursor.fetchall()
         devices = self._build_raw_devices(raw_devices)
@@ -197,5 +201,17 @@ class Devices:
             device.build_from_list(raw_device, build_ports=build_ports)
             devices.append(device)
         return devices
+
+    def _get_device_field_map(self, append_table_name=False) -> list:
+        """Get flattened table for a model as a list with just field names."""
+        device = Device()
+        fields = []
+        for field in device.total_map:
+            if append_table_name:
+                fields.append("devices.%s" % field['name'])
+            else:
+                fields.append(field['name'])
+        return fields
+
 
 # End File: lan-nanny/modules/collections/devices.py

@@ -59,11 +59,11 @@ def get_db_size(db_file_loc: str) -> str:
     return size_of_fmt(os.path.getsize(db_file_loc))
 
 
-def size_of_fmt(num: int, suffix: str='B') -> str:
+def size_of_fmt(num: int, suffix: str = 'B') -> str:
     """
     Gets the size of a file in human readable format.
     """
-    for unit in ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']:
+    for unit in ['', 'Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei', 'Zi']:
         if abs(num) < 1024.0:
             return "%3.1f%s%s" % (num, unit, suffix)
         num /= 1024.0
@@ -79,8 +79,8 @@ def get_active_timeout_from_now(timeout: int) -> datetime:
     return now
 
 
-def gen_like_sql(self, field:str, phrase:str) -> str:
-    """Generates a SQLite like statement for a given field and phrase"""
+def gen_like_sql(self, field: str, phrase: str) -> str:
+    """Generate a SQLite like statement for a given field and phrase"""
     return field + """ LIKE '%""" + phrase + """%' """
 
 # End File: lan-nanny/lan_nanny/modules/utils.py

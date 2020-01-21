@@ -1,6 +1,8 @@
 """Device Model
 
 """
+import logging
+
 import arrow
 
 from flask import g
@@ -114,7 +116,7 @@ class Device(Base):
         if self.vendor == "Apple":
             self.icon = "fab fa-apple"
 
-        if not self.name:
+        if self.name == self.mac:
             self.icon = "fas fa-question"
 
     def online(self) -> bool:
@@ -126,23 +128,13 @@ class Device(Base):
             return True
         return False
 
-
     def build_from_list(self, raw: list, build_ports: bool=False):
         """
         Build a model from an ordered list, converting data types to their desired type where
         possible.
 
         """
-        # super(Device, self).build_from_list(raw)
-        count = 0
-        for field in self.total_map:
-            if field['type'] == 'datetime':
-                setattr(self, field['name'], arrow.get(raw[count]).datetime)
-            else:
-                setattr(self, field['name'], raw[count])
-            count += 1
-
-        # This is unique to this model
+        super(Device, self).build_from_list(raw)
         if build_ports:
             self.check_required_class_vars()
             ports = Ports(self.conn, self.cursor)
