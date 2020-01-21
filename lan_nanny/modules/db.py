@@ -64,6 +64,7 @@ def populate_options(conn, cursor: sqlite3.Cursor):
     _set_default_options(conn, cursor, 'scan-ports-per-run', '2', 'int')
     _set_default_options(conn, cursor, 'static-locally', '0', 'bool')
     _set_default_options(conn, cursor, 'console-password', 'test1234', 'str')
+    _set_default_options(conn, cursor, 'db-prune-days', None, 'int')
 
 
 def _set_default_options(conn, cursor, option_name: str, option_value: str, option_type: str):

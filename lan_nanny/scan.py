@@ -2,11 +2,13 @@
 
 """
 import argparse
+import os
 
 from modules import db
 from modules.collections.options import Options
 from modules.scanning.scan_ports import ScanPorts
 from modules.scanning.scan_hosts import ScanHosts
+from modules.scanning.scan_prune import ScanPrune
 from config import default as config_default
 
 TMP_DIR = "/opt/lan_nanny/"
@@ -30,6 +32,7 @@ class Scan:
         Sets up run log and loads options.
 
         """
+        self.prompt_sudo()
         options = Options(conn, cursor)
         self.options = options.get_all_keyed()
         self.tmp_dir = TMP_DIR
@@ -44,6 +47,7 @@ class Scan:
         self.setup()
         self.hande_hosts()
         self.handle_ports()
+        self.handle_prune()
 
     def hande_hosts(self):
         self.hosts = ScanHosts(self).run()
@@ -63,6 +67,19 @@ class Scan:
             return False
         ScanPorts(self).run()
 
+    def handle_prune(self):
+        if not self.options['db-prune-days'] or self.options['db-prune-days'].value == 0:
+            return
+        ScanPrune(self).run()
+
+        import ipdb; ipdb.set_trace()
+
+    def prompt_sudo(self):
+        ret = 0
+        if os.geteuid() != 0:
+            msg = "[sudo] password for %u:"
+            ret = subprocess.check_call("sudo -v -p '%s'" % msg, shell=True)
+        return ret
 
 def parse_args():
     """

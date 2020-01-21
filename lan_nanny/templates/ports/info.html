@@ -5,7 +5,7 @@
   <div class="row">
     <div class="col-lg-6">
       <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Port: {{port.port}}</h1>
+        <h1 class="h3 mb-0 text-gray-800">Port {{port.port}}</h1>
       </div>
     </div>
   </div>
@@ -21,7 +21,6 @@
             Info
           </h6>
         </div>
-
         <!-- Card Body -->
         <div class="card-body">
           <div class="table-responsive">
@@ -30,11 +29,26 @@
                 <td><b>Port</b></td>
                 <td>{{port.port}}</td>
               </tr>
+              <tr>
+                <td><b>Service Name</b></td>
+                <td>{{port.service_name}}</td>
+              </tr>
+              <tr>
+                <td><b>Protocol</b></td>
+                <td>{{port.protocol}}</td>
+              </tr>
+              <tr>
+                <td><b>First Seen</b></td>
+                <td>{{port.created_ts|smart_time}}</td>
+              </tr>
+              <tr>
+                <td><b>Last Updated</b></td>
+                <td>{{port.updated_ts|smart_time}}</td>
+              </tr>
             </table>
           </div>
         </div>
       </div>
-
     </div>
 
 
@@ -44,7 +58,7 @@
         <!-- Card Header -->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h6 class="m-0 font-weight-bold text-primary">
-            Device with {{port.port}} open
+            Devices found with {{port.port}}
           </h6>
         </div>
 

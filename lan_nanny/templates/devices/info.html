@@ -13,8 +13,6 @@
         <h1 class="h3 mb-0 text-gray-800">
           {%if device.last_seen|online%}
             <i class="fas fa-bolt fa-2x device_info_connect connected_bolt"></i>
-          {%else%}
-            <i class="fas fa-power-off fa-2x device_info_connect"></i>
           {%endif%}
           {%if device.icon%}<i class="{{device.icon}} fa-2x"></i>{%endif%}{%if device.name%}{{device.name}}{%endif%}</h1>
       </div>

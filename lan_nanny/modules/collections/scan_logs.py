@@ -51,4 +51,14 @@ class ScanLogs():
         raw_ret = self.cursor.fetchone()
         return raw_ret[0]
 
+    def get_row_length(self) -> int:
+        """Get number of rows of scan_logs from the scan_log table."""
+        sql = """
+            SELECT count(*)
+            FROM %s; """ % self.table_name
+        self.cursor.execute(sql)
+        raw = self.cursor.fetchone()
+        return raw[0]
+
+
 # End File: lan-nanny/modules/collections/scan_logs.py
