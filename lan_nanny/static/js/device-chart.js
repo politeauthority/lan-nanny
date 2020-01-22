@@ -27,6 +27,16 @@ function number_format(number, decimals, dec_point, thousands_sep) {
   return s.join(dec);
 }
 
+
+$.ajax({
+  type: "GET",
+  url: "/api/device-online/3",
+  success: function(data) {
+      $("#debug").append(JSON.stringify(data));
+    },
+});
+
+
 // Area Chart Example
 var ctx = document.getElementById("myAreaChart");
 var myLineChart = new Chart(ctx, {
