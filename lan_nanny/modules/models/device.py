@@ -1,6 +1,7 @@
 """Device Model
 
 """
+from datetime import timedelta
 import logging
 
 import arrow
@@ -124,7 +125,7 @@ class Device(Base):
         if not self.last_seen:
             return False
         online_delta = arrow.utcnow().datetime - self.last_seen
-        if online_delta < timedelta(minutes=g.options['active-timeout'].value):
+        if online_delta < timedelta(minutes=int(g.options['active-timeout'].value)):
             return True
         return False
 

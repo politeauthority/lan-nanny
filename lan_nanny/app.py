@@ -80,13 +80,16 @@ def index() -> str:
     # Get favorite devices, if theres none get all devices.
     # @todo filter already selected devices, not two pulls from db
     favorites = True
-    devices = metrics.get_favorite_devices()
+    fav_devices = metrics.get_favorite_devices()
     all_devices = metrics.get_all_devices()
-    if not devices:
+    if not fav_devices:
         favorites = False
         devices = all_devices
+    else:
+        devices = fav_devices
 
     new_devices = Devices(conn, cursor).get_new_count()
+    donut_devices_online = metrics.get_dashboard_online_chart(fav_devices)
 
     data = {}
     data['active_page'] = 'dashboard'
@@ -96,6 +99,7 @@ def index() -> str:
     data['new_devices'] = new_devices
     data['runs_over_24'] = metrics.get_runs_24_hours()
     data['host_scan'] = metrics.get_last_host_scan()
+    data['online_donut'] = donut_devices_online
     return render_template('dashboard.html', **data)
 
 
