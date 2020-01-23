@@ -58,7 +58,11 @@
             <div class="col mr-2">
               <div class="text-xs font-weight-bold text-info text-uppercase mb-1">New Devices Today</div>
               <div class="h5 mb-0 font-weight-bold text-gray-800">
-                <a href="/device/new">{{new_devices}}</a>
+                {%if new_devices == 0%}
+                  0
+                {%else%}
+                  <a href="/device/new">{{new_devices}}</a>
+                {%endif%}
               </div>
             </div>
             <div class="col-auto">
