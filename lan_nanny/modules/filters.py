@@ -9,6 +9,7 @@ import arrow
 from flask import g, Markup
 
 from .models.device import Device
+from .models.port import Port
 
 
 def time_ago(seen_at: datetime) -> str:
@@ -120,5 +121,9 @@ def time_switch(the_time):
     html += '<span class="time-long hidden">%s</span>' % pretty_time
     return Markup(html)
 
+
+def number(number: int) -> str:
+    """Format an int as a comma broken fiscal numeric string."""
+    return format(number, ",")
 
 # End File: lan-nanny/lan_nanny/modules/filters.py

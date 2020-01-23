@@ -52,6 +52,8 @@ def settings_save():
 
     _save_setting(conn, cursor, 'scan-ports-default', request.form['setting_scan_ports_default'])
 
+    _save_setting(conn, cursor, 'db-prune-days', request.form['setting_db_prune_days'])
+
     return redirect('/settings')
 
 

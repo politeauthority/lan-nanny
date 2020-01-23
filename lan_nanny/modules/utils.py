@@ -79,7 +79,7 @@ def get_active_timeout_from_now(timeout: int) -> datetime:
     return now
 
 
-def gen_like_sql(self, field: str, phrase: str) -> str:
+def gen_like_sql(field: str, phrase: str) -> str:
     """Generate a SQLite like statement for a given field and phrase"""
     return field + """ LIKE '%""" + phrase + """%' """
 

@@ -124,6 +124,28 @@
           </div>
         </div>
       </div><!-- End Port Settings-->
+
+      <!-- Prune Settings -->
+      <div class="col-xl-6 col-lg-6">
+        <div class="card shadow mb-4">
+          <!-- Card Header -->
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">
+              Database Prune Settings
+            </h6>
+          </div>
+          <div class="card-body">
+            <small>These settings are to remove data from the database to help maintain performance. Only change these settings if Lan Nanny is running slowly.</small>
+            <div class="form-group form-sm">
+              <label for="setting_db_prune_days">Days to Maintain Data</label>
+              <input type="number" class="form-control form-sm" id="setting_db_prune_days" name="setting_db_prune_days" value="{{settings['db-prune-days'].value}}" aria-describedby="dbPruneDaysHelp">
+              <small id="dbPruneDaysHelp" class="form-text text-muted">Number of days to maintain data pertaining to host scan log attendance within host scans. An empty or value of 0 is treated as indefinite.</small>
+            </div>
+            
+          </div>
+        </div>
+      </div> <!-- End Prune Settings -->
+
     </div>
   </form>
 

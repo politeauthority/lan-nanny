@@ -252,9 +252,9 @@ class Base():
                         field['name'],
                         field_value))
 
-
-            if field['name'] == 'update_ts' and not self.update_ts:
+            if field['name'] == 'update_ts' and field['type'] == 'datetime' and not self.update_ts:
                 self.update_ts = arrow.utcnow().datetime
+                field_value = self.update_ts
 
             vals.append(field_value)
 

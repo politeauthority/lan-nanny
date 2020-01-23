@@ -48,4 +48,14 @@ class Metrics:
         scan_log.get_last('host')
         return scan_log
 
+
+    def get_dashboard_online_chart(self, devices):
+        """Create the differential of online devices vs total devices."""
+        total = len(devices)
+        the_num = 0
+        for device in devices:
+            if device.online():
+                the_num += 1
+        return [the_num, total - the_num]
+
 # End File: lan-nanny/lan_nanny/modules/metrics.py
