@@ -1,27 +1,22 @@
-"""Port Model
+"""DevicePorts Model
 
 """
 from .base import Base
 
 
-class Port(Base):
+class DevicePort(Base):
 
     def __init__(self, conn=None, cursor=None):
-        super(Port, self).__init__(conn, cursor)
+        super(DevicePort, self).__init__(conn, cursor)
         self.conn = conn
         self.cursor = cursor
 
-        self.model_name = 'Port'
-        self.table_name = 'ports'
+        self.table_name = 'device_ports'
 
         self.field_map = [
             {
-                'name': 'port',
-                'type': 'str'
-            },
-            {
-                'name': 'protocol',
-                'type': 'str'
+                'name': 'device_id',
+                'type': 'int'
             },
             {
                 'name': 'last_seen',
@@ -32,15 +27,6 @@ class Port(Base):
                 'type': 'str'
             },
             {
-                'name': 'service',
-                'type': 'str'
-            },
-            {
-                'name': 'num_devices',
-                'type': 'int',
-                'default': 0,
-            },
-            {
                 'name': 'updated_ts',
                 'type': 'datetime'
             }
@@ -48,7 +34,7 @@ class Port(Base):
         self.setup()
 
     def __repr__(self):
-        return "<Port %s>" % self.id
+        return "<DevicePort %s>" % self.id
 
     def get_by_device_port_protocol(
         self,

@@ -60,7 +60,6 @@ class Base():
             return True
         except Error as e:
             print(e)
-        print(sql)
         return False
 
     def setup(self):
