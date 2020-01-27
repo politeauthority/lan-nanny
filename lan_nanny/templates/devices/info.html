@@ -176,7 +176,7 @@
         <!-- Card Body -->
         <div class="card-body">
           <div class="table-responsive">
-            {%if ports%}
+            {%if device.ports%}
               <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                   <tr>
@@ -186,13 +186,13 @@
                     <td>Last Seen</td>
                   </tr>
                 </thead>
-                {%for port in ports%}
+                {%for port in device.ports%}
                   <tr>
                     <td>
-                      <a href="/ports/info/{{port.port}}">{{port.port}}</a>
+                      <a href="/ports/info/{{port.port.port}}/{{port.port.protocol}}">{{port.port.port}}</a>
                     </td>
-                    <td>{{port.service_name}}</td>
-                    <td>{{port.protocol}}</td>
+                    <td>{{port.port.service}}</td>
+                    <td>{{port.port.protocol}}</td>
                     <td>{{port.last_seen|smart_time}}</td>
                   </tr>
                 {%endfor%}
