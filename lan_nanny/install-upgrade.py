@@ -5,10 +5,8 @@ Creates the lan nanny db and tables, as well as populating options and their def
 import subprocess
 
 from modules import db
-
-NMAP_DB = "../galapago.db"
-
-conn, cursor = db.create_connection(NMAP_DB)
+from config import default as config_default
+conn, cursor = db.create_connection(config_default.LAN_NANNY_DB_FILE)
 
 
 def run():
@@ -20,7 +18,7 @@ def run():
     db.populate_options(conn, cursor)
 
 
-def pip_requiredments():
+def pip_requirements():
     """
     Installs pip requirements.
 
@@ -34,7 +32,18 @@ def pip_requiredments():
         exit(1)
 
 
+def sys_requrirements():
+    """
+    Check and install system required software.
+    @note this is pseudo code
+
+    """
+    x = subprocess.check_output('which nmap', shell=True)
+    if not x:
+        subprocess.check_output('apt-get install -y nmap', shell=True)
+
+
 if __name__ == '__main__':
     run()
 
-# End File: lan-nanny/install.py
+# End File: lan-nanny/lan_nanny/install-upgrade.py
