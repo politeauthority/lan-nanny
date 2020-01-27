@@ -127,6 +127,7 @@ def _get_host_vendor(host: dict) -> str:
 
     return host_vendor
 
+
 def _get_host_hostname(host: dict) -> str:
     """
     Get the host's hostname, if available.
@@ -143,6 +144,9 @@ def parse_ports(parsed):
 
     """
     ports = []
+    # if 'host' not in parsed['nmaprun']:
+    #     logging.error('No host in parsed nmap')
+    #     return False
     if 'ports' not in parsed['nmaprun']['host']:
         return False
 
@@ -194,6 +198,7 @@ def _get_port_state(port: dict) -> str:
     """
     if 'state' not in port:
         return ''
+
     if port['state']['@state'] == 'open':
         return 'open'
 

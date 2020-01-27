@@ -9,7 +9,7 @@ import arrow
 from flask import g
 
 from .base import Base
-from ..collections.ports import Ports
+from ..collections.device_ports import DevicePorts
 
 
 class Device(Base):
@@ -94,8 +94,8 @@ class Device(Base):
         self.setup()
 
     def __repr__(self):
-        """Device representationm show the name if we have one."""
-        return "<Device %s>" % self.name
+        """Device representation show the name if we have one."""
+        return "<Device: %s>" % self.name
 
     def get_by_mac(self, mac: str):
         """Get a device from the devices table based on mac address."""
@@ -108,6 +108,12 @@ class Device(Base):
         self.build_from_list(device_raw)
 
         return self
+
+    def get_ports(self):
+        """Get device ports added to self.ports."""
+        device_ports = DevicePorts(self.conn, self.cursor)
+        self.ports = device_ports.get_by_device_id(self.id)
+        return True
 
     def set_icon(self):
         """Attempt to set a device icon."""

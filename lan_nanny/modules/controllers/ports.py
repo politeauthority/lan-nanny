@@ -22,25 +22,25 @@ def roster() -> str:
     devices = Devices(conn, cursor).with_enabled_port_scanning()
     data = {}
     data['active_page'] = 'ports'
-    data['ports'] = ports.get_distinct()
+    data['ports'] = ports.get_all()
     data['devices'] = devices
     return render_template('ports/roster.html', **data)
 
 
-@ports.route('/info/<port_number>')
+@ports.route('/info/<port_number>/<port_protocol>')
 @utils.authenticate
-def info(port_number: str) -> str:
+def info(port_number: str, port_protocol: str) -> str:
     """Port info page."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     port = Port(conn, cursor)
-    port.get_by_port_number(port_number)
+    port.get_by_port_and_protocol(port_number, port_protocol)
 
     if not port.id:
         return 'ERROR 404: Route this to page_not_found method!', 404
         # return page_not_found('Device not found')
 
     device_collect = Devices(conn, cursor)
-    devices = device_collect.get_with_open_port(port_number)
+    devices = device_collect.get_with_open_port(port.id)
 
     data = {}
     data['port'] = port

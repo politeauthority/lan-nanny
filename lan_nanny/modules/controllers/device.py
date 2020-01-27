@@ -98,18 +98,9 @@ def info(device_id: int) -> str:
         return 'ERROR 404: Route this to page_not_found method!', 404
         # return page_not_found('Device not found')
 
-    # @todo this can be more centralized logic
-    online = False
-    # now = arrow.utcnow().datetime
-    # if now - device.last_seen < timedelta(minutes=int(g.options['active-timeout'].value)):
-    #     online = True
-
-    ports_collection = Ports(conn, cursor)
-    ports = ports_collection.get_by_device(device.id)
+    device.get_ports()
     data = {}
     data['device'] = device
-    data['online'] = online
-    data['ports'] = ports
     data['active_page'] = 'devices'
     return render_template('devices/info.html', **data)
 

@@ -12,56 +12,49 @@ class Ports:
         self.conn = conn
         self.cursor = cursor
 
-    def get_distinct(self) -> list:
-        """Get all ports by a device_id."""
+    def get_all(self) -> list:
+        """Get all ports."""
         sql = """
-            SELECT DISTINCT(port)
-            FROM ports
+            SELECT *
+            FROM ports;
             """
-
         self.cursor.execute(sql)
-        distinct_ports_raw = self.cursor.fetchall()
+        raw_ports = self.cursor.fetchall()
 
         ports = []
-        for distinct_port in distinct_ports_raw:
-            port = Port(self.conn, self.cursor)
-            port.get_by_port_number(distinct_port)
+        for raw_port in raw_ports:
+            port = Port()
+            port.build_from_list(raw_port)
             ports.append(port)
-
         return ports
 
-    def get_by_device(self, device_id: int) -> list:
-        """
-        Gets all ports by a device_id.
-
-        """
+    def get_by_port_ids(self, port_ids: list) -> list:
+        """Get ports by a list of port IDs."""
+        port_ids_sql = ""
+        for port_id in port_ids:
+            port_ids_sql += "%s," % port_id
+        port_ids_sql = port_ids_sql[:-1]
         sql = """
             SELECT *
             FROM ports
-            WHERE device_id = %s """ % device_id
-
+            WHERE id IN(%s);""" % (port_ids_sql)
         self.cursor.execute(sql)
-        ports_raw = self.cursor.fetchall()
-        ports = []
-        for raw_port in ports_raw:
-            port = Port(self.conn, self.cursor)
-            port.build_from_list(raw_port)
-            ports.append(port)
-
+        raw_ports = self.cursor.fetchall()
+        ports = self._build_raw_ports(raw_ports)
         return ports
 
     def search(self, phrase):
         """Collect ports matching a search phrase, matching the port number or service name."""
         port_sql = utils.gen_like_sql('port', phrase)
-        service_name_sql = utils.gen_like_sql('service_name', phrase)
+        service_sql = utils.gen_like_sql('service', phrase)
         sql = """
             SELECT *
             FROM ports
             WHERE
             %(port)s OR
-            %(service_name)s """ % {
+            %(service)s """ % {
             'port': port_sql,
-            'service_name': service_name_sql}
+            'service': service_sql}
         self.cursor.execute(sql)
         raw_ports = self.cursor.fetchall()
         ports = []
@@ -71,15 +64,13 @@ class Ports:
             ports.append(port)
         return ports
 
-    def delete_device(self, device_id: int) -> list:
-        """Delete all ports containing a device."""
-        sql = """
-            DELETE FROM ports
-            WHERE device_id = %s """ % device_id
-
-        self.cursor.execute(sql)
-        self.conn.commit()
-
-        return True
+    def _build_raw_ports(self, raw_ports) -> list:
+        """Build raw ports into a list of fully built port objects."""
+        ports = []
+        for raw_port in raw_ports:
+            port = Port()
+            port.build_from_list(raw_port)
+            ports.append(port)
+        return ports
 
 # End File: lan-nanny/modules/collections/ports.py

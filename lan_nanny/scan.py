@@ -72,8 +72,6 @@ class Scan:
             return
         ScanPrune(self).run()
 
-        import ipdb; ipdb.set_trace()
-
     def prompt_sudo(self):
         ret = 0
         if os.geteuid() != 0:

@@ -11,7 +11,6 @@ class Port(Base):
         self.conn = conn
         self.cursor = cursor
 
-        self.model_name = 'Port'
         self.table_name = 'ports'
 
         self.field_map = [
@@ -45,21 +44,14 @@ class Port(Base):
                 'type': 'datetime'
             }
         ]
+        self.devices = []
         self.setup()
 
     def __repr__(self):
         return "<Port %s>" % self.id
 
-    def get_by_device_port_protocol(
-        self,
-        device_id: int=None,
-        port_number: str=None,
-        protocol: str=None):
-        """
-        """
-        if not device_id and self.device_id:
-            device_id = self.device_id
-
+    def get_by_port_and_protocol(self, port_number: str=None, protocol: str=None) -> bool:
+        """Get a Port obj by port number and protocol."""
         if not port_number and self.port:
             port_number = self.port
 
@@ -70,12 +62,11 @@ class Port(Base):
         SELECT *
         FROM ports
         WHERE
-            device_id = ? AND
             port = ? AND
             protocol = ?
         LIMIT 1"""
 
-        vals = (device_id, port_number, protocol)
+        vals = (port_number, protocol)
         self.cursor.execute(sql, vals)
         port_raw = self.cursor.fetchone()
         if not port_raw:
@@ -83,20 +74,5 @@ class Port(Base):
 
         self.build_from_list(port_raw)
         return True
-
-    def get_by_port_number(self, port_number):
-        """Get a port object by its port_number"""
-        sql = """
-        SELECT *
-        FROM ports
-        WHERE
-            port = %s""" % port_number
-        vals = (port_number)
-        self.cursor.execute(sql)
-        port_raw = self.cursor.fetchone()
-        if not port_raw:
-            return False
-
-        self.build_from_list(port_raw)
 
 # End File: lan-nanny/lan_nanny/modules/models/port.py

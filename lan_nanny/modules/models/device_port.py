@@ -19,6 +19,10 @@ class DevicePort(Base):
                 'type': 'int'
             },
             {
+                'name': 'port_id',
+                'type': 'int'
+            },
+            {
                 'name': 'last_seen',
                 'type': 'datetime'
             },
@@ -31,58 +35,35 @@ class DevicePort(Base):
                 'type': 'datetime'
             }
         ]
+        self.port = None
         self.setup()
 
     def __repr__(self):
         return "<DevicePort %s>" % self.id
 
-    def get_by_device_port_protocol(
-        self,
-        device_id: int=None,
-        port_number: str=None,
-        protocol: str=None):
-        """
-        """
+    def get_by_device_and_port(self, device_id: int=None, port_id: int=None):
+        """Get a DevicePort by device_id and port_id."""
         if not device_id and self.device_id:
             device_id = self.device_id
 
-        if not port_number and self.port:
-            port_number = self.port
-
-        if not protocol and self.protocol:
-            protocol = self.protocol
+        if not port_id and self.port_id:
+            port_id = self.port_id
 
         sql = """
         SELECT *
-        FROM ports
+        FROM device_ports
         WHERE
             device_id = ? AND
-            port = ? AND
-            protocol = ?
+            port_id = ?
         LIMIT 1"""
 
-        vals = (device_id, port_number, protocol)
+        vals = (device_id, port_id)
         self.cursor.execute(sql, vals)
-        port_raw = self.cursor.fetchone()
-        if not port_raw:
+        device_port_raw = self.cursor.fetchone()
+        if not device_port_raw:
             return False
 
-        self.build_from_list(port_raw)
+        self.build_from_list(device_port_raw)
         return True
 
-    def get_by_port_number(self, port_number):
-        """Get a port object by its port_number"""
-        sql = """
-        SELECT *
-        FROM ports
-        WHERE
-            port = %s""" % port_number
-        vals = (port_number)
-        self.cursor.execute(sql)
-        port_raw = self.cursor.fetchone()
-        if not port_raw:
-            return False
-
-        self.build_from_list(port_raw)
-
-# End File: lan-nanny/lan_nanny/modules/models/port.py
+# End File: lan-nanny/lan_nanny/modules/models/device_port.py
