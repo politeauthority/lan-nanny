@@ -1,0 +1,82 @@
+<!-- Search Results-->
+{% extends "layout.html" %}
+{% block content %}
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Results: "{{search_phrase}}"" ({{total_results}})</h1>
+  </div>
+
+  <!-- Content Row -->
+  <div class="row">
+
+    <!-- Device Table -->
+    <div class="col-xl-12 col-lg-12">
+      <div class="card shadow mb-4">
+        <!-- Card Body -->
+        <div class="card-body">
+          {% if total_results == 0 %}
+            <div class="text-center">
+              Nothing Found.
+            </div>
+          {%else%}
+            {%if devices%}
+              <div class="table-responsive">
+                  <h4>Devices ({{devices|length}})</h4>
+                  <table class="table" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                      <tr>
+                        <td>Name</td>
+                        <td>IP</td>
+                        <td>Last Seen</td>
+                        <td>First Seen</td>
+                      </tr>
+                    </thead>
+                    {% for device in devices %}
+                    <tr>
+                      <td>
+                        {{device|device_icon_status}}
+                      </td>
+                      <td>{{device.ip}}</td>
+                      <td>{{device.last_seen|time_ago}}</td>
+                      <td>{{device.first_seen|pretty_time}}</td>
+                    </tr>
+                    {%endfor%}
+                  </table>
+
+              </div>
+            {%endif%}
+
+            {%if ports%}
+              <div class="table-responsive">
+                <h4>Ports ({{ports|length}})</h4>
+                <table class="table" id="dataTable" width="100%" cellspacing="0">
+                  <thead>
+                    <tr>
+                      <td>Name</td>
+                      <td>Service Name</td>
+                      <td>Protocol</td>
+                    </tr>
+                  </thead>
+                  {% for port in ports %}
+                  <tr>
+                    <td><a href="/ports/info/{{port.port}}">{{port.port}}</a></td>
+                    <td>{{port.service_name}}</td>
+                    <td>{{port.protocol}}</td>
+                  </tr>
+                  {%endfor%}
+                </table>
+              </div>
+            {%endif%}
+          {%endif%}
+      </div>
+    </div>
+
+  </div>
+
+{%endblock%}
+
+{%block javascript%}
+  <script src="vendor/datatables/jquery.dataTables.min.js"></script>
+  <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
+{%endblock%}
+<!-- EndFile: lan-nanny/lan_nanny/templates/search/results.html -->

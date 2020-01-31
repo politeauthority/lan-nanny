@@ -1,0 +1,216 @@
+<!-- Dashboard -->
+{% extends "layout.html" %}
+{% block content %}
+
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+  </div>
+
+  <!-- Content Row -->
+  <div class="row">
+
+    <!-- Currently connected devices -->
+    <div id="devices_online" class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-success shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Currently Connected</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{{num_connected}}</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-bolt fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Last scan -->
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-primary shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Scan Status</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                {%if host_scan.completed%}
+                  {{host_scan.end_ts|smart_time}}
+                {%else%}
+                  Currently Running
+                {%endif%}
+              </div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-network-wired fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Favorites -->
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-info shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-info text-uppercase mb-1">New Devices Today</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                {%if new_devices == 0%}
+                  0
+                {%else%}
+                  <a href="/device/new">{{new_devices}}</a>
+                {%endif%}
+              </div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-plus fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pending Requests Card Example -->
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-warning shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Scans over 24 hours</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{{runs_over_24}}</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-comments fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Row -->
+  <div class="row">
+    <!-- Device Table -->
+    <div class="col-xl-8 col-lg-7">
+      <div class="card shadow mb-4">
+        <!-- Card Header -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">
+            {%if device_favorites%}
+              Favorite Devices
+            {%else%}
+              Devices
+            {%endif%}
+          </h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="table-responsive">
+            {%if devices%}
+              <table class="table" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                  <tr>
+                    <td>Name</td>
+                    <td>IP</td>
+                    <td>Last Seen</td>
+                  </tr>
+                </thead>
+                {% for device in devices %}
+                <tr>
+                  <td>
+                    {{device|device_icon_status}}
+                  </td>
+                  <td>{{device.ip}}</td>
+                  <td>{{device.last_seen|time_ago}}</td>
+                </tr>
+                {%endfor%}
+              </table>
+            {%else%}
+              <div class="text-center">
+                No Devices Found.
+              </div>
+            {%endif%}
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Favorites online donut chart -->
+    {%if device_favorites%}
+    <div class="col-xl-4 col-lg-5">
+      <!-- Donut Chart -->
+      <div class="card shadow mb-4">
+        <!-- Card Header - Dropdown -->
+        <div class="card-header py-3">
+          <h6 class="m-0 font-weight-bold text-primary">Favorite Devices Online</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="chart-pie pt-4">
+            <canvas id="device_pie_chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div><!-- end online device chart -->
+    {%endif%}
+
+  </div>
+
+{%endblock%}
+
+{%block javascript%}
+  <script src="/static/vendor/chart.js/Chart.min.js"></script>
+  <script type="text/javascript">
+    $( document ).ready(function(){
+      $("#devices_online").click(function(){
+        window.location = "/device/online";
+      });
+
+      var donut_data = [];
+      donut_data = {{online_donut}};
+
+      // Set new default font family and font color to mimic Bootstrap's default styling
+      Chart.defaults.global.defaultFontFamily = 'Nunito', '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+      Chart.defaults.global.defaultFontColor = '#858796';
+
+      // Pie Chart Example
+      var ctx = document.getElementById("device_pie_chart");
+      var myPieChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ["Online", "Offline"],
+          datasets: [{
+            data: donut_data,
+            backgroundColor: ['#1cc88a', '#4e73df', '#36b9cc'],
+            hoverBackgroundColor: ['#17a673', '#2e59d9', '#2c9faf'],
+            hoverBorderColor: "rgba(234, 236, 244, 1)",
+          }],
+        },
+        options: {
+          maintainAspectRatio: false,
+          tooltips: {
+            backgroundColor: "rgb(255,255,255)",
+            bodyFontColor: "#858796",
+            borderColor: '#dddfeb',
+            borderWidth: 1,
+            xPadding: 15,
+            yPadding: 15,
+            displayColors: false,
+            caretPadding: 10,
+          },
+          legend: {
+            display: false
+          },
+          cutoutPercentage: 80,
+        },
+      });
+    });
+
+  </script>
+{%endblock%}
+
+<!-- EndFile: lan-nanny/lan_nanny/templates/dashboard.html -->

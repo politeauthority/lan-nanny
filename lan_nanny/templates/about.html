@@ -1,0 +1,64 @@
+<!-- Dashboard -->
+{% extends "layout.html" %}
+{% block content %}
+
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">About</h1>
+  </div>
+
+  <!-- Content Row -->
+  <div class="row">
+    <!-- Device Table -->
+    <div class="col-xl-8 col-lg-7">
+      <div class="card shadow mb-4">
+        <!-- Card Header -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          Database Stats
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+              <tr>
+                <td>
+                  DB Name
+                </td>
+                <td>
+                  {{db_name}}
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  DB Size
+                </td>
+                <td>
+                  {{db_size}}
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  DB Witness Length
+                </td>
+                <td>
+                  {{db_witness_length|number}}
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  DB Scan Length
+                </td>
+                <td>
+                  {{db_scan_length|number}}
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{%endblock%}
+
+<!-- EndFile: lan-nanny/lan_nanny/templates/about.html -->

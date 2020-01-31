@@ -1,0 +1,124 @@
+<!-- Device - Edit -->
+{% extends "layout.html" %}
+
+{%block head%}
+  <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+{%endblock%}
+
+{% block content %}
+  <div class="row">
+    <div class="col-lg-6">
+      <h2>{%if device.icon%}<i class="{{device.icon}} fa-2x"></i>  {%endif%}{{device.name}}</h2>
+    </div>
+    <div class="col-lg-2">
+      <!-- Button trigger modal -->
+      <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteDeviceModal">
+        Delete
+      </button>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xl-6 col-lg-6">
+      <form action="/device/save" method="POST">
+
+        <input type="hidden" name="device_id" value="{{device.id}}">
+
+        <div class="form-group">
+          <label for="device_name">Device Name</label>
+          <input type="text" class="form-control form-control-lg" id="device_name" name="device_name" value="{%if device.name%}{{device.name}}{%endif%}" aria-describedby="nameHelp">
+          <small id="nameHelp" class="form-text text-muted">Custom name for the device.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="device_vendor">Vendor</label>
+          <input type="text" class="form-control" id="device_vendor" name="device_vendor" value="{%if device.vendor%}{{device.vendor}}{%endif%}" aria-describedby="vendorHelp">
+          <small id="vendorHelp" class="form-text text-muted">Vendor of the device (optional).</small>
+        </div>
+
+        <!-- Device icon select form -->
+        <div id="device_icon_select" class="form-group {%if custom_icon%}hidden{%endif%}">
+          <label for="device_icon_select">Icon</label>
+          <select class="form-control" id="device_icon_select" name="device_icon_select"  aria-describedby="iconSelectHelp">
+            <option value="none">None</option>
+            {% for icon_css, icon_name in icons.items()%}
+              {%if device.icon == icon_css %}selected{%endif%}
+              <option value="{{icon_css}}" {%if device.icon == icon_css %}selected{%endif%}>{{icon_name}}</option>
+            {%endfor%}
+          </select>
+          <small id="iconSelectHelp" class="form-text text-muted">Icon to use for the device.</small>
+          <br>
+          <a id="device-icon-custom-btn" class="btn btn-secondary btn-sm float-right" href="#">Custom Icon</a>
+        </div>
+
+        <!-- Device icon custom form -->
+        <div id="device_icon_custom" class="form-group {%if not custom_icon%}hidden{%endif%}">
+          <label for="device_vendor">Custom Icon</label>
+          <input type="text" class="form-control" id="device_icon_input" name="device_icon_input" value="{%if device.icon%}{{device.icon}}{%endif%}" aria-describedby="customIconHelp">
+          <small id="customIconHelp" class="form-text text-muted">
+            CSS classes to apply to icon. <a href="https://fontawesome.com/" target="_new">Font Awesome</a> icons are available.
+          </small>
+          <br>
+          <a id="device-icon-select-btn" class="btn btn-secondary btn-sm float-right" href="#">Built in Icons</a>
+        </div>
+
+        {%if custom_icon%}
+          <input id="icon_form_choice" name="icon_form_choice" type="hidden" name="icon_choice" value="device_icon_input">
+        {%else%}
+          <input id="icon_form_choice" name="icon_form_choice" type="hidden" name="icon_choice" value="device_icon_select">
+        {%endif%}
+
+        <br/>
+        <button class="btn btn-success" type="submit">Save</button>
+
+      </form>
+    </div>
+  </div>
+{%endblock%}
+
+{%block modal%}
+  <!-- Delete Device Modal -->
+  <div class="modal fade" id="deleteDeviceModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Delete Device: {{device.name}}</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to delete this device? This action cannot be undone. Keep in mind the device will come back if discovered in future scan.
+          {{device}}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <a href="/device/delete/{{device.id}}" type="button" class="btn btn-danger">Delete</a>
+        </div>
+      </div>
+    </div>
+  </div>
+{%endblock%}
+
+{%block javascript%}
+  <script type="text/javascript">
+    $( document ).ready(function() {
+
+      // Send ajax request to fav/ unfavorite device
+      $( "#device-icon-custom-btn" ).click(function(event){
+        event.preventDefault();
+        $( "#device_icon_select" ).addClass("hidden");
+        $( "#device_icon_custom" ).removeClass("hidden");
+        $( "#icon_form_choice").val("device_icon_input");
+      });
+
+      // Send ajax request to fav/ unfavorite device
+      $( "#device-icon-select-btn" ).click(function(event){
+        event.preventDefault();
+        $( "#device_icon_custom" ).addClass("hidden");
+        $( "#device_icon_select" ).removeClass("hidden");
+        $( "#icon_form_choice").val("device_icon_select");
+      });
+
+    });
+  </script>
+{%endblock%}

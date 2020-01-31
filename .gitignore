@@ -1,2 +1,11 @@
 *.pyc
 ./conf.py
+*.db
+*.xml
+*.DS_Store
+.flake8
+Lan_nanny.egg-info/
+Lan_Nanny.egg-info*
+build
+dist
+.pytest_cache

@@ -1,0 +1,177 @@
+<!-- Settings -->
+
+{% extends "layout.html" %}
+
+{%block head%}
+  <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
+{%endblock%}
+
+{% block content %}
+  <form action="/settings/save" method="POST">
+
+    <div class="row">
+      <div class="col-lg-6">
+        <h2>Settings</h2>
+      </div>
+      <div class="col-lg-6 text-right">
+        <button class="btn btn-success" type="submit">Save</button>
+      </div>
+
+    </div>
+  
+
+    <div class="row">
+      <!-- General Settings -->
+      <div class="col-xl-6 col-lg-6">
+        <div class="card shadow mb-4">
+          <!-- Card Header -->
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">
+              General
+            </h6>
+          </div>
+          <div class="card-body">
+
+            <!-- Timezone -->
+            <div class="form-group">
+              <label for="settings_timezone">Timezone</label>
+              <select class="form-control" id="settings_timezone" name="settings_timezone"  aria-describedby="timezoneHelp">
+                <option selected="selected">{{settings['timezone'].value}}</option>
+                <option>US/Alaska</option>
+                <option>US/Aleutian</option>
+                <option>US/Arizona</option>
+                <option>US/Central</option>
+                <option>US/East-Indiana</option>
+                <option>US/Eastern</option>
+                <option>US/Hawaii</option>
+                <option>US/Indiana-Starke</option>
+                <option>US/Michigan</option>
+                <option>US/Mountain</option>
+                <option>US/Pacific</option>
+                <option>US/Pacific-New</option>
+                <option>US/Samoa</option>
+                <option>UTC</option>
+              </select>
+              <small id="timezoneHelp" class="form-text text-muted">Timezone for display</small>
+            </div>
+
+            <div class="form-group form-sm">
+              <label for="setting_active_timeout">Active Device Timeout</label>
+              <input type="number" class="form-control form-sm" id="setting_active_timeout" name="setting_active_timeout" value="{{settings['active-timeout'].value}}" aria-describedby="activeTimeoutHelp">
+              <small id="activeTimeoutHelp" class="form-text text-muted">Number of minutes a device has to be missing from scans to be marked offline.</small>
+            </div>
+            
+            <div class="form-group">
+              <label for="setting_beta_features">Enable Beta Features</label>
+              <input id="setting_beta_features" type="checkbox" data-toggle="toggle" aria-describedby="betaFeaturesHelp">
+              <small id="betaFeaturesHelp" class="form-text text-muted">Enabled beta features (may be buggy)</small>
+            </div>
+            
+            
+            <!--
+            <div class="form-group">
+              <label for="setting_scan_hosts_enabled">Alert on new devices</label>
+              <input id="setting_alert_new_device" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="scanHostsEnabledeHelp">
+              <small id="scanHostsEnabledeHelp" class="form-text text-muted">Enable regular host scanning.</small>
+            </div>
+            -->
+
+            <div id="hidden_forms" class=""></div>
+            <br/>
+
+          </div>
+        </div>
+      </div> <!-- End General Settings -->
+
+      <!-- Port Settings -->
+      <div class="col-xl-6 col-lg-6">
+        <div class="card shadow mb-4">
+          <!-- Card Header -->
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">
+              Scan Settings
+            </h6>
+          </div>
+          <div class="card-body">
+
+
+            <div class="form-group">
+              <label for="setting_scan_hosts_range">IP Scan Range</label>
+              <input type="text" class="form-control form-sm" id="setting_scan_hosts_range" name="setting_scan_hosts_range" value="{{settings['scan-hosts-range'].value}}" aria-describedby="scanRangeHelp">
+              <small id="scanRangeHelp" class="form-text text-muted">IP range for device scans.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="setting_scan_hosts_enabled">Scan Hosts</label>
+              <input id="setting_scan_hosts_enabled" type="checkbox" data-toggle="toggle" aria-describedby="scanHostsEnabledeHelp">
+              <small id="scanHostsEnabledeHelp" class="form-text text-muted">Enable regular host scanning.</small>
+            </div>
+            <div class="form-group">
+              <label for="setting_scan_hosts_ports_enabled">Scan Ports</label>
+              <input id="setting_scan_ports_enabled" type="checkbox" data-toggle="toggle" aria-describedby="scanPortsEnabledeHelp">
+              <small id="scanPortsEnabledeHelp" class="form-text text-muted">Enable regular host port scanning.</small>
+            </div>
+            <div class="form-group form-sm port_setting">
+              <label for="setting_scan_ports_per_run">Port Scans Per Run</label>
+              <input type="number" class="form-control form-sm" id="setting_scan_ports_per_run" name="setting_scan_ports_per_run" value="{{settings['scan-ports-per-run'].value}}" aria-describedby="scanPortsPerRunHelp">
+              <small id="scanPortsPerRunHelp" class="form-text text-muted">Max number of devices to run a port scan per scan run.</small>
+            </div>
+            <div class="form-group">
+              <label for="setting_scan_ports_default">Scan Device Ports by Default</label>
+              <input id="setting_scan_ports_default" type="checkbox" data-toggle="toggle" aria-describedby="scanPortsDefaultHelp">
+              <small id="scanPortsDefaultHelp" class="form-text text-muted">Will automatically set new devices to be port scanned.</small>
+            </div>
+          </div>
+        </div>
+      </div><!-- End Port Settings-->
+
+      <!-- Prune Settings -->
+      <div class="col-xl-6 col-lg-6">
+        <div class="card shadow mb-4">
+          <!-- Card Header -->
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">
+              Database Prune Settings
+            </h6>
+          </div>
+          <div class="card-body">
+            <small>These settings are to remove data from the database to help maintain performance. Only change these settings if Lan Nanny is running slowly.</small>
+            <div class="form-group form-sm">
+              <label for="setting_db_prune_days">Days to Maintain Data</label>
+              <input type="number" class="form-control form-sm" id="setting_db_prune_days" name="setting_db_prune_days" value="{{settings['db-prune-days'].value}}" aria-describedby="dbPruneDaysHelp">
+              <small id="dbPruneDaysHelp" class="form-text text-muted">Number of days to maintain data pertaining to host scan log attendance within host scans. An empty or value of 0 is treated as indefinite.</small>
+            </div>
+            
+          </div>
+        </div>
+      </div> <!-- End Prune Settings -->
+
+    </div>
+  </form>
+
+{%endblock%}
+
+{%block javascript%}
+  <script src="/static/js/bootstrap4-toggle.min.js"></script>
+  <script type="text/javascript">
+    $( document ).ready(function(){
+      // var alert_new_device_value = convert_str_bool("{{settings['alert-new-device'].value}}");
+      // register_toggle_form('setting_alert_new_device', alert_new_device_value);
+
+      var beta_features_value = convert_str_bool("{{settings['beta-features'].value}}");
+      register_toggle_form('setting_beta_features', beta_features_value);
+
+      var scan_hosts_enabled_value = convert_str_bool("{{settings['scan-hosts-enabled'].value}}");
+      register_toggle_form('setting_scan_hosts_enabled', scan_hosts_enabled_value);
+
+      var scan_ports_enabled_value = convert_str_bool("{{settings['scan-ports-enabled'].value}}");
+      register_toggle_form('setting_scan_ports_enabled', scan_ports_enabled_value);
+
+      var scan_hosts_default_value = convert_str_bool("{{settings['scan-ports-default'].value}}");
+      register_toggle_form('setting_scan_ports_default', scan_hosts_default_value);
+      
+    });
+  </script>
+{%endblock%}
+
+<!-- EndFile: lan-nanny/lan_nanny/templates/settings.html -->
