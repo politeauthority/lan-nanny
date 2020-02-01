@@ -1,19 +1,19 @@
-"""Scan Logs Collection
-Gets collections of scan logs.
+"""Scan Hosts Collection
+Gets collections of scan host scan logs.
 
 """
 
 import arrow
 
-from ..models.scan_log import ScanLog
+from ..models.scan_host import ScanHost
 
 
-class ScanLogs():
+class ScanHosts():
 
     def __init__(self, conn=None, cursor=None):
         self.conn = conn
         self.cursor = cursor
-        self.table_name = ScanLog().table_name
+        self.table_name = ScanHost().table_name
 
     def get_all(self) -> list:
         """
@@ -30,7 +30,7 @@ class ScanLogs():
         raw_scans = self.cursor.fetchall()
         scan_logs = []
         for raw_scan in raw_scans:
-            scan = ScanLog(self.conn, self.cursor)
+            scan = ScanHost(self.conn, self.cursor)
             scan.build_from_list(raw_scan)
             scan_logs.append(scan)
         return scan_logs
@@ -61,4 +61,4 @@ class ScanLogs():
         return raw[0]
 
 
-# End File: lan-nanny/modules/collections/scan_logs.py
+# End File: lan-nanny/modules/collections/scan_hosts.py
