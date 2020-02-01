@@ -1,12 +1,13 @@
 # LAN Nanny
-A tool for collecting and storing network devices by mac/ip and tagging the devices with custom naming.
-
-## Example Usage
-This will scan the entire range of ips given. When running regular scans, its best to target the expect DCHP ranges, if you're interested in units coming on and dropping off network.
-```
-sudo python lan_nanny.py --ip=192.168.1.1-255
-```
+LAN Nanny is a tool for local network device/port discovery and monitoring. Lots of routers
+masquerade users into thinking they have this functionality, but its broken, slow or wrong.
+LAN Nanny attempts to provide the user with a local, secure, web app to visualize all devices on a 
+network, as well as give a user a quick glance to a full networks worth of actively open ports, 
+either by port number, type or device currently advertising the exposed port.
 
 ## Install
-- You'll need the utility NMAP and the python-mysql connector
-- Then run install/create_tables.sql
+```console
+git clone git@github.com:politeauthority/lan-nanny.git
+cd lan-nanny/
+python3 install-upgrade.py
+```
