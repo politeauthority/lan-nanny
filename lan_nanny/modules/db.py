@@ -12,10 +12,12 @@ from flask import g
 from .models.option import Option
 from .models.alert import Alert
 from .models.device import Device
+from .models.device_port import DevicePort
 from .models.alert_event import AlertEvent
 from .models.scan_log import ScanLog
 from .models.witness import Witness
 from .models.port import Port
+
 
 
 def create_connection(database_file: str):
@@ -45,6 +47,7 @@ def create_tables(conn, cursor):
     Alert(cursor=cursor).create_table()
     AlertEvent(cursor=cursor).create_table()
     Device(cursor=cursor, conn=conn).create_table()
+    DevicePort(cursor=cursor, conn=conn).create_table()
     ScanLog(cursor=cursor, conn=conn).create_table()
     Witness(cursor=cursor, conn=conn).create_table()
     Port(cursor=cursor, conn=conn).create_table()

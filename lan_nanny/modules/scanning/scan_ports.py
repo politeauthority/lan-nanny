@@ -9,6 +9,7 @@ import arrow
 from . import parse_nmap
 from ..collections.devices import Devices
 from ..models.device import Device
+from ..models.device_port import DevicePort
 from ..models.port import Port
 from ..models.scan_log import ScanLog
 
@@ -129,30 +130,36 @@ class ScanPorts:
             return
 
         num_ports = 0
-        for port in ports:
-            device_port = Port(self.conn, self.cursor)
-            device_port.get_by_device_port_protocol(device.id, port['number'], port['protocol'])
-            device_port.device_id = device.id
-            device_port.port = port['number']
-            device_port.protocol = port['protocol']
-            device_port.service_name = port['service']
+        for raw_port in ports:
+            port = self.get_port(raw_port)
+
+            device_port = DevicePort(self.conn, self.cursor)
+            device_port.get_by_device_and_port(device.id, port.port)
+            if not device_port.id:
+                device_port.device_id = device.id
+                device_port.port_id = port.id
             device_port.status = 'open'
             device_port.last_seen = arrow.utcnow().datetime
             device_port.save()
             num_ports += 1
 
         print('Device %s has %s ports open' % (device, num_ports))
-        # if device.ports:
-        #     import ipdb; ipdb.set_trace()
-        # for device_port in device.ports:
-        #     if device_port.status == 'closed':
-        #         continue
-        #     device_port_closed = True
-        #     for scan_ports in ports:
-        #         if device_port.port == scan_port['number']:
-        #             device_port_closed = False
-        #     if device_port_closed:
-        #         device_port
+
+    def get_port(self, raw_port: dict) -> Port:
+        """
+        Get a port model from the port scan data.
+        @todo: Load this data into memory to save db loads.
+        """
+        port = Port(self.conn, self.cursor)
+        port.port = raw_port['number']
+        port.protocol = raw_port['protocol']
+        port.get_by_port_and_protocol()
+        if not port.id:
+            port.service = raw_port['service']
+            port.save()
+        return port
+
+
 
 
 # End File: lan_nanny/nanny-nanny/modules/scan_ports.py

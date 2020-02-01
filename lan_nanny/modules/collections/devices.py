@@ -152,18 +152,34 @@ class Devices:
         devices = self._build_raw_devices(raw_devices)
         return devices
 
-    def get_with_open_port(self, port: str) -> list:
+    def get_with_open_port(self, port_id: int) -> list:
         """Get devices with a specific port open."""
         sql = """
-            SELECT %s
-            FROM devices
-            JOIN ports
-                ON devices.id = ports.device_id
+            SELECT device_id
+            FROM device_ports
             WHERE
-                ports.port = %s AND
-                ports.status = 'open' """ % (
-            ','.join(self._get_device_field_map(True)),
-            port)
+                port_id = %s AND
+                status = 'open' """ % (port_id)
+        self.cursor.execute(sql)
+        raw_device_ports = self.cursor.fetchall()
+        device_ids = []
+        for raw_device_port in raw_device_ports:
+            device_ids.append(raw_device_port[0])
+
+        devices = self.get_by_device_ids(device_ids)
+
+        return devices
+
+    def get_by_device_ids(self, port_ids: list) -> list:
+        """Get ports by a list of port IDs."""
+        port_ids_sql = ""
+        for port_id in port_ids:
+            port_ids_sql += "%s," % port_id
+        port_ids_sql = port_ids_sql[:-1]
+        sql = """
+            SELECT *
+            FROM devices
+            WHERE id IN(%s);""" % (port_ids_sql)
         self.cursor.execute(sql)
         raw_devices = self.cursor.fetchall()
         devices = self._build_raw_devices(raw_devices)

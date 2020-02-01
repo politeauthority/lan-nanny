@@ -80,7 +80,15 @@ def get_active_timeout_from_now(timeout: int) -> datetime:
 
 
 def gen_like_sql(field: str, phrase: str) -> str:
-    """Generate a SQLite like statement for a given field and phrase"""
+    """Generate a SQLite like statement for a given field and phrase."""
     return field + """ LIKE '%""" + phrase + """%' """
+
+def gen_where_in_sql(ids: list) -> str:
+    """Generate a where in sql safe parameter set from a list of ids."""
+    ids_sql = ""
+    for the_id in ids:
+        ids_sql += "%s," % the_id
+    ids_sql = ids_sql[:-1]
+    return ids_sql
 
 # End File: lan-nanny/lan_nanny/modules/utils.py
