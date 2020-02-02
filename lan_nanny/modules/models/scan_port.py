@@ -76,17 +76,24 @@ class ScanPort(Base):
         self.setup()
         insert_sql = """
             INSERT INTO %s
-            (created_ts, completed, trigger)
-            VALUES (?, ?, ?)""" % (self.table_name)
+            (created_ts, device_id, completed, trigger, command)
+            VALUES (?, ?, ?, ?, ?)""" % (self.table_name)
 
-        self.cursor.execute(insert_sql, (self.created_ts, 0, self.trigger))
+        values = (
+            self.created_ts,
+            self.device_id,
+            0,
+            self.trigger,
+            self.command)
+
+        self.cursor.execute(insert_sql, values)
         self.conn.commit()
         self.id = self.cursor.lastrowid
         return True
 
     def end_run(self):
         """End a scan run."""
-        self.end_ts = arrow.utcnow()
+        self.end_ts = arrow.utcnow().datetime
         self.elapsed_time = (arrow.utcnow() - self.created_ts).seconds
         self.completed = True
         self.save()
