@@ -3,7 +3,6 @@ Web application entry point.
 
 """
 
-import os
 import sys
 
 from flask import Flask, render_template, request, redirect, session, g
@@ -19,8 +18,6 @@ from modules import db
 from modules.collections.alerts import Alerts
 from modules.collections.devices import Devices
 from modules.collections.options import Options
-from modules.collections.witnesses import Witnesses
-from modules.collections.scan_hosts import ScanHosts
 from modules.metrics import Metrics
 from modules import utils
 from modules import filters
@@ -104,21 +101,6 @@ def index() -> str:
     return render_template('dashboard.html', **data)
 
 
-# @app.route('/about')
-# @utils.authenticate
-# def about() -> str:
-#     """About page."""
-#     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
-#     data = {
-#         'active_page': 'about',
-#         'db_name': os.path.normpath(app.config['LAN_NANNY_DB_FILE']),
-#         'db_size': utils.get_db_size(app.config['LAN_NANNY_DB_FILE']),
-#         'db_witness_length': Witnesses(conn, cursor).get_row_length(),
-#         'db_host_scan_length': ScanHosts(conn, cursor).get_row_length()
-#     }
-#     return render_template('about.html', **data)
-
-
 @app.route('/logout')
 def logout():
     """Public route to logout, destroying current session auth."""
@@ -141,7 +123,6 @@ def register_blueprints(app: Flask):
     app.register_blueprint(ctrl_settings)
     app.register_blueprint(ctrl_about)
     app.register_blueprint(ctrl_search)
-    # app.register_blueprint(ctrl_auth)
 
 
 def register_jinja_funcs(app: Flask):
