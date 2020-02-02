@@ -74,6 +74,7 @@ class Device(Base):
             },
         ]
         self.ports = []
+        self.metas = {}
         self.setup()
 
     def __repr__(self):
@@ -131,4 +132,4 @@ class Device(Base):
             self.ports = ports.get_by_device(self.id)
         return True
 
-# End File: lan-nanny/modules/models/device.py
+# End File: lan-nanny/lan_nanny/modules/models/device.py
