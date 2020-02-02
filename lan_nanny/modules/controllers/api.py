@@ -10,7 +10,6 @@ from flask import current_app as app
 
 from .. import db
 from .. import utils
-
 from ..models.scan_host import ScanHost
 from ..models.witness import Witness
 
@@ -21,7 +20,7 @@ api = Blueprint('Api', __name__, url_prefix='/api')
 @api.route('/device-online/<device_id>')
 @utils.authenticate
 def device_online(device_id) -> str:
-    """Device online"""
+    """Device online."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
 
     host_scans = get_host_scans_24_hours(conn, cursor, device_id)
@@ -34,9 +33,7 @@ def device_online(device_id) -> str:
 
 
 def get_host_scans_24_hours(conn, cursor, device_id):
-    """Get all host scans from the last 24 hours
-
-    """
+    """Get all host scans from the last 24 hours."""
     sql_data = {
         'scan_hosts_table': ScanHost().table_name,
         'witness_table': Witness().table_name,
