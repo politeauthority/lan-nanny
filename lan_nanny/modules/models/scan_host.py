@@ -48,9 +48,6 @@ class ScanHost(Base):
         ]
         self.setup()
 
-    def __repr__(self):
-        return "<ScanLog %s>" % self.id
-
     def get_last(self):
         """Gets the last run log form the `scan_hosts` table."""
         sql = """

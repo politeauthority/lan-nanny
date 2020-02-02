@@ -52,9 +52,6 @@ class ScanPort(Base):
         ]
         self.setup()
 
-    def __repr__(self):
-        return "<ScanPort %s>" % self.id
-
     def get_last(self):
         """
         Gets the last run log form the `scan_log` table.
