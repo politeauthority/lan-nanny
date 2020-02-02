@@ -10,8 +10,9 @@ from flask import current_app as app
 
 from .. import db
 from .. import utils
-from ..collections.scan_logs import ScanLogs
-from ..models.scan_log import ScanLog
+
+from ..models.scan_host import ScanHost
+from ..models.witness import Witness
 
 
 api = Blueprint('Api', __name__, url_prefix='/api')
@@ -36,20 +37,24 @@ def get_host_scans_24_hours(conn, cursor, device_id):
     """Get all host scans from the last 24 hours
 
     """
-    hours_24 = arrow.utcnow().datetime - timedelta(hours=24)
+    sql_data = {
+        'scan_hosts_table': ScanHost().table_name,
+        'witness_table': Witness().table_name,
+        'device_id': device_id,
+        'hours_24': arrow.utcnow().datetime - timedelta(hours=24)
+    }
     sql = """
-        SELECT scan_logs.id, scan_logs.created_ts, witness.device_id
-        FROM scan_logs
-            LEFT OUTER JOIN witness
+        SELECT %(scan_hosts_table)s.id, %(scan_hosts_table)s.created_ts, %(witness_table)s.device_id
+        FROM %(scan_hosts_table)s
+            LEFT OUTER JOIN %(witness_table)s
                 ON
-                    scan_logs.id = witness.scan_id AND
-                    witness.device_id = %s
+                    %(scan_hosts_table)s.id = %(witness_table)s.scan_id AND
+                    %(witness_table)s.device_id = %(device_id)s
         WHERE
-            scan_type = "host" AND
             trigger = "cron" AND
-            scan_logs.created_ts >= "%s"
-            ORDER BY scan_logs.created_ts DESC;
-            """ % (device_id, hours_24)
+            %(scan_hosts_table)s.created_ts >= "%(hours_24)s"
+            ORDER BY %(scan_hosts_table)s.created_ts DESC;
+            """ % sql_data
 
     print("\n\n")
     print(sql)
