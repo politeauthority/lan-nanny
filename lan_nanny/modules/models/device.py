@@ -61,29 +61,12 @@ class Device(Base):
                 'type': 'str'
             },
             {
-                'name': 'alert_online',
-                'type': 'bool'
-            },
-            {
-                'name': 'alert_offline',
-                'type': 'bool'
-            },
-            {
-                'name': 'alert_delta',
-                'type': 'int'
-            },
-            {
                 'name': 'port_scan',
                 'type': 'bool'
             },
             {
                 'name': 'last_port_scan',
                 'type': 'datetime'
-            },
-            {
-                'name': 'flagged_for_scan',
-                'type': 'bool',
-                'default': '0'
             },
             {
                 'name': 'update_ts',

@@ -1,90 +1,80 @@
-<!-- Scan Port - Info -->
+<!-- Scan Ports - Roster -->
+
 {% extends "layout.html" %}
 {% block content %}
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Scans: Ports</h1>
+  </div>
   <div class="row">
-    <div class="col-lg-6">
-      <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Scan: {{scan.id}}</h1>
-      </div>
-    </div>
+    <ul class="nav roster_nav">
+      <li class="nav-item">
+        <a class="nav-link {%if active_page_scans=='hosts' %}active_sub_link{%endif%}" href="/scan">Hosts</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {%if active_page_scans=='ports' %}active_sub_link{%endif%}"" href="/scan/ports">Ports</a>
+      </li>
+    </ul> 
   </div>
 
   <!-- Content Row -->
   <div class="row">
-    <!-- Scan Info -->
-    <div class="col-xl-6 col-lg-6">
-      <div class="card shadow mb-4">
-        <!-- Card Header -->
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">
-            Scan Info
-          </h6>
-        </div>
 
+    <!-- Device Table -->
+    <div class="col-xl-12 col-lg-12">
+      <div class="card shadow mb-4">
         <!-- Card Body -->
         <div class="card-body">
           <div class="table-responsive">
-            <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
+            {%if scans%}
               <table class="table" id="dataTable" width="100%" cellspacing="0">
-                <tr>
-                  <td>ID</td>
-                  <td>{{scan.id}}</td>
-                </tr>
-                <tr>
-                  <td>Start</td>
-                  <td>{{scan.created_ts|smart_time}}</td>
-                </tr>
-                <tr>
-                  <td>End</td>
-                  <td>{{scan.end_ts|smart_time}}</td>
-                </tr>
-                <tr>
-                  <td>Status</td>
+                <thead>
+                  <tr>
+                    <td>Started</td>
+                    <td>Ports Found</td>
+                    <td>Trigger</td>
+                    <td>Total Time</td>
+                  </tr>
+                </thead>
+                {% for scan in scans %}
+                <!--  href="/scan/info/host/{{scan.id}} -->
+                <tr class="{%if scan.completed==1 and scan.success==1%}table-success{%endif%}" class="link_row" data-href="/scan/info/hosts/{{scan.id}}">
                   <td>
-                    {%if scan.completed%}Completed{%endif%}
+                    <a href="/scan/info/port/{{scan.id}}">{{scan.created_ts|smart_time}}</a>
                   </td>
-                </tr>
-                <tr>
-                  <td>Devices Found</td>
-                  <td>{{scan.num_devices}}</td>
-                </tr>
-              </table>
-            </table>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <div class="col-xl-6 col-lg-6">
-      <div class="card shadow mb-4">
-        <!-- Card Header -->
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">
-            Devices
-          </h6>
-        </div>
-
-        <!-- Card Body -->
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
-              {%if witnesses%}
-              <table class="table" id="dataTable" width="100%" cellspacing="0">
-                {%for witness in witnesses%}
-                <tr>
-                  <td>{{witness.device|device_icon_status}}</td>
+                  <td>
+                    {%if scan.units%}
+                      {{scan.units}}
+                    {%endif%}
+                  </td>
+                  <td>{{scan.trigger}}</td>
+                  <td>
+                    {%if scan.elapsed_time%}
+                      {{scan.elapsed_time}} sec
+                    {%endif%}
+                  </td>
                 </tr>
                 {%endfor%}
               </table>
-              {%endif%}
-            </table>
+            {%else%}
+              <div class="text-center">
+                No scan yets.
+              </div>
+            {%endif%}
           </div>
-        </div>
       </div>
-
     </div>
 
   </div>
+
 {%endblock%}
 
+{%block javascript%}
+  <script type="text/javascript">
+    $( document ).ready(function(){
+      $(".link_row").click(function() {
+          window.location = $(this).data("href");
+      });
+    });
+  </script>
+{%endblock%}

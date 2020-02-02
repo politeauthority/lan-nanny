@@ -9,7 +9,7 @@
   <div class="row">
     <ul class="nav roster_nav">
       <li class="nav-item">
-        <a class="nav-link {%if active_page_scans=='hosts' %}active_sub_link{%endif%}" href="/scan/hosts">Hosts</a>
+        <a class="nav-link {%if active_page_scans=='hosts' %}active_sub_link{%endif%}" href="/scan">Hosts</a>
       </li>
       <li class="nav-item">
         <a class="nav-link {%if active_page_scans=='ports' %}active_sub_link{%endif%}"" href="/scan/ports">Ports</a>
@@ -30,19 +30,29 @@
               <table class="table" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                   <tr>
+                    <td>Started</td>
                     <td>Devices Found</td>
                     <td>Trigger</td>
-                    <td>Started</td>
                     <td>Total Time</td>
                   </tr>
                 </thead>
                 {% for scan in scans %}
                 <!--  href="/scan/info/host/{{scan.id}} -->
-                <tr class="link_row" data-href="/scan/info/hosts/{{scan.id}}">
-                  <td>{{scan.units}}</td>
+                <tr class="{%if scan.completed==1 and scan.success==1%}table-success{%endif%}" class="link_row" data-href="/scan/info/hosts/{{scan.id}}">
+                  <td>
+                    <a href="/scan/info/host/{{scan.id}}">{{scan.created_ts|smart_time}}</a>
+                  </td>
+                  <td>
+                    {%if scan.units%}
+                      {{scan.units}}
+                    {%endif%}
+                  </td>
                   <td>{{scan.trigger}}</td>
-                  <td>{{scan.created_ts|smart_time}}</td>
-                  <td>{{scan.elapsed_time}} sec</td>
+                  <td>
+                    {%if scan.elapsed_time%}
+                      {{scan.elapsed_time}} sec
+                    {%endif%}
+                  </td>
                 </tr>
                 {%endfor%}
               </table>
