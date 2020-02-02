@@ -121,6 +121,11 @@
               <input id="setting_scan_ports_default" type="checkbox" data-toggle="toggle" aria-describedby="scanPortsDefaultHelp">
               <small id="scanPortsDefaultHelp" class="form-text text-muted">Will automatically set new devices to be port scanned.</small>
             </div>
+            <div class="form-group">
+              <label for="setting_scan_ports_default">Scan Device Ports Interval</label>
+              <input name="setting_scan_ports_interval" type="number" class="form-control form-sm" aria-describedby="scanPortsInvervalHelp" value="{{settings['scan-ports-interval'].value}}">
+              <small id="scanPortsInvervalHelp" class="form-text text-muted">Number of minutes before re port scanning a device.</small>
+            </div>
           </div>
         </div>
       </div><!-- End Port Settings-->
