@@ -1,4 +1,4 @@
-"""Scan Log - Model
+"""Scan Host - Model
 
 """
 import arrow
@@ -49,7 +49,7 @@ class ScanHost(Base):
         self.setup()
 
     def get_last(self):
-        """Gets the last run log form the `scan_hosts` table."""
+        """Get the last run log form the `scan_hosts` table."""
         sql = """
             SELECT *
             FROM %s
@@ -66,7 +66,7 @@ class ScanHost(Base):
         return self
 
     def insert_run_start(self) -> bool:
-        """Inserts a new record of the model."""
+        """Insert a new record of the model."""
         if not self.created_ts:
             self.created_ts = arrow.utcnow().datetime
         self.setup()
@@ -81,6 +81,7 @@ class ScanHost(Base):
         return True
 
     def end_run(self):
+        """End a scan run."""
         self.end_ts = arrow.utcnow()
         self.elapsed_time = (arrow.utcnow() - self.created_ts).seconds
         self.completed = True

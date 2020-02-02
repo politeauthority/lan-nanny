@@ -53,10 +53,7 @@ class ScanPort(Base):
         self.setup()
 
     def get_last(self):
-        """
-        Gets the last run log form the `scan_log` table.
-
-        """
+        """Gets the last run log form the `scan_port` table."""
         sql = """
             SELECT *
             FROM %s
@@ -73,10 +70,7 @@ class ScanPort(Base):
         return self
 
     def insert_run_start(self):
-        """
-        Inserts a new record of the model.
-
-        """
+        """Insert a new record of the model."""
         if not self.created_ts:
             self.created_ts = arrow.utcnow().datetime
         self.setup()
@@ -91,6 +85,7 @@ class ScanPort(Base):
         return True
 
     def end_run(self):
+        """End a scan run."""
         self.end_ts = arrow.utcnow()
         self.elapsed_time = (arrow.utcnow() - self.created_ts).seconds
         self.completed = True
