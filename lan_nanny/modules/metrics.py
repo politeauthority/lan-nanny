@@ -2,8 +2,8 @@
 
 """
 from .collections.devices import Devices
-from .collections.scan_logs import ScanLogs
-from .models.scan_log import ScanLog
+from .collections.scan_hosts import ScanHosts
+from .models.scan_host import ScanHost
 
 
 class Metrics:
@@ -30,24 +30,17 @@ class Metrics:
         favorites = devices.get_favorites()
         return favorites
 
-    def get_runs_24_hours(self):
-        """
+    def get_scan_host_runs_24_hours(self):
+        """Gets numeric number of host scans over 24 hours. """
+        scan_hosts = ScanHosts(self.conn, self.cursor)
+        scan_hosts_24 = scan_hosts.get_runs_24_hours()
+        return scan_hosts_24
 
-        """
-        scan_logs = ScanLogs(self.conn, self.cursor)
-        scan_logs_24 = scan_logs.get_runs_24_hours()
-        return scan_logs_24
-
-    def get_last_host_scan(self) -> ScanLog:
-
-        """
-        Gets the last run log.
-
-        """
-        scan_log = ScanLog(self.conn, self.cursor)
-        scan_log.get_last('host')
-        return scan_log
-
+    def get_last_host_scan(self) -> ScanHost:
+        """Get the last host scan run."""
+        scan_host = ScanHost(self.conn, self.cursor)
+        scan_host.get_last()
+        return scan_host
 
     def get_dashboard_online_chart(self, devices):
         """Create the differential of online devices vs total devices."""

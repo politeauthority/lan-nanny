@@ -8,7 +8,7 @@ import subprocess
 import arrow
 
 from . import parse_nmap
-from ..models.scan_log import ScanLog
+from ..models.scan_host import ScanHost
 from ..models.device import Device
 from ..models.witness import Witness
 
@@ -40,9 +40,9 @@ class ScanHosts:
 
     def setup(self):
         """Set up the scan hosts run."""
-        self.scan_log = ScanLog(self.conn, self.cursor)
+        self.scan_log = ScanHost(self.conn, self.cursor)
         self.scan_log.trigger = self.trigger
-        self.scan_log.insert_run_start('host')
+        self.scan_log.insert_run_start()
 
     def scan(self):
         """Run the port scan operation."""
@@ -152,7 +152,7 @@ class ScanHosts:
         self.scan_log.completed = 1
         self.scan_log.success = 1
         self.scan_log.end_ts = arrow.utcnow().datetime
-        # self.scan_log.num_devices = len(self.hosts)
+        self.scan_log.units = len(self.hosts)
         self.scan_log.scan_range = self.options['scan-hosts-range'].value
         self.scan_log.save()
 
