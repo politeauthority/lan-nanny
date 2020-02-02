@@ -73,24 +73,6 @@
                 <td class="time_switch">{{device.first_seen|pretty_time}}</td>
               </tr>
               <tr>
-                <td><b>Status</b></td>
-                {%if device.last_seen|online%}
-                  <td>Online</td>
-                {%else%}
-                  <td>Disconnected</td>
-                {%endif%}
-              </tr>
-              <tr>
-                <td><b>Port Scan</b></td>
-                <td>
-                  {% if device.port_scan == 1 %}
-                    Enabled
-                  {%else%}
-                    Disabled
-                  {%endif%}
-                </td>
-              </tr>
-              <tr>
                 <td><b>Last Port Scan</b></td>
                 <td>
                   {% if device.last_port_scan%}
