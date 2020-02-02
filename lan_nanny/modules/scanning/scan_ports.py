@@ -96,8 +96,9 @@ class ScanPorts:
         """
         scan_log = ScanPort(self.conn, self.cursor)
         scan_log.trigger = self.trigger
-        #  back_off = "--host-timeout 120 --max-retries 5"
-        scan_log.command = "nmap %s" % device.ip
+        back_off = " --host-timeout 120 --max-retries 5"
+        scan_log.command = "nmap %s%s" % (device.ip, back_off)
+        scan_log.device_id = device.id
         scan_log.insert_run_start()
 
         port_scan_file = os.path.join(self.tmp_dir, "port_scan_%s.xml" % device.id)
