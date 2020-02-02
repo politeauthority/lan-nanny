@@ -123,3 +123,30 @@ function convert_str_bool(bool_str){
     return false;
   }
 }
+
+function create_toast(level, message, persist=true){
+  /*
+  Creates a toast via javascript.
+
+  */
+  clone = $( ".toast_template" ).clone().append("#toasts");
+  console.log(clone);
+
+  clone.addClass('toast');
+  if(persist){
+    clone.attr("data-autohide", false);
+  }
+  clone.removeClass('toast_template').removeClass('not-toast').removeClass('hidden');
+  clone.addClass('toast');
+  clone.find('toast-body').html(message);
+  clone.toast('show');
+
+}
+
+/* Global setup for page loads */
+$(document).ready(function(){
+  $('.toast').toast({
+    delay: 3000
+  });
+  $('.toast').toast('show');
+});
