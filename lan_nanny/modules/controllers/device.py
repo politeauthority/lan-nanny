@@ -20,10 +20,7 @@ device = Blueprint('Device', __name__, url_prefix='/device')
 @device.route('/')
 @utils.authenticate
 def devices() -> str:
-    """
-    Devices roster page.
-
-    """
+    """Devices roster page."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     devices = Devices(conn, cursor)
     data = {}
@@ -36,10 +33,7 @@ def devices() -> str:
 @device.route('/online')
 @utils.authenticate
 def online() -> str:
-    """
-    Devices roster page for only online devices
-
-    """
+    """Devices roster page for only online devices."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     devices = Devices(conn, cursor)
 
@@ -53,10 +47,7 @@ def online() -> str:
 @device.route('/offline')
 @utils.authenticate
 def offline() -> str:
-    """
-    Devices roster page for only online devices
-
-    """
+    """Device roster page for only online devices."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     devices = Devices(conn, cursor)
 
@@ -70,10 +61,7 @@ def offline() -> str:
 @device.route('/new')
 @utils.authenticate
 def new() -> str:
-    """
-    Devices roster page for devices new within the last 24 hours
-
-    """
+    """Get devices roster page for devices new within the last 24 hours."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     devices = Devices(conn, cursor)
 
@@ -87,10 +75,7 @@ def new() -> str:
 @device.route('/info/<device_id>')
 @utils.authenticate
 def info(device_id: int) -> str:
-    """
-    Device info page.
-
-    """
+    """Device info page."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     device = Device(conn, cursor)
     device.get_by_id(device_id)
@@ -108,10 +93,7 @@ def info(device_id: int) -> str:
 @device.route('/edit/<device_id>')
 @utils.authenticate
 def edit(device_id: int) -> str:
-    """
-    Device edit page.
-
-    """
+    """Device edit page."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     device = Device()
     device.conn = conn
@@ -135,10 +117,7 @@ def edit(device_id: int) -> str:
 @device.route('/save', methods=['POST'])
 @utils.authenticate
 def save():
-    """
-    Device save.
-
-    """
+    """Device save."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     device = Device()
     device.conn = conn
@@ -157,11 +136,6 @@ def save():
     else:
         device.icon = request.form['device_icon_input']
 
-    if request.form.get('device_port_scan'):
-        device.port_scan = 1
-    else:
-        device.port_scan = 0
-
     # @todo figure out how hide works.
     # device.hide = request.form['device_hide']
     device.save()
@@ -172,10 +146,7 @@ def save():
 @device.route('/favorite/<device_id>')
 @utils.authenticate
 def favorite(device_id):
-    """
-    Web route for making a device a favorite or not.
-
-    """
+    """Web route for making a device a favorite or not."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     device = Device()
     device.conn = conn
@@ -235,7 +206,7 @@ def quick_save() -> str:
         return 'ERROR 404: Route this to page_not_found method!', 404
         # return page_not_found('Device not found')
 
-    if request.form.get('field_name') not in ['port_scan', 'alert_online', 'alert_offline']:
+    if request.form.get('field_name') not in ['port_scan']:
         return jsonify("error", "Forbidden field_name %s field_name"), 403
 
     if request.form.get('field_value') == 'true'.lower():
@@ -251,10 +222,7 @@ def quick_save() -> str:
 @device.route('/delete/<device_id>')
 @utils.authenticate
 def delete(device_id: int):
-    """
-    Device delete.
-
-    """
+    """Device delete."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
 
     # Delete the device
