@@ -82,7 +82,7 @@ class ScanHost(Base):
 
     def end_run(self):
         """End a scan run."""
-        self.end_ts = arrow.utcnow()
+        self.end_ts = arrow.utcnow().datetime
         self.elapsed_time = (arrow.utcnow() - self.created_ts).seconds
         self.completed = True
         self.save()
