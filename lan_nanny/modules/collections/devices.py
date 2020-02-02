@@ -130,8 +130,8 @@ class Devices:
                 port_scan = 1 AND
                 (
                     last_port_scan <= '%s' OR
-                    last_port_scan is NULL OR
-                    flagged_for_scan = 1)
+                    last_port_scan is NULL
+                )
             ORDER BY last_port_scan ASC
             %s ;""" % (hours_24, limit)
         self.cursor.execute(sql)

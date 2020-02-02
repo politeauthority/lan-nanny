@@ -1,20 +1,19 @@
-"""Scan Logs Collection
-Gets collections of scan logs.
+"""Scan Ports Collection
+Gets collections of scan port scan logs.
 
 """
-from datetime import timedelta
 
 import arrow
 
-from ..models.scan_log import ScanLog
+from ..models.scan_port import ScanPort
 
 
-class ScanLogs():
+class ScanPorts():
 
     def __init__(self, conn=None, cursor=None):
         self.conn = conn
         self.cursor = cursor
-        self.table_name = ScanLog().table_name
+        self.table_name = ScanPort().table_name
 
     def get_all(self) -> list:
         """
@@ -31,12 +30,16 @@ class ScanLogs():
         raw_scans = self.cursor.fetchall()
         scan_logs = []
         for raw_scan in raw_scans:
-            scan = ScanLog(self.conn, self.cursor)
+            scan = ScanPort(self.conn, self.cursor)
             scan.build_from_list(raw_scan)
             scan_logs.append(scan)
         return scan_logs
 
     def get_runs_24_hours(self):
+        """
+        Gets all devices in the database.
+
+        """
         now = arrow.utcnow()
         hour_24 = now.shift(hours=-24).datetime
         sql = """
@@ -48,27 +51,6 @@ class ScanLogs():
         raw_ret = self.cursor.fetchone()
         return raw_ret[0]
 
-    def get_host_scans_24_hours(self):
-        """Get all host scans from the last 24 hours
-
-        """
-        hours_24 = arrow.utcnow().datetime - timedelta(hours=24)
-        sql = """
-            SELECT *
-            FROM scan_logs
-            WHERE
-                scan_type = "host" AND
-                created_ts >= "%s"
-            ORDER BY created_ts DESC;""" % hours_24
-        raw_scans = self.cursor.fetchall()
-        import ipdb; ipdb.set_trace()
-        scan_logs = []
-        for raw_scan in raw_scans:
-            scan = ScanLog(self.conn, self.cursor)
-            scan.build_from_list(raw_scan)
-            scan_logs.append(scan)
-        return scan_logs
-
     def get_row_length(self) -> int:
         """Get number of rows of scan_logs from the scan_log table."""
         sql = """
@@ -79,4 +61,4 @@ class ScanLogs():
         return raw[0]
 
 
-# End File: lan-nanny/modules/collections/scan_logs.py
+# End File: lan-nanny/modules/collections/scan_ports.py

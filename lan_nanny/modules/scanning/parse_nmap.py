@@ -144,9 +144,9 @@ def parse_ports(parsed):
 
     """
     ports = []
-    # if 'host' not in parsed['nmaprun']:
-    #     logging.error('No host in parsed nmap')
-    #     return False
+    if 'host' not in parsed['nmaprun']:
+        logging.error('No host in parsed nmap')
+        return False
     if 'ports' not in parsed['nmaprun']['host']:
         return False
 

@@ -3,7 +3,6 @@ Web application entry point.
 
 """
 
-import os
 import sys
 
 from flask import Flask, render_template, request, redirect, session, g
@@ -13,14 +12,13 @@ from modules.controllers.device import device as ctrl_device
 from modules.controllers.ports import ports as ctrl_ports
 from modules.controllers.scan import scan as ctrl_scan
 from modules.controllers.search import search as ctrl_search
+from modules.controllers.about import about as ctrl_about
 from modules.controllers.settings import settings as ctrl_settings
 from modules.controllers.api import api as ctrl_api
 from modules import db
 from modules.collections.alerts import Alerts
 from modules.collections.devices import Devices
 from modules.collections.options import Options
-from modules.collections.witnesses import Witnesses
-from modules.collections.scan_logs import ScanLogs
 from modules.metrics import Metrics
 from modules import utils
 from modules import filters
@@ -96,25 +94,10 @@ def index() -> str:
     data['device_favorites'] = favorites
     data['devices'] = devices
     data['new_devices'] = new_devices
-    data['runs_over_24'] = metrics.get_runs_24_hours()
+    data['runs_over_24'] = metrics.get_scan_host_runs_24_hours()
     data['host_scan'] = metrics.get_last_host_scan()
     data['online_donut'] = donut_devices_online
     return render_template('dashboard.html', **data)
-
-
-@app.route('/about')
-@utils.authenticate
-def about() -> str:
-    """About page."""
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
-    data = {
-        'active_page': 'about',
-        'db_name': os.path.normpath(app.config['LAN_NANNY_DB_FILE']),
-        'db_size': utils.get_db_size(app.config['LAN_NANNY_DB_FILE']),
-        'db_witness_length': Witnesses(conn, cursor).get_row_length(),
-        'db_scan_length': ScanLogs(conn, cursor).get_row_length()
-    }
-    return render_template('about.html', **data)
 
 
 @app.route('/logout')
@@ -137,6 +120,7 @@ def register_blueprints(app: Flask):
     app.register_blueprint(ctrl_ports)
     app.register_blueprint(ctrl_scan)
     app.register_blueprint(ctrl_settings)
+    app.register_blueprint(ctrl_about)
     app.register_blueprint(ctrl_search)
     app.register_blueprint(ctrl_api)
 
@@ -160,7 +144,6 @@ if __name__ == '__main__':
     app.config['SESSION_TYPE'] = 'filesystem'
     register_blueprints(app)
     register_jinja_funcs(app)
-    # install()
     app.run(host="0.0.0.0", port=port, debug=True)
 
 

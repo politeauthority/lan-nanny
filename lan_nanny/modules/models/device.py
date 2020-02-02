@@ -61,18 +61,6 @@ class Device(Base):
                 'type': 'str'
             },
             {
-                'name': 'alert_online',
-                'type': 'bool'
-            },
-            {
-                'name': 'alert_offline',
-                'type': 'bool'
-            },
-            {
-                'name': 'alert_delta',
-                'type': 'int'
-            },
-            {
                 'name': 'port_scan',
                 'type': 'bool'
             },
@@ -81,16 +69,12 @@ class Device(Base):
                 'type': 'datetime'
             },
             {
-                'name': 'flagged_for_scan',
-                'type': 'bool',
-                'default': '0'
-            },
-            {
                 'name': 'update_ts',
                 'type': 'datetime'
             },
         ]
         self.ports = []
+        self.metas = {}
         self.setup()
 
     def __repr__(self):
@@ -148,4 +132,4 @@ class Device(Base):
             self.ports = ports.get_by_device(self.id)
         return True
 
-# End File: lan-nanny/modules/models/device.py
+# End File: lan-nanny/lan_nanny/modules/models/device.py

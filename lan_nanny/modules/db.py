@@ -14,10 +14,11 @@ from .models.alert import Alert
 from .models.device import Device
 from .models.device_port import DevicePort
 from .models.alert_event import AlertEvent
-from .models.scan_log import ScanLog
+from .models.scan_port import ScanPort
+from .models.scan_host import ScanHost
 from .models.witness import Witness
 from .models.port import Port
-
+from .models.entity_meta import EntityMeta
 
 
 def create_connection(database_file: str):
@@ -48,9 +49,11 @@ def create_tables(conn, cursor):
     AlertEvent(cursor=cursor).create_table()
     Device(cursor=cursor, conn=conn).create_table()
     DevicePort(cursor=cursor, conn=conn).create_table()
-    ScanLog(cursor=cursor, conn=conn).create_table()
+    ScanPort(cursor=cursor, conn=conn).create_table()
+    ScanHost(cursor=cursor, conn=conn).create_table()
     Witness(cursor=cursor, conn=conn).create_table()
     Port(cursor=cursor, conn=conn).create_table()
+    EntityMeta(cursor=cursor, conn=conn).create_table()
 
 
 def populate_options(conn, cursor: sqlite3.Cursor):
@@ -70,16 +73,21 @@ def populate_options(conn, cursor: sqlite3.Cursor):
     _set_default_options(conn, cursor, 'db-prune-days', None, 'int')
 
 
-def _set_default_options(conn, cursor, option_name: str, option_value: str, option_type: str):
+def _set_default_options(
+    conn,
+    cursor,
+    option_name: str,
+    option_value: str,
+    option_type: str) -> bool:
     """Check if an option exists in the options table, if not creates it and sets it's default."""
     option = Option(conn, cursor)
     option.get_by_name(option_name)
-    if not option.name:
-        option.name = option_name
-        option.value = option_value
-        option.type = option_type
-    else:
-        option.value = option_value
+    if option.name:
+        return True
+    option.name = option_name
+    option.value = option_value
+    option.type = option_type
     option.save()
+    return True
 
 # End File: lan-nanny/lan_nanny/modules/db.py
