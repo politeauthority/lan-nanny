@@ -1,19 +1,18 @@
-"""Witness Model
+"""Device Witness Model
 
 """
 from .base import Base
 from .device import Device
 
 
-class Witness(Base):
+class DeviceWitness(Base):
 
     def __init__(self, conn=None, cursor=None):
-        super(Witness, self).__init__(conn, cursor)
+        super(DeviceWitness, self).__init__(conn, cursor)
         self.conn = conn
         self.cursor = cursor
 
-        self.model_name = 'Witness'
-        self.table_name = 'witness'
+        self.table_name = 'device_witness'
 
         self.field_map = [
             {
@@ -43,9 +42,6 @@ class Witness(Base):
         ]
         self.setup()
         self.device = None
-
-    def __repr__(self):
-        return "<Witness %s>" % self.id
 
     def get_device_for_scan(self, device_id: int, scan_id: int) -> bool:
         """
@@ -94,4 +90,4 @@ class Witness(Base):
         self.cursor.execute(sql)
         return True
 
-# End File: lan-nanny/lan_nanny/modules/models/witness.py
+# End File: lan-nanny/lan_nanny/modules/models/device_witness.py

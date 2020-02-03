@@ -1,20 +1,20 @@
-"""Witnesses
-Gets collections of Witnesses.
+"""Device Witnesses
+Gets collections of Device Witnesses.
 
 """
 from datetime import timedelta
 
 import arrow
 
-from ..models.witness import Witness
+from ..models.device_witness import DeviceWitness
 
 
-class Witnesses():
+class DeviceWitnesses:
 
     def __init__(self, conn=None, cursor=None):
         self.conn = conn
         self.cursor = cursor
-        self.table_name = Witness().table_name
+        self.table_name = DeviceWitness().table_name
 
     def get_by_scan_id(self, scan_id: int) -> list:
         """Get all witness records from a scan_id."""
@@ -28,7 +28,7 @@ class Witnesses():
         raw_witnesses = self.cursor.fetchall()
         witnesses = []
         for raw_witness in raw_witnesses:
-            witness = Witness(self.conn, self.cursor)
+            witness = DeviceWitness(self.conn, self.cursor)
             witness.build_from_list(raw_witness, build_device=True)
             witnesses.append(witness)
         return witnesses
@@ -51,4 +51,4 @@ class Witnesses():
         self.cursor.execute(sql)
         self.conn.commit()
 
-# End File: lan-nanny/modules/collections/witnesses.py
+# End File: lan-nanny/modules/collections/device_witnesses.py

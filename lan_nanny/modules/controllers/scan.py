@@ -78,7 +78,9 @@ def roster_ports(page: str="1"):
 def info_host(scan_id: int):
     """Info on host scan."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
-    scan_host = ScanHost(conn, cursor).get_by_id(scan_id)
+    scan_host = ScanHost(conn, cursor)
+    scan_host.get_by_id(scan_id)
+    # device_witnesses = Witnesses(conn, cursor).get_by_scan(scan_id)
     data = {
         'active_page': 'scans',
         'active_page_scans': 'hosts',
@@ -97,7 +99,7 @@ def info_port(scan_id: int):
         'active_page': 'scans',
         'scan': scan_port
     }
-    return render_template('scans/info_host.html', **data)
+    return render_template('scans/info_port.html', **data)
 
 
 # End File: lan-nanny/modules/controllers/scan.py

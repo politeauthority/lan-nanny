@@ -10,7 +10,7 @@ import arrow
 from . import parse_nmap
 from ..models.scan_host import ScanHost
 from ..models.device import Device
-from ..models.witness import Witness
+from ..models.device_witness import DeviceWitness
 
 
 class ScanHosts:
@@ -135,10 +135,10 @@ class ScanHosts:
 
     def save_witness(self, device: Device, scan_time: datetime) -> bool:
         """
-        Creates a record in the `witness` table of the devices id and scan time.
+        Creates a record in the `device_witness` table of the devices id and scan time.
 
         """
-        witness = Witness(self.conn, self.cursor)
+        witness = DeviceWitness(self.conn, self.cursor)
         witness.device_id = device.id
         witness.run_id = self.scan_log.id
         witness.insert()

@@ -24,31 +24,30 @@
         <!-- Card Body -->
         <div class="card-body">
           <div class="table-responsive">
+            {{scan}}
             <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
-              <table class="table" id="dataTable" width="100%" cellspacing="0">
-                <tr>
-                  <td>ID</td>
-                  <td>{{scan.id}}</td>
-                </tr>
-                <tr>
-                  <td>Start</td>
-                  <td>{{scan.created_ts|smart_time}}</td>
-                </tr>
-                <tr>
-                  <td>End</td>
-                  <td>{{scan.end_ts|smart_time}}</td>
-                </tr>
-                <tr>
-                  <td>Status</td>
-                  <td>
-                    {%if scan.completed%}Completed{%endif%}
-                  </td>
-                </tr>
-                <tr>
-                  <td>Devices Found</td>
-                  <td>{{scan.num_devices}}</td>
-                </tr>
-              </table>
+              <tr>
+                <td>ID</td>
+                <td>{{scan.id}}</td>
+              </tr>
+              <tr>
+                <td>Start</td>
+                <td>{{scan.created_ts|smart_time}}</td>
+              </tr>
+              <tr>
+                <td>End</td>
+                <td>{{scan.end_ts|smart_time}}</td>
+              </tr>
+              <tr>
+                <td>Status</td>
+                <td>
+                  {%if scan.completed%}Completed{%endif%}
+                </td>
+              </tr>
+              <tr>
+                <td>Devices Found</td>
+                <td>{{scan.num_devices}}</td>
+              </tr>
             </table>
           </div>
         </div>
