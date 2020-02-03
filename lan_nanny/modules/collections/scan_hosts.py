@@ -6,35 +6,18 @@ from datetime import timedelta
 
 import arrow
 
+from .base import Base
 from ..models.scan_host import ScanHost
 
 
-class ScanHosts():
+class ScanHosts(Base):
 
     def __init__(self, conn=None, cursor=None):
+        super(ScanHosts, self).__init__(conn, cursor)
         self.conn = conn
         self.cursor = cursor
         self.table_name = ScanHost().table_name
-
-    def get_all(self) -> list:
-        """
-        Get all run logs.
-
-        """
-        sql = """
-            SELECT *
-            FROM %s
-            ORDER BY created_ts DESC
-            LIMIT 20""" % self.table_name
-
-        self.cursor.execute(sql)
-        raw_scans = self.cursor.fetchall()
-        scan_logs = []
-        for raw_scan in raw_scans:
-            scan = ScanHost(self.conn, self.cursor)
-            scan.build_from_list(raw_scan)
-            scan_logs.append(scan)
-        return scan_logs
+        self.collect_model = ScanHost
 
     def get_runs_24_hours(self):
         now = arrow.utcnow()

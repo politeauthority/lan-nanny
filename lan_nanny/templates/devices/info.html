@@ -25,9 +25,9 @@
       <a href="/device/edit/{{device.id}}" class="btn btn-primary">Edit</a>
     </div>
   </div>
+
   <!-- Content Row -->
   <div class="row">
-
     <!-- Device Info -->
     <div class="col-xl-6 col-lg-6">
       <div class="card shadow mb-4">
@@ -73,24 +73,6 @@
                 <td class="time_switch">{{device.first_seen|pretty_time}}</td>
               </tr>
               <tr>
-                <td><b>Status</b></td>
-                {%if device.last_seen|online%}
-                  <td>Online</td>
-                {%else%}
-                  <td>Disconnected</td>
-                {%endif%}
-              </tr>
-              <tr>
-                <td><b>Port Scan</b></td>
-                <td>
-                  {% if device.port_scan == 1 %}
-                    Enabled
-                  {%else%}
-                    Disabled
-                  {%endif%}
-                </td>
-              </tr>
-              <tr>
                 <td><b>Last Port Scan</b></td>
                 <td>
                   {% if device.last_port_scan%}
@@ -104,71 +86,9 @@
           </div>
         </div>
       </div>
-
-    </div>
-
-    <div class="col-xl-6 col-lg-6">
-
-      <div class="card shadow mb-4"><!-- Device Options -->
-        <!-- Card Header -->
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">
-            Options
-          </h6>
-        </div>
-        <div class="card-body">
-          <div class="form-group">
-            <label for="port_scan">Port Scan</label>
-            <input id="port_scan" data-entity-id="{{device.id}}" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="portScanHelp">
-            <small id="portScanHelp" class="form-text text-muted">Enable port scanning of device.</small>
-          </div>
-
-<!--           <div class="form-group">
-            <label for="port_scan_flagged">Flag for Port Scan</label>
-            <input id="port_scan_flagged" data-entity-id="{{device.id}}" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="portScanFlaggedHelp">
-            <small id="portScanFlaggedHelp" class="form-text text-muted">Resets device port scan timeout and puts the device in the front of the line for the next port scan.</small>
-          </div>
- -->
-          <!--
-          <div class="form-group">
-            <label for="alert_online">Alert Online</label>
-
-            <input id="alert_online" data-entity-id="{{device.id}}" class="alert-toggle alert-nanny" type="checkbox" data-toggle="toggle" aria-describedby="alertOnlineHelp">
-            <small id="alertOnlineHelp" class="form-text text-muted">Create an alert when the device comes online.</small>
-          </div>
-
-          <div class="form-group">
-            <label for="alert_offline">Alert Offline</label>
-            <input id="alert_offline" data-entity-id="{{device.id}}" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="alertOfflineHelp">
-            <small id="alertOfflineHelp" class="form-text text-muted">Create an alert when the device goes offline.</small>
-          </div>
-        -->
-
-        </div>
-      </div><!-- END Device Options -->
-
-      <!-- Device online Chart -->
-      <div class="card shadow mb-4">
-        <div class="card-header py-3">
-          <h6 class="m-0 font-weight-bold text-primary">Device Connectivity Over 24 Hours</h6>
-        </div>
-        <div class="card-body">
-          <div class="chart-area">
-            <canvas id="myAreaChart"></canvas>
-          </div>
-          <hr>
-
-          Api Route: <code>http://192.168.50.10:5000/api/device-online/{{device.id}}</code>
-          <div id="debug">debug</div>
-        </div>
-      </div><!-- End Device online chart -->
+    </div><!-- End Device Info -->
 
 
-    </div>
-  </div>
-
-  <!-- Device Ports -->
-  <div class="row">
     <!-- Device Ports -->
     <div class="col-xl-6 col-lg-6">
       <div class="card shadow mb-4">
@@ -202,14 +122,76 @@
                   </tr>
                 {%endfor%}
               </table>
+            {%elif device.port_scan==1%}
+              No ports found yet for device.
             {%else%}
-              No ports found, enable port scanning for this device
+              No ports found, enable port scanning for this device.
             {%endif%}
           </div>
         </div>
       </div>
-    </div>
-  </div><!-- END Device Ports -->
+    </div><!-- End Device Ports-->
+
+    <!-- Device Options -->
+    <div class="col-xl-6 col-lg-6">
+
+      <div class="card shadow mb-4"><!-- Device Options -->
+        <!-- Card Header -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">
+            Options
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label for="port_scan">Port Scan</label>
+            <input id="port_scan" data-entity-id="{{device.id}}" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="portScanHelp">
+            <small id="portScanHelp" class="form-text text-muted">Enable port scanning of device.</small>
+          </div>
+
+          <!--           
+          <div class="form-group">
+            <label for="port_scan_flagged">Flag for Port Scan</label>
+            <input id="port_scan_flagged" data-entity-id="{{device.id}}" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="portScanFlaggedHelp">
+            <small id="portScanFlaggedHelp" class="form-text text-muted">Resets device port scan timeout and puts the device in the front of the line for the next port scan.</small>
+          </div>
+          -->
+          <!--
+          <div class="form-group">
+            <label for="alert_online">Alert Online</label>
+
+            <input id="alert_online" data-entity-id="{{device.id}}" class="alert-toggle alert-nanny" type="checkbox" data-toggle="toggle" aria-describedby="alertOnlineHelp">
+            <small id="alertOnlineHelp" class="form-text text-muted">Create an alert when the device comes online.</small>
+          </div>
+
+          <div class="form-group">
+            <label for="alert_offline">Alert Offline</label>
+            <input id="alert_offline" data-entity-id="{{device.id}}" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="alertOfflineHelp">
+            <small id="alertOfflineHelp" class="form-text text-muted">Create an alert when the device goes offline.</small>
+          </div>
+        -->
+
+        </div>
+      </div><!-- END Device Options -->
+
+      <!-- Device online Chart -->
+      <div class="card shadow mb-4">
+        <div class="card-header py-3">
+          <h6 class="m-0 font-weight-bold text-primary">Device Connectivity Over 24 Hours</h6>
+        </div>
+        <div class="card-body">
+          <div class="chart-area">
+            <canvas id="myAreaChart"></canvas>
+          </div>
+          <hr>
+
+          Api Route: <code>http://192.168.50.10:5000/api/device-online/{{device.id}}</code>
+          <div id="debug">debug</div>
+        </div>
+      </div><!-- End Device online chart -->
+    </div><!-- End Device Options -->
+  </div><!-- End Content Row -->
+
 {%endblock%}
 
 {%block javascript%}

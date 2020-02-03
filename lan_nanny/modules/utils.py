@@ -91,4 +91,12 @@ def gen_where_in_sql(ids: list) -> str:
     ids_sql = ids_sql[:-1]
     return ids_sql
 
+def get_pagination_offset(page: int, per_page: int) -> int:
+    """Gets the offset number for pagination queries."""
+    if page == 1:
+        offset = 0
+    else:
+        offset = (page * per_page) - per_page
+    return offset
+
 # End File: lan-nanny/lan_nanny/modules/utils.py

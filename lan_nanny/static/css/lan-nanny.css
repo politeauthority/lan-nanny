@@ -43,3 +43,11 @@
   background: #ffffff;
   margin: 3px; 
 }
+
+#toasts {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 350px;
+  z-index: 100;
+}
