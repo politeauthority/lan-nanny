@@ -4,6 +4,8 @@
 from datetime import datetime
 import os
 import subprocess
+import time
+
 
 import arrow
 
@@ -47,6 +49,8 @@ class ScanHosts:
     def scan(self):
         """Run the port scan operation."""
         scan_range = self.options['scan-hosts-range'].value
+        start = time.time()
+
         print('Scan Range: %s' % scan_range)
         self.scan_log.command = "nmap -sP %s" % scan_range
         cmd = "nmap -sP %s -oX %s" % (scan_range, self.scan_file)
@@ -55,10 +59,13 @@ class ScanHosts:
         except subprocess.CalledProcessError:
             print('Error running scan, please try again')
             self.scan_log.completed = True
-            self.scan_log.success = True
+            self.scan_log.success = False
             self.scan_log.save()
             exit(1)
         hosts = parse_nmap.parse_xml(self.scan_file, 'hosts')
+        end = time.time()
+        self.scan_log.elapsed_time = round(end - start, 2)
+        self.scan_log.save()
         return hosts
 
     def handle_devices(self):

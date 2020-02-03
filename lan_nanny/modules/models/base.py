@@ -454,5 +454,7 @@ class Base():
             return 'TEXT'
         elif field_type == 'bool':
             return 'INTEGER'
+        elif field_type == 'float':
+            return 'DECIMAL(10, 5)'
 
-# End File: lan-nanny/modules/models/base.py
+# End File: lan-nanny/lan_nanny/modules/models/base.py

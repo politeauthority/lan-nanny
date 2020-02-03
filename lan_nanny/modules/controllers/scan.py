@@ -66,7 +66,6 @@ def roster_ports(page: str="1"):
     scan_ports = scan_ports_collect.get_all_paginated(limit=PER_PAGE, offset=offset)
     pagination = scan_ports_collect.get_pagination('/scan/ports/', page, PER_PAGE)
 
-    scan_ports = ScanPorts(conn, cursor).get_all()
     data = {
         'active_page': 'scans',
         'active_page_scans': 'ports',

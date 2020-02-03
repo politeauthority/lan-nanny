@@ -8,9 +8,14 @@
   </div>
 
   <!-- Sub Nav -->
-  {% with active_page_scans=active_page_scans %}
-    {% include "scans/sub_nav.html" %}
-  {% endwith %}
+  <div class="row">
+    {% with active_page_scans=active_page_scans %}
+      {% include "scans/sub_nav.html" %}
+    {% endwith %}
+    {% with pagination=pagination, alignment="right" %}
+      {% include "pagination.html" %}
+    {% endwith %}
+  </div>
   <!-- End Sub Nav -->
 
   <!-- Content Row -->
