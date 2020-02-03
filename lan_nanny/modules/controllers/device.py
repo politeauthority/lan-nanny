@@ -205,8 +205,8 @@ def quick_save() -> str:
     if not device.id:
         return 'ERROR 404: Route this to page_not_found method!', 404
         # return page_not_found('Device not found')
-
     if request.form.get('field_name') not in ['port_scan']:
+
         return jsonify("error", "Forbidden field_name %s field_name"), 403
 
     if request.form.get('field_value') == 'true'.lower():
@@ -223,6 +223,7 @@ def quick_save() -> str:
 @utils.authenticate
 def delete(device_id: int):
     """Device delete."""
+
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
 
     # Delete the device

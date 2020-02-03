@@ -91,4 +91,5 @@ def _set_default_options(
     option.save()
     return True
 
+
 # End File: lan-nanny/lan_nanny/modules/db.py

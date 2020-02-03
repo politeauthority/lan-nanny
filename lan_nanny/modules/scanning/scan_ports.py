@@ -13,7 +13,6 @@ from ..models.device_port import DevicePort
 from ..models.port import Port
 from ..models.scan_port import ScanPort
 
-
 class ScanPorts:
 
     def __init__(self, scan):
@@ -100,7 +99,6 @@ class ScanPorts:
         scan_log.command = "nmap %s%s" % (device.ip, back_off)
         scan_log.device_id = device.id
         scan_log.insert_run_start()
-
         port_scan_file = os.path.join(self.tmp_dir, "port_scan_%s.xml" % device.id)
         cmd = "%s -oX %s" % (scan_log.command, port_scan_file)
         print('Running port scan for %s' % device)
@@ -159,8 +157,6 @@ class ScanPorts:
             port.service = raw_port['service']
             port.save()
         return port
-
-
 
 
 # End File: lan_nanny/nanny-nanny/modules/models/scan_ports.py
