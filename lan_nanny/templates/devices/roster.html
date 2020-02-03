@@ -9,17 +9,9 @@
     <h1 class="h3 mb-0 text-gray-800">Devices{%if devices|length%} ({{devices|length}}){%endif%}</h1><br/>
   </div>
   <div class="row">
-    <ul class="nav roster_nav">
-      <li class="nav-item">
-        <a class="nav-link {%if active_page_devices=='all'%}active{%endif%}" href="/device">All</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link  {%if active_page_devices=='online'%}active{%endif%}" href="/device/online">Online</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link  {%if active_page_devices=='offline'%}active{%endif%}" href="/device/offline">Offline</a>
-      </li>
-    </ul> 
+    {% with active_page=active_page_devices %}
+      {% include "devices/sub_nav.html" %}
+    {% endwith %}
   </div>
 
   <!-- Content Row -->
@@ -60,7 +52,6 @@
           </div>
       </div>
     </div>
-
   </div>
 
 {%endblock%}

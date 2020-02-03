@@ -7,15 +7,17 @@ from datetime import timedelta
 
 import arrow
 
+from .base import Base
 from ..models.device import Device
 from .. import utils
 
 
-class Devices:
+class Devices(Base):
     """Collection class for gathering groups of devices."""
 
     def __init__(self, conn=None, cursor=None):
         """Class init, mostly just for supplying SQLite connection."""
+        super(Devices, self).__init__(conn, cursor)
         self.conn = conn
         self.cursor = cursor
 

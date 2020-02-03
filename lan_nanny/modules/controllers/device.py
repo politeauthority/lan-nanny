@@ -13,6 +13,7 @@ from ..collections.ports import Ports
 from ..models.alert import Alert
 from ..models.device import Device
 from ..models.device_witness import DeviceWitness
+from ..metrics import Metrics
 
 device = Blueprint('Device', __name__, url_prefix='/device')
 
@@ -28,6 +29,20 @@ def devices() -> str:
     data['active_page_devices'] = 'all'
     data['devices'] = devices.get_all()
     return render_template('devices/roster.html', **data)
+
+
+@device.route('/dashboard')
+@utils.authenticate
+def device_dashboard() -> str:
+    """Devices Dashboard page."""
+    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    devices = Devices(conn, cursor)
+    data = {}
+    data['active_page'] = 'devices'
+    data['active_page_devices'] = 'dashboard'
+    data['devices'] = devices.get_all()
+    data['device_venders'] = Metrics(conn, cursor).get_device_vendor_grouping()
+    return render_template('devices/dashboard.html', **data)
 
 
 @device.route('/online')
@@ -64,7 +79,6 @@ def new() -> str:
     """Get devices roster page for devices new within the last 24 hours."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     devices = Devices(conn, cursor)
-
     data = {}
     data['active_page'] = 'devices'
     data['active_page_devices'] = 'new'
@@ -162,8 +176,8 @@ def favorite(device_id):
     else:
         device.favorite = 1
     device.save()
-
     return jsonify({"success": True})
+
 
 @device.route('/alert-save', methods=['POST'])
 @utils.authenticate

@@ -1,6 +1,8 @@
 """Metrics
 
 """
+import json
+
 from .collections.devices import Devices
 from .collections.scan_hosts import ScanHosts
 from .models.scan_host import ScanHost
@@ -51,5 +53,37 @@ class Metrics:
             if device.online():
                 the_num += 1
         return [the_num, total - the_num]
+
+    def get_device_vendor_grouping(self) -> dict:
+        sql = """
+            SELECT DISTINCT vendor, count(*)
+            FROM devices
+            GROUP BY 1
+            ORDER BY 1 ASC 
+            ;"""
+        self.cursor.execute(sql)
+        raw = self.cursor.fetchall()
+        ret = {
+            'vendors': [],
+            'vendors_js': [],
+            'values': [],
+            'values_js': [],
+
+        }
+        for row in raw:
+            vendor_name = row[0]
+            if not vendor_name:
+                vendor_name = 'Unknown'
+            ret['vendors'].append(vendor_name)
+            ret['vendors_js'].append(vendor_name)
+            
+            value = row[1]
+            ret['values'].append(value)
+            ret['values_js'].append(value)
+
+        ret['vendors_js'] = json.dumps(ret['vendors_js'])
+        ret['values_js'] = json.dumps(ret['values_js'])
+
+        return ret
 
 # End File: lan-nanny/lan_nanny/modules/metrics.py

@@ -1,0 +1,132 @@
+<!-- Device Dashboard -->
+{% extends "layout.html" %}
+{% block head%}
+  <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+{%endblock%}
+{% block content %}
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Devices{%if devices|length%} ({{devices|length}}){%endif%}</h1><br/>
+  </div>
+  <div class="row">
+    {% with active_page=active_page_devices %}
+      {% include "devices/sub_nav.html" %}
+    {% endwith %}
+  </div>
+
+  <!-- Content Row -->
+  <div class="row">
+    <!-- Device Table -->
+    <div class="col-xl-6 col-lg-6 col-md-6">
+      <div class="card shadow mb-4">
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="table-responsive">
+            {%if devices%}
+              <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                  <tr>
+                    <td>Name</td>
+                    <td>IP</td>
+                    <td>Last Seen</td>
+                    <td>First Seen</td>
+                  </tr>
+                </thead>
+                {% for device in devices %}
+                <tr>
+                  <td>
+                    {{device|device_icon_status}}
+                  </td>
+                  <td>{{device.ip}}</td>
+                  <td>{{device.last_seen|time_ago}}</td>
+                  <td>{{device.first_seen|pretty_time}}</td>
+                </tr>
+                {%endfor%}
+              </table>
+            {%else%}
+              <div class="text-center">
+                No Devices Found.
+              </div>
+            {%endif%}
+          </div>
+      </div>
+    </div>
+
+    <!-- Favorites online donut chart -->
+    {%if device_venders%}
+    <div class="col-xl-4 col-lg-5 col-md-6">
+      <!-- Donut Chart -->
+      <div class="card shadow mb-4">
+        <!-- Card Header - Dropdown -->
+        <div class="card-header py-3">
+          <h6 class="m-0 font-weight-bold text-primary">Devices by Vendor</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="chart-pie pt-4">
+            <canvas id="device_pie_chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div><!-- end online device chart -->
+    {%endif%}
+
+  </div>
+
+{%endblock%}
+
+{%block javascript%}
+  <script src="/static/vendor/chart.js/Chart.min.js"></script>
+  <script type="text/javascript">
+    $( document ).ready(function(){
+      $("#devices_online").click(function(){
+        window.location = "/device/online";
+      });
+
+      var donut_data = [];
+      donut_data = {{device_venders['values_js']|safe}};
+
+      var donut_labels = [];
+      donut_labels = {{device_venders['vendors_js']|safe}};
+
+      // Set new default font family and font color to mimic Bootstrap's default styling
+      Chart.defaults.global.defaultFontFamily = 'Nunito', '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+      Chart.defaults.global.defaultFontColor = '#858796';
+
+      // Pie Chart Example
+      var ctx = document.getElementById("device_pie_chart");
+      var myPieChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: donut_labels,
+          datasets: [{
+            data: donut_data,
+            backgroundColor: ['#1cc88a', '#4e73df', '#36b9cc'],
+            hoverBackgroundColor: ['#17a673', '#2e59d9', '#2c9faf'],
+            hoverBorderColor: "rgba(234, 236, 244, 1)",
+          }],
+        },
+        options: {
+          maintainAspectRatio: false,
+          tooltips: {
+            backgroundColor: "rgb(255,255,255)",
+            bodyFontColor: "#858796",
+            borderColor: '#dddfeb',
+            borderWidth: 1,
+            xPadding: 15,
+            yPadding: 15,
+            displayColors: false,
+            caretPadding: 10,
+          },
+          legend: {
+            display: false
+          },
+          cutoutPercentage: 80,
+        },
+      });
+    });
+
+  </script>
+{%endblock%}
+
+<!-- EndFile: lan-nanny/lan_nanny/templates/devices/dashboard.html -->
