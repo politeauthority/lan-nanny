@@ -10,6 +10,7 @@ from ..models.scan_host import ScanHost
 from ..models.scan_port import ScanPort
 from ..collections.scan_hosts import ScanHosts
 from ..collections.scan_ports import ScanPorts
+from ..collections.device_witnesses import DeviceWitnesses
 
 scan = Blueprint('Scan', __name__, url_prefix='/scan')
 PER_PAGE = 20
@@ -20,17 +21,19 @@ def index():
     """Host scan roster page."""
     page = 1
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
-    offset = utils.get_pagination_offset(page, PER_PAGE)
-    scan_hosts_collect = ScanHosts(conn, cursor)
-    scan_hosts = scan_hosts_collect.get_all_paginated(limit=PER_PAGE, offset=offset)
-    pagination = scan_hosts_collect.get_pagination('/scan/hosts/', page, PER_PAGE)
+    scan_host = ScanHost(conn, cursor)
+    scan_port = ScanPort(conn, cursor)
+    collect_scan_hosts = ScanHosts(conn, cursor)
+    collect_scan_ports = ScanPorts(conn, cursor)
+
     data = {
-        'active_page': 'scans',
-        'active_page_scans': 'hosts',
-        'scans':scan_hosts,
-        'pagination': pagination
+        'active_page_scans': 'dashboard',
+        'host_scan_last': scan_host.get_last(),
+        'host_scans_today': collect_scan_hosts.get_runs_24_hours(),
+        'port_scan_last': scan_port.get_last(),
+        'port_scans_today': collect_scan_ports.get_runs_24_hours(),
     }
-    return render_template('scans/roster_hosts.html', **data)
+    return render_template('scans/dashboard.html', **data)
 
 @scan.route('/hosts/')
 @scan.route('/hosts/<page>')
@@ -80,11 +83,12 @@ def info_host(scan_id: int):
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     scan_host = ScanHost(conn, cursor)
     scan_host.get_by_id(scan_id)
-    # device_witnesses = Witnesses(conn, cursor).get_by_scan(scan_id)
+    device_witnesses = DeviceWitnesses(conn, cursor).get_by_scan_id(scan_id)
     data = {
         'active_page': 'scans',
         'active_page_scans': 'hosts',
-        'scan': scan_host
+        'scan': scan_host,
+        'witnesses': device_witnesses,
     }
     return render_template('scans/info_host.html', **data)
 

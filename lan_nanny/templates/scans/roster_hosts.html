@@ -4,23 +4,19 @@
 {% block content %}
   <!-- Page Heading -->
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Scans: Hosts</h1>
+    <h1 class="h3 mb-0 text-gray-800">Scans Hosts - {{pagination['total_units']}}</h1>
   </div>
 
+  <!-- Second Row -->
   <div class="row">
-    <ul class="nav roster_nav">
-      <li class="nav-item">
-        <a class="nav-link {%if active_page_scans=='hosts' %}active_sub_link{%endif%}" href="/scan/hosts/">Hosts</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link {%if active_page_scans=='ports' %}active_sub_link{%endif%}"" href="/scan/ports">Ports</a>
-      </li>
-    </ul> 
-  </div>
+  {% with active_page_scans=active_page_scans %}
+    {% include "scans/sub_nav.html" %}
+  {% endwith %}
 
   {% with pagination=pagination, alignment="end" %}
     {% include "pagination.html" %}
   {% endwith %}
+  </div><!-- End Second Row -->
 
   <!-- Content Row -->
   <div class="row">
@@ -35,6 +31,7 @@
               <table class="table" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                   <tr>
+                    <td>Scan ID</td>
                     <td>Started</td>
                     <td>Devices Found</td>
                     <td>Trigger</td>
@@ -45,7 +42,10 @@
                 <!--  href="/scan/info/host/{{scan.id}} -->
                 <tr class="{%if scan.completed==1 and scan.success==1%}table-success{%endif%}" class="link_row" data-href="/scan/info/hosts/{{scan.id}}">
                   <td>
-                    <a href="/scan/info/host/{{scan.id}}">{{scan.created_ts|smart_time}}</a>
+                    <a href="/scan/info/host/{{scan.id}}">{{scan.id}}</a>
+                  </td>
+                  <td>
+                    {{scan.created_ts|smart_time}}
                   </td>
                   <td>
                     {%if scan.units%}

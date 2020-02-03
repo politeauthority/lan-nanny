@@ -52,23 +52,6 @@ class ScanPort(Base):
         ]
         self.setup()
 
-    def get_last(self):
-        """Gets the last run log form the `scan_port` table."""
-        sql = """
-            SELECT *
-            FROM %s
-            ORDER BY created_ts DESC
-            LIMIT 1""" % (self.table_name)
-
-        self.cursor.execute(sql)
-        run_raw = self.cursor.fetchone()
-        if not run_raw:
-            return False
-
-        self.build_from_list(run_raw)
-
-        return self
-
     def insert_run_start(self):
         """Insert a new record of the model."""
         if not self.created_ts:

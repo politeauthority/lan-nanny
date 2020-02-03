@@ -140,7 +140,7 @@ class ScanHosts:
         """
         witness = DeviceWitness(self.conn, self.cursor)
         witness.device_id = device.id
-        witness.run_id = self.scan_log.id
+        witness.scan_id = self.scan_log.id
         witness.insert()
         return True
 
