@@ -153,6 +153,7 @@ class ScanHosts:
         self.scan_log.success = 1
         self.scan_log.end_ts = arrow.utcnow().datetime
         self.scan_log.units = len(self.hosts)
+
         self.scan_log.scan_range = self.options['scan-hosts-range'].value
         self.scan_log.save()
 

@@ -131,7 +131,7 @@
       </div>
     </div><!-- End Device Ports-->
 
-    <!-- Device Options -->
+      <!-- Device Options -->
     <div class="col-xl-6 col-lg-6">
       <div class="card shadow mb-4">
         <!-- Card Header -->
@@ -149,11 +149,13 @@
 
           <!--           
           <div class="form-group">
+
             <label for="port_scan_flagged">Flag for Port Scan</label>
             <input id="port_scan_flagged" data-entity-id="{{device.id}}" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="portScanFlaggedHelp">
             <small id="portScanFlaggedHelp" class="form-text text-muted">Resets device port scan timeout and puts the device in the front of the line for the next port scan.</small>
           </div>
           -->
+
           <!--
           <div class="form-group">
             <label for="alert_online">Alert Online</label>
@@ -174,7 +176,6 @@
     </div><!-- END Device Options -->
 
   </div>
-
 {%endblock%}
 
 {%block javascript%}

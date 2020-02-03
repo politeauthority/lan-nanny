@@ -99,4 +99,5 @@ def info_port(scan_id: int):
     }
     return render_template('scans/info_host.html', **data)
 
+
 # End File: lan-nanny/modules/controllers/scan.py

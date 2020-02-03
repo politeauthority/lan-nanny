@@ -105,6 +105,7 @@ function register_toggle_form(setting_name, setting_value){
   });
 }
 
+
 function convert_str_bool(bool_str){
   /*
   Returns a javascript bool from a string bool.
@@ -164,3 +165,4 @@ $(document).ready(function(){
   });
   $('.toast').toast('show');
 });
+

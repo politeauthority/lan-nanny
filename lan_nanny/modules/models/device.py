@@ -75,6 +75,7 @@ class Device(Base):
         ]
         self.ports = []
         self.metas = {}
+
         self.setup()
 
     def __repr__(self):

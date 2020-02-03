@@ -6,6 +6,7 @@ from .collections.scan_hosts import ScanHosts
 from .models.scan_host import ScanHost
 
 
+
 class Metrics:
 
     def __init__(self, conn=None, cursor=None):
