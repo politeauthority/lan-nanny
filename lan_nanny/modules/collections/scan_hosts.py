@@ -18,11 +18,8 @@ class ScanHosts(Base):
         self.table_name = ScanHost().table_name
         self.collect_model = ScanHost
 
-    def get_runs_24_hours(self):
-        """
-        Gets all devices in the database.
-
-        """
+    def get_runs_24_hours(self) -> int:
+        """Get number of scan_hosts runs over 24 hours"""
         now = arrow.utcnow()
         hour_24 = now.shift(hours=-24).datetime
         sql = """
@@ -44,4 +41,4 @@ class ScanHosts(Base):
         return raw[0]
 
 
-# End File: lan-nanny/modules/collections/scan_hosts.py
+# End File: lan-nanny/lan_nanny/modules/collections/scan_hosts.py

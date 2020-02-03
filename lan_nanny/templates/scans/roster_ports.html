@@ -4,23 +4,24 @@
 {% block content %}
   <!-- Page Heading -->
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Scans: Ports</h1>
+    <h1 class="h3 mb-0 text-gray-800">Scan Ports - {{pagination['total_units']}}</h1>
   </div>
+
+  <!-- Sub Nav -->
   <div class="row">
-    <ul class="nav roster_nav">
-      <li class="nav-item">
-        <a class="nav-link {%if active_page_scans=='hosts' %}active_sub_link{%endif%}" href="/scan/hosts">Hosts</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link {%if active_page_scans=='ports' %}active_sub_link{%endif%}"" href="/scan/ports">Ports</a>
-      </li>
-    </ul> 
+    {% with active_page_scans=active_page_scans %}
+      {% include "scans/sub_nav.html" %}
+    {% endwith %}
+    {% with pagination=pagination, alignment="right" %}
+      {% include "pagination.html" %}
+    {% endwith %}
   </div>
+  <!-- End Sub Nav -->
 
   <!-- Content Row -->
   <div class="row">
 
-    <!-- Device Table -->
+    <!-- Roster Ports Table -->
     <div class="col-xl-12 col-lg-12">
       <div class="card shadow mb-4">
         <!-- Card Body -->
@@ -65,7 +66,11 @@
       </div>
     </div>
 
-  </div>
+  </div><!-- End Main Content Row-->
+
+  {% with pagination=pagination, alignment="center" %}
+    {% include "pagination.html" %}
+  {% endwith %}
 
 {%endblock%}
 

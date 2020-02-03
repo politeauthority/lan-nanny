@@ -22,7 +22,7 @@ class ScanHost(Base):
             },
             {
                 'name': 'elapsed_time',
-                'type': 'int'
+                'type': 'float'
             },
             {
                 'name': 'completed',
@@ -47,23 +47,6 @@ class ScanHost(Base):
             },
         ]
         self.setup()
-
-    def get_last(self):
-        """Get the last run log form the `scan_hosts` table."""
-        sql = """
-            SELECT *
-            FROM %s
-            ORDER BY created_ts DESC
-            LIMIT 1""" % (self.table_name)
-
-        self.cursor.execute(sql)
-        run_raw = self.cursor.fetchone()
-        if not run_raw:
-            return False
-
-        self.build_from_list(run_raw)
-
-        return self
 
     def insert_run_start(self) -> bool:
         """Insert a new record of the model."""

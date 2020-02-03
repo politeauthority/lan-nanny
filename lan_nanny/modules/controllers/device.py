@@ -12,7 +12,7 @@ from ..collections.devices import Devices
 from ..collections.ports import Ports
 from ..models.alert import Alert
 from ..models.device import Device
-from ..models.witness import Witness
+from ..models.device_witness import DeviceWitness
 
 device = Blueprint('Device', __name__, url_prefix='/device')
 
@@ -232,7 +232,7 @@ def delete(device_id: int):
     device.delete()
 
     # Delete devices witness
-    witness = Witness(conn, cursor)
+    witness = DeviceWitness(conn, cursor)
     witness.delete_device(device.id)
 
     # Delete device alerts

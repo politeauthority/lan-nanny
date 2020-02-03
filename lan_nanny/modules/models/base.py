@@ -39,7 +39,7 @@ class Base():
 
     def __repr__(self):
         if self.id:
-            return "<%s: %s>" % (__class__.__name__, self.id)
+            return "<%s: %s>" % (self.__class__.__name__, self.id)
         return "<%s>" % self.__class__.__name__
 
     def create_table(self) -> bool:
@@ -158,6 +158,21 @@ class Base():
 
         self.build_from_list(raw)
 
+        return True
+
+    def get_last(self) -> bool:
+        """Get the last created model."""
+        sql = """
+            SELECT *
+            FROM %s
+            ORDER BY created_ts DESC
+            LIMIT 1""" % (self.table_name)
+
+        self.cursor.execute(sql)
+        run_raw = self.cursor.fetchone()
+        if not run_raw:
+            return False
+        self.build_from_list(run_raw)
         return True
 
     def build_from_list(self, raw: list):
@@ -439,5 +454,7 @@ class Base():
             return 'TEXT'
         elif field_type == 'bool':
             return 'INTEGER'
+        elif field_type == 'float':
+            return 'DECIMAL(10, 5)'
 
-# End File: lan-nanny/modules/models/base.py
+# End File: lan-nanny/lan_nanny/modules/models/base.py
