@@ -3,7 +3,6 @@
 */
 
 function register_favorite_button(favorite_selector, load_state, base_ajax_uri){
-
   /*
   Registers a div as favorite button, which will star or unstar an item and send an ajax request.
 
@@ -20,15 +19,17 @@ function register_favorite_button(favorite_selector, load_state, base_ajax_uri){
   $( favorite_selector ).click(function(){
     $.ajax({
       url: base_ajax_uri,
-      context: document.body
-    }).done(function() {
-
-      if(icon.hasClass('fa-star-o')){
-        icon.removeClass('fa').removeClass('fa-star-o');
-        icon.addClass('fas').addClass('fa-star');
-      } else {
-        icon.removeClass('fas').removeClass('fa-star');
-        icon.addClass('fa').addClass('fa-star-o');
+      context: document.body,
+      success: function(){
+        if(icon.hasClass('fa-star-o')){
+          create_toast('success', 'Device', 'Favorited device', false);
+          icon.removeClass('fa').removeClass('fa-star-o');
+          icon.addClass('fas').addClass('fa-star');
+        } else {
+          create_toast('success', 'Device', 'Unfavorited device', false);
+          icon.removeClass('fas').removeClass('fa-star');
+          icon.addClass('fa').addClass('fa-star-o');
+        }
       }
     });
   });
@@ -71,8 +72,11 @@ function send_ajax_update(base_ajax_uri, data){
     type: 'POST',
     data: data,
     url: base_ajax_uri,
-    context: document.body
-  }).done(function(){ });
+    context: document.body, 
+    success: function(){
+      create_toast('success', 'Saved', 'Successfully saved.', false);
+    }
+  });
 }
 
 function register_toggle_form(setting_name, setting_value){
@@ -101,7 +105,6 @@ function register_toggle_form(setting_name, setting_value){
   });
 }
 
-
 function convert_str_bool(bool_str){
   /*
   Returns a javascript bool from a string bool.
@@ -124,29 +127,40 @@ function convert_str_bool(bool_str){
   }
 }
 
-function create_toast(level, message, persist=true){
+function create_toast(level, title, message, persist=true){
   /*
   Creates a toast via javascript.
 
   */
-  clone = $( ".toast_template" ).clone().append("#toasts");
-  console.log(clone);
+  var toast_html =`<div class="toast_template toast hidden" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+              <strong class="mr-auto">Title</strong>
+              <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="toast-body">This is a toast template to be copied</div>
+          </div>`;
 
-  clone.addClass('toast');
+  $('#toasts').append(toast_html);
+  new_toast = $('.toast_template');
   if(persist){
-    clone.attr("data-autohide", false);
+    new_toast.attr("data-autohide", false);
   }
-  clone.removeClass('toast_template').removeClass('not-toast').removeClass('hidden');
-  clone.addClass('toast');
-  clone.find('toast-body').html(message);
-  clone.toast('show');
+  new_toast.removeClass('toast_template').removeClass('not-toast').removeClass('hidden');
+  new_toast.find('.toast-body').html(message);
+  new_toast.find('.mr-auto').html(title);
+  $('.toast').toast({
+    delay: 5000
+  });
+  new_toast.toast('show');
 
 }
 
 /* Global setup for page loads */
 $(document).ready(function(){
   $('.toast').toast({
-    delay: 3000
+    delay: 5000
   });
   $('.toast').toast('show');
 });
