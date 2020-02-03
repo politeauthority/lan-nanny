@@ -59,6 +59,12 @@
           <i class="fas fa-fw fas fa-bell"></i>
           <span>Alerts</span></a>
       </li> -->
+      <li class="nav-item {%if active_page == 'ports'%}active{%endif%}">
+        <a class="nav-link" href="/ports">
+          <i class="fas fa-fw fa-door-open"></i>
+          <span>Ports</span></a>
+      </li>
+
       {%if g.options['beta-features'].value %}
       <li class="nav-item {%if active_page == 'scans'%}active{%endif%}">
         <a class="nav-link" href="/scan">
@@ -66,11 +72,6 @@
           <span>Scans</span></a>
       </li>
       {%endif%}
-      <li class="nav-item {%if active_page == 'ports'%}active{%endif%}">
-        <a class="nav-link" href="/ports">
-          <i class="fas fa-fw fa-door-open"></i>
-          <span>Ports</span></a>
-      </li>
       <li class="nav-item {%if active_page == 'settings'%}active{%endif%}">
         <a class="nav-link" href="/settings">
           <i class="fas fa-fw fa-cog"></i>
@@ -100,7 +101,6 @@
 
         <!-- Topbar -->
         <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-
           <!-- Search -->
           <form action="/search/results" method="POST" class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
             <div class="input-group">
@@ -170,11 +170,16 @@
                 </a>
               </div>
             </li>
-
           </ul>
 
         </nav>
         <!-- End of Topbar -->
+
+        <!-- Begin Toasts -->
+        <div id="toasts">
+        </div><!-- End Toasts -->
+
+
 
         <!-- Begin Page Content -->
         <div class="container-fluid">
@@ -190,7 +195,7 @@
       <footer class="sticky-footer bg-white">
         <div class="container my-auto">
           <div class="copyright text-center my-auto">
-            <span>Lan Nanny &copy; <a href="https://github.com/politeauthority" target="_blank">@politeauthority</a> 2020</span>
+            <span>Lan Nanny &copy; <a href="https://github.com/politeauthority" target="_blank">politeauthority</a> 2020</span>
           </div>
         </div>
       </footer>

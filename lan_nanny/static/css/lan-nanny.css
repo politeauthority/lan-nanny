@@ -33,3 +33,21 @@
   font-family: Courier New;
   color: #F2059F;
 }
+
+.roster_nav{
+  margin-top: : 5px;
+  margin-bottom: : 15px;
+}
+.active_sub_link {
+  border-radius: 10px;
+  background: #ffffff;
+  margin: 3px; 
+}
+
+#toasts {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 350px;
+  z-index: 100;
+}

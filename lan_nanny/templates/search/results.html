@@ -59,7 +59,7 @@
                   </thead>
                   {% for port in ports %}
                   <tr>
-                    <td><a href="/ports/info/{{port.port}}">{{port.port}}</a></td>
+                    <td><a href="/ports/info/{{port.port}}/{{port.protocol}}">{{port.port}}</a></td>
                     <td>{{port.service_name}}</td>
                     <td>{{port.protocol}}</td>
                   </tr>
