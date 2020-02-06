@@ -25,11 +25,10 @@ class DevicePorts:
         raw_device_ports = self.cursor.fetchall()
         port_ids = []
         device_ports = []
-
         for raw_device_port in raw_device_ports:
             device_port = DevicePort()
             device_port.build_from_list(raw_device_port)
-            port_ids.append(device_port.id)
+            port_ids.append(device_port.port_id)
             device_ports.append(device_port)
         ports = Ports(self.conn, self.cursor).get_by_port_ids(port_ids)
 
@@ -41,4 +40,4 @@ class DevicePorts:
 
         return device_ports
 
-# End File: lan-nanny/modules/collections/device_ports.py
+# End File: lan-nanny/lan_nanny/modules/collections/device_ports.py

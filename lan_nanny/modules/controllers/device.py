@@ -26,23 +26,23 @@ def devices() -> str:
     devices = Devices(conn, cursor)
     data = {}
     data['active_page'] = 'devices'
-    data['active_page_devices'] = 'all'
+    data['active_page_devices'] = 'dashboard'
     data['devices'] = devices.get_all()
-    return render_template('devices/roster.html', **data)
+    data['device_venders'] = Metrics(conn, cursor).get_device_vendor_grouping()
+    return render_template('devices/dashboard.html', **data)
 
 
-@device.route('/dashboard')
+@device.route('/all')
 @utils.authenticate
-def device_dashboard() -> str:
+def device_all() -> str:
     """Devices Dashboard page."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     devices = Devices(conn, cursor)
     data = {}
     data['active_page'] = 'devices'
-    data['active_page_devices'] = 'dashboard'
+    data['active_page_devices'] = 'all'
     data['devices'] = devices.get_all()
-    data['device_venders'] = Metrics(conn, cursor).get_device_vendor_grouping()
-    return render_template('devices/dashboard.html', **data)
+    return render_template('devices/roster.html', **data)
 
 
 @device.route('/online')

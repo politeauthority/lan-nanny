@@ -6,7 +6,10 @@
 {% block content %}
   <!-- Page Heading -->
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Devices{%if devices|length%} ({{devices|length}}){%endif%}</h1><br/>
+    <h1 class="h3 mb-0 text-gray-800">
+      Devices
+      {%if devices|length%}<span class="badge badge-secondary">{{devices|length}}</span>{%endif%}
+    </h1>
   </div>
   <div class="row">
     {% with active_page=active_page_devices %}
