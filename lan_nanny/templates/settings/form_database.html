@@ -1,0 +1,82 @@
+<!-- Settings -->
+
+{% extends "layout.html" %}
+
+{%block head%}
+  <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
+{%endblock%}
+
+
+{% block content %}
+  <div class="row">
+    <div class="col-lg-6">
+      <h2>Settings</h2>
+    </div>
+  </div>
+
+
+  <form action="/settings/save-general" method="POST">
+    <!-- Second Row -->
+    <div class="row">
+    {% with active_page=active_page_scans %}
+      {% include "settings/sub_nav.html" %}
+    {% endwith %}
+    </div><!-- End Second Row -->
+
+    <div class="row">
+      <button class="btn btn-success" type="submit">Save</button>
+    </div>
+
+    <div class="row">
+
+      <!-- Prune Settings -->
+      <div class="col-xl-6 col-lg-6">
+        <div class="card shadow mb-4">
+          <!-- Card Header -->
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">
+              Database Prune Settings
+            </h6>
+          </div>
+          <div class="card-body">
+            <small>These settings are to remove data from the database to help maintain performance. Only change these settings if Lan Nanny is running slowly.</small>
+            <div class="form-group form-sm">
+              <label for="setting_db_prune_days">Days to Maintain Data</label>
+              <input type="number" class="form-control form-sm" id="setting_db_prune_days" name="setting_db_prune_days" value="{{settings['db-prune-days'].value}}" aria-describedby="dbPruneDaysHelp">
+              <small id="dbPruneDaysHelp" class="form-text text-muted">Number of days to maintain data pertaining to host scan log attendance within host scans. An empty or value of 0 is treated as indefinite.</small>
+            </div>
+            
+          </div>
+        </div>
+      </div> <!-- End Prune Settings -->
+
+
+    </div>
+  </form>
+
+{%endblock%}
+
+{%block javascript%}
+  <script src="/static/js/bootstrap4-toggle.min.js"></script>
+  <script type="text/javascript">
+    $( document ).ready(function(){
+      // var alert_new_device_value = convert_str_bool("{{settings['alert-new-device'].value}}");
+      // register_toggle_form('setting_alert_new_device', alert_new_device_value);
+
+      var beta_features_value = convert_str_bool("{{settings['beta-features'].value}}");
+      register_toggle_form('setting_beta_features', beta_features_value);
+
+      var scan_hosts_enabled_value = convert_str_bool("{{settings['scan-hosts-enabled'].value}}");
+      register_toggle_form('setting_scan_hosts_enabled', scan_hosts_enabled_value);
+
+      var scan_ports_enabled_value = convert_str_bool("{{settings['scan-ports-enabled'].value}}");
+      register_toggle_form('setting_scan_ports_enabled', scan_ports_enabled_value);
+
+      var scan_hosts_default_value = convert_str_bool("{{settings['scan-ports-default'].value}}");
+      register_toggle_form('setting_scan_ports_default', scan_hosts_default_value);
+      
+    });
+  </script>
+{%endblock%}
+
+<!-- EndFile: lan-nanny/lan_nanny/templates/settings.html -->

@@ -12,23 +12,24 @@ settings = Blueprint('Settings', __name__, url_prefix='/settings')
 
 
 @settings.route('/')
+@settings.route('/general')
 @utils.authenticate
-def basic() -> str:
+def form_general() -> str:
     """Setting page."""
     data = {
         'active_page': 'settings',
+        'active_page_settings': 'general',
         'settings': g.options,
     }
-    return render_template('settings/basic_form.html', **data)
+    return render_template('settings/form_general.html', **data)
 
 
-@settings.route('/save', methods=['POST'])
+@settings.route('/save-general', methods=['POST'])
 @utils.authenticate
-def settings_save():
-    """Settings save."""
+def save_general():
+    """General settings save."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
 
-    # General Settings
     # Update timezone
     _save_setting(conn, cursor, 'timezone', request.form['settings_timezone'])
     # Save "active-timeout"
@@ -36,7 +37,26 @@ def settings_save():
     # Save beta-features
     _save_setting(conn, cursor, 'beta-features', request.form['setting_beta_features'])
 
-    # Scan Settings
+    return redirect('/settings')
+
+
+@settings.route('/scanning')
+@utils.authenticate
+def form_scanning() -> str:
+    """Scanning settings form page."""
+    data = {
+        'active_page': 'settings',
+        'active_page_settings': 'scanning',
+        'settings': g.options,
+    }
+    return render_template('settings/form_scanning.html', **data)
+
+@settings.route('/save-scanning', methods=['POST'])
+@utils.authenticate
+def save_scanning():
+    """Scanning settings save."""
+    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+
     # Save "scan-hosts-range"
     _save_setting(conn, cursor, 'scan-hosts-range', request.form['setting_scan_hosts_range'])
     # Save "scan-hosts-enabled"
@@ -54,9 +74,29 @@ def settings_save():
 
     _save_setting(conn, cursor, 'scan-ports-interval', request.form['setting_scan_ports_interval'])
 
+    return redirect('/settings-scanning')
+
+
+@settings.route('/database')
+@utils.authenticate
+def form_database() -> str:
+    """Setting page."""
+    data = {
+        'active_page': 'settings',
+        'active_page_settings': 'database',
+        'settings': g.options,
+    }
+    return render_template('settings/form_database.html', **data)
+
+
+@settings.route('/save-database', methods=['POST'])
+@utils.authenticate
+def save_database():
+    """Database settings save."""
+    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     _save_setting(conn, cursor, 'db-prune-days', request.form['setting_db_prune_days'])
 
-    return redirect('/settings')
+    return redirect('/settings-database')
 
 
 def _save_setting(conn, cursor, option_name, option_value):
