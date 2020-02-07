@@ -26,7 +26,6 @@ def index(scan_type: str=''):
     data = {
         'active_page': 'about',
         'db_name': os.path.normpath(app.config['LAN_NANNY_DB_FILE']),
-        'db_size': utils.get_db_size(app.config['LAN_NANNY_DB_FILE']),
         'db_witness_length': DeviceWitnesses(conn, cursor).get_row_length(),
         'db_scan_host_length': ScanHosts(conn, cursor).get_row_length(),
         'db_scan_port_length': ScanPorts(conn, cursor).get_row_length(),
