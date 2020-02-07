@@ -4,7 +4,10 @@
 {% block content %}
   <!-- Page Heading -->
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Scan Ports - {{pagination['total_units']}}</h1>
+    <h1 class="h3 mb-0 text-gray-800">
+      Scan Ports
+      {%if pagination['total_units']%}<span class="badge badge-secondary">{{pagination['total_units']}}</span>{%endif%}
+    </h1>
   </div>
 
   <!-- Sub Nav -->

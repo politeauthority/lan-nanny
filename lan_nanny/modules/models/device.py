@@ -69,6 +69,14 @@ class Device(Base):
                 'type': 'datetime'
             },
             {
+                'name': 'last_port_scan_id',
+                'type': 'int',
+            },
+            {
+                'name': 'first_port_scan_id',
+                'type': 'int',
+            },
+            {
                 'name': 'update_ts',
                 'type': 'datetime'
             },

@@ -8,7 +8,7 @@ from modules import db
 from modules.collections.options import Options
 from modules.scanning.scan_ports import ScanPorts
 from modules.scanning.scan_hosts import ScanHosts
-from modules.scanning.scan_prune import ScanPrune
+from modules.scanning.scan_house_keeping import ScanHouseKeeping
 from config import default as config_default
 
 TMP_DIR = "/opt/lan_nanny/"
@@ -24,6 +24,7 @@ class Scan:
         self.args = args
         self.force_scan = False
         self.trigger = 'manual'
+        self.db_file_loc = config_default.LAN_NANNY_DB_FILE
         self.new_alerts = []
         self.hosts = []
 
@@ -68,9 +69,7 @@ class Scan:
         ScanPorts(self).run()
 
     def handle_prune(self):
-        if not self.options['db-prune-days'] or self.options['db-prune-days'].value == 0:
-            return
-        ScanPrune(self).run()
+        ScanHouseKeeping(self).run()
 
     def prompt_sudo(self):
         ret = 0

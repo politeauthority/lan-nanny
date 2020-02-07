@@ -19,6 +19,7 @@ from .models.scan_port import ScanPort
 from .models.scan_host import ScanHost
 from .models.port import Port
 from .models.entity_meta import EntityMeta
+from .models.database_growth import DatabaseGrowth
 
 
 def create_connection(database_file: str):
@@ -54,6 +55,7 @@ def create_tables(conn, cursor):
     ScanHost(cursor=cursor, conn=conn).create_table()
     Port(cursor=cursor, conn=conn).create_table()
     EntityMeta(cursor=cursor, conn=conn).create_table()
+    DatabaseGrowth(cursor=cursor, conn=conn).create_table()
 
 
 def populate_options(conn, cursor: sqlite3.Cursor):

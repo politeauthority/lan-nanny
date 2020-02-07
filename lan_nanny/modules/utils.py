@@ -50,6 +50,10 @@ def device_icons() -> dict:
     }
     return icons
 
+def get_size_raw(db_file_loc: str) -> str:
+    """Get the size of the database on disk."""
+    return os.path.getsize(db_file_loc)
+
 
 def get_db_size(db_file_loc: str) -> str:
     """

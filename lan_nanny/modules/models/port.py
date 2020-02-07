@@ -40,6 +40,14 @@ class Port(Base):
                 'default': 0,
             },
             {
+                'name': 'last_port_scan_id',
+                'type': 'int',
+            },
+            {
+                'name': 'first_port_scan_id',
+                'type': 'int',
+            },
+            {
                 'name': 'updated_ts',
                 'type': 'datetime'
             }

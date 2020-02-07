@@ -24,6 +24,7 @@ class ScanHosts:
         self.tmp_dir = scan.tmp_dir
         self.scan_file = os.path.join(self.tmp_dir, 'host-scan.xml')
         self.trigger = scan.trigger
+        self.run_success = True
 
     def run(self) -> list:
         """Run NMap scan."""
@@ -58,14 +59,18 @@ class ScanHosts:
             subprocess.check_output(cmd, shell=True)
         except subprocess.CalledProcessError:
             print('Error running scan, please try again')
-            self.scan_log.completed = True
-            self.scan_log.success = False
-            self.scan_log.save()
-            exit(1)
-        hosts = parse_nmap.parse_xml(self.scan_file, 'hosts')
+            self._complete_run_error('Running Scan.')
+            self.run_success = False
+
         end = time.time()
-        self.scan_log.elapsed_time = round(end - start, 2)
-        self.scan_log.save()
+        hosts = parse_nmap.parse_xml(self.scan_file, 'hosts')
+        if not hosts:
+            self._complete_run_error('Reading XML')
+            self.run_success = False
+
+        if self.run_success:
+            self.scan_log.elapsed_time = round(end - start, 2)
+            self.scan_log.save()
         return hosts
 
     def handle_devices(self):
@@ -162,6 +167,13 @@ class ScanHosts:
         self.scan_log.units = len(self.hosts)
 
         self.scan_log.scan_range = self.options['scan-hosts-range'].value
+        self.scan_log.save()
+
+    def _complete_run_error(self, error_section: str):
+        """Closes out the ScanHost log entry as a fail."""
+        self.scan_log.completed = True
+        self.scan_log.success = False
+        self.scan_log.message = error_section
         self.scan_log.save()
 
     def _abort_run(self):

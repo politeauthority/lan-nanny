@@ -49,6 +49,10 @@ class ScanPort(Base):
                 'name': 'trigger',
                 'type': 'str'
             },
+            {
+                'name': 'message',
+                'type': 'str'
+            },
         ]
         self.setup()
 
