@@ -138,7 +138,8 @@ class ScanHosts:
         return pruned_hosts
 
     def _set_device_name(self, device: Device, host: dict):
-        """Set the device name to the host name if available, then the vendor if nothing else is
+        """
+        Set the device name to the host name if available, then the vendor if nothing else is
         available it sets the device name to the mac address.
 
         """
@@ -185,9 +186,8 @@ class ScanHosts:
         self.scan_log.save()
         return True
 
-    def _complete_run_error(self, start_time, end_time, error_section: str):
+    def _complete_run_error(self, error_section: str):
         """Closes out the ScanHost log entry as a fail."""
-        self.scan_log.elapsed_time = round(end - start, 2)
         self.scan_log.completed = True
         self.scan_log.success = False
         self.scan_log.message = error_section
