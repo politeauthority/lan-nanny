@@ -26,9 +26,9 @@ def index(scan_type: str=''):
     data = {
         'active_page': 'about',
         'db_name': os.path.normpath(app.config['LAN_NANNY_DB_FILE']),
-        'db_witness_length': DeviceWitnesses(conn, cursor).get_row_length(),
-        'db_scan_host_length': ScanHosts(conn, cursor).get_row_length(),
-        'db_scan_port_length': ScanPorts(conn, cursor).get_row_length(),
+        'db_witness_length': DeviceWitnesses(conn, cursor).get_count_total(),
+        'db_scan_host_length': ScanHosts(conn, cursor).get_count_total(),
+        'db_scan_port_length': ScanPorts(conn, cursor).get_count_total(),
         'db_growth': growth,
     }
     return render_template('about.html', **data)
@@ -41,9 +41,15 @@ def database_stats(conn, cursor ):
     db_24_hours_ago = DatabaseGrowth(conn, cursor)
     db_24_hours_ago.get_24_hours_ago()
 
-    db_delta_24 = db_current_size - db_24_hours_ago.size
+    db_delta_24 = None
+    if db_24_hours_ago:
+        db_delta_24 = db_current_size - db_24_hours_ago.size
+
+    db_first = DatabaseGrowth(conn, cursor)
+    db_first.get_by_id(1)
 
     ret = {
+        'db_first': db_first,
         'db_current_size': db_current_size,
         'db_current_size_pretty': utils.size_of_fmt(db_current_size),
         'db_24_hour_size': db_24_hours_ago.size,

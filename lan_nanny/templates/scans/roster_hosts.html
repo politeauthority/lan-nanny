@@ -34,6 +34,7 @@
               <table class="table" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                   <tr>
+                    <td></td>
                     <td>Scan ID</td>
                     <td>Started</td>
                     <td>Devices Found</td>
@@ -43,7 +44,16 @@
                 </thead>
                 {% for scan in scans %}
                 <!--  href="/scan/info/host/{{scan.id}} -->
-                <tr class="{%if scan.completed==1 and scan.success==1%}table-success{%endif%}" class="link_row" data-href="/scan/info/hosts/{{scan.id}}">
+
+                <tr class="link_row" data-href="/scan/info/hosts/{{scan.id}}">
+                  <td>
+                    {%if scan.completed==1 and scan.success==1%}
+                      <i class="fas fa-check scan-success"></i>
+                    {%else%}
+                      <i class="fas fa-exclamation-triangle scan-fail"></i>
+                    {%endif%}
+                  </td>
+
                   <td>
                     <a href="/scan/info/host/{{scan.id}}">{{scan.id}}</a>
                   </td>

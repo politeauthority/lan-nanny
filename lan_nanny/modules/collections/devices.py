@@ -13,13 +13,18 @@ from .. import utils
 
 
 class Devices(Base):
-    """Collection class for gathering groups of devices."""
+    """ Collection class for gathering groups of devices."""
 
     def __init__(self, conn=None, cursor=None):
-        """Class init, mostly just for supplying SQLite connection."""
+        """ Store Sqlite conn and model table_name as well as the model obj for the collections
+            target model.
+        """
         super(Devices, self).__init__(conn, cursor)
         self.conn = conn
         self.cursor = cursor
+        self.table_name = Device().table_name
+        self.collect_model = Device
+        
 
     def get_all(self) -> list:
         """Get all devices in the database."""
@@ -110,32 +115,6 @@ class Devices(Base):
                 alert_offline = 1
             ORDER BY last_seen DESC;"""
 
-        self.cursor.execute(sql)
-        raw_devices = self.cursor.fetchall()
-        devices = self._build_raw_devices(raw_devices)
-        return devices
-
-    def for_port_scanning(self, limit: int=None):
-        """
-        Get Devices with port_scan enabled and either have never had a port scan, or their port
-        scan was done x time ago and should be run again.
-
-        """
-        hours_24 = arrow.utcnow().datetime - timedelta(hours=24)
-        limit = ''
-        if limit:
-            "LIMIT %s" % limit
-        sql = """
-            SELECT *
-            FROM devices
-            WHERE
-                port_scan = 1 AND
-                (
-                    last_port_scan <= '%s' OR
-                    last_port_scan is NULL
-                )
-            ORDER BY last_port_scan ASC
-            %s ;""" % (hours_24, limit)
         self.cursor.execute(sql)
         raw_devices = self.cursor.fetchall()
         devices = self._build_raw_devices(raw_devices)

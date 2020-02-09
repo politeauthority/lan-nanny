@@ -24,6 +24,13 @@ class DatabaseGrowth(Base):
         ]
         self.setup()
 
+    def get_age(self):
+        first = self.get_by_id(1)
+        if not first:
+            return None
+        else:
+            return first.created_ts
+
     def get_24_hours_ago(self):
         date_24_hours_ago = arrow.utcnow().datetime - timedelta(hours=24)
         sql = """
@@ -35,6 +42,8 @@ class DatabaseGrowth(Base):
         """ % (self.table_name, date_24_hours_ago)
         self.cursor.execute(sql)
         raw_db_growth = self.cursor.fetchone()
+        if not raw_db_growth:
+            return False
         self.build_from_list(raw_db_growth)
         return True
 

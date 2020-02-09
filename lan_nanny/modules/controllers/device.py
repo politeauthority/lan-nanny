@@ -97,10 +97,15 @@ def info(device_id: int) -> str:
         return 'ERROR 404: Route this to page_not_found method!', 404
         # return page_not_found('Device not found')
 
+    metrics = Metrics(conn, cursor)
+    device_online_over_day = metrics.get_device_presence_over_time(device)
+    device_online_over_week = metrics.get_device_presence_over_time(device, 24*7)
     device.get_ports()
     data = {}
     data['device'] = device
     data['active_page'] = 'devices'
+    data['device_over_day'] = device_online_over_day
+    data['device_over_week'] = device_online_over_week
     return render_template('devices/info.html', **data)
 
 

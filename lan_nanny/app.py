@@ -14,6 +14,7 @@ from modules.controllers.scan import scan as ctrl_scan
 from modules.controllers.search import search as ctrl_search
 from modules.controllers.about import about as ctrl_about
 from modules.controllers.settings import settings as ctrl_settings
+from modules.models.scan_host import ScanHost
 from modules import db
 from modules.collections.alerts import Alerts
 from modules.collections.devices import Devices
@@ -89,14 +90,16 @@ def index() -> str:
     new_devices = Devices(conn, cursor).get_new_count()
     donut_devices_online = metrics.get_dashboard_online_chart(fav_devices)
 
+    sh = ScanHost(conn, cursor)
+    sh.get_last()
     data = {}
     data['active_page'] = 'dashboard'
     data['num_connected'] = filters.connected_devices(all_devices)
     data['device_favorites'] = favorites
     data['devices'] = devices
     data['new_devices'] = new_devices
-    data['runs_over_24'] = metrics.get_scan_host_runs_24_hours()
-    data['host_scan'] = metrics.get_last_host_scan()
+    data['runs_over_24'] = metrics.get_all_scans_24()
+    data['host_scan'] = sh
     data['online_donut'] = donut_devices_online
     return render_template('dashboard.html', **data)
 

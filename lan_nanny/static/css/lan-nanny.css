@@ -59,3 +59,7 @@
 .icon_hover_over {
   color: #444;
 }
+
+.scan-success {
+  color: green;
+}

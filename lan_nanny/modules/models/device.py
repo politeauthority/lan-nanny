@@ -24,6 +24,10 @@ class Device(Base):
 
         self.field_map = [
             {
+                'name': 'update_ts',
+                'type': 'datetime'
+            },
+            {
                 'name': 'mac',
                 'type': 'str',
             },
@@ -77,8 +81,12 @@ class Device(Base):
                 'type': 'int',
             },
             {
-                'name': 'update_ts',
-                'type': 'datetime'
+                'name': 'port_scan_lock',
+                'type': 'bool',
+            },
+            {
+                'name': 'host_names',
+                'type': 'str',
             },
         ]
         self.ports = []

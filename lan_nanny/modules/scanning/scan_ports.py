@@ -1,8 +1,11 @@
 """ScanPorts is the modules which controls device port scanning efforts.
 
 """
+from datetime import timedelta
+import logging
 import os
 import subprocess
+import time
 
 import arrow
 
@@ -24,101 +27,130 @@ class ScanPorts:
         self.trigger = scan.trigger
 
     def run(self):
-        """
-        Main Runner for Scan Port.
+        """ Main Runner for Scan Port."""
+        port_scan_devices = self.get_port_scan_candidates()
 
-        """
-        port_scan_candidates = self.get_port_scan_candidates()
-
-        print("Port Scanning %s devices" % len(port_scan_candidates))
-
-        if not port_scan_candidates:
+        if not port_scan_devices:
             print('No devices ready for port scan, skipping.')
             return
 
-        for device in port_scan_candidates:
-            device_og_port_scan = device.last_port_scan
-            device.conn = self.conn
-            device.cursor = self.cursor
+        print('Starting Device Port Scans for %s devices' % len(port_scan_devices))
+        for device in port_scan_devices:
+            self.handle_device_port_scan(device)
 
-            # so we dont overrun, mark this as the last port scan now. @todo this should be
-            # done better
-            device.last_port_scan = arrow.utcnow().datetime
-            device.save()
+        return True
 
-            ports = self.scan_ports(device)
-
-            if not ports:
-                device.last_port_scan = device_og_port_scan
-                device.save()
-                print('Port scan failed for %s, will try again soon.' % device)
-                continue
-
-            self.handle_ports(device, ports)
-
-            end = arrow.utcnow()
-
-            print('Saved port scan for %s found %s open ports' % (
-                device,
-                '@todo'))
-            device.last_port_scan = arrow.utcnow().datetime
-            device.flagged_for_scan = 0
-            device.save()
-
-    def get_port_scan_candidates(self):
-        """
-        Gets devices available in last scan which meet port scanning criteria.
-        @todo if sys default allows port scanning, put new devices in front of the line.
-
-
-        """
-        devices = Devices(self.conn, self.cursor).for_port_scanning()
+    def get_port_scan_candidates(self) -> list:
+        """ Gets devices present in last scan which meet port scanning criteria."""
+        host_port_scan_interval_mins = int(self.options['scan-ports-interval'].value)
+        host_port_scan_timeout = arrow.utcnow().datetime - timedelta(minutes=host_port_scan_interval_mins)
         port_scan_devices = []
         for host in self.hosts:
-            for d in devices:
-                if d.mac == host['mac']:
-                    port_scan_devices.append(d)
-                    continue
-                    
-        limit = 1
+
+            # Remove devices that dont allow port scanning.
+            if not host['device'].port_scan:
+                logging.info('%s does not have port scanning enabled' % host['device'])
+                continue
+
+            # Remove devices that have been port scanned in x minutes.
+            if host['device'].last_port_scan > host_port_scan_timeout:
+                logging.info('%s has been scanned in the last %s minutes' % (
+                    host['device'],
+                    host_port_scan_interval_mins))
+                continue
+
+            port_scan_devices.append(host['device'])
+        
+        limit = int(self.options['scan-ports-per-run'].value)
         if len(port_scan_devices) > limit:
             port_scan_devices = port_scan_devices[0:limit]
             print("Limiting port scan to %s devices" % limit)
 
         return port_scan_devices
 
-    def scan_ports(self, device: Device) -> list:
+    def handle_device_port_scan(self, device: Device):
+        """ Run device port scan and related processes for a single device."""
+        device_og_port_scan = device.last_port_scan
+        device.conn = self.conn
+        device.cursor = self.cursor
+
+        # Lock the device from other scan processes.
+        device.port_scan_lock = True
+        device.save()
+
+        # so we dont overrun, mark this as the last port scan now. @todo this should be
+        # done better
+        device.last_port_scan = arrow.utcnow().datetime
+        device.save()
+
+        device_port_scan = self.scan_ports_cmd(device)
+
+        device.last_port_scan_id = device_port_scan['scan_port_log'].id
+
+        # Release device port scan lock.
+        device.port_scan_lock = False
+        device.save()
+
+        # if port scanning failed for any reason.
+        if not device_port_scan['ports']:
+
+            print('Port scan failed for %s, will try again soon.' % device)
+            return False
+
+        self.handle_ports(device, device_port_scan['ports'])
+
+        end = arrow.utcnow()
+
+        print('Saved port scan for %s found %s open ports' % (
+            device,
+            '@todo'))
+        device.last_port_scan = arrow.utcnow().datetime
+        device.flagged_for_scan = 0
+        device.save()
+
+    def scan_ports_cmd(self, device: Device) -> list:
         """
         Run and manage a NMAP port scan for a single device to derive port data and returning those
         ports in a list of dicts.
 
         """
-        scan_log = ScanPort(self.conn, self.cursor)
-        scan_log.trigger = self.trigger
-        back_off = " --host-timeout 120 --max-retries 5"
-        scan_log.command = "nmap %s%s" % (device.ip, back_off)
-        scan_log.device_id = device.id
-        scan_log.insert_run_start()
+        scan = self.create_device_port_scan_log(device)
+        start = time.time()
         port_scan_file = os.path.join(self.tmp_dir, "port_scan_%s.xml" % device.id)
-        cmd = "%s -oX %s" % (scan_log.command, port_scan_file)
+        cmd = "%s -oX %s" % (scan.command, port_scan_file)
         print('Running port scan for %s' % device)
-        print('\tCmd: %s' % scan_log.command)
+        print('\tCmd: %s' % scan.command)
 
         try:
             subprocess.check_output(cmd, shell=True)
-            scan_log.success = True
+            scan.success = True
         except subprocess.CalledProcessError:
             print('Error running scan, please try again')
-            scan_log.success = False
-            scan_log.end_run()
+            end = time.time()
+            scan.elapsed_time = end - start
+            self._complete_run_error(scan)
             return False
+        end = time.time()
+        scan.elapsed_time = end - start
+        scan.end_run()
 
         ports = parse_nmap.parse_xml(port_scan_file, 'ports')
-        # scan_log.units = len(ports)
-        scan_log.completed = True
-        scan_log.end_run()
+        # scan.units = len(ports)
         os.remove(port_scan_file)
-        return ports
+        ret = {
+            'ports': ports,
+            'scan_port_log': scan,
+        }
+        return ret
+
+    def create_device_port_scan_log(self, device: Device) -> bool:
+        scan = ScanPort(self.conn, self.cursor)
+        scan.trigger = self.trigger
+        back_off = " --host-timeout 120 --max-retries 5"
+        scan.command = "nmap %s%s" % (device.ip, back_off)
+        scan.device_id = device.id
+        scan.insert_run_start()
+        return scan
 
     def handle_ports(self, device: Device, ports: list):
         """
@@ -126,7 +158,7 @@ class ScanPorts:
         """
         if not ports:
             print('Device offline or no ports for %s' % device)
-            return
+            return False
 
         num_ports = 0
         for raw_port in ports:
@@ -158,5 +190,10 @@ class ScanPorts:
             port.save()
         return port
 
+    def _complete_run_error(self, scan_log):
+        scan_log.completed = True
+        scan_log.success = False
+        scan_log.message = 'Failed running command'
+        scan_log.end_run()
 
 # End File: lan_nanny/nanny-nanny/modules/models/scan_ports.py

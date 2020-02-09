@@ -2,17 +2,23 @@
 Gets collections of device ports.
 
 """
+from .base import Base
 from ..models.device_port import DevicePort
 from .ports import Ports
 
 
-class DevicePorts:
+class DevicePorts(Base):
     """Collection class for gathering groups of device ports."""
 
     def __init__(self, conn=None, cursor=None):
-        """Class init, mostly just for supplying SQLite connection."""
+        """ Store Sqlite conn and model table_name as well as the model obj for the collections
+            target model.
+        """
+        super(DevicePorts, self).__init__(conn, cursor)
         self.conn = conn
         self.cursor = cursor
+        self.table_name = DevicePort().table_name
+        self.collect_model = DevicePort
 
     def get_by_device_id(self, device_id) -> list:
         """Get all devices in the database."""
