@@ -11,6 +11,7 @@ import arrow
 
 from . import parse_nmap
 from ..collections.devices import Devices
+from ..collections.device_ports import DevicePorts
 from ..models.device import Device
 from ..models.device_port import DevicePort
 from ..models.port import Port
@@ -34,7 +35,7 @@ class ScanPorts:
             print('No devices ready for port scan, skipping.')
             return
 
-        print('Starting Device Port Scans for %s devices' % len(port_scan_devices))
+        print('\tStarting Device Port Scans for %s devices' % len(port_scan_devices))
         for device in port_scan_devices:
             self.handle_device_port_scan(device)
 
@@ -118,7 +119,7 @@ class ScanPorts:
         start = time.time()
         port_scan_file = os.path.join(self.tmp_dir, "port_scan_%s.xml" % device.id)
         cmd = "%s -oX %s" % (scan.command, port_scan_file)
-        print('Running port scan for %s' % device)
+        print('\tRunning port scan for %s' % device)
         print('\tCmd: %s' % scan.command)
 
         try:
@@ -161,20 +162,33 @@ class ScanPorts:
             return False
 
         num_ports = 0
+        col_device_ports = DevicePorts(self.conn, self.cursor)
+        device_ports = col_device_ports.get_by_device_id(device.id)
         for raw_port in ports:
-            port = self.get_port(raw_port)
-
-            device_port = DevicePort(self.conn, self.cursor)
-            device_port.get_by_device_and_port(device.id, port.port)
-            if not device_port.id:
-                device_port.device_id = device.id
-                device_port.port_id = port.id
-            device_port.status = 'open'
-            device_port.last_seen = arrow.utcnow().datetime
-            device_port.save()
+            self.handle_port(device, device_ports, raw_port)
             num_ports += 1
 
         print('Device %s has %s ports open' % (device, num_ports))
+
+    def handle_port(self, device, device_ports, raw_port):
+        this_dp = None
+        for device_port in device_ports:
+            if raw_port['number'] == device_port.port.port and \
+                raw_port['protocol'] == device_port.port.protocol:
+                this_dp = device_port
+                this_dp.conn = self.conn
+                this_dp.cursor = self.cursor
+                this_port = device_port.port
+                break
+
+        if not this_dp:
+            this_port = self.get_port(raw_port)
+            this_dp = DevicePort(self.conn, self.cursor)
+            this_dp.device_id = device.id
+            this_dp.port_id = this_port.id
+        this_dp.status = 'open'
+        this_dp.last_seen = arrow.utcnow().datetime
+        this_dp.save()
 
     def get_port(self, raw_port: dict) -> Port:
         """
