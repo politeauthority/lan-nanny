@@ -2,6 +2,7 @@
 
 """
 from datetime import datetime
+import logging
 import os
 import subprocess
 import time
@@ -27,12 +28,12 @@ class ScanHosts:
         self.run_success = True
 
     def run(self) -> list:
-        """Run NMap scan."""
+        """Run host nmap scan."""
         self.setup()
 
         if self.options['scan-hosts-enabled'].value != True:
             print('Host scanning disabled. Go to settings to renable.')
-            self._abort_run()
+            self._abort_run('Scanning disabled by option.')
             return []
 
         self.hosts = self.scan()
@@ -50,7 +51,7 @@ class ScanHosts:
     def scan(self):
         """Run the port scan operation."""
         scan_range = self.options['scan-hosts-range'].value
-        start = time.time()
+        start_ts = time.time()
 
         print('Scan Range: %s' % scan_range)
         self.scan_log.command = "nmap -sP %s" % scan_range
@@ -59,17 +60,18 @@ class ScanHosts:
             subprocess.check_output(cmd, shell=True)
         except subprocess.CalledProcessError:
             print('Error running scan, please try again')
-            self._complete_run_error('Running Scan.')
+            end_ts = time.time()
+            self._complete_run_error(start_ts, end_ts, 'Running Scan.')
             self.run_success = False
 
-        end = time.time()
+        end_ts = time.time()
         hosts = parse_nmap.parse_xml(self.scan_file, 'hosts')
         if not hosts:
             self._complete_run_error('Reading XML')
             self.run_success = False
 
         if self.run_success:
-            self.scan_log.elapsed_time = round(end - start, 2)
+            self.scan_log.elapsed_time = round(end_ts - start_ts, 2)
             self.scan_log.save()
         return hosts
 
@@ -85,9 +87,10 @@ class ScanHosts:
         print('Found %s devices:' % len(self.hosts))
 
         scan_time = arrow.utcnow().datetime
+        count = 0
         for host in self.hosts:
             if not host['mac']:
-                print('Couldnt find mac for device, skipping')
+                logging.debug('Couldnt find mac for device, skipping')
                 continue
 
             device = Device(self.conn, self.cursor)
@@ -97,6 +100,7 @@ class ScanHosts:
                 new = True
                 device.first_seen = scan_time
                 device.name = host['vendor']
+                device.vendor = host['vendor']
 
                 device.mac = host['mac']
                 if self.options['scan-ports-default'].value:
@@ -106,23 +110,36 @@ class ScanHosts:
             device.name = self._set_device_name(device, host)
             device.last_seen = scan_time
             device.ip = host['ip']
-            device.vendor = host['vendor']
             device.save()
+            self.hosts[count]['device'] = device
+            count += 1
 
             new_device_str = ""
             if new:
                 new_device_str = "\t- New Device"
-            if device.name:
-                print('\t%s - %s%s' % (device.name, device.ip, new_device_str))
-            elif device.vendor:
-                print('\t%s - %s%s' % (device.vendor, device.ip, new_device_str))
-            else:
-                print('\t%s - %s%s' % (device.mac, device.ip, new_device_str))
+            print('\t%s - %s%s' % (device.name, device.ip, new_device_str))
 
             self.save_witness(device, scan_time)
 
+        self.hosts = self.prune_hosts_wo_mac()
+
+    def prune_hosts_wo_mac(self) -> list:
+        """
+        The device running the scan is not able to find its own mac, we need to filter that out,
+        and potentially any other device without a mac, though I think only localhost will have this
+        issue.
+
+        """
+        pruned_hosts = []
+        for host in self.hosts:
+            if not host['mac']:
+                continue
+            pruned_hosts.append(host)
+        return pruned_hosts
+
     def _set_device_name(self, device: Device, host: dict):
-        """Set the device name to the host name if available, then the vendor if nothing else is
+        """
+        Set the device name to the host name if available, then the vendor if nothing else is
         available it sets the device name to the mac address.
 
         """
@@ -157,17 +174,17 @@ class ScanHosts:
         return True
 
     def _complete_run(self):
-        """
-        Closes out the run log entry.
-
-        """
+        """Closes out the ScanHost run log entry as success."""
         self.scan_log.completed = 1
         self.scan_log.success = 1
         self.scan_log.end_ts = arrow.utcnow().datetime
-        self.scan_log.units = len(self.hosts)
-
+        if self.hosts:
+            self.scan_log.units = len(self.hosts)
+        else:
+            self.scan_log.units = 0
         self.scan_log.scan_range = self.options['scan-hosts-range'].value
         self.scan_log.save()
+        return True
 
     def _complete_run_error(self, error_section: str):
         """Closes out the ScanHost log entry as a fail."""
@@ -175,14 +192,14 @@ class ScanHosts:
         self.scan_log.success = False
         self.scan_log.message = error_section
         self.scan_log.save()
+        return True
 
-    def _abort_run(self):
-        """
-        Closes out the run log entry.
-
-        """
-        self.scan_log.completed = 0
-        self.scan_log.success = 0
+    def _abort_run(self, error_section: str):
+        """Closes out scan host run log entry as an abort."""
+        self.scan_log.completed = False
+        self.scan_log.success = False
+        self.scan_log.message = error_section
         self.scan_log.save()
+        return True
 
 # End File: lan-nanny/lan_nanny/modules/scanning/scan_hosts.py

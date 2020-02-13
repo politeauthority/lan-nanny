@@ -54,6 +54,7 @@ class ScanPort(Base):
                 'type': 'str'
             },
         ]
+        self.device = None
         self.setup()
 
     def insert_run_start(self):

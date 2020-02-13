@@ -41,14 +41,8 @@ class DevicePort(Base):
     def __repr__(self):
         return "<DevicePort %s>" % self.id
 
-    def get_by_device_and_port(self, device_id: int=None, port_id: int=None):
+    def get_by_device_and_port(self, device_id: int, port_id: int) -> bool:
         """Get a DevicePort by device_id and port_id."""
-        if not device_id and self.device_id:
-            device_id = self.device_id
-
-        if not port_id and self.port_id:
-            port_id = self.port_id
-
         sql = """
         SELECT *
         FROM device_ports

@@ -69,10 +69,6 @@
                 <td>{{device.last_seen|time_switch}}</td>
               </tr>
               <tr>
-                <td><b>First Seen</b></td>
-                <td>{{device.first_seen|pretty_time}}</td>
-              </tr>
-              <tr>
                 <td><b>Last Port Scan</b></td>
                 <td>
                   {% if device.last_port_scan%}
@@ -82,11 +78,45 @@
                   {%endif%}
                 </td>
               </tr>
+              <tr>
+                <td><b>First Seen</b></td>
+                <td>{{device.first_seen|pretty_time}}</td>
+              </tr>
             </table>
           </div>
         </div>
       </div>
     </div><!-- END Device Info -->
+    
+    {%if g.options['beta-features'].value %}
+    <!-- Device Stats -->
+    <div class="col-xl-6 col-lg-6">
+      <div class="card shadow mb-4">
+        <!-- Card Header -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">
+            Stats
+          </h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
+              <tr>
+                <td>Connectivity last 24 hours</td>
+                <td>{{device_over_day['device_online_percent']}}%</td>
+              </tr>
+              <tr>
+                <td>Connectivity last week</td>
+                <td>{{device_over_week['device_online_percent']}}%</td>
+              </tr>
+            </table>
+            
+          </div>
+        </div>
+      </div>
+    </div><!-- End Device Stats-->
+    {%endif%}
 
     <!-- Device Ports -->
     <div class="col-xl-6 col-lg-6">

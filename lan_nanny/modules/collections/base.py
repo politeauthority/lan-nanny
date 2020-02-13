@@ -1,17 +1,43 @@
 """Base Collection
 
 """
+from datetime import timedelta
+
+import arrow
 
 
 class Base:
 
     def __init__(self, conn=None, cursor=None):
-        """Base collection constructor."""
+        """Base collection constructor. var `table_name must be the """
         self.conn = conn
         self.cursor = cursor
 
         self.table_name = None
         self.collect_model = None
+
+    def get_by_ids(self, model_ids: list) -> list:
+        model_ids = list(set(model_ids))
+        sql_ids = ""
+        for i in model_ids:
+            sql_ids += "%s," % i
+        sql_ids = sql_ids[:-1]
+        sql = """
+            SELECT *
+            FROM %(table_name)s
+            WHERE id IN (%(ids)s); """ % {
+        'table_name': self.table_name,
+        'ids': sql_ids,
+        }
+        print(sql)
+        self.cursor.execute(sql)
+        raw = self.cursor.fetchall()
+        prestine = []
+        for raw_item in raw:
+            new_object = self.collect_model(self.conn, self.cursor)
+            new_object.build_from_list(raw_item)
+            prestine.append(new_object)
+        return prestine
 
     def get_all_paginated(self, limit: int=20, offset: int=0) -> list:
         """Get paginated set run logs."""
@@ -26,18 +52,18 @@ class Base:
             ORDER BY created_ts DESC
             LIMIT %(limit)s OFFSET %(offset)s;""" % sql_vars
         self.cursor.execute(sql)
-        raw_scans = self.cursor.fetchall()
-        scan_logs = []
-        for raw_scan in raw_scans:
-            scan = self.collect_model(self.conn, self.cursor)
-            scan.build_from_list(raw_scan)
-            scan_logs.append(scan)
-        return scan_logs
+        raw = self.cursor.fetchall()
+        prestine = []
+        for raw_item in raw:
+            new_object = self.collect_model(self.conn, self.cursor)
+            new_object.build_from_list(raw_item)
+            prestine.append(new_object)
+        return prestine
 
     def get_pagination(self, base_url: str, page: int, per_page: int) -> dict:
         """Get numeric count of table rows."""
         pagination = {}
-        pagination['total_units'] = self.get_total_count()
+        pagination['total_units'] = self.get_count_total()
         pagination['first_page'] = 1
         pagination['current_page'] = page
         pagination['last_page'] = self.get_total_pages(pagination['total_units'], per_page)
@@ -47,13 +73,26 @@ class Base:
         pagination = self._get_urls(base_url, pagination)
         return pagination
 
-    def get_total_count(self) -> int:
-        """Get numeric count of table rows."""
+    def get_count_total(self) -> int:
+        """Get count of total model instances in table."""
         sql = """
             SELECT COUNT(*)
             FROM %s;
             """ % self.table_name
 
+        self.cursor.execute(sql)
+        raw_scans_count = self.cursor.fetchone()
+        return raw_scans_count[0]
+
+    def get_count_since(self, seconds_since_created: int) -> int:
+        """Get count of model instances in table created in last x minutes."""
+        then = arrow.utcnow().datetime - timedelta(seconds=seconds_since_created)
+        sql = """
+            SELECT COUNT(*)
+            FROM %s
+            WHERE created_ts > "%s";
+            """ % (self.table_name, then)
+        print(sql)
         self.cursor.execute(sql)
         raw_scans_count = self.cursor.fetchone()
         return raw_scans_count[0]

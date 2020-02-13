@@ -1,4 +1,10 @@
-"""Scan
+"""Entry point to all scan operations and other tasks that need to be run on a regular schedule.
+
+    Scans hosts on network
+    Scans ports for a given host
+    Runs house keeping operations.
+
+    This script must be run with sudo privileges for network scanning to work properly.
 
 """
 import argparse
@@ -41,16 +47,14 @@ class Scan:
             self.trigger = 'cron'
 
     def run(self):
-        """
-        Main entry point to scanning script.
-
-        """
+        """Main entry point to scanning script."""
         self.setup()
         self.hande_hosts()
         self.handle_ports()
-        self.handle_prune()
+        self.handle_house_keeping()
 
     def hande_hosts(self):
+        """Launch host scanning operations."""
         self.hosts = ScanHosts(self).run()
 
     def handle_ports(self):
@@ -68,10 +72,12 @@ class Scan:
             return False
         ScanPorts(self).run()
 
-    def handle_prune(self):
+    def handle_house_keeping(self):
+        """Run house keeping operations like database pruning etc."""
         ScanHouseKeeping(self).run()
 
     def prompt_sudo(self):
+        """Make sure the script is being run as sudo, or scanning will not work."""
         ret = 0
         if os.geteuid() != 0:
             msg = "[sudo] password for %u:"

@@ -37,14 +37,24 @@
                 </td>
               </tr>
               {%if g.options['beta-features'].value %}
-              <tr>
-                <td>
-                  DB Growth Over 24 Hours
-                </td>
-                <td>
-                  {{db_growth['db_24_hour_delta_size_pretty']}}
-                </td>
-              </tr>
+                <tr>
+                  <td>
+                    DB Growth Over 24 Hours
+                  </td>
+                  <td>
+                    {{db_growth['db_24_hour_delta_size_pretty']}}
+                  </td>
+                </tr>
+                {%if db_growth['db_first']%}
+                <tr>
+                  <td>
+                    DB Started
+                  </td>
+                  <td>
+                    {{db_growth['db_first'].created_ts|pretty_time}}
+                  </td>
+                </tr>
+                {%endif%}
               {%endif%}
               <tr>
                 <td>

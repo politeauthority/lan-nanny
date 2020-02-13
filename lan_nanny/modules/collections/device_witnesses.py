@@ -6,15 +6,38 @@ from datetime import timedelta
 
 import arrow
 
+from .base import Base
 from ..models.device_witness import DeviceWitness
 
 
-class DeviceWitnesses:
+class DeviceWitnesses(Base):
 
     def __init__(self, conn=None, cursor=None):
+        """ Store Sqlite conn and model table_name as well as the model obj for the collections
+            target model.
+        """
+        super(DeviceWitnesses, self).__init__(conn, cursor)
         self.conn = conn
         self.cursor = cursor
         self.table_name = DeviceWitness().table_name
+        self.collect_model = DeviceWitness
+
+    def get_count_since_by_device_id(self, device_id, seconds_since_created: int) -> int:
+        """Get count of DeviceWitness instances in table created in last x minutes."""
+        then = arrow.utcnow().datetime - timedelta(seconds=seconds_since_created)
+        sql = """
+            SELECT COUNT(*)
+            FROM %s
+            WHERE 
+                device_id=%s AND
+                created_ts > "%s";
+            """ % (self.table_name, device_id, then)
+
+        print(sql)
+        self.cursor.execute(sql)
+        raw_witness_count = self.cursor.fetchone()
+        return raw_witness_count[0]
+
 
     def get_by_scan_id(self, scan_id: int) -> list:
         """Get all witness records from a scan_id."""
@@ -33,15 +56,6 @@ class DeviceWitnesses:
             witnesses.append(witness)
         return witnesses
 
-    def get_row_length(self) -> int:
-        """Get number of rows of scan_logs from the scan_log table."""
-        sql = """
-            SELECT count(*)
-            FROM %s; """ % self.table_name
-        self.cursor.execute(sql)
-        raw = self.cursor.fetchone()
-        return raw[0]
-
     def prune(self, days: int) -> bool:
         """Method to remove data older than x days from database."""
         days_back = arrow.utcnow().datetime - timedelta(days=days)
@@ -51,4 +65,4 @@ class DeviceWitnesses:
         self.cursor.execute(sql)
         self.conn.commit()
 
-# End File: lan-nanny/modules/collections/device_witnesses.py
+# End File: lan-nanny/lan_nanny/modules/collections/device_witnesses.py

@@ -54,8 +54,12 @@ def smart_time(date_val: datetime, format_switch_range_seconds: int = None) -> s
     else:
         return parsed.humanize()
 
+
 def pretty_time_adaptive(date_val: datetime) -> str:
     """
+    Create a switchable time display, starting with time ago value, which can be clicked to show
+    a more standard date value via javascript.
+
     """
     if not date_val:
         return ''
@@ -70,6 +74,17 @@ def pretty_time_adaptive(date_val: datetime) -> str:
     else:
         return parsed.format('h:mm:ss a')
 
+
+def time_switch(the_time) -> str:
+    """Draw a datetime var in "time ago" with a hidden span containing the pretty time."""
+    the_arrow = arrow.get(the_time)
+    pretty_time = pretty_time_adaptive(the_time)
+    html = '<div class="time_switch">'
+    html += '<i class="fas fa-clock"></i>'
+    html += '<span class="time-pretty">%s</span>' % arrow.get(the_time).humanize()
+    html += '<span class="time-long hidden">%s</span>' % pretty_time
+    html += '</div>'
+    return Markup(html)
 
 def online(seen_at: datetime) -> bool:
     """
@@ -125,18 +140,6 @@ def device_icon_status(device: Device) -> int:
         'id': device.id,
         'name': device.name
     }
-    return Markup(html)
-
-
-def time_switch(the_time) -> str:
-    """Draw a datetime var in "time ago" with a hidden span containing the pretty time."""
-    the_arrow = arrow.get(the_time)
-    pretty_time = pretty_time_adaptive(the_time)
-    html = '<div class="time_switch">'
-    html += '<i class="fas fa-clock"></i>'
-    html += '<span class="time-pretty">%s</span>' % arrow.get(the_time).humanize()
-    html += '<span class="time-long hidden">%s</span>' % pretty_time
-    html += '</div>'
     return Markup(html)
 
 

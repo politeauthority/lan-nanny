@@ -87,6 +87,7 @@ def gen_like_sql(field: str, phrase: str) -> str:
     """Generate a SQLite like statement for a given field and phrase."""
     return field + """ LIKE '%""" + phrase + """%' """
 
+
 def gen_where_in_sql(ids: list) -> str:
     """Generate a where in sql safe parameter set from a list of ids."""
     ids_sql = ""
@@ -95,6 +96,7 @@ def gen_where_in_sql(ids: list) -> str:
     ids_sql = ids_sql[:-1]
     return ids_sql
 
+
 def get_pagination_offset(page: int, per_page: int) -> int:
     """Gets the offset number for pagination queries."""
     if page == 1:
@@ -102,5 +104,24 @@ def get_pagination_offset(page: int, per_page: int) -> int:
     else:
         offset = (page * per_page) - per_page
     return offset
+
+
+def get_percent(whole: int, part: int, round_ret: int=0) -> int:
+    if round_ret == 0:
+        return int(part / whole * 100)
+    else:
+        return round(part / whole * 100, round_ret)
+
+
+def key_list_on_id(some_object_list: list) -> dict:
+    """
+    From a list of model objects with an id attribute and return a dict keyed on the id with the
+    full object set.
+    """
+    ret = {}
+    for o in some_object_list:
+        ret[o.id] = o
+    return ret
+
 
 # End File: lan-nanny/lan_nanny/modules/utils.py
