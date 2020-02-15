@@ -84,17 +84,34 @@ class Base:
         return raw_scans_count[0]
 
     def get_count_since(self, seconds_since_created: int) -> int:
-        """Get count of model instances in table created in last x minutes."""
+        """Get count of model instances in table created in last x seconds."""
         then = arrow.utcnow().datetime - timedelta(seconds=seconds_since_created)
         sql = """
             SELECT COUNT(*)
             FROM %s
             WHERE created_ts > "%s";
             """ % (self.table_name, then)
-        print(sql)
         self.cursor.execute(sql)
         raw_scans_count = self.cursor.fetchone()
         return raw_scans_count[0]
+
+    def get_since(self, seconds_since_created: int) -> int:
+        """Get model instances created in last x seconds."""
+        then = arrow.utcnow().datetime - timedelta(seconds=seconds_since_created)
+        sql = """
+            SELECT *
+            FROM %s
+            WHERE created_ts > "%s"
+            ORDER BY id DESC;
+            """ % (self.table_name, then)
+        self.cursor.execute(sql)
+        raw = self.cursor.fetchall()
+        prestines = []
+        for raw_item in raw:
+            new_object = self.collect_model(self.conn, self.cursor)
+            new_object.build_from_list(raw_item)
+            prestines.append(new_object)
+        return prestines
 
     def get_total_pages(self, total, per_page) -> int:
         """Get total number of pages based on a total count and per page value."""

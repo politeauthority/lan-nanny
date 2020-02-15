@@ -8,7 +8,7 @@ import sys
 from flask import Flask, render_template, request, redirect, session, g
 from werkzeug.security import check_password_hash
 
-from modules.controllers.alert import alert as ctrl_alert
+from modules.controllers.alerts import alerts as ctrl_alerts
 from modules.controllers.device import device as ctrl_device
 from modules.controllers.ports import ports as ctrl_ports
 from modules.controllers.scan import scan as ctrl_scan
@@ -119,7 +119,7 @@ def page_not_found(e: str):
 def register_blueprints(app: Flask):
     """Connect the blueprints to the router."""
     app.register_blueprint(ctrl_device)
-    app.register_blueprint(ctrl_alert)
+    app.register_blueprint(ctrl_alerts)
     app.register_blueprint(ctrl_ports)
     app.register_blueprint(ctrl_scan)
     app.register_blueprint(ctrl_settings)

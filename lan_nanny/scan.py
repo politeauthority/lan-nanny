@@ -14,7 +14,8 @@ from modules import db
 from modules.collections.options import Options
 from modules.scanning.scan_ports import ScanPorts
 from modules.scanning.scan_hosts import ScanHosts
-from modules.scanning.scan_house_keeping import ScanHouseKeeping
+from modules.scanning.house_keeping import HouseKeeping
+from modules.scanning.alerts import Alerts
 from config import default as config_default
 
 TMP_DIR = "/opt/lan_nanny/"
@@ -51,6 +52,7 @@ class Scan:
         self.setup()
         self.hande_hosts()
         self.handle_ports()
+        self.handle_alerts()
         self.handle_house_keeping()
 
     def hande_hosts(self):
@@ -72,9 +74,13 @@ class Scan:
             return False
         ScanPorts(self).run()
 
+    def handle_alerts(self):
+        """Handle system alerts."""
+        Alerts(self).run()
+
     def handle_house_keeping(self):
         """Run house keeping operations like database pruning etc."""
-        ScanHouseKeeping(self).run()
+        HouseKeeping(self).run()
 
     def prompt_sudo(self):
         """Make sure the script is being run as sudo, or scanning will not work."""

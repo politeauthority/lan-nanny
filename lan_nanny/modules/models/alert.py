@@ -3,7 +3,6 @@
 """
 from .base import Base
 from .device import Device
-from ..collections.alert_events import AlertEvents
 
 
 class Alert(Base):
@@ -16,16 +15,20 @@ class Alert(Base):
         self.table_name = 'alerts'
         self.field_map = [
             {
-                'name': 'device_id',
-                'type': 'int',
+                'name': 'update_ts',
+                'type': 'datetime'
             },
             {
-                'name': 'alert_type',
+                'name': 'last_observed_ts',
+                'type': 'datetime'
+            },
+            {
+                'name': 'resolved_ts',
+                'type': 'datetime'
+            },
+            {
+                'name': 'kind',
                 'type': 'str'
-            },
-            {
-                'name': 'time_delta',
-                'type': 'int'
             },
             {
                 'name': 'notification_sent',
@@ -41,7 +44,11 @@ class Alert(Base):
             },
             {
                 'name': 'active',
-                'type': 'int'
+                'type': 'bool'
+            },
+            {
+                'name': 'message',
+                'type': 'str'
             },
 
         ]
@@ -89,25 +96,6 @@ class Alert(Base):
         self.build_from_list(raw, build_device=build_device, build_alert_events=build_alert_events)
 
         return self
-
-    def build_from_list(self, raw: list, build_device: bool=True, build_alert_events: bool=False):
-        """
-        Builds an alert object from list.
-
-        """
-        super(Alert, self).build_from_list(raw)
-
-        # This is unique to this model
-        if build_device:
-            self.device = Device(self.conn, self.cursor)
-            self.device.get_by_id(self.device_id)
-
-        # This is unique to this model
-        if build_alert_events:
-            alert_events = AlertEvents(self.conn, self.cursor)
-            self.events = alert_events.get_by_alert_id(self.id)
-
-        return True
 
     def delete_device(self, device_id: int) -> bool:
         """

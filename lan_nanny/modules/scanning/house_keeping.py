@@ -14,7 +14,7 @@ from ..collections.device_witnesses import DeviceWitnesses
 from ..models.database_growth import DatabaseGrowth
 
 
-class ScanHouseKeeping:
+class HouseKeeping:
 
     def __init__(self, scan):
         """Set base class vars."""
