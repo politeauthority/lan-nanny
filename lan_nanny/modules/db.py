@@ -20,6 +20,7 @@ from .models.scan_host import ScanHost
 from .models.port import Port
 from .models.entity_meta import EntityMeta
 from .models.database_growth import DatabaseGrowth
+from .collections.options import Options
 
 
 def create_connection(database_file: str):
@@ -60,38 +61,9 @@ def create_tables(conn, cursor):
 
 def populate_options(conn, cursor: sqlite3.Cursor):
     """Create options and sets their defaults."""
-    Option(cursor=cursor, conn=conn).create_table()
-    _set_default_options(conn, cursor, 'timezone', 'America/Denver', 'str')
-    _set_default_options(conn, cursor, 'alert-new-device', '1', 'bool')
-    _set_default_options(conn, cursor, 'active-timeout', '8', 'int')
-    _set_default_options(conn, cursor, 'beta-features', '0', 'bool')
-    _set_default_options(conn, cursor, 'scan-hosts-enabled', '1', 'bool')
-    _set_default_options(conn, cursor, 'scan-hosts-range', '192.168.50.1-255', 'str')
-    _set_default_options(conn, cursor, 'scan-ports-enabled', '1', 'bool')
-    _set_default_options(conn, cursor, 'scan-ports-default', '1', 'bool')
-    _set_default_options(conn, cursor, 'scan-ports-per-run', '2', 'int')
-    _set_default_options(conn, cursor, 'scan-ports-interval', '120', 'int')
-    _set_default_options(conn, cursor, 'static-locally', '0', 'bool')
-    _set_default_options(conn, cursor, 'console-password', 'test1234', 'str')
-    _set_default_options(conn, cursor, 'db-prune-days', None, 'int')
-
-
-def _set_default_options(
-    conn,
-    cursor,
-    option_name: str,
-    option_value: str,
-    option_type: str) -> bool:
-    """Check if an option exists in the options table, if not creates it and sets it's default."""
-    option = Option(conn, cursor)
-    option.get_by_name(option_name)
-    if option.name:
-        return True
-    option.name = option_name
-    option.value = option_value
-    option.type = option_type
-    option.save()
-    return True
-
+    o = Option(cursor=cursor, conn=conn).create_table()
+    os = Options(cursor=cursor, conn=conn)
+    console_password = os.set_defaults()
+    return console_password
 
 # End File: lan-nanny/lan_nanny/modules/db.py

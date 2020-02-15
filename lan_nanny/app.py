@@ -6,6 +6,7 @@ Web application entry point.
 import sys
 
 from flask import Flask, render_template, request, redirect, session, g
+from werkzeug.security import check_password_hash
 
 from modules.controllers.alert import alert as ctrl_alert
 from modules.controllers.device import device as ctrl_device
@@ -60,9 +61,7 @@ def login():
     if not request.form:
         return render_template('login.html')
 
-    print(request.form['password'])
-    print(g.options['console-password'].value)
-    if request.form['password'] == g.options['console-password'].value:
+    if check_password_hash(g.options['console-password'].value, request.form['password']):
         session['auth'] = True
         return redirect('/')
 
