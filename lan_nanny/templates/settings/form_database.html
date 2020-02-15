@@ -15,17 +15,13 @@
   </div>
 
 
-  <form action="/settings/save-general" method="POST">
+  <form action="/settings/save-database" method="POST">
     <!-- Second Row -->
     <div class="row">
     {% with active_page=active_page_scans %}
       {% include "settings/sub_nav.html" %}
     {% endwith %}
     </div><!-- End Second Row -->
-
-    <div class="row">
-      <button class="btn btn-success" type="submit">Save</button>
-    </div>
 
     <div class="row">
 
@@ -49,9 +45,12 @@
           </div>
         </div>
       </div> <!-- End Prune Settings -->
-
-
     </div>
+
+    <div class="row">
+      <button class="btn btn-success" type="submit">Save</button>
+    </div>
+
   </form>
 
 {%endblock%}

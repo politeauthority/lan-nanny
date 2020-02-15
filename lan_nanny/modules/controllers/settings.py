@@ -74,7 +74,7 @@ def save_scanning():
 
     _save_setting(conn, cursor, 'scan-ports-interval', request.form['setting_scan_ports_interval'])
 
-    return redirect('/settings-scanning')
+    return redirect('/settings/scanning')
 
 
 @settings.route('/database')
@@ -96,7 +96,7 @@ def save_database():
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     _save_setting(conn, cursor, 'db-prune-days', request.form['setting_db_prune_days'])
 
-    return redirect('/settings-database')
+    return redirect('/settings/database')
 
 
 def _save_setting(conn, cursor, option_name, option_value):
