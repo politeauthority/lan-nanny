@@ -160,9 +160,32 @@ function create_toast(level, title, message, persist=true){
 
 /* Global setup for page loads */
 $(document).ready(function(){
+
+  // Show Toasts on page load.
   $('.toast').toast({
     delay: 5000
   });
   $('.toast').toast('show');
+
+
+  $('.time_switch').css({'cursor': 'pointer'});
+  $('.time_switch').hover(function(){
+    var icon = $(this).find('i');
+    icon.addClass('icon_hover_over');
+  });
+  $('.time_switch').mouseout(function(){
+    var icon = $(this).find('i');
+    icon.removeClass('icon_hover_over');
+  });
+  $('.time_switch').click(function(){
+    var time_box = $(this);
+    time_box.find('span').each(function( index ) {
+      if ($(this).hasClass('hidden')){
+        $(this).removeClass('hidden');
+      } else {
+        $(this).addClass('hidden');
+      }
+    });
+  });
 });
 

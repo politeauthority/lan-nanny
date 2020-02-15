@@ -13,7 +13,6 @@ class Alert(Base):
         self.conn = conn
         self.cursor = cursor
 
-        self.model_name = 'Alert'
         self.table_name = 'alerts'
         self.field_map = [
             {

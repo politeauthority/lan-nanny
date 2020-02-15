@@ -51,3 +51,15 @@
   width: 350px;
   z-index: 100;
 }
+
+.time_switch i {
+  padding-right: 5px;
+}
+
+.icon_hover_over {
+  color: #444;
+}
+
+.scan-success {
+  color: green;
+}

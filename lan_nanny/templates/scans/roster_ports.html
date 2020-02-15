@@ -4,7 +4,10 @@
 {% block content %}
   <!-- Page Heading -->
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Scan Ports - {{pagination['total_units']}}</h1>
+    <h1 class="h3 mb-0 text-gray-800">
+      Scan Ports
+      {%if pagination['total_units']%}<span class="badge badge-secondary">{{pagination['total_units']}}</span>{%endif%}
+    </h1>
   </div>
 
   <!-- Sub Nav -->
@@ -31,6 +34,9 @@
               <table class="table" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                   <tr>
+                    <td></td>
+                    <td>ID</td>
+                    <td>Device</td>
                     <td>Started</td>
                     <td>Ports Found</td>
                     <td>Trigger</td>
@@ -39,10 +45,17 @@
                 </thead>
                 {% for scan in scans %}
                 <!--  href="/scan/info/host/{{scan.id}} -->
-                <tr class="{%if scan.completed==1 and scan.success==1%}table-success{%endif%}" class="link_row" data-href="/scan/info/hosts/{{scan.id}}">
+                <tr class="link_row" data-href="/scan/info/hosts/{{scan.id}}">
                   <td>
-                    <a href="/scan/info/port/{{scan.id}}">{{scan.created_ts|smart_time}}</a>
+                    {%if scan.completed==1 and scan.success==1%}
+                      <i class="fas fa-check scan-success"></i>
+                    {%else%}
+                      <i class="fas fa-exclamation-triangle scan-fail"></i>
+                    {%endif%}
                   </td>
+                  <td><a href="/scan/info/port/{{scan.id}}">{{scan.id}}</a></td>
+                  <td>{{devices[scan.device_id]|device_icon_status}}</td>
+                  <td>{{scan.created_ts|smart_time}}</td>
                   <td>
                     {%if scan.units%}
                       {{scan.units}}

@@ -11,7 +11,6 @@ class AlertEvent(Base):
         self.conn = conn
         self.cursor = cursor
 
-        self.model_name = 'AlertEvent'
         self.table_name = 'alert_events'
         self.field_map = [
             {

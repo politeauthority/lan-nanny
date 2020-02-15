@@ -49,7 +49,12 @@ class ScanPort(Base):
                 'name': 'trigger',
                 'type': 'str'
             },
+            {
+                'name': 'message',
+                'type': 'str'
+            },
         ]
+        self.device = None
         self.setup()
 
     def insert_run_start(self):

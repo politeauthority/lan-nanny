@@ -19,13 +19,13 @@
         <!-- Card Body -->
         <div class="card-body">
           <div class="table-responsive">
-            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+            <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
               <tr>
                 <td>
                   DB Name
                 </td>
                 <td>
-                  {{db_name}}
+                  <code>{{db_name}}</code>
                 </td>
               </tr>
               <tr>
@@ -33,9 +33,29 @@
                   DB Size
                 </td>
                 <td>
-                  {{db_size}}
+                  {{db_growth['db_current_size_pretty']}}
                 </td>
               </tr>
+              {%if g.options['beta-features'].value %}
+                <tr>
+                  <td>
+                    DB Growth Over 24 Hours
+                  </td>
+                  <td>
+                    {{db_growth['db_24_hour_delta_size_pretty']}}
+                  </td>
+                </tr>
+                {%if db_growth['db_first']%}
+                <tr>
+                  <td>
+                    DB Started
+                  </td>
+                  <td>
+                    {{db_growth['db_first'].created_ts|pretty_time}}
+                  </td>
+                </tr>
+                {%endif%}
+              {%endif%}
               <tr>
                 <td>
                   Recorded Witness

@@ -55,6 +55,37 @@ def smart_time(date_val: datetime, format_switch_range_seconds: int = None) -> s
         return parsed.humanize()
 
 
+def pretty_time_adaptive(date_val: datetime) -> str:
+    """
+    Create a switchable time display, starting with time ago value, which can be clicked to show
+    a more standard date value via javascript.
+
+    """
+    if not date_val:
+        return ''
+    parsed = arrow.get(date_val)
+    parsed = parsed.to(g.options['timezone'].value)
+    format_switch_range_seconds = (60 * 60) * 12  # default 12 hours
+
+    delta = arrow.utcnow().datetime - parsed.datetime
+
+    if delta.seconds > format_switch_range_seconds:
+        return parsed.format('ddd MMM Do h:mm:ss a')
+    else:
+        return parsed.format('h:mm:ss a')
+
+
+def time_switch(the_time) -> str:
+    """Draw a datetime var in "time ago" with a hidden span containing the pretty time."""
+    the_arrow = arrow.get(the_time)
+    pretty_time = pretty_time_adaptive(the_time)
+    html = '<div class="time_switch">'
+    html += '<i class="fas fa-clock"></i>'
+    html += '<span class="time-pretty">%s</span>' % arrow.get(the_time).humanize()
+    html += '<span class="time-long hidden">%s</span>' % pretty_time
+    html += '</div>'
+    return Markup(html)
+
 def online(seen_at: datetime) -> bool:
     """
     Checks to see if the device's last_seen attribute has checked in within x minutes.
@@ -109,16 +140,6 @@ def device_icon_status(device: Device) -> int:
         'id': device.id,
         'name': device.name
     }
-    return Markup(html)
-
-
-def time_switch(the_time):
-    """Draw a datetime var in "time ago" with a hidden span containing the pretty time."""
-    the_arrow = arrow.get(the_time)
-    pretty_time = the_arrow.to(g.options['timezone'].value).format('ddd MMM Do h:mm:ss a')
-    html = ''
-    html += '<span class="time-pretty">%s</span>' % arrow.get(the_time).humanize()
-    html += '<span class="time-long hidden">%s</span>' % pretty_time
     return Markup(html)
 
 

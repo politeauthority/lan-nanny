@@ -67,7 +67,7 @@ class DeviceWitness(Base):
     def build_from_list(self, raw: list, build_device: bool=True):
         """
         Builds a witness from list
-        @todo: should be redone to use parent for intial load and this class for device load.
+        @todo: should be redone to use parent for initial load and this class for device load.
 
         """
         c = 0

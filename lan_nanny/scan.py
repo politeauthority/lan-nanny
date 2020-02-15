@@ -1,4 +1,10 @@
-"""Scan
+"""Entry point to all scan operations and other tasks that need to be run on a regular schedule.
+
+    Scans hosts on network
+    Scans ports for a given host
+    Runs house keeping operations.
+
+    This script must be run with sudo privileges for network scanning to work properly.
 
 """
 import argparse
@@ -8,7 +14,7 @@ from modules import db
 from modules.collections.options import Options
 from modules.scanning.scan_ports import ScanPorts
 from modules.scanning.scan_hosts import ScanHosts
-from modules.scanning.scan_prune import ScanPrune
+from modules.scanning.scan_house_keeping import ScanHouseKeeping
 from config import default as config_default
 
 TMP_DIR = "/opt/lan_nanny/"
@@ -24,6 +30,7 @@ class Scan:
         self.args = args
         self.force_scan = False
         self.trigger = 'manual'
+        self.db_file_loc = config_default.LAN_NANNY_DB_FILE
         self.new_alerts = []
         self.hosts = []
 
@@ -40,16 +47,14 @@ class Scan:
             self.trigger = 'cron'
 
     def run(self):
-        """
-        Main entry point to scanning script.
-
-        """
+        """Main entry point to scanning script."""
         self.setup()
         self.hande_hosts()
         self.handle_ports()
-        self.handle_prune()
+        self.handle_house_keeping()
 
     def hande_hosts(self):
+        """Launch host scanning operations."""
         self.hosts = ScanHosts(self).run()
 
     def handle_ports(self):
@@ -67,12 +72,12 @@ class Scan:
             return False
         ScanPorts(self).run()
 
-    def handle_prune(self):
-        if not self.options['db-prune-days'] or self.options['db-prune-days'].value == 0:
-            return
-        ScanPrune(self).run()
+    def handle_house_keeping(self):
+        """Run house keeping operations like database pruning etc."""
+        ScanHouseKeeping(self).run()
 
     def prompt_sudo(self):
+        """Make sure the script is being run as sudo, or scanning will not work."""
         ret = 0
         if os.geteuid() != 0:
             msg = "[sudo] password for %u:"
