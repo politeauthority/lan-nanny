@@ -5,6 +5,8 @@ Random utility functions.
 from datetime import datetime, timedelta
 from functools import wraps
 import os
+import secrets
+import string
 
 from flask import session, redirect
 
@@ -123,5 +125,11 @@ def key_list_on_id(some_object_list: list) -> dict:
         ret[o.id] = o
     return ret
 
+
+def make_default_password() -> str:
+    """Create a random alpha numeric string for a password."""
+    alphabet = string.ascii_letters + string.digits
+    password = ''.join(secrets.choice(alphabet) for i in range(20))
+    return password
 
 # End File: lan-nanny/lan_nanny/modules/utils.py

@@ -20,7 +20,9 @@ def run():
     pip_requirements()
     conn, cursor = create_database()
     db.create_tables(conn, cursor)
-    db.populate_options(conn, cursor)
+    console_password = db.populate_options(conn, cursor)
+    if console_password:
+        print('Console password: %s' % console_password)
 
 def create_lan_nanny_space():
     """Create the lan nanny install space"""

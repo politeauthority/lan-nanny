@@ -82,6 +82,18 @@ class Option(Base):
                 self.value = 0
         return self.save()
 
+    def set_default(self, the_option: dict) -> bool:
+        option_name = the_option['name']
+        self.get_by_name(option_name)
+        if self.name:
+            return False
+        self.name = option_name
+        self.type = the_option['type']
+        if 'default' in the_option:
+            self.value = the_option['default']
+        self.save()
+        return True
+
 
     def _set_bool(self, value) -> bool:
         """
