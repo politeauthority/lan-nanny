@@ -8,88 +8,23 @@
 
 
 {% block content %}
-
-  <form action="/settings/save" method="POST">
-
-    <div class="row">
-      <div class="col-lg-6">
-        <h2>Settings</h2>
-      </div>
-      <div class="col-lg-6 text-right">
-        <button class="btn btn-success" type="submit">Save</button>
-      </div>
-
+  <div class="row">
+    <div class="col-lg-6">
+      <h2>Settings</h2>
     </div>
-  
-    {% with active_page=active_page_settings %}
+  </div>
+
+
+  <form action="/settings/save-scanning" method="POST">
+    <!-- Second Row -->
+    <div class="row">
+    {% with active_page=active_page_scans %}
       {% include "settings/sub_nav.html" %}
     {% endwith %}
+    </div><!-- End Second Row -->
 
-  
+
     <div class="row">
-      <!-- General Settings -->
-      <div class="col-xl-6 col-lg-6">
-        <div class="card shadow mb-4">
-          <!-- Card Header -->
-          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-            <h6 class="m-0 font-weight-bold text-primary">
-              General
-            </h6>
-          </div>
-          <div class="card-body">
-
-            <!-- Timezone -->
-            <div class="form-group">
-              <label for="settings_timezone">Timezone</label>
-              <select class="form-control" id="settings_timezone" name="settings_timezone"  aria-describedby="timezoneHelp">
-                <option selected="selected">{{settings['timezone'].value}}</option>
-                <option>US/Alaska</option>
-                <option>US/Aleutian</option>
-                <option>US/Arizona</option>
-                <option>US/Central</option>
-                <option>US/East-Indiana</option>
-                <option>US/Eastern</option>
-                <option>US/Hawaii</option>
-                <option>US/Indiana-Starke</option>
-                <option>US/Michigan</option>
-                <option>US/Mountain</option>
-                <option>US/Pacific</option>
-                <option>US/Pacific-New</option>
-                <option>US/Samoa</option>
-                <option>UTC</option>
-              </select>
-              <small id="timezoneHelp" class="form-text text-muted">Timezone for display</small>
-            </div>
-
-            <div class="form-group form-sm">
-              <label for="setting_active_timeout">Active Device Timeout</label>
-              <input type="number" class="form-control form-sm" id="setting_active_timeout" name="setting_active_timeout" value="{{settings['active-timeout'].value}}" aria-describedby="activeTimeoutHelp">
-              <small id="activeTimeoutHelp" class="form-text text-muted">Number of minutes a device has to be missing from scans to be marked offline.</small>
-            </div>
-            
-            <div class="form-group">
-              <label for="setting_beta_features">Enable Beta Features</label>
-              <input id="setting_beta_features" type="checkbox" data-toggle="toggle" aria-describedby="betaFeaturesHelp">
-              <small id="betaFeaturesHelp" class="form-text text-muted">Enable beta features (may be buggy)</small>
-
-            </div>
-            
-            
-            <!--
-            <div class="form-group">
-              <label for="setting_scan_hosts_enabled">Alert on new devices</label>
-              <input id="setting_alert_new_device" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="scanHostsEnabledeHelp">
-              <small id="scanHostsEnabledeHelp" class="form-text text-muted">Enable regular host scanning.</small>
-            </div>
-            -->
-
-            <div id="hidden_forms" class=""></div>
-            <br/>
-
-          </div>
-        </div>
-      </div> <!-- End General Settings -->
-
       <!-- Scan Settings -->
       <div class="col-xl-6 col-lg-6">
         <div class="card shadow mb-4">
@@ -137,28 +72,12 @@
           </div>
         </div>
       </div><!-- End Scan Settings-->
+      <div id="hidden_forms" class=""></div>
+    </div>
 
-      <!-- Prune Settings -->
-      <div class="col-xl-6 col-lg-6">
-        <div class="card shadow mb-4">
-          <!-- Card Header -->
-          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-            <h6 class="m-0 font-weight-bold text-primary">
-              Database Prune Settings
-            </h6>
-          </div>
-          <div class="card-body">
-            <small>These settings are to remove data from the database to help maintain performance. Only change these settings if Lan Nanny is running slowly.</small>
-            <div class="form-group form-sm">
-              <label for="setting_db_prune_days">Days to Maintain Data</label>
-              <input type="number" class="form-control form-sm" id="setting_db_prune_days" name="setting_db_prune_days" value="{{settings['db-prune-days'].value}}" aria-describedby="dbPruneDaysHelp">
-              <small id="dbPruneDaysHelp" class="form-text text-muted">Number of days to maintain data pertaining to host scan log attendance within host scans. An empty or value of 0 is treated as indefinite.</small>
-            </div>
-            
-          </div>
-        </div>
-      </div> <!-- End Prune Settings -->
 
+    <div class="row">
+      <button class="btn btn-success" type="submit">Save</button>
     </div>
   </form>
 
