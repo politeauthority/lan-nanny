@@ -3,6 +3,7 @@
 """
 from flask import Blueprint, render_template, redirect, request, g
 from flask import current_app as app
+from werkzeug.security import generate_password_hash, check_password_hash
 
 from .. import db
 from .. import utils
@@ -97,6 +98,34 @@ def save_database():
     _save_setting(conn, cursor, 'db-prune-days', request.form['setting_db_prune_days'])
 
     return redirect('/settings/database')
+
+
+@settings.route('/password')
+@utils.authenticate
+def form_password() -> str:
+    """Password setting page."""
+    data = {
+        'active_page': 'settings',
+        'active_page_settings': 'password',
+        'settings': g.options,
+    }
+    return render_template('settings/form_password.html', **data)
+
+
+@settings.route('/save-password', methods=['POST'])
+@utils.authenticate
+def save_password():
+    """Password settings save."""
+    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    if not check_password_hash(g.options['console-password'].value, request.form['setting_current_password']):
+        return redirect('/'), 403
+    if request.form['setting_password_1'] != request.form['setting_password_1']:
+        return redirect('/'), 403
+
+    new_pass = generate_password_hash(request.form['setting_password_1'], "sha256")
+    _save_setting(conn, cursor, 'console-password', new_pass)
+
+    return redirect('/settings/password')
 
 
 def _save_setting(conn, cursor, option_name, option_value):

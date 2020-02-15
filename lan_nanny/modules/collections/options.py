@@ -112,6 +112,10 @@ class Options():
         gen_pass = None
         for opt in default_opts:
             option = Option(self.conn, self.cursor)
+            option.get_by_name(opt['name'])
+            if option.name:
+                continue
+
             if opt['name'] != 'console-password':
                 option.set_default(opt)
 
