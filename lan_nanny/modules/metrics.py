@@ -86,9 +86,8 @@ class Metrics:
         return ret
 
     def get_device_presence_over_time(self, device, hours: int=24) -> dict:
-        """
-            Get a single device's presence on network over a period of time as a percentage value
-            based on DeviceWitness count and Host Scans over that period of time.
+        """Get a single device's presence on network over a period of time as a percentage value
+        based on DeviceWitness count and Host Scans over that period of time.
         """
         wd = DeviceWitnesses(self.conn, self.cursor)
         sh = ScanHosts(self.conn, self.cursor)

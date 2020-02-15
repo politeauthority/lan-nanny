@@ -29,7 +29,6 @@ class Base:
         'table_name': self.table_name,
         'ids': sql_ids,
         }
-        print(sql)
         self.cursor.execute(sql)
         raw = self.cursor.fetchall()
         prestine = []

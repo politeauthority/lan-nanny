@@ -22,7 +22,7 @@ class DeviceWitnesses(Base):
         self.table_name = DeviceWitness().table_name
         self.collect_model = DeviceWitness
 
-    def get_count_since_by_device_id(self, device_id, seconds_since_created: int) -> int:
+    def get_count_since_by_device_id(self, device_id: int, seconds_since_created: int) -> int:
         """Get count of DeviceWitness instances in table created in last x minutes."""
         then = arrow.utcnow().datetime - timedelta(seconds=seconds_since_created)
         sql = """
@@ -30,14 +30,11 @@ class DeviceWitnesses(Base):
             FROM %s
             WHERE 
                 device_id=%s AND
-                created_ts > "%s";
+                created_ts>"%s";
             """ % (self.table_name, device_id, then)
-
-        print(sql)
         self.cursor.execute(sql)
         raw_witness_count = self.cursor.fetchone()
         return raw_witness_count[0]
-
 
     def get_by_scan_id(self, scan_id: int) -> list:
         """Get all witness records from a scan_id."""
