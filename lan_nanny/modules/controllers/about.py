@@ -1,4 +1,4 @@
-"""Scan - Controller
+"""About - Controller
 
 """
 import os
@@ -41,21 +41,30 @@ def database_stats(conn, cursor ):
     db_24_hours_ago = DatabaseGrowth(conn, cursor)
     db_24_hours_ago.get_24_hours_ago()
 
-    db_delta_24 = None
-    if db_24_hours_ago:
-        db_delta_24 = db_current_size - db_24_hours_ago.size
+    db_current = {
+        'size': db_current_size,
+        'size_pretty': utils.size_of_fmt(db_current_size)
+    }
 
+    db_delta_24 = {
+        'size': 0,
+        'size_pretty': '',
+        'percent': 0,
+    }
+
+    if db_24_hours_ago.size:
+        db_delta_24['size'] = db_24_hours_ago.size
+        db_delta_24['size_pretty'] = utils.size_of_fmt(db_current_size - db_24_hours_ago.size)
+        db_delta_24['percent'] = utils.get_percent(
+            db_current['size'],
+            db_delta_24['size'])
     db_first = DatabaseGrowth(conn, cursor)
     db_first.get_by_id(1)
 
     ret = {
         'db_first': db_first,
-        'db_current_size': db_current_size,
-        'db_current_size_pretty': utils.size_of_fmt(db_current_size),
-        'db_24_hour_size': db_24_hours_ago.size,
-        'db_24_hour_size_pretty': utils.size_of_fmt(db_24_hours_ago.size),
-        'db_24_hour_delta_size': db_delta_24,
-        'db_24_hour_delta_size_pretty': utils.size_of_fmt(db_delta_24),
+        'db_current': db_current,
+        'db_24_hour': db_delta_24
 
     }
     return ret

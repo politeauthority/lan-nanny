@@ -136,6 +136,7 @@ def register_jinja_funcs(app: Flask):
     app.jinja_env.filters['device_icon_status'] = filters.device_icon_status
     app.jinja_env.filters['time_switch'] = filters.time_switch
     app.jinja_env.filters['number'] = filters.number
+    app.jinja_env.filters['get_percent'] = filters.get_percent
 
 
 if __name__ == '__main__':

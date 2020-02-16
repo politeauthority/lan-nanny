@@ -32,14 +32,15 @@ class DatabaseGrowth(Base):
             return first.created_ts
 
     def get_24_hours_ago(self):
+        """Get 24 hours ago."""
         date_24_hours_ago = arrow.utcnow().datetime - timedelta(hours=24)
         sql = """
             SELECT *
             FROM %s
-            WHERE created_ts > '%s'
-            ORDER BY created_ts ASC
+            WHERE created_ts>='%s'
+            ORDER BY created_ts
             LIMIT 1;
-        """ % (self.table_name, date_24_hours_ago)
+        """ % (self.table_name, str(date_24_hours_ago)[0:10])
         self.cursor.execute(sql)
         raw_db_growth = self.cursor.fetchone()
         if not raw_db_growth:

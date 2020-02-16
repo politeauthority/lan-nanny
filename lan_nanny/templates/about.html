@@ -33,7 +33,7 @@
                   DB Size
                 </td>
                 <td>
-                  {{db_growth['db_current_size_pretty']}}
+                  {{db_growth['db_current']['size_pretty']}}
                 </td>
               </tr>
               {%if g.options['beta-features'].value %}
@@ -42,7 +42,7 @@
                     DB Growth Over 24 Hours
                   </td>
                   <td>
-                    {{db_growth['db_24_hour_delta_size_pretty']}}
+                    {{db_growth['db_24_hour']['size_pretty']}} ({{db_growth['db_24_hour']['percent']}}%)
                   </td>
                 </tr>
                 {%if db_growth['db_first']%}
