@@ -26,6 +26,8 @@ class ScanHosts:
         self.scan_file = os.path.join(self.tmp_dir, 'host-scan.xml')
         self.trigger = scan.trigger
         self.run_success = True
+        self.hosts = []
+        self.new_hosts = []
 
     def run(self) -> list:
         """Run host nmap scan."""
@@ -36,11 +38,11 @@ class ScanHosts:
             self._abort_run('Scanning disabled by option.')
             return []
 
-        self.hosts = self.scan()
+        self.scan()
         self._complete_run()
         self.handle_devices()
 
-        return self.hosts
+        return (self.hosts, self.new_hosts)
 
     def setup(self):
         """Set up the scan hosts run."""
@@ -48,7 +50,7 @@ class ScanHosts:
         self.scan_log.trigger = self.trigger
         self.scan_log.insert_run_start()
 
-    def scan(self):
+    def scan(self) -> bool:
         """Run the port scan operation."""
         scan_range = self.options['scan-hosts-range'].value
         start_ts = time.time()
@@ -72,8 +74,11 @@ class ScanHosts:
 
         if self.run_success:
             self.scan_log.elapsed_time = round(end_ts - start_ts, 2)
-            self.scan_log.save()
-        return hosts
+        
+        self.hosts = hosts
+        self.scan_log.save()
+
+        return True
 
     def handle_devices(self):
         """
@@ -85,6 +90,7 @@ class ScanHosts:
             print('No hosts found or error encountered.')
             return False
         print('Found %s devices:' % len(self.hosts))
+        self.new_devices = []
 
         scan_time = arrow.utcnow().datetime
         count = 0
@@ -106,7 +112,6 @@ class ScanHosts:
                 if self.options['scan-ports-default'].value:
                     device.port_scan = True
 
-            device.vendor = host['vendor']
             device.name = self._set_device_name(device, host)
             device.last_seen = scan_time
             device.ip = host['ip']
@@ -116,6 +121,7 @@ class ScanHosts:
 
             new_device_str = ""
             if new:
+                self.new_devices.append(device)
                 new_device_str = "\t- New Device"
             print('\t%s - %s%s' % (device.name, device.ip, new_device_str))
 

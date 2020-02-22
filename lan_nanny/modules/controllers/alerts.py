@@ -7,30 +7,42 @@ from flask import current_app as app
 import arrow
 
 from .. import db
+from .. import utils
 from ..models.alert import Alert
 from ..collections.alerts import Alerts
 from ..collections.devices import Devices
 
 
-alert = Blueprint('Alert', __name__, url_prefix='/alert')
+alerts = Blueprint('Alert', __name__, url_prefix='/alerts')
 
 
-@alert.route('/')
-def roster():
-    """
-    Alerts roster page.
-
-    """
+@alerts.route('/')
+@utils.authenticate
+def dashboard():
+    """Alerts dashboard page."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     alerts = Alerts(conn, cursor)
     data = {}
     data['alerts'] = alerts.get_all()
     data['active_page'] = 'alerts'
-    data['devices'] = Devices(conn, cursor).with_alerts_on()
+    data['active_page_alerts'] = 'dashboard'
+    return render_template('alerts/dashboard.html', **data)
+
+
+@alerts.route('/all')
+@utils.authenticate
+def roster():
+    """Alerts roster page."""
+    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    alerts = Alerts(conn, cursor)
+    data = {}
+    data['alerts'] = alerts.get_all()
+    data['active_page'] = 'alerts'
+    data['active_page_alerts'] = 'dashboard'
     return render_template('alerts/roster.html', **data)
 
 
-@alert.route('/info/<alert_id>')
+@alerts.route('/info/<alert_id>')
 def info(alert_id: int):
     """
     Alert info page.
@@ -54,7 +66,7 @@ def info(alert_id: int):
     return render_template('alerts/info.html', **data)
 
 
-@alert.route('/alert-quick-save', methods=['POST'])
+@alerts.route('/alert-quick-save', methods=['POST'])
 def alert_quick_save() -> str:
     """
     Ajax web route for update a device alert settings or not when coming on or off the network.
@@ -80,7 +92,7 @@ def alert_quick_save() -> str:
 
     return jsonify({"success": True})
 
-@alert.route('/delete/<alert_id>')
+@alerts.route('/delete/<alert_id>')
 def delete(alert_id: int):
     """
     Alert delete.
@@ -96,4 +108,4 @@ def delete(alert_id: int):
 
     return redirect('/alert')
 
-# End File: lan-nanny/lan_nanny/modules/controllers/alert.py
+# End File: lan-nanny/lan_nanny/modules/controllers/alerts.py

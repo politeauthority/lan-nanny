@@ -1,0 +1,21 @@
+<!-- Alert Dashboard -->
+
+{% extends "layout.html" %}
+{% block content %}
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Alerts</h1>
+  </div>
+  <div class="row">
+    {% with active_page=active_page_alerts %}
+      {% include "alerts/sub_nav.html" %}
+    {% endwith %}
+  </div>
+  <!-- Content Row -->
+  <div class="row">
+
+  </div>
+
+{%endblock%}
+
+<!-- EndFile: lan-nanny/lan_nanny/templates/alerts/dashboard.html -->

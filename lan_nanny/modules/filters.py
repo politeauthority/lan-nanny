@@ -10,6 +10,7 @@ from flask import g, Markup
 
 from .models.device import Device
 from .models.port import Port
+from . import utils
 
 
 def time_ago(seen_at: datetime) -> str:
@@ -146,5 +147,8 @@ def device_icon_status(device: Device) -> int:
 def number(number: int) -> str:
     """Format an int as a comma broken fiscal numeric string."""
     return format(number, ",")
+
+def get_percent(whole: int, part: int, round_ret: int=0) -> int:
+    return utils.get_percent(whole, part, round_ret)
 
 # End File: lan-nanny/lan_nanny/modules/filters.py

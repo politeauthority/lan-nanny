@@ -80,14 +80,4 @@ class DeviceWitness(Base):
 
         return True
 
-    def delete_device(self, device_id: int) -> bool:
-        """
-        Deletes all records from the `witness` table containing a device_id, this should be
-        performed when deleting a device.
-
-        """
-        sql = """DELETE FROM witness WHERE device_id = %s """ % device_id
-        self.cursor.execute(sql)
-        return True
-
 # End File: lan-nanny/lan_nanny/modules/models/device_witness.py

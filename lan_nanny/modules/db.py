@@ -14,7 +14,6 @@ from .models.alert import Alert
 from .models.device import Device
 from .models.device_port import DevicePort
 from .models.device_witness import DeviceWitness
-from .models.alert_event import AlertEvent
 from .models.scan_port import ScanPort
 from .models.scan_host import ScanHost
 from .models.port import Port
@@ -48,7 +47,6 @@ def create_tables(conn, cursor):
     """Create all the applications tables needed."""
     print('Starting create tables')
     Alert(cursor=cursor).create_table()
-    AlertEvent(cursor=cursor).create_table()
     Device(cursor=cursor, conn=conn).create_table()
     DevicePort(cursor=cursor, conn=conn).create_table()
     DeviceWitness(cursor=cursor, conn=conn).create_table()

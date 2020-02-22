@@ -5,7 +5,7 @@ Gets collections of alerts.
 from ..models.alert import Alert
 
 
-class Alerts():
+class Alerts:
 
     def __init__(self, conn=None, cursor=None):
         self.conn = conn
@@ -26,11 +26,11 @@ class Alerts():
         alerts = []
         for raw_alert in raw_alerts:
             alert = Alert(self.conn, self.cursor)
-            alert.build_from_list(raw_alert, build_device=True)
+            alert.build_from_list(raw_alert)
             alerts.append(alert)
         return alerts
 
-    def get_active(self, build_devices: bool=False) -> list:
+    def get_active(self) -> list:
         """
         Gets all active alerts from the `alerts` table.
 
@@ -46,7 +46,7 @@ class Alerts():
         alerts = []
         for raw_alert in raw_alerts:
             alert = Alert(self.conn, self.cursor)
-            alert.build_from_list(raw_alert, build_devices)
+            alert.build_from_list(raw_alert)
             alerts.append(alert)
         return alerts
 

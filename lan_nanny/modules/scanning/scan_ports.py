@@ -1,4 +1,4 @@
-"""ScanPorts is the modules which controls device port scanning efforts.
+"""ScanPorts controls device port scanning efforts.
 
 """
 from datetime import timedelta
@@ -32,7 +32,7 @@ class ScanPorts:
         port_scan_devices = self.get_port_scan_candidates()
 
         if not port_scan_devices:
-            print('No devices ready for port scan, skipping.')
+            print('\tNo devices ready for port scan, skipping.')
             return
 
         print('\tStarting Device Port Scans for %s devices' % len(port_scan_devices))
@@ -54,7 +54,8 @@ class ScanPorts:
                 continue
 
             # Remove devices that have been port scanned in x minutes.
-            if host['device'].last_port_scan > host_port_scan_timeout:
+            if not host['device'].last_port_scan or \
+                (host['device'].last_port_scan > host_port_scan_timeout):
                 logging.info('%s has been scanned in the last %s minutes' % (
                     host['device'],
                     host_port_scan_interval_mins))
@@ -69,8 +70,8 @@ class ScanPorts:
 
         return port_scan_devices
 
-    def handle_device_port_scan(self, device: Device):
-        """ Run device port scan and related processes for a single device."""
+    def handle_device_port_scan(self, device: Device) -> True:
+        """Run device port scan and related processes for a single device."""
         device_og_port_scan = device.last_port_scan
         device.conn = self.conn
         device.cursor = self.cursor
@@ -79,13 +80,7 @@ class ScanPorts:
         device.port_scan_lock = True
         device.save()
 
-        # so we dont overrun, mark this as the last port scan now. @todo this should be
-        # done better
-        device.last_port_scan = arrow.utcnow().datetime
-        device.save()
-
         device_port_scan = self.scan_ports_cmd(device)
-
         device.last_port_scan_id = device_port_scan['scan_port_log'].id
 
         # Release device port scan lock.
@@ -108,12 +103,11 @@ class ScanPorts:
         device.last_port_scan = arrow.utcnow().datetime
         device.flagged_for_scan = 0
         device.save()
+        return True
 
     def scan_ports_cmd(self, device: Device) -> list:
-        """
-        Run and manage a NMAP port scan for a single device to derive port data and returning those
-        ports in a list of dicts.
-
+        """Run and manages an NMAP port scan for a single device to derive port data and returning
+           those ports in a list of dicts.
         """
         scan = self.create_device_port_scan_log(device)
         start = time.time()
@@ -154,9 +148,7 @@ class ScanPorts:
         return scan
 
     def handle_ports(self, device: Device, ports: list):
-        """
-
-        """
+        """Take ports found in scan to report and save."""
         if not ports:
             print('Device offline or no ports for %s' % device)
             return False
@@ -171,6 +163,7 @@ class ScanPorts:
         print('Device %s has %s ports open' % (device, num_ports))
 
     def handle_port(self, device, device_ports, raw_port):
+        """Take a single port for device to report and save them."""
         this_dp = None
         for device_port in device_ports:
             if raw_port['number'] == device_port.port.port and \
@@ -191,9 +184,8 @@ class ScanPorts:
         this_dp.save()
 
     def get_port(self, raw_port: dict) -> Port:
-        """
-        Get a port model from the port scan data.
-        @todo: Load this data into memory to save db loads.
+        """Get a port model from the port scan data.
+           @todo: Load this data into memory to save db loads.
         """
         port = Port(self.conn, self.cursor)
         port.port = raw_port['number']
