@@ -9,10 +9,11 @@ from flask import current_app as app
 from .. import db
 from .. import utils
 from ..collections.devices import Devices
-from ..collections.ports import Ports
+from ..collections.device_witnesses import DeviceWitnesses
+from ..collections.device_ports import DevicePorts
+from ..collections.scan_ports import ScanPorts
 from ..models.alert import Alert
 from ..models.device import Device
-from ..models.device_witness import DeviceWitness
 from ..metrics import Metrics
 
 device = Blueprint('Device', __name__, url_prefix='/device')
@@ -242,7 +243,6 @@ def quick_save() -> str:
 @utils.authenticate
 def delete(device_id: int):
     """Device delete."""
-
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
 
     # Delete the device
@@ -250,17 +250,14 @@ def delete(device_id: int):
     device.get_by_id(device_id)
     device.delete()
 
-    # Delete devices witness
-    witness = DeviceWitness(conn, cursor)
-    witness.delete_device(device.id)
+    # Delete device witnesses
+    DeviceWitnesses(conn, cursor).delete_device(device.id)
 
-    # Delete device alerts
-    alert = Alert(conn, cursor)
-    alert.delete_device(device.id)
+    # Delete device ports
+    DevicePorts(conn, cursor).delete_device(device.id)
 
-    # Delete device alerts
-    ports = Ports(conn, cursor)
-    ports.delete_device(device.id)
+    # Delete device scan ports logs
+    ScanPorts(conn, cursor).delete_device(device.id)
 
     return redirect('/device')
 

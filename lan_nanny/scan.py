@@ -14,8 +14,8 @@ from modules import db
 from modules.collections.options import Options
 from modules.scanning.scan_ports import ScanPorts
 from modules.scanning.scan_hosts import ScanHosts
+from modules.scanning.scan_alerts import ScanAlerts
 from modules.scanning.house_keeping import HouseKeeping
-from modules.scanning.alerts import Alerts
 from config import default as config_default
 
 TMP_DIR = "/opt/lan_nanny/"
@@ -34,6 +34,7 @@ class Scan:
         self.db_file_loc = config_default.LAN_NANNY_DB_FILE
         self.new_alerts = []
         self.hosts = []
+        self.new_devices = []
 
     def setup(self):
         """
@@ -57,7 +58,7 @@ class Scan:
 
     def hande_hosts(self):
         """Launch host scanning operations."""
-        self.hosts = ScanHosts(self).run()
+        self.hosts, self.new_hosts = ScanHosts(self).run()
 
     def handle_ports(self):
         """
@@ -76,7 +77,7 @@ class Scan:
 
     def handle_alerts(self):
         """Handle system alerts."""
-        Alerts(self).run()
+        ScanAlerts(self).run()
 
     def handle_house_keeping(self):
         """Run house keeping operations like database pruning etc."""
@@ -109,7 +110,7 @@ def parse_args():
         action='store_true',
         help="")
     args = parser.parse_args()
-    print(args)
+    # print(args)
     return args
 
 

@@ -20,13 +20,13 @@ class DevicePorts(Base):
         self.table_name = DevicePort().table_name
         self.collect_model = DevicePort
 
-    def get_by_device_id(self, device_id) -> list:
+    def get_by_device_id(self, device_id: int) -> list:
         """Get all devices in the database."""
         sql = """
             SELECT *
-            FROM device_ports
+            FROM %s
             WHERE device_id=%s
-            ORDER BY last_seen DESC;""" % device_id
+            ORDER BY last_seen DESC;""" % (self.table_name, device_id)
         self.cursor.execute(sql)
         raw_device_ports = self.cursor.fetchall()
         port_ids = []
@@ -45,5 +45,11 @@ class DevicePorts(Base):
                     break
 
         return device_ports
+
+    def delete_device(self, device_id: int) -> bool:
+        """Delete all device port records for a device_id."""
+        sql = """DELETE FROM %s WHERE device_id=%s""" % (self.table_name, device_id)
+        self.cursor.execute(sql)
+        return True
 
 # End File: lan-nanny/lan_nanny/modules/collections/device_ports.py

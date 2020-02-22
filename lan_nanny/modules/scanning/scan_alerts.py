@@ -6,24 +6,27 @@ import arrow
 from ..collections.scan_hosts import ScanHosts
 from ..collections.alerts import Alerts as CollectAlerts
 from ..models.alert import Alert
+from ..models.entity_meta import EntityMeta
 
 
-class Alerts:
+class ScanAlerts:
 
     def __init__(self, scan):
         self.conn = scan.conn
         self.cursor = scan.cursor
         self.options = scan.options
         self.hosts = scan.hosts
+        self.new_devices = scan.new_devices
 
 
     def run(self):
         """Handle various LanNanny alerts."""
         print('Running alerts')
         self.get_active_alerts()
-        self.check_no_hosts_in_scan()
+        self.alert_no_hosts_in_scan()
 
     def get_active_alerts(self):
+        """Get all currently active alerts."""
         alert_collect = CollectAlerts(self.conn, self.cursor)
         active = alert_collect.get_active()
         self.active_alerts = active
@@ -33,7 +36,27 @@ class Alerts:
             if alert.kind == 'no-hosts-over-time':
                 self.active_no_hosts = alert
 
-    def check_no_hosts_in_scan(self):
+    def alert_new_device(self):
+        """Alert on new device discovery."""
+        if not self.new_devices:
+            return False
+
+        for new_device in self.new_devices:
+            alert_new = Alert(self.conn, self.cursor)
+            alert_new.kind = 'new-device'
+            alert_new.active = True
+            alert_new.last_observed_ts = arrow.utcnow().datetime
+            alert_new.save()
+            alert_meta = EntityMeta(self.conn, self.cursor)
+            alert_meta.entity_type = 'alerts'
+            alert_meta.entity_id = alert_new.id
+            alert_meta.name = 'device_id'
+            alert_meta.type = 'int'
+            alert_meta.value = new_device.id
+            alert_meta.save()
+            print("Created new device alert for %s" % new_device)
+
+    def alert_no_hosts_in_scan(self) -> bool:
         """Create an alert if there's been no productive host scans in x seconds."""
         seconds_to_alert = 60 * 60 * 3  # 3 hours
         host_scans = ScanHosts(self.conn, self.cursor)
@@ -69,4 +92,4 @@ class Alerts:
         return True
 
 
-# End File: lan-nanny/lan_nanny/modules/scanning/alerts.py
+# End File: lan-nanny/lan_nanny/modules/scanning/scan_alerts.py

@@ -53,15 +53,13 @@ class Alert(Base):
 
         ]
         self.setup()
-        self.device = None
-        self.events = []
 
     def __repr__(self):
-        if self.id:
-            return "<Alert %s>" % self.id
+        if self.kind:
+            return "<Alert %s>" % self.kind
         return "<Alert>"
 
-    def get_active(self, device_id: int, alert_type: str) -> bool:
+    def get_active(self, alert_type: str) -> bool:
         """
         Checks the `alerts` table for active alerts for a device and alert type.
 
@@ -71,31 +69,15 @@ class Alert(Base):
             FROM alerts
             WHERE
                 active = 1 AND
-                device_id = ? AND
                 alert_type = ?
             ORDER BY created_ts DESC
             LIMIT 1 """
-        self.cursor.execute(sql, (device_id, alert_type))
+        self.cursor.execute(sql, (alert_type))
         alert_raw = self.cursor.fetchone()
         if alert_raw:
-            self.build_from_list(alert_raw, build_device=False)
+            self.build_from_list(alert_raw)
             return True
         return False
-
-    def get_by_id(self, model_id: int, build_device: bool=False, build_alert_events: bool=False):
-        """
-        Gets an alert from the `alerts` table based on it's alert ID.
-
-        """
-        sql = """SELECT * FROM %s WHERE id=%s""" % (self.table_name, model_id)
-        self.cursor.execute(sql)
-        raw = self.cursor.fetchone()
-        if not raw:
-            return False
-
-        self.build_from_list(raw, build_device=build_device, build_alert_events=build_alert_events)
-
-        return self
 
     def delete_device(self, device_id: int) -> bool:
         """
@@ -104,15 +86,6 @@ class Alert(Base):
 
         """
         sql = """DELETE FROM alerts WHERE device_id = %s """ % device_id
-        self.cursor.execute(sql)
-        return True
-
-    def delete_alert_events(self) -> bool:
-        """
-        Deletes all alert_event records for an alert.
-
-        """
-        sql = """DELETE FROM alert_events WHERE alert_id = %s """ % self.id
         self.cursor.execute(sql)
         return True
 

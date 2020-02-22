@@ -1,7 +1,7 @@
 """Database Growth Model
 
 """
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import arrow
 
@@ -23,13 +23,6 @@ class DatabaseGrowth(Base):
             },
         ]
         self.setup()
-
-    def get_age(self):
-        first = self.get_by_id(1)
-        if not first:
-            return None
-        else:
-            return first.created_ts
 
     def get_24_hours_ago(self):
         """Get 24 hours ago."""
