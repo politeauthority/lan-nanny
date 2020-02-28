@@ -19,6 +19,7 @@ from .models.scan_host import ScanHost
 from .models.port import Port
 from .models.entity_meta import EntityMeta
 from .models.database_growth import DatabaseGrowth
+from .models.sys_info import SysInfo
 from .collections.options import Options
 
 
@@ -55,7 +56,7 @@ def create_tables(conn, cursor):
     Port(cursor=cursor, conn=conn).create_table()
     EntityMeta(cursor=cursor, conn=conn).create_table()
     DatabaseGrowth(cursor=cursor, conn=conn).create_table()
-
+    SysInfo(cursor=cursor, conn=conn).create_table()
 
 def populate_options(conn, cursor: sqlite3.Cursor):
     """Create options and sets their defaults."""

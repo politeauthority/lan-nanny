@@ -10,7 +10,7 @@ from sqlite3 import Error
 import arrow
 
 
-class Base():
+class Base:
 
     def __init__(self, conn=None, cursor=None):
         """
@@ -126,10 +126,7 @@ class Base():
         return True
 
     def delete(self, _id: int = None):
-        """
-        Deletes a model item by id.
-
-        """
+        """Deletes a model item by id."""
         self.setup()
         if _id:
             self.id = _id
@@ -139,10 +136,7 @@ class Base():
         return True
 
     def get_by_id(self, model_id: int = None) -> bool:
-        """
-        Gets an alert from the `alerts` table based on it's alert ID.
-
-        """
+        """Get a single model object from db based on an object ID."""
         if model_id:
             self.id = model_id
         elif not self.id:
@@ -189,10 +183,12 @@ class Base():
             #     setattr(self, field['name'], raw[count])
         """
         count = 0
-
         for field in self.total_map:
             if field['type'] == 'datetime':
-                setattr(self, field['name'], arrow.get(raw[count]).datetime)
+                if raw[count]:
+                    setattr(self, field['name'], arrow.get(raw[count]).datetime)
+                else:
+                    setattr(self, field['name'], None)
             else:
                 setattr(self, field['name'], raw[count])
 

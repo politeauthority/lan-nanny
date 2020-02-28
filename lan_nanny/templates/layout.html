@@ -261,6 +261,13 @@
 
   <script src="/static/js/main.js" crossorigin="anonymous"></script>
 
+  <script type="text/javascript">
+    // Reload every 5 minutes
+    setTimeout(function(){
+      window.location.reload(1);
+      console.log('reloading, its been 5 minutes;');
+    }, 60000);
+  </script>
   {%block javascript%}{%endblock%}
 
 </body>

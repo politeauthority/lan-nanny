@@ -16,6 +16,23 @@ class Base:
         self.table_name = None
         self.collect_model = None
 
+    def get_all(self) -> list:
+        """Gets all of a models instances from the database."""
+        sql = """
+            SELECT *
+            FROM %s;
+            """ % self.table_name
+
+        self.cursor.execute(sql)
+        raws = self.cursor.fetchall()
+        pretties = []
+
+        for raw in raws:
+            model = self.collect_model()
+            model.build_from_list(raw)
+            pretties.append(model)
+        return pretties
+
     def get_by_ids(self, model_ids: list) -> list:
         model_ids = list(set(model_ids))
         sql_ids = ""
@@ -117,6 +134,15 @@ class Base:
         """Get total number of pages based on a total count and per page value."""
         total_pages = total / per_page
         return int(round(total_pages, 0))
+
+    def build_models_from_list(self, raws:list) -> list:
+        """Creates list of hydrated collection objects."""
+        prestine = []
+        for raw_item in raws:
+            new_object = self.collect_model(self.conn, self.cursor)
+            new_object.build_from_list(raw_item)
+            prestine.append(new_object)
+        return prestine
 
     def _get_previous_page(self, page: int) -> int:
         """Get the previous page, or first page if below 1."""

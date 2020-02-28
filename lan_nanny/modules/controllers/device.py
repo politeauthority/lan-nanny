@@ -8,6 +8,7 @@ from flask import current_app as app
 
 from .. import db
 from .. import utils
+from ..collections.alerts import Alerts
 from ..collections.devices import Devices
 from ..collections.device_witnesses import DeviceWitnesses
 from ..collections.device_ports import DevicePorts
@@ -28,7 +29,7 @@ def devices() -> str:
     data = {}
     data['active_page'] = 'devices'
     data['active_page_devices'] = 'dashboard'
-    data['devices'] = devices.get_all()
+    data['devices'] = devices.get_recent()
     data['device_venders'] = Metrics(conn, cursor).get_device_vendor_grouping()
     return render_template('devices/dashboard.html', **data)
 
@@ -98,6 +99,8 @@ def info(device_id: int) -> str:
         return 'ERROR 404: Route this to page_not_found method!', 404
         # return page_not_found('Device not found')
 
+    alerts_col = Alerts(conn, cursor)
+    device_alerts = alerts_col.get_for_device(device.id)
     metrics = Metrics(conn, cursor)
     device_online_over_day = metrics.get_device_presence_over_time(device)
     device_online_over_week = metrics.get_device_presence_over_time(device, 24*7)
@@ -107,6 +110,7 @@ def info(device_id: int) -> str:
     data['active_page'] = 'devices'
     data['device_over_day'] = device_online_over_day
     data['device_over_week'] = device_online_over_week
+    data['alerts'] = device_alerts
     return render_template('devices/info.html', **data)
 
 
@@ -258,6 +262,8 @@ def delete(device_id: int):
 
     # Delete device scan ports logs
     ScanPorts(conn, cursor).delete_device(device.id)
+
+    Alerts(conn, cursor).delete_device(device.id)
 
     return redirect('/device')
 

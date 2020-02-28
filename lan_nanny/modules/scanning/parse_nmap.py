@@ -199,7 +199,10 @@ def _get_port_state(port: dict) -> str:
     """
     if 'state' not in port:
         return ''
-
+    if not isinstance(port['state']['@state'], str):
+        # @todo: revisit this!
+        logging.error('No useable port state in parsed nmap')
+        return False
     if port['state']['@state'] == 'open':
         return 'open'
 
