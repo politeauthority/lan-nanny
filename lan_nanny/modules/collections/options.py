@@ -4,52 +4,30 @@ Gets collections of options.
 """
 from werkzeug.security import generate_password_hash
 
+from .base import Base
 from ..models.option import Option
 from .. import utils
 
 
-class Options():
+class Options(Base):
 
     def __init__(self, conn=None, cursor=None):
+        super(Options, self).__init__(conn, cursor)
         self.conn = conn
         self.cursor = cursor
-
-    def get_all(self):
-        """
-        Gets all devices in the database.
-
-        """
-        sql = """
-            SELECT *
-            FROM options
-            """
-
-        self.cursor.execute(sql)
-        raw_options = self.cursor.fetchall()
-        options = []
-
-        for raw_option in raw_options:
-            option = Option()
-            option.build_from_list(raw_option)
-            options.append(option)
-        return options
+        self.table_name = Option().table_name
+        self.collect_model = Option
 
     def get_all_keyed(self) -> dict:
-        """
-        Gets all options in a dictionary keyed on the option name.
-
-        """
-        opt_dict = {}
-
+        """Get all options in a dictionary keyed on the option name."""
         all_options = self.get_all()
         ret_options = {}
         for option in all_options:
             ret_options[option.name] = option
-
         return ret_options
 
     def set_defaults(self):
-        """Tool for creating option defaults if they do not exist"""
+        """Tool for creating option defaults if they do not exist."""
         default_opts = [
             {
                 'name': 'timezone',
@@ -108,6 +86,11 @@ class Options():
                 'name': 'db-prune-days',
                 'type': 'int',
             },
+            {
+                'name': 'auto-reload-console',
+                'type': 'bool',
+                'default': True
+            },
         ]
         gen_pass = None
         for opt in default_opts:
@@ -124,7 +107,5 @@ class Options():
                 opt['default'] = generate_password_hash(gen_pass, "sha256")
                 option.set_default(opt)
         return gen_pass
-
-
 
 # End File: lan-nanny/lan_nanny/modules/collections/options.py

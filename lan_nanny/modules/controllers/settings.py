@@ -33,8 +33,13 @@ def save_general():
 
     # Update timezone
     _save_setting(conn, cursor, 'timezone', request.form['settings_timezone'])
+
     # Save "active-timeout"
     _save_setting(conn, cursor, 'active-timeout', request.form['setting_active_timeout'])
+
+    # Save auto-reload-console
+    _save_setting(conn, cursor, 'auto-reload-console', request.form['setting_auto_reload_console'])
+
     # Save beta-features
     _save_setting(conn, cursor, 'beta-features', request.form['setting_beta_features'])
 

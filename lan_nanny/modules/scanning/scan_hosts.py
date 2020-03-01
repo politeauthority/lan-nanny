@@ -7,7 +7,6 @@ import os
 import subprocess
 import time
 
-
 import arrow
 
 from . import parse_nmap
@@ -19,6 +18,7 @@ from ..models.device_witness import DeviceWitness
 class ScanHosts:
 
     def __init__(self, scan):
+        self.args = scan.args
         self.conn = scan.conn
         self.cursor = scan.cursor
         self.options = scan.options
@@ -27,22 +27,23 @@ class ScanHosts:
         self.trigger = scan.trigger
         self.run_success = True
         self.hosts = []
-        self.new_hosts = []
+        self.new_devices = []
 
     def run(self) -> list:
         """Run host nmap scan."""
         self.setup()
 
-        if self.options['scan-hosts-enabled'].value != True:
+        if self.args.force_host:
+            print('Running Host Scan regardless of config because --force-host was used.')
+        elif self.options['scan-hosts-enabled'].value != True:
             print('Host scanning disabled. Go to settings to renable.')
             self._abort_run('Scanning disabled by option.')
-            return []
+            return False
 
         self.scan()
         self._complete_run()
         self.handle_devices()
-
-        return (self.hosts, self.new_hosts)
+        return (self.hosts, self.new_devices)
 
     def setup(self):
         """Set up the scan hosts run."""
@@ -82,8 +83,8 @@ class ScanHosts:
 
     def handle_devices(self):
         """
-        Handles devices found in NMap scan, creating records for new devices, updating last seen for
-        already known devices and saving witness for all found devices.
+           Handles devices found in NMap scan, creating records for new devices, updating last seen
+           for already known devices and saving witness for all found devices.
 
         """
         if not self.hosts:
@@ -131,9 +132,9 @@ class ScanHosts:
 
     def prune_hosts_wo_mac(self) -> list:
         """
-        The device running the scan is not able to find its own mac, we need to filter that out,
-        and potentially any other device without a mac, though I think only localhost will have this
-        issue.
+           The device running the scan is not able to find its own mac, we need to filter that out,
+           and potentially any other device without a mac, though I think only localhost will have 
+           this issue.
 
         """
         pruned_hosts = []
@@ -145,8 +146,8 @@ class ScanHosts:
 
     def _set_device_name(self, device: Device, host: dict):
         """
-        Set the device name to the host name if available, then the vendor if nothing else is
-        available it sets the device name to the mac address.
+           Set the device name to the host name if available, then the vendor if nothing else is
+           available it sets the device name to the mac address.
 
         """
         # if we dont have a device name and we have a hostname, use the hostname
@@ -169,10 +170,7 @@ class ScanHosts:
         return device.mac
 
     def save_witness(self, device: Device, scan_time: datetime) -> bool:
-        """
-        Creates a record in the `device_witness` table of the devices id and scan time.
-
-        """
+        """Creates a record in the `device_witness` table of the devices id and scan time."""
         witness = DeviceWitness(self.conn, self.cursor)
         witness.device_id = device.id
         witness.scan_id = self.scan_log.id
@@ -207,5 +205,6 @@ class ScanHosts:
         self.scan_log.message = error_section
         self.scan_log.save()
         return True
+
 
 # End File: lan-nanny/lan_nanny/modules/scanning/scan_hosts.py

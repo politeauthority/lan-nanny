@@ -21,7 +21,6 @@ class EntityMetas:
                 entity_type=? AND
                 entity_id=?;
             """ % self.table_name
-
         self.cursor.execute(sql(entity_type, entity_id))
         raw_metas = self.cursor.fetchall()
         metas = []

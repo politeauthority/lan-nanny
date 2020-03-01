@@ -16,12 +16,25 @@ class Base:
         self.table_name = None
         self.collect_model = None
 
+    def get_all(self) -> list:
+        """Get all of a models instances from the database."""
+        sql = """
+            SELECT *
+            FROM %s;
+            """ % self.table_name
+        self.cursor.execute(sql)
+        raws = self.cursor.fetchall()
+        pretties = []
+        for raw in raws:
+            model = self.collect_model()
+            model.build_from_list(raw)
+            pretties.append(model)
+        return pretties
+
     def get_by_ids(self, model_ids: list) -> list:
+        """Get models instances by their ids from the database."""
         model_ids = list(set(model_ids))
-        sql_ids = ""
-        for i in model_ids:
-            sql_ids += "%s," % i
-        sql_ids = sql_ids[:-1]
+        sql_ids = self.int_list_to_sql(model_ids)
         sql = """
             SELECT *
             FROM %(table_name)s
@@ -117,6 +130,23 @@ class Base:
         """Get total number of pages based on a total count and per page value."""
         total_pages = total / per_page
         return int(round(total_pages, 0))
+
+    def build_models_from_list(self, raws:list) -> list:
+        """Creates list of hydrated collection objects."""
+        prestine = []
+        for raw_item in raws:
+            new_object = self.collect_model(self.conn, self.cursor)
+            new_object.build_from_list(raw_item)
+            prestine.append(new_object)
+        return prestine
+
+    def int_list_to_sql(self, item_list: list) -> str:
+        """Transform a list of ints to a sql safe comma separated string."""
+        sql_ids = ""
+        for i in item_list:
+            sql_ids += "%s," % i
+        sql_ids = sql_ids[:-1]
+        return sql_ids
 
     def _get_previous_page(self, page: int) -> int:
         """Get the previous page, or first page if below 1."""

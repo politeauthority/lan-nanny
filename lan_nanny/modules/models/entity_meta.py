@@ -13,8 +13,12 @@ class EntityMeta(Base):
         self.conn = conn
         self.cursor = cursor
 
-        self.table_name = 'entity_meta'
+        self.table_name = 'entity_metas'
         self.field_map = [
+            {
+                'name': 'update_ts',
+                'type': 'datetime'
+            },
             {
                 'name': 'entity_type',
                 'type': 'str',
@@ -35,11 +39,6 @@ class EntityMeta(Base):
                 'name': 'value',
                 'type': 'str'
             },
-            {
-                'name': 'update_ts',
-                'type': 'datetime'
-            }
-
         ]
         self.setup()
 
@@ -48,8 +47,8 @@ class EntityMeta(Base):
 
     def build_from_list(self, raw: list):
         """
-        Build a model from an ordered list, converting data types to their desired type where
-        possible.
+           Build a model from an ordered list, converting data types to their desired type where
+           possible.
 
         """
         count = 0

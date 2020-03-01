@@ -37,10 +37,7 @@ class Scan:
         self.new_devices = []
 
     def setup(self):
-        """
-        Sets up run log and loads options.
-
-        """
+        """Sets up run log and loads options."""
         self.prompt_sudo()
         options = Options(conn, cursor)
         self.options = options.get_all_keyed()
@@ -58,7 +55,12 @@ class Scan:
 
     def hande_hosts(self):
         """Launch host scanning operations."""
-        self.hosts, self.new_hosts = ScanHosts(self).run()
+        scan_hosts = ScanHosts(self).run()
+        if scan_hosts:
+            self.hosts, self.new_devices = scan_hosts
+        else:
+            print('Error scanning hosts, ending scan.')
+            exit(1)
 
     def handle_ports(self):
         """
@@ -66,13 +68,6 @@ class Scan:
         global settings allow for a device to be port scanned.
 
         """
-        print("Running port scans")
-        if not self.hosts:
-            print('No hosts found in last scan, skipping port scan')
-            return False
-        if self.options['scan-ports-enabled'].value != True:
-            print('Port Scanning disabled')
-            return False
         ScanPorts(self).run()
 
     def handle_alerts(self):
@@ -99,8 +94,14 @@ def parse_args():
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-s",
-        "--force-scan",
+        "-fh",
+        "--force-host",
+        default=False,
+        action='store_true',
+        help="")
+    parser.add_argument(
+        "-fp",
+        "--force-port",
         default=False,
         action='store_true',
         help="")
@@ -110,7 +111,6 @@ def parse_args():
         action='store_true',
         help="")
     args = parser.parse_args()
-    # print(args)
     return args
 
 

@@ -20,6 +20,7 @@ from ..models.scan_port import ScanPort
 class ScanPorts:
 
     def __init__(self, scan):
+        self.args = scan.args
         self.conn = scan.conn
         self.cursor = scan.cursor
         self.tmp_dir = scan.tmp_dir
@@ -29,6 +30,18 @@ class ScanPorts:
 
     def run(self):
         """ Main Runner for Scan Port."""
+        print("Running port scans")
+
+        if self.args.force_port:
+            print('\tRunning Port Scan regardless of config because --force-port was used.')
+        elif self.options['scan-ports-enabled'].value != True:
+            print('\tPort Scanning disabled')
+            return False
+
+        if not self.hosts:
+            print('\tNo hosts found in last scan, skipping port scan')
+            return False
+
         port_scan_devices = self.get_port_scan_candidates()
 
         if not port_scan_devices:
@@ -66,7 +79,7 @@ class ScanPorts:
         limit = int(self.options['scan-ports-per-run'].value)
         if len(port_scan_devices) > limit:
             port_scan_devices = port_scan_devices[0:limit]
-            print("Limiting port scan to %s devices" % limit)
+            print("\tLimiting port scan to %s devices" % limit)
 
         return port_scan_devices
 
@@ -90,14 +103,14 @@ class ScanPorts:
         # if port scanning failed for any reason.
         if not device_port_scan['ports']:
 
-            print('Port scan failed for %s, will try again soon.' % device)
+            print('\t\t\tPort scan failed for %s, will try again soon.' % device)
             return False
 
         self.handle_ports(device, device_port_scan['ports'])
 
         end = arrow.utcnow()
 
-        print('Saved port scan for %s found %s open ports' % (
+        print('\t\t\tSaved port scan for %s found %s open ports\n' % (
             device,
             '@todo'))
         device.last_port_scan = arrow.utcnow().datetime
@@ -113,8 +126,8 @@ class ScanPorts:
         start = time.time()
         port_scan_file = os.path.join(self.tmp_dir, "port_scan_%s.xml" % device.id)
         cmd = "%s -oX %s" % (scan.command, port_scan_file)
-        print('\tRunning port scan for %s' % device)
-        print('\tCmd: %s' % scan.command)
+        print('\t\tRunning port scan for %s' % device)
+        print('\t\t\tCmd: %s' % scan.command)
 
         try:
             subprocess.check_output(cmd, shell=True)
@@ -150,7 +163,7 @@ class ScanPorts:
     def handle_ports(self, device: Device, ports: list):
         """Take ports found in scan to report and save."""
         if not ports:
-            print('Device offline or no ports for %s' % device)
+            print('\t\t\tDevice offline or no ports for %s' % device)
             return False
 
         num_ports = 0
@@ -160,7 +173,7 @@ class ScanPorts:
             self.handle_port(device, device_ports, raw_port)
             num_ports += 1
 
-        print('Device %s has %s ports open' % (device, num_ports))
+        print('\t\t\tDevice %s has %s ports open' % (device, num_ports))
 
     def handle_port(self, device, device_ports, raw_port):
         """Take a single port for device to report and save them."""
