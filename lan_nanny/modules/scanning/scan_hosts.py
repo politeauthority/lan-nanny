@@ -43,7 +43,6 @@ class ScanHosts:
         self.scan()
         self._complete_run()
         self.handle_devices()
-
         return (self.hosts, self.new_devices)
 
     def setup(self):

@@ -16,12 +16,14 @@ from ..collections.devices import Devices
 
 alerts = Blueprint('Alert', __name__, url_prefix='/alerts')
 
+
 @alerts.route('/')
 @utils.authenticate
 def dashboard():
     """Alerts dashboard page."""
     # Send everything to all, theres no good dashboard now
     return redirect('/alerts/all')
+  
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     alerts = Alerts(conn, cursor)
     data = {}

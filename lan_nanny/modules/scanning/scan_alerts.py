@@ -95,4 +95,5 @@ class ScanAlerts:
 
             print("Created new device alert for %s" % new_device)
 
+            
 # End File: lan-nanny/lan_nanny/modules/scanning/scan_alerts.py

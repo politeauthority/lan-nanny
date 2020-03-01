@@ -18,6 +18,7 @@ class Alerts(Base):
 
     def get_active(self) -> list:
         """Gets all active alerts from the database."""
+
         sql = """
             SELECT *
             FROM %s
