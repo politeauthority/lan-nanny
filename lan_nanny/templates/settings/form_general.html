@@ -67,6 +67,12 @@
             </div>
             
             <div class="form-group">
+              <label for="setting_auto_reload_console">Auto Reload Web Console</label>
+              <input id="setting_auto_reload_console" type="checkbox" data-toggle="toggle" aria-describedby="autoReloadConsoleHelp">
+              <small id="autoReloadConsoleHelp" class="form-text text-muted">Reloads console every 5 minutes.</small>
+            </div>
+
+            <div class="form-group">
               <label for="setting_beta_features">Enable Beta Features</label>
               <input id="setting_beta_features" type="checkbox" data-toggle="toggle" aria-describedby="betaFeaturesHelp">
               <small id="betaFeaturesHelp" class="form-text text-muted">Enable beta features (may be buggy)</small>
@@ -113,14 +119,10 @@
       var beta_features_value = convert_str_bool("{{settings['beta-features'].value}}");
       register_toggle_form('setting_beta_features', beta_features_value);
 
-      var scan_hosts_enabled_value = convert_str_bool("{{settings['scan-hosts-enabled'].value}}");
-      register_toggle_form('setting_scan_hosts_enabled', scan_hosts_enabled_value);
+      var auto_reload_console_value = convert_str_bool("{{settings['auto-reload-console'].value}}");
+      register_toggle_form('setting_auto_reload_console', auto_reload_console_value);
 
-      var scan_ports_enabled_value = convert_str_bool("{{settings['scan-ports-enabled'].value}}");
-      register_toggle_form('setting_scan_ports_enabled', scan_ports_enabled_value);
-
-      var scan_hosts_default_value = convert_str_bool("{{settings['scan-ports-default'].value}}");
-      register_toggle_form('setting_scan_ports_default', scan_hosts_default_value);
+      console.log(auto_reload_console_value)
       
     });
   </script>

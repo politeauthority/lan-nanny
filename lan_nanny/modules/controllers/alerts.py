@@ -7,44 +7,59 @@ from flask import current_app as app
 import arrow
 
 from .. import db
+from .. import utils
 from ..models.alert import Alert
+from ..models.entity_meta import EntityMeta
 from ..collections.alerts import Alerts
 from ..collections.devices import Devices
 
 
-alert = Blueprint('Alert', __name__, url_prefix='/alert')
+alerts = Blueprint('Alert', __name__, url_prefix='/alerts')
 
 
-@alert.route('/')
-def roster():
-    """
-    Alerts roster page.
-
-    """
+@alerts.route('/')
+@utils.authenticate
+def dashboard():
+    """Alerts dashboard page."""
+    # Send everything to all, theres no good dashboard now
+    return redirect('/alerts/all')
+  
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     alerts = Alerts(conn, cursor)
     data = {}
     data['alerts'] = alerts.get_all()
     data['active_page'] = 'alerts'
-    data['devices'] = Devices(conn, cursor).with_alerts_on()
+    data['active_page_alerts'] = 'dashboard'
+    return render_template('alerts/dashboard.html', **data)
+
+
+@alerts.route('/all')
+@utils.authenticate
+def roster():
+    """Alerts roster page."""
+    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    alerts = Alerts(conn, cursor)
+    data = {}
+    data['alerts'] = alerts.get_all()
+    data['active_page'] = 'alerts'
+    data['active_page_alerts'] = 'dashboard'
     return render_template('alerts/roster.html', **data)
 
 
-@alert.route('/info/<alert_id>')
+@alerts.route('/info/<alert_id>')
+@utils.authenticate
 def info(alert_id: int):
-    """
-    Alert info page.
-
-    """
+    """Alert info page."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     alert = Alert(conn, cursor)
-    alert.get_by_id(alert_id, build_device=True, build_alert_events=True)
+    alert.get_by_id(alert_id)
     if not alert.id:
         return 'ERROR 404: Route this to page_not_found method!', 404
         # return page_not_found('Alert not found')
 
+    # hitting the alert info is considered acking the alert.
     if not alert.acked:
-        alert.acked = 1
+        alert.acked = True
         alert.acked_ts = arrow.utcnow().datetime
         alert.save()
     data = {}
@@ -54,10 +69,11 @@ def info(alert_id: int):
     return render_template('alerts/info.html', **data)
 
 
-@alert.route('/alert-quick-save', methods=['POST'])
+@alerts.route('/alert-quick-save', methods=['POST'])
+@utils.authenticate
 def alert_quick_save() -> str:
     """
-    Ajax web route for update a device alert settings or not when coming on or off the network.
+       Ajax web route for update a device alert settings or not when coming on or off the network.
 
     """
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
@@ -80,20 +96,18 @@ def alert_quick_save() -> str:
 
     return jsonify({"success": True})
 
-@alert.route('/delete/<alert_id>')
-def delete(alert_id: int):
-    """
-    Alert delete.
 
-    """
+@alerts.route('/delete/<alert_id>')
+@utils.authenticate
+def delete(alert_id: int):
+    """Alert delete."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
 
-    # Delete the device
+    # Delete the alert
     alert = Alert(conn, cursor)
     alert.get_by_id(alert_id)
     alert.delete()
-    alert.delete_alert_events()
+    return redirect('/alerts')
 
-    return redirect('/alert')
 
-# End File: lan-nanny/lan_nanny/modules/controllers/alert.py
+# End File: lan-nanny/lan_nanny/modules/controllers/alerts.py

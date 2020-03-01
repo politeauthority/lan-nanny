@@ -14,12 +14,12 @@ from .models.alert import Alert
 from .models.device import Device
 from .models.device_port import DevicePort
 from .models.device_witness import DeviceWitness
-from .models.alert_event import AlertEvent
 from .models.scan_port import ScanPort
 from .models.scan_host import ScanHost
 from .models.port import Port
 from .models.entity_meta import EntityMeta
 from .models.database_growth import DatabaseGrowth
+from .models.sys_info import SysInfo
 from .collections.options import Options
 
 
@@ -28,7 +28,6 @@ def create_connection(database_file: str):
     conn = None
     try:
         conn = sqlite3.connect(database_file)
-
     except Error as e:
         print(e)
         exit(1)
@@ -48,7 +47,6 @@ def create_tables(conn, cursor):
     """Create all the applications tables needed."""
     print('Starting create tables')
     Alert(cursor=cursor).create_table()
-    AlertEvent(cursor=cursor).create_table()
     Device(cursor=cursor, conn=conn).create_table()
     DevicePort(cursor=cursor, conn=conn).create_table()
     DeviceWitness(cursor=cursor, conn=conn).create_table()
@@ -57,13 +55,13 @@ def create_tables(conn, cursor):
     Port(cursor=cursor, conn=conn).create_table()
     EntityMeta(cursor=cursor, conn=conn).create_table()
     DatabaseGrowth(cursor=cursor, conn=conn).create_table()
-
+    SysInfo(cursor=cursor, conn=conn).create_table()
 
 def populate_options(conn, cursor: sqlite3.Cursor):
     """Create options and sets their defaults."""
     o = Option(cursor=cursor, conn=conn).create_table()
-    os = Options(cursor=cursor, conn=conn)
-    console_password = os.set_defaults()
+    options = Options(cursor=cursor, conn=conn)
+    console_password = options.set_defaults()
     return console_password
 
 # End File: lan-nanny/lan_nanny/modules/db.py

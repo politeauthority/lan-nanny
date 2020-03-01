@@ -36,7 +36,6 @@
           </div>
           <div class="card-body">
 
-
             <div class="form-group">
               <label for="setting_scan_hosts_range">IP Scan Range</label>
               <input type="text" class="form-control form-sm" id="setting_scan_hosts_range" name="setting_scan_hosts_range" value="{{settings['scan-hosts-range'].value}}" aria-describedby="scanRangeHelp">
@@ -48,6 +47,20 @@
               <input id="setting_scan_hosts_enabled" type="checkbox" data-toggle="toggle" aria-describedby="scanHostsEnabledeHelp">
               <small id="scanHostsEnabledeHelp" class="form-text text-muted">Enable regular host scanning.</small>
             </div>
+
+          </div>
+        </div>
+      </div><!-- End Scan Settings-->
+
+      <div class="col-xl-6 col-lg-6">
+        <div class="card shadow mb-4">
+          <!-- Card Header -->
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">
+              Port Settings
+            </h6>
+          </div>
+          <div class="card-body">
             <div class="form-group">
               <label for="setting_scan_hosts_ports_enabled">Scan Ports</label>
               <input id="setting_scan_ports_enabled" type="checkbox" data-toggle="toggle" aria-describedby="scanPortsEnabledeHelp">
@@ -72,9 +85,10 @@
           </div>
         </div>
       </div><!-- End Scan Settings-->
-      <div id="hidden_forms" class=""></div>
+
     </div>
 
+    <div id="hidden_forms" class=""></div>
 
     <div class="row">
       <button class="btn btn-success" type="submit">Save</button>

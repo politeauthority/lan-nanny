@@ -2,15 +2,19 @@
 Gets collections of ports.
 
 """
-from ..models.port import Port
+from .base import Base
 from .. import utils
+from ..models.port import Port
 
 
-class Ports:
+class Ports(Base):
 
     def __init__(self, conn=None, cursor=None):
+        super(Ports, self).__init__(conn, cursor)
         self.conn = conn
         self.cursor = cursor
+        self.collect_model = Port
+        self.table_name = self.collect_model().table_name
 
     def get_all(self) -> list:
         """Get all ports."""

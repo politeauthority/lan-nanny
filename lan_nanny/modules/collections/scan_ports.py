@@ -17,4 +17,10 @@ class ScanPorts(Base):
         self.table_name = ScanPort().table_name
         self.collect_model = ScanPort
 
+    def delete_device(self, device_id: int) -> bool:
+        """Delete all device port records for a device_id."""
+        sql = """DELETE FROM %s WHERE device_id=%s""" % (self.table_name, device_id)
+        self.cursor.execute(sql)
+        return True
+
 # End File: lan-nanny/lan_nanny/modules/collections/scan_ports.py

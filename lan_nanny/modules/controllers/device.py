@@ -8,11 +8,13 @@ from flask import current_app as app
 
 from .. import db
 from .. import utils
+from ..collections.alerts import Alerts
 from ..collections.devices import Devices
-from ..collections.ports import Ports
+from ..collections.device_witnesses import DeviceWitnesses
+from ..collections.device_ports import DevicePorts
+from ..collections.scan_ports import ScanPorts
 from ..models.alert import Alert
 from ..models.device import Device
-from ..models.device_witness import DeviceWitness
 from ..metrics import Metrics
 
 device = Blueprint('Device', __name__, url_prefix='/device')
@@ -27,7 +29,7 @@ def devices() -> str:
     data = {}
     data['active_page'] = 'devices'
     data['active_page_devices'] = 'dashboard'
-    data['devices'] = devices.get_all()
+    data['devices'] = devices.get_recent()
     data['device_venders'] = Metrics(conn, cursor).get_device_vendor_grouping()
     return render_template('devices/dashboard.html', **data)
 
@@ -97,6 +99,8 @@ def info(device_id: int) -> str:
         return 'ERROR 404: Route this to page_not_found method!', 404
         # return page_not_found('Device not found')
 
+    alerts_col = Alerts(conn, cursor)
+    device_alerts = alerts_col.get_for_device(device.id)
     metrics = Metrics(conn, cursor)
     device_online_over_day = metrics.get_device_presence_over_time(device)
     device_online_over_week = metrics.get_device_presence_over_time(device, 24*7)
@@ -106,6 +110,7 @@ def info(device_id: int) -> str:
     data['active_page'] = 'devices'
     data['device_over_day'] = device_online_over_day
     data['device_over_week'] = device_online_over_week
+    data['alerts'] = device_alerts
     return render_template('devices/info.html', **data)
 
 
@@ -242,7 +247,6 @@ def quick_save() -> str:
 @utils.authenticate
 def delete(device_id: int):
     """Device delete."""
-
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
 
     # Delete the device
@@ -250,17 +254,16 @@ def delete(device_id: int):
     device.get_by_id(device_id)
     device.delete()
 
-    # Delete devices witness
-    witness = DeviceWitness(conn, cursor)
-    witness.delete_device(device.id)
+    # Delete device witnesses
+    DeviceWitnesses(conn, cursor).delete_device(device.id)
 
-    # Delete device alerts
-    alert = Alert(conn, cursor)
-    alert.delete_device(device.id)
+    # Delete device ports
+    DevicePorts(conn, cursor).delete_device(device.id)
 
-    # Delete device alerts
-    ports = Ports(conn, cursor)
-    ports.delete_device(device.id)
+    # Delete device scan ports logs
+    ScanPorts(conn, cursor).delete_device(device.id)
+
+    Alerts(conn, cursor).delete_device(device.id)
 
     return redirect('/device')
 

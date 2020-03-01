@@ -7,6 +7,7 @@ from functools import wraps
 import os
 import secrets
 import string
+import subprocess
 
 from flask import session, redirect
 
@@ -109,10 +110,12 @@ def get_pagination_offset(page: int, per_page: int) -> int:
 
 
 def get_percent(whole: int, part: int, round_ret: int=0) -> int:
+    """Get the percent a part is of a whole, rounded to desired level."""
+    result = abs((part / whole * 100) - 100)
     if round_ret == 0:
-        return int(part / whole * 100)
+        return int(result)
     else:
-        return round(part / whole * 100, round_ret)
+        return round(result, round_ret)
 
 
 def key_list_on_id(some_object_list: list) -> dict:
@@ -131,5 +134,11 @@ def make_default_password() -> str:
     alphabet = string.ascii_letters + string.digits
     password = ''.join(secrets.choice(alphabet) for i in range(20))
     return password
+
+
+def run_shell(cmd: str) -> str:
+    """Run a shell command and get a string result back."""
+    result = subprocess.check_output(cmd, shell=True)
+    return result.decode("utf-8")
 
 # End File: lan-nanny/lan_nanny/modules/utils.py

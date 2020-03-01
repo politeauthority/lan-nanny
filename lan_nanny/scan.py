@@ -14,7 +14,8 @@ from modules import db
 from modules.collections.options import Options
 from modules.scanning.scan_ports import ScanPorts
 from modules.scanning.scan_hosts import ScanHosts
-from modules.scanning.scan_house_keeping import ScanHouseKeeping
+from modules.scanning.scan_alerts import ScanAlerts
+from modules.scanning.house_keeping import HouseKeeping
 from config import default as config_default
 
 TMP_DIR = "/opt/lan_nanny/"
@@ -33,12 +34,10 @@ class Scan:
         self.db_file_loc = config_default.LAN_NANNY_DB_FILE
         self.new_alerts = []
         self.hosts = []
+        self.new_devices = []
 
     def setup(self):
-        """
-        Sets up run log and loads options.
-
-        """
+        """Sets up run log and loads options."""
         self.prompt_sudo()
         options = Options(conn, cursor)
         self.options = options.get_all_keyed()
@@ -51,11 +50,17 @@ class Scan:
         self.setup()
         self.hande_hosts()
         self.handle_ports()
+        self.handle_alerts()
         self.handle_house_keeping()
 
     def hande_hosts(self):
         """Launch host scanning operations."""
-        self.hosts = ScanHosts(self).run()
+        scan_hosts = ScanHosts(self).run()
+        if scan_hosts:
+            self.hosts, self.new_devices = scan_hosts
+        else:
+            print('Error scanning hosts, ending scan.')
+            exit(1)
 
     def handle_ports(self):
         """
@@ -63,18 +68,15 @@ class Scan:
         global settings allow for a device to be port scanned.
 
         """
-        print("Running port scans")
-        if not self.hosts:
-            print('No hosts found in last scan, skipping port scan')
-            return False
-        if self.options['scan-ports-enabled'].value != True:
-            print('Port Scanning disabled')
-            return False
         ScanPorts(self).run()
+
+    def handle_alerts(self):
+        """Handle system alerts."""
+        ScanAlerts(self).run()
 
     def handle_house_keeping(self):
         """Run house keeping operations like database pruning etc."""
-        ScanHouseKeeping(self).run()
+        HouseKeeping(self).run()
 
     def prompt_sudo(self):
         """Make sure the script is being run as sudo, or scanning will not work."""
@@ -92,8 +94,14 @@ def parse_args():
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-s",
-        "--force-scan",
+        "-fh",
+        "--force-host",
+        default=False,
+        action='store_true',
+        help="")
+    parser.add_argument(
+        "-fp",
+        "--force-port",
         default=False,
         action='store_true',
         help="")
@@ -103,7 +111,6 @@ def parse_args():
         action='store_true',
         help="")
     args = parser.parse_args()
-    print(args)
     return args
 
 

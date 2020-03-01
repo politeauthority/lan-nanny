@@ -1,5 +1,4 @@
-"""Devices Collection.
-
+"""Devices Collection
 Gets collections of devices.
 
 """
@@ -26,12 +25,13 @@ class Devices(Base):
         self.collect_model = Device
         
 
-    def get_all(self) -> list:
+    def get_recent(self) -> list:
         """Get all devices in the database."""
         sql = """
             SELECT *
-            FROM devices
-            ORDER BY last_seen DESC;"""
+            FROM %s
+            ORDER BY last_seen DESC
+            LIMIT 20;""" % self.table_name
         self.cursor.execute(sql)
         raw_devices = self.cursor.fetchall()
         devices = self._build_raw_devices(raw_devices)

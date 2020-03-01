@@ -7,7 +7,6 @@ import os
 import subprocess
 import time
 
-
 import arrow
 
 from . import parse_nmap
@@ -19,6 +18,7 @@ from ..models.device_witness import DeviceWitness
 class ScanHosts:
 
     def __init__(self, scan):
+        self.args = scan.args
         self.conn = scan.conn
         self.cursor = scan.cursor
         self.options = scan.options
@@ -26,21 +26,24 @@ class ScanHosts:
         self.scan_file = os.path.join(self.tmp_dir, 'host-scan.xml')
         self.trigger = scan.trigger
         self.run_success = True
+        self.hosts = []
+        self.new_devices = []
 
     def run(self) -> list:
         """Run host nmap scan."""
         self.setup()
 
-        if self.options['scan-hosts-enabled'].value != True:
+        if self.args.force_host:
+            print('Running Host Scan regardless of config because --force-host was used.')
+        elif self.options['scan-hosts-enabled'].value != True:
             print('Host scanning disabled. Go to settings to renable.')
             self._abort_run('Scanning disabled by option.')
-            return []
+            return False
 
-        self.hosts = self.scan()
+        self.scan()
         self._complete_run()
         self.handle_devices()
-
-        return self.hosts
+        return (self.hosts, self.new_devices)
 
     def setup(self):
         """Set up the scan hosts run."""
@@ -48,7 +51,7 @@ class ScanHosts:
         self.scan_log.trigger = self.trigger
         self.scan_log.insert_run_start()
 
-    def scan(self):
+    def scan(self) -> bool:
         """Run the port scan operation."""
         scan_range = self.options['scan-hosts-range'].value
         start_ts = time.time()
@@ -72,19 +75,23 @@ class ScanHosts:
 
         if self.run_success:
             self.scan_log.elapsed_time = round(end_ts - start_ts, 2)
-            self.scan_log.save()
-        return hosts
+        
+        self.hosts = hosts
+        self.scan_log.save()
+
+        return True
 
     def handle_devices(self):
         """
-        Handles devices found in NMap scan, creating records for new devices, updating last seen for
-        already known devices and saving witness for all found devices.
+           Handles devices found in NMap scan, creating records for new devices, updating last seen
+           for already known devices and saving witness for all found devices.
 
         """
         if not self.hosts:
             print('No hosts found or error encountered.')
             return False
         print('Found %s devices:' % len(self.hosts))
+        self.new_devices = []
 
         scan_time = arrow.utcnow().datetime
         count = 0
@@ -106,7 +113,6 @@ class ScanHosts:
                 if self.options['scan-ports-default'].value:
                     device.port_scan = True
 
-            device.vendor = host['vendor']
             device.name = self._set_device_name(device, host)
             device.last_seen = scan_time
             device.ip = host['ip']
@@ -116,6 +122,7 @@ class ScanHosts:
 
             new_device_str = ""
             if new:
+                self.new_devices.append(device)
                 new_device_str = "\t- New Device"
             print('\t%s - %s%s' % (device.name, device.ip, new_device_str))
 
@@ -125,9 +132,9 @@ class ScanHosts:
 
     def prune_hosts_wo_mac(self) -> list:
         """
-        The device running the scan is not able to find its own mac, we need to filter that out,
-        and potentially any other device without a mac, though I think only localhost will have this
-        issue.
+           The device running the scan is not able to find its own mac, we need to filter that out,
+           and potentially any other device without a mac, though I think only localhost will have 
+           this issue.
 
         """
         pruned_hosts = []
@@ -139,8 +146,8 @@ class ScanHosts:
 
     def _set_device_name(self, device: Device, host: dict):
         """
-        Set the device name to the host name if available, then the vendor if nothing else is
-        available it sets the device name to the mac address.
+           Set the device name to the host name if available, then the vendor if nothing else is
+           available it sets the device name to the mac address.
 
         """
         # if we dont have a device name and we have a hostname, use the hostname
@@ -163,10 +170,7 @@ class ScanHosts:
         return device.mac
 
     def save_witness(self, device: Device, scan_time: datetime) -> bool:
-        """
-        Creates a record in the `device_witness` table of the devices id and scan time.
-
-        """
+        """Creates a record in the `device_witness` table of the devices id and scan time."""
         witness = DeviceWitness(self.conn, self.cursor)
         witness.device_id = device.id
         witness.scan_id = self.scan_log.id
@@ -201,5 +205,6 @@ class ScanHosts:
         self.scan_log.message = error_section
         self.scan_log.save()
         return True
+
 
 # End File: lan-nanny/lan_nanny/modules/scanning/scan_hosts.py

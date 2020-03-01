@@ -161,6 +161,56 @@
       </div>
     </div><!-- End Device Ports-->
 
+
+    {%if g.options['beta-features'].value %}
+      {%if alerts%}
+        <!-- Device Alerts -->
+        <div class="col-xl-6 col-lg-6">
+          <div class="card shadow mb-4">
+            <!-- Card Header -->
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+              <h6 class="m-0 font-weight-bold text-primary">
+                Alerts
+              </h6>
+            </div>
+            <div class="card-body">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <td></td>
+                    <td>Alert Type</td>
+                    <td>Last Observed</td>
+                  </tr>
+                </thead>
+                {%for alert in alerts%}
+                <tr>
+                  <td>
+                    {%if alert.active %}
+                      blink red active
+                    {%else%}
+                      static black
+                    {%endif%}
+                    
+                  </td>
+                  <td>
+                    <a href="/alerts/info/{{alert.id}}">
+                      {%if alert.kind == 'new-device'%}
+                        New Device
+                      {%else%}
+                        {{alert.kind}}
+                      {%endif%}
+                    </a>
+                  </td>
+                  <td>{{alert.last_observed_ts|smart_time}}</td>
+                </tr>
+                {%endfor%}
+              </table>
+            </div>
+          </div>
+        </div><!-- END Device Alerts -->
+      {%endif%}
+    {%endif%}
+
     <!-- Device Options -->
     <div class="col-xl-6 col-lg-6">
       <div class="card shadow mb-4">
@@ -177,14 +227,13 @@
             <small id="portScanHelp" class="form-text text-muted">Enable port scanning of device.</small>
           </div>
 
-          <!--           
-          <div class="form-group">
-
-            <label for="port_scan_flagged">Flag for Port Scan</label>
-            <input id="port_scan_flagged" data-entity-id="{{device.id}}" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="portScanFlaggedHelp">
-            <small id="portScanFlaggedHelp" class="form-text text-muted">Resets device port scan timeout and puts the device in the front of the line for the next port scan.</small>
-          </div>
-          -->
+          {%if g.options['beta-features'].value %}
+            <div class="form-group">
+              <label for="alert_device_offline">Alert Offline</label>
+              <input id="alert_device_offline" data-entity-id="{{device.id}}" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="alertDeviceOfflinedHelp">
+              <small id="alertDeviceOfflinedHelp" class="form-text text-muted">Alert when device goes offline.</small>
+            </div>
+          {%endif%}         
 
           <!--
           <div class="form-group">
@@ -227,18 +276,6 @@
       // });
       var device_favorite_status = convert_str_bool("{{device.favorite}}");
       register_favorite_button('#device-favorite', device_favorite_status, '/device/favorite/{{device.id}}')
-
-      var device_alert_online_initial_status = convert_str_bool("{{device.alert_online}}");
-      var device_alert_offline_initial_status = convert_str_bool("{{device.alert_online}}");
-
-      register_toggle_ajax(
-        '/device/alert-save',
-        '#alert_online',
-        device_alert_online_initial_status);
-      register_toggle_ajax(
-        '/device/alert-save',
-        '#alert_offline',
-        device_alert_online_initial_status);
 
       var device_port_scan_status = convert_str_bool("{{device.port_scan}}");
       register_toggle_ajax(

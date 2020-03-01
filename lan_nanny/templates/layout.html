@@ -49,6 +49,13 @@
           <i class="fas fa-fw fa-tachometer-alt"></i>
           <span>Dashboard</span></a>
       </li>
+      {%if g.options['beta-features'].value %}
+        <li class="nav-item {%if active_page == 'alerts'%}active{%endif%}">
+          <a class="nav-link" href="/alerts">
+            <i class="fas fa-fw fa-bell"></i>
+            <span>Alerts</span></a>
+        </li>
+      {%endif%}
       <li class="nav-item {%if active_page == 'devices'%}active{%endif%}">
         <a class="nav-link" href="/device/">
           <i class="fas fa-fw fas fa-laptop"></i>
@@ -64,13 +71,12 @@
           <i class="fas fa-fw fa-door-open"></i>
           <span>Ports</span></a>
       </li>
-
       {%if g.options['beta-features'].value %}
-      <li class="nav-item {%if active_page == 'scans'%}active{%endif%}">
-        <a class="nav-link" href="/scan">
-          <i class="fas fa-fw fa-map"></i>
-          <span>Scans</span></a>
-      </li>
+        <li class="nav-item {%if active_page == 'scans'%}active{%endif%}">
+          <a class="nav-link" href="/scan">
+            <i class="fas fa-fw fa-map"></i>
+            <span>Scans</span></a>
+        </li>
       {%endif%}
       <li class="nav-item {%if active_page == 'settings'%}active{%endif%}">
         <a class="nav-link" href="/settings">
@@ -145,7 +151,7 @@
                   </div>
                   <div>
                     <div class="small text-gray-500">{{alert.created_ts|time_ago}}</div>
-                    <span class="font-weight-bold">{{alert.device.name}} is {{alert.alert_type}}.</span>
+                    <span class="font-weight-bold">Device Name</span>
                   </div>
                 </a>
                 {%endfor%}
@@ -164,6 +170,11 @@
               </a>
               <!-- Dropdown - User Information -->
               <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+
+                <a class="dropdown-item" href="/settings/password">
+                  <i class="fas fa-lock fa-sm fa-fw mr-2 text-gray-400"></i>
+                  Change Password
+                </a>
                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
                   <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                   Logout
@@ -250,6 +261,15 @@
 
   <script src="/static/js/main.js" crossorigin="anonymous"></script>
 
+  <script type="text/javascript">
+    {%if g.options['auto-reload-console'].value %}
+      // Reload every 5 minutes
+      setTimeout(function(){
+        window.location.reload(1);
+        console.log('reloading, its been 5 minutes;');
+      }, 60000);
+    {%endif%}
+  </script>
   {%block javascript%}{%endblock%}
 
 </body>
