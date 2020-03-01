@@ -151,7 +151,7 @@
                   </div>
                   <div>
                     <div class="small text-gray-500">{{alert.created_ts|time_ago}}</div>
-                    <span class="font-weight-bold">{{alert.device.name}} is {{alert.alert_type}}.</span>
+                    <span class="font-weight-bold">Device Name</span>
                   </div>
                 </a>
                 {%endfor%}
@@ -262,11 +262,13 @@
   <script src="/static/js/main.js" crossorigin="anonymous"></script>
 
   <script type="text/javascript">
-    // Reload every 5 minutes
-    setTimeout(function(){
-      window.location.reload(1);
-      console.log('reloading, its been 5 minutes;');
-    }, 60000);
+    {%if g.options['auto-reload-console'].value %}
+      // Reload every 5 minutes
+      setTimeout(function(){
+        window.location.reload(1);
+        console.log('reloading, its been 5 minutes;');
+      }, 60000);
+    {%endif%}
   </script>
   {%block javascript%}{%endblock%}
 

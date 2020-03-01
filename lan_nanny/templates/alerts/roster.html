@@ -29,10 +29,12 @@
                 </thead>
                 {% for alert in alerts %}
                 <tr>
-                  <td>{{alert.active}}</td>
+                  <td><a href="/alerts/info/{{alert.id}}">{{alert.id}}</a></td>
                   <td>
                   {%if alert.kind == 'no-hosts-over-time'%}
                     No Hosts Scanned
+                  {%elif alert.kind == 'new-device'%}
+                    New Device
                   {%endif%}
                   </td>
                   <td>{{alert.created_ts|time_switch}}</td>

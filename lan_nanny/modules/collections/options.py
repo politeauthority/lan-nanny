@@ -86,6 +86,11 @@ class Options(Base):
                 'name': 'db-prune-days',
                 'type': 'int',
             },
+            {
+                'name': 'auto-reload-console',
+                'type': 'bool',
+                'default': True
+            },
         ]
         gen_pass = None
         for opt in default_opts:

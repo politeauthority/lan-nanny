@@ -18,12 +18,12 @@ class ScanAlerts:
         self.hosts = scan.hosts
         self.new_devices = scan.new_devices
 
-
     def run(self):
         """Handle various LanNanny alerts."""
         print('Running alerts')
         self.get_active_alerts()
         self.alert_no_hosts_in_scan()
+        self.alert_new_device()
 
     def get_active_alerts(self):
         """Get all currently active alerts."""
@@ -35,26 +35,6 @@ class ScanAlerts:
         for alert in self.active_alerts:
             if alert.kind == 'no-hosts-over-time':
                 self.active_no_hosts = alert
-
-    def alert_new_device(self):
-        """Alert on new device discovery."""
-        if not self.new_devices:
-            return False
-
-        for new_device in self.new_devices:
-            alert_new = Alert(self.conn, self.cursor)
-            alert_new.kind = 'new-device'
-            alert_new.active = True
-            alert_new.last_observed_ts = arrow.utcnow().datetime
-            alert_new.save()
-            alert_meta = EntityMeta(self.conn, self.cursor)
-            alert_meta.entity_type = 'alerts'
-            alert_meta.entity_id = alert_new.id
-            alert_meta.name = 'device_id'
-            alert_meta.type = 'int'
-            alert_meta.value = new_device.id
-            alert_meta.save()
-            print("Created new device alert for %s" % new_device)
 
     def alert_no_hosts_in_scan(self) -> bool:
         """Create an alert if there's been no productive host scans in x seconds."""
@@ -80,7 +60,8 @@ class ScanAlerts:
                 print('Alert no-hosts-over-time still active')
 
             host_scan_alert.last_observed_ts = arrow.utcnow().datetime
-            host_scan_alert.message = "No hosts have been seen on network for at least 3 hours period"
+            host_scan_alert.message = \
+                "No hosts have been seen on network for at least 3 hours period"
             host_scan_alert.save()
 
         elif hosts and host_scan_alert:
@@ -91,5 +72,27 @@ class ScanAlerts:
 
         return True
 
+    def alert_new_device(self) -> bool:
+        """Alert on new device discovery."""
+        ## TODO: REWORK TO GRAB devices.new_devices and check for existing alerts
+        if not self.hosts:
+            return False
+        if not self.new_devices:
+            return True
+        print('Running Alert on new devices, found %s' % len(self.new_devices))
+        for new_device in self.new_devices:
+            alert_new = Alert(self.conn, self.cursor)
+            alert_new.kind = 'new-device'
+            alert_new.active = True
+            alert_new.last_observed_ts = arrow.utcnow().datetime
+            alert_new.save()
+
+            alert_new.metas['device'] = EntityMeta(self.conn, self.cursor)
+            alert_new.metas['device'].name = 'device'
+            alert_new.metas['device'].type = 'str'
+            alert_new.metas['device'].value = new_device.id
+            alert_new.save()
+
+            print("Created new device alert for %s" % new_device)
 
 # End File: lan-nanny/lan_nanny/modules/scanning/scan_alerts.py

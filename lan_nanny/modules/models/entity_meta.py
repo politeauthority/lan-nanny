@@ -47,8 +47,8 @@ class EntityMeta(Base):
 
     def build_from_list(self, raw: list):
         """
-        Build a model from an ordered list, converting data types to their desired type where
-        possible.
+           Build a model from an ordered list, converting data types to their desired type where
+           possible.
 
         """
         count = 0

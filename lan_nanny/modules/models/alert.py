@@ -1,11 +1,12 @@
 """Alert - Model
+Alert model extends BaseEntityMeta allowing the object to have meta objects.
 
 """
-from .base import Base
+from .base_entity_meta import BaseEntityMeta
 from .device import Device
 
 
-class Alert(Base):
+class Alert(BaseEntityMeta):
 
     def __init__(self, conn=None, cursor=None):
         super(Alert, self).__init__(conn, cursor)
@@ -36,7 +37,8 @@ class Alert(Base):
             },
             {
                 'name': 'acked',
-                'type': 'int'
+                'type': 'bool',
+                'default': 0,
             },
             {
                 'name': 'acked_ts',
@@ -44,45 +46,26 @@ class Alert(Base):
             },
             {
                 'name': 'active',
-                'type': 'bool'
+                'type': 'bool',
+                'default': 1,
             },
             {
                 'name': 'message',
                 'type': 'str'
             },
-
         ]
+        self.metas = {}
         self.setup()
 
     def __repr__(self):
         if self.kind:
-            return "<Alert %s>" % self.kind
+            return "<Alert %s:%s>" % (self.kind, self.id)
         return "<Alert>"
-
-    def get_active(self, alert_type: str) -> bool:
-        """
-        Checks the `alerts` table for active alerts for a device and alert type.
-
-        """
-        sql = """
-            SELECT *
-            FROM alerts
-            WHERE
-                active = 1 AND
-                alert_type = ?
-            ORDER BY created_ts DESC
-            LIMIT 1 """
-        self.cursor.execute(sql, (alert_type))
-        alert_raw = self.cursor.fetchone()
-        if alert_raw:
-            self.build_from_list(alert_raw)
-            return True
-        return False
 
     def delete_device(self, device_id: int) -> bool:
         """
-        Deletes all records from the `alerts` table containing a device_id, this should be
-        performed when deleting a device.
+           Deletes all records from the `alerts` table containing a device_id, this should be
+           performed when deleting a device.
 
         """
         sql = """DELETE FROM alerts WHERE device_id = %s """ % device_id

@@ -2,6 +2,7 @@
 
 """
 import os
+import subprocess
 
 from flask import Blueprint, render_template
 from flask import current_app as app
@@ -22,19 +23,21 @@ about = Blueprint('About', __name__, url_prefix='/about')
 def index(scan_type: str=''):
     """About page."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
-    growth = database_stats(conn, cursor )
+    db_stats = database_stats(conn, cursor)
+    machine_stats = get_machine_stats()
     data = {
         'active_page': 'about',
         'db_name': os.path.normpath(app.config['LAN_NANNY_DB_FILE']),
         'db_witness_length': DeviceWitnesses(conn, cursor).get_count_total(),
         'db_scan_host_length': ScanHosts(conn, cursor).get_count_total(),
         'db_scan_port_length': ScanPorts(conn, cursor).get_count_total(),
-        'db_growth': growth,
+        'db_growth': db_stats,
+        'machine_stats': machine_stats
     }
     return render_template('about.html', **data)
 
 
-def database_stats(conn, cursor ):
+def database_stats(conn, cursor):
     """ """
     db_current_size = utils.get_size_raw(app.config['LAN_NANNY_DB_FILE'])
     
@@ -68,5 +71,21 @@ def database_stats(conn, cursor ):
 
     }
     return ret
+
+def get_machine_stats():
+    uptime = _get_uptime()
+
+    ret = {
+        'uptime': uptime
+    }
+
+    return ret
+
+def _get_uptime():
+    uptime = subprocess.check_output('uptime', shell=True)
+    uptime = uptime.decode("utf-8")
+    uptime = uptime[uptime.find('up') + 3:]
+    return uptime
+
 
 # End File: lan-nanny/lan_nanny/modules/controllers/about.py

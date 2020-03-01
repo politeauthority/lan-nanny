@@ -7,6 +7,7 @@ from functools import wraps
 import os
 import secrets
 import string
+import subprocess
 
 from flask import session, redirect
 
@@ -133,5 +134,11 @@ def make_default_password() -> str:
     alphabet = string.ascii_letters + string.digits
     password = ''.join(secrets.choice(alphabet) for i in range(20))
     return password
+
+
+def run_shell(cmd: str) -> str:
+    """Run a shell command and get a string result back."""
+    result = subprocess.check_output(cmd, shell=True)
+    return result.decode("utf-8")
 
 # End File: lan-nanny/lan_nanny/modules/utils.py

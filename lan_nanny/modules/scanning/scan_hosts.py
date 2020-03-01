@@ -18,6 +18,7 @@ from ..models.device_witness import DeviceWitness
 class ScanHosts:
 
     def __init__(self, scan):
+        self.args = scan.args
         self.conn = scan.conn
         self.cursor = scan.cursor
         self.options = scan.options
@@ -32,10 +33,12 @@ class ScanHosts:
         """Run host nmap scan."""
         self.setup()
 
-        if self.options['scan-hosts-enabled'].value != True:
+        if self.args.force_host:
+            print('Running Host Scan regardless of config because --force-host was used.')
+        elif self.options['scan-hosts-enabled'].value != True:
             print('Host scanning disabled. Go to settings to renable.')
             self._abort_run('Scanning disabled by option.')
-            return []
+            return False
 
         self.scan()
         self._complete_run()

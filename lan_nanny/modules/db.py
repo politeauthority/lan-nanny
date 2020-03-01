@@ -28,7 +28,6 @@ def create_connection(database_file: str):
     conn = None
     try:
         conn = sqlite3.connect(database_file)
-
     except Error as e:
         print(e)
         exit(1)
@@ -61,8 +60,8 @@ def create_tables(conn, cursor):
 def populate_options(conn, cursor: sqlite3.Cursor):
     """Create options and sets their defaults."""
     o = Option(cursor=cursor, conn=conn).create_table()
-    os = Options(cursor=cursor, conn=conn)
-    console_password = os.set_defaults()
+    options = Options(cursor=cursor, conn=conn)
+    console_password = options.set_defaults()
     return console_password
 
 # End File: lan-nanny/lan_nanny/modules/db.py

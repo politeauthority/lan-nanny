@@ -139,10 +139,7 @@ def _get_host_hostname(host: dict) -> str:
 
 
 def parse_ports(parsed):
-    """
-    Parses an NMap output file for port data, returning the relevant info.
-
-    """
+    """Parses an NMap output file for port data, returning the relevant info."""
     ports = []
     if 'host' not in parsed['nmaprun']:
         logging.error('No host in parsed nmap')
@@ -166,10 +163,7 @@ def parse_ports(parsed):
 
 
 def _get_port_number(port: dict) -> int:
-    """
-    Gets the port's number from the parsed XML scan.
-
-    """
+    """Get the port's number from the parsed XML scan."""
     if '@portid' not in port:
         return ''
     try:
@@ -181,10 +175,7 @@ def _get_port_number(port: dict) -> int:
 
 
 def _get_port_protocol(port: dict) -> str:
-    """
-    Gets the port's protocol from the parsed XML scan.
-
-    """
+    """Get the port's protocol from the parsed XML scan."""
     if '@protocol' not in port:
         return ''
     if type(port) == str:
@@ -193,10 +184,7 @@ def _get_port_protocol(port: dict) -> str:
 
 
 def _get_port_state(port: dict) -> str:
-    """
-    Gets the port's state from the parsed XML scan.
-
-    """
+    """Get the port's state from the parsed XML scan."""
     if 'state' not in port:
         return ''
     if not isinstance(port['state']['@state'], str):
@@ -208,10 +196,7 @@ def _get_port_state(port: dict) -> str:
 
 
 def _get_port_service(port: dict) -> str:
-    """
-    Gets the port's service from the parsed XML scan.
-
-    """
+    """Get the port's service from the parsed XML scan."""
     if 'service' not in port:
         return ''
     service_name = ''

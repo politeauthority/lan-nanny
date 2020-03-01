@@ -10,8 +10,11 @@ import os
 
 import arrow
 
+from .. import utils
 from ..collections.device_witnesses import DeviceWitnesses
+from ..collections.sys_infos import SysInfos
 from ..models.database_growth import DatabaseGrowth
+from ..models.sys_info import SysInfo
 
 
 class HouseKeeping:
@@ -28,6 +31,7 @@ class HouseKeeping:
         """Main Runner for Scan House Keeping."""
         self.database_growth()
         self.database_prune()
+        self.gather_sys_info()
 
     def database_growth(self):
         """Record the current database size once an hour."""
@@ -63,5 +67,25 @@ class HouseKeeping:
         # @todo: Add scan host and scan port model prunes.
         DeviceWitnesses(self.conn, self.cursor).prune(days)
 
+    def gather_sys_info(self):
+        sys_infos = SysInfos(self.conn, self.cursor).get_all_keyed()
+        # if 'nmap-version' not in sys_infos:
+        #     self.sys_info_nmap_version()
 
-# End File: lan_nanny/nanny-nanny/modules/scanning/scan_house_keeping.py
+    def sys_info_nmap_version(self):
+        nmap_version = self._get_nmap_version()
+        sys_info = SysInfo()
+        sys_info.name = 'nmap-version'
+        sys_info.type = 'str'
+        sys_info.value = nmap_version
+        sys_info.save()
+
+    def _get_nmap_version(self) -> str:
+        nmap_v = utils.run_shell('nmap --version')
+        nmap_v = nmap_v[nmap_v.find('version') + 8:]
+        nmap_v = nmap_v[:nmap_v.find(' ')]
+
+        return nmap_v
+
+
+# End File: lan_nanny/lan-nanny/modules/scanning/house_keeping.py

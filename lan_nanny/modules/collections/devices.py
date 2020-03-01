@@ -1,5 +1,4 @@
-"""Devices Collection.
-
+"""Devices Collection
 Gets collections of devices.
 
 """
