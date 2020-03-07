@@ -31,6 +31,9 @@ def save_general():
     """General settings save."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
 
+    # Update System Name
+    _save_setting(conn, cursor, 'system-name', request.form['setting_system_name'])
+
     # Update timezone
     _save_setting(conn, cursor, 'timezone', request.form['settings_timezone'])
 

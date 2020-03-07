@@ -91,6 +91,11 @@ class Options(Base):
                 'type': 'bool',
                 'default': True
             },
+            {
+                'name': 'system-name',
+                'type': 'str',
+                'default': 'Lan Nanny'
+            },
         ]
         gen_pass = None
         for opt in default_opts:
