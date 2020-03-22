@@ -33,10 +33,10 @@ def device_icons() -> dict:
         "fab fa-apple": "Apple",
         "fas fa-camera": "Camera",
         "fas fa-desktop": "Desktop",
+        "fas fa-gamepad": "Game Console",
         "fas fa-laptop": "Laptop",
         "fas fa-lightbulb": "Light",
-        "fas fa-microchip": "Microchip",
-        "fas fa-phone": "Phone",
+        "fas fa-microchip": "Micro Controller",
         "fas fa-print": "Printer",
         "fas fa-question": "Question Mark",
         "fas fa-satellite": "Satellite",
@@ -49,9 +49,19 @@ def device_icons() -> dict:
         "fas fa-thermometer-half": "Thermostat",
         "fas fa-tv": "Tv",
         "fas fa-wifi": "Wifi Access Point",
-
     }
     return icons
+
+
+def device_types() -> list:
+    """Get a list of all device types."""
+    device_types = [
+        'Audio Device', 'Camera', 'Desktop', 'Game Console', 'Laptop', 'Light', 'Micro Controller',
+        'Printer', 'Server', 'Smart Plug', 'Smart Phone', 'Raspberry Pi', 'Tablet', 'Thermostat',
+        'Tv', 'Unknown', 'Wifi Access Point'
+    ]
+    return device_types
+
 
 def get_size_raw(db_file_loc: str) -> str:
     """Get the size of the database on disk."""

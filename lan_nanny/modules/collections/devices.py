@@ -172,18 +172,21 @@ class Devices(Base):
         mac_sql = utils.gen_like_sql('mac', phrase)
         ip_sql = utils.gen_like_sql('ip', phrase)
         vendor_sql = utils.gen_like_sql('vendor', phrase)
+        type_sql = utils.gen_like_sql('type', phrase)
         sql = """
             SELECT *
             FROM devices
             WHERE
-            %(name)s OR
-            %(mac)s OR
-            %(ip)s OR
-            %(vendor)s""" % {
+                %(name)s OR
+                %(mac)s OR
+                %(ip)s OR
+                %(vendor)s OR
+                %(type)s; """ % {
             'name': name_sql,
             'mac': mac_sql,
             'ip': ip_sql,
-            'vendor': vendor_sql}
+            'vendor': vendor_sql,
+            'type': type_sql}
 
         self.cursor.execute(sql)
         raw_devices = self.cursor.fetchall()

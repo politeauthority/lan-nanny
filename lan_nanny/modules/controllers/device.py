@@ -123,9 +123,7 @@ def edit(device_id: int) -> str:
     device.conn = conn
     device.cursor = cursor
     device.get_by_id(device_id)
-
     icons = utils.device_icons()
-
     custom_icon = False
     if device.icon and device.icon not in icons:
         custom_icon = True
@@ -133,6 +131,7 @@ def edit(device_id: int) -> str:
     data = {}
     data['device'] = device
     data['icons'] = icons
+    data['device_types'] = utils.device_types()
     data['custom_icon'] = custom_icon
     data['active_page'] = 'devices'
     return render_template('devices/edit.html', **data)
@@ -159,6 +158,11 @@ def save():
             device.icon = None
     else:
         device.icon = request.form['device_icon_input']
+
+    if request.form['device_type_select'] == 'None':
+        device.type = None
+    else:
+        device.type = request.form['device_type_select']
 
     # @todo figure out how hide works.
     # device.hide = request.form['device_hide']

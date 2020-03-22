@@ -57,6 +57,14 @@
                 <td>{{device.vendor}}</td>
               </tr>
               <tr>
+                <td><b>Type</b></td>
+                <td>
+                  {%if device.type %}
+                    {{device.type}}
+                  {%endif%}
+                </td>
+              </tr>
+              <tr>
                 <td><b>Status</b></td>
                 {%if device.last_seen|online%}
                   <td>Online</td>
