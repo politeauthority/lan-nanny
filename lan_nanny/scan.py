@@ -10,6 +10,7 @@
 import argparse
 import logging
 import logging.config
+import subprocess
 import os
 
 from modules import db
