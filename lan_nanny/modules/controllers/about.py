@@ -60,7 +60,9 @@ def database_stats(conn, cursor):
         db_delta_24['size_pretty'] = utils.size_of_fmt(db_current_size - db_24_hours_ago.size)
         db_delta_24['percent'] = utils.get_percent(
             db_current['size'],
-            db_delta_24['size'])
+            db_delta_24['size'],
+            round_ret=2,
+            invert=True)
     db_first = DatabaseGrowth(conn, cursor)
     db_first.get_by_id(1)
 

@@ -24,7 +24,7 @@ def roster() -> str:
     data['active_page'] = 'ports'
     data['ports'] = ports.get_all()
     data['devices'] = devices
-    return render_template('ports/roster.html', **data)
+    return render_template('ports/dashboard.html', **data)
 
 
 @ports.route('/info/<port_id>')

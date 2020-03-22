@@ -119,13 +119,19 @@ def get_pagination_offset(page: int, per_page: int) -> int:
     return offset
 
 
-def get_percent(whole: int, part: int, round_ret: int=0) -> int:
+def get_percent(whole: int, part: int, round_ret: int=0, invert: bool=False) -> int:
     """Get the percent a part is of a whole, rounded to desired level."""
-    result = abs((part / whole * 100) - 100)
+    result = part / whole * 100
+
+    if invert:
+        result = 100 - result
+
     if round_ret == 0:
-        return int(result)
+        result = int(result)
     else:
-        return round(result, round_ret)
+        result = round(result, round_ret)
+
+    return result
 
 
 def key_list_on_id(some_object_list: list) -> dict:
