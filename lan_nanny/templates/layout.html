@@ -19,7 +19,9 @@
   <!-- Custom styles for this template-->
   <link href="/static/css/sb-admin-2.min.css" rel="stylesheet">
   <link href="/static/css/lan-nanny.css" rel="stylesheet">
-
+  {%if g.options['auto-reload-console'].value %}
+    <meta http-equiv="Refresh" content="120">
+  {%endif%}
   {%block head%}{%endblock%}
 
 </head>
@@ -143,7 +145,7 @@
                 </h6>
 
                 {%for alert in g.alerts%}
-                <a class="dropdown-item d-flex align-items-center" href="/alert/info/{{alert.id}}">
+                <a class="dropdown-item d-flex align-items-center" href="/alerts/info/{{alert.id}}">
                   <div class="mr-3">
                     <div class="icon-circle bg-primary">
                       <i class="fas fa-file-alt text-white"></i>
@@ -256,20 +258,14 @@
 
   <script src="/static/js/fontawesome.js" crossorigin="anonymous"></script>
 
+  <!-- JS cookie -->
+  <!-- <script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script> -->
+
   <!-- CDN version of font-awesome -->
   <!-- <script src="https://kit.fontawesome.com/7c2d391bcd.js" crossorigin="anonymous"></script> -->
 
   <script src="/static/js/main.js" crossorigin="anonymous"></script>
 
-  <script type="text/javascript">
-    {%if g.options['auto-reload-console'].value %}
-      // Reload every 5 minutes
-      setTimeout(function(){
-        window.location.reload(1);
-        console.log('reloading, its been 5 minutes;');
-      }, 60000);
-    {%endif%}
-  </script>
   {%block javascript%}{%endblock%}
 
 </body>
