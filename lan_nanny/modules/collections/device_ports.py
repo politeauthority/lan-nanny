@@ -29,20 +29,7 @@ class DevicePorts(Base):
             ORDER BY last_seen DESC;""" % (self.table_name, device_id)
         self.cursor.execute(sql)
         raw_device_ports = self.cursor.fetchall()
-        port_ids = []
-        device_ports = []
-        for raw_device_port in raw_device_ports:
-            device_port = DevicePort()
-            device_port.build_from_list(raw_device_port)
-            port_ids.append(device_port.port_id)
-            device_ports.append(device_port)
-        ports = Ports(self.conn, self.cursor).get_by_port_ids(port_ids)
-
-        for device_port in device_ports:
-            for port in ports:
-                if device_port.port_id == port.id:
-                    device_port.port = port
-                    break
+        device_ports = self.build_from_lists(raw_device_ports, build_ports=True)
 
         return device_ports
 
@@ -51,5 +38,20 @@ class DevicePorts(Base):
         sql = """DELETE FROM %s WHERE device_id=%s""" % (self.table_name, device_id)
         self.cursor.execute(sql)
         return True
+
+    def build_from_lists(self, raws: list, build_ports: bool=False):
+        """
+        Build a model from an ordered list, converting data types to their desired type where
+        possible.
+
+        """
+        device_ports = super(DevicePorts, self).build_from_lists(raws)
+        if not build_ports:
+            return device_ports
+
+        for device_port in device_ports:
+            device_port.get_port()
+        return device_ports
+
 
 # End File: lan-nanny/lan_nanny/modules/collections/device_ports.py

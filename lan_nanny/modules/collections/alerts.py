@@ -27,7 +27,7 @@ class Alerts(Base):
 
         self.cursor.execute(sql)
         raw_alerts = self.cursor.fetchall()
-        alerts = self.build_models_from_list(raw_alerts)
+        alerts = self.build_from_lists(raw_alerts)
         return alerts
 
     def get_active_unacked(self, build_devices: bool=False) -> list:
@@ -41,7 +41,7 @@ class Alerts(Base):
             ORDER BY created_ts DESC;""" % (self.table_name)
         self.cursor.execute(sql)
         raw_alerts = self.cursor.fetchall()
-        alerts = self.build_models_from_list(raw_alerts)
+        alerts = self.build_from_lists(raw_alerts)
         return alerts
 
     def get_for_device(self, device_id: int) -> list:

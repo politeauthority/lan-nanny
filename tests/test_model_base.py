@@ -2,6 +2,7 @@
 
 """
 from datetime import datetime
+from dateutil.tz import tzutc
 import os
 
 import arrow
@@ -218,11 +219,11 @@ field_seven INTEGER"""
             0]                               # field_seven
         base.build_from_list(sql_ret)
         assert base.id == 1
-        assert base.created_ts == datetime(2020, 1, 8, 5, 1, 48)
+        assert base.created_ts == datetime(2020, 1, 8, 5, 1, 48, tzinfo=tzutc())
         assert base.field_three == True
         assert base.field_four == 'TEST'
         assert base.field_five == 5
-        assert base.field_six == datetime(2020, 1, 8, 5, 1, 48)
+        assert base.field_six == datetime(2020, 1, 8, 5, 1, 48, tzinfo=tzutc())
         assert base.field_seven == 0
 
     def test_check_required_class_vars(self):

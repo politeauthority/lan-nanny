@@ -1,6 +1,8 @@
 """Scan Alerts
 
 """
+import logging
+
 import arrow
 
 from ..collections.scan_hosts import ScanHosts
@@ -20,7 +22,7 @@ class ScanAlerts:
 
     def run(self):
         """Handle various LanNanny alerts."""
-        print('Running alerts')
+        logging.info('Running alerts')
         self.get_active_alerts()
         self.alert_no_hosts_in_scan()
         self.alert_new_device()
@@ -53,11 +55,11 @@ class ScanAlerts:
                 host_scan_alert = Alert(self.conn, self.cursor)
                 host_scan_alert.kind = 'no-hosts-over-time'
                 host_scan_alert.active = True
-                print('Created no-hosts-over-time alert')
+                logging.info('Created no-hosts-over-time alert')
 
             else:
                 host_scan_alert = self.active_no_hosts
-                print('Alert no-hosts-over-time still active')
+                logging.info('Alert no-hosts-over-time still active')
 
             host_scan_alert.last_observed_ts = arrow.utcnow().datetime
             host_scan_alert.message = \
@@ -68,7 +70,7 @@ class ScanAlerts:
             host_scan_alert.active = False
             host_scan_alert.resolved_ts = arrow.utcnow().datetime
             host_scan_alert.save()
-            print('Resolved alert no-hosts-over-time')
+            logging.info('Resolved alert no-hosts-over-time')
 
         return True
 
@@ -79,7 +81,7 @@ class ScanAlerts:
             return False
         if not self.new_devices:
             return True
-        print('Running Alert on new devices, found %s' % len(self.new_devices))
+        logging.info('Running Alert on new devices, found %s' % len(self.new_devices))
         for new_device in self.new_devices:
             alert_new = Alert(self.conn, self.cursor)
             alert_new.kind = 'new-device'
@@ -93,7 +95,7 @@ class ScanAlerts:
             alert_new.metas['device'].value = new_device.id
             alert_new.save()
 
-            print("Created new device alert for %s" % new_device)
+            logging.info("Created new device alert for %s" % new_device)
 
             
 # End File: lan-nanny/lan_nanny/modules/scanning/scan_alerts.py

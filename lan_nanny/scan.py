@@ -8,6 +8,8 @@
 
 """
 import argparse
+import logging
+import logging.config
 import os
 
 from modules import db
@@ -17,8 +19,12 @@ from modules.scanning.scan_hosts import ScanHosts
 from modules.scanning.scan_alerts import ScanAlerts
 from modules.scanning.house_keeping import HouseKeeping
 from config import default as config_default
+from config import logging_conf
 
-TMP_DIR = "/opt/lan_nanny/"
+logger = logging.getLogger(__name__)
+logging.config.dictConfig(logging_conf.base)
+logging.getLogger('root').setLevel('DEBUG')
+TMP_DIR = config_default.LAN_NANNY_TMP_DIR
 
 conn, cursor = db.create_connection(config_default.LAN_NANNY_DB_FILE)
 
@@ -55,20 +61,25 @@ class Scan:
 
     def hande_hosts(self):
         """Launch host scanning operations."""
-        scan_hosts = ScanHosts(self).run()
-        if scan_hosts:
-            self.hosts, self.new_devices = scan_hosts
-        else:
-            print('Error scanning hosts, ending scan.')
-            exit(1)
-
+        try:
+            scan_hosts = ScanHosts(self).run()
+            if scan_hosts:
+                self.hosts, self.new_devices = scan_hosts
+            else:
+                logging.error('Error scanning hosts, ending scan.')
+        except:
+            logging.error('Error running host scan.')
+            return False
     def handle_ports(self):
         """
         Scans ports for hosts which appeared in the current scan, checking first if the device and
         global settings allow for a device to be port scanned.
 
         """
-        ScanPorts(self).run()
+        try:
+            ScanPorts(self).run()
+        except:
+            logging.error('Scan Ports failed')
 
     def handle_alerts(self):
         """Handle system alerts."""
