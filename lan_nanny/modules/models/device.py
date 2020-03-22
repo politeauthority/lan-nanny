@@ -88,6 +88,10 @@ class Device(Base):
                 'name': 'host_names',
                 'type': 'str',
             },
+            {
+                'name': 'type',
+                'type': 'str',
+            },
         ]
         self.ports = []
         self.metas = {}

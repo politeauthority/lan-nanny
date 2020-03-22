@@ -30,25 +30,24 @@ class ScanPorts:
 
     def run(self):
         """ Main Runner for Scan Port."""
-        print("Running port scans")
+        logging.info("Running port scans")
 
         if self.args.force_port:
-            print('\tRunning Port Scan regardless of config because --force-port was used.')
+            logging.info('\tRunning Port Scan regardless of config because --force-port was used.')
         elif self.options['scan-ports-enabled'].value != True:
-            print('\tPort Scanning disabled')
+            logging.info('\tPort Scanning disabled')
             return False
 
         if not self.hosts:
-            print('\tNo hosts found in last scan, skipping port scan')
+            logging.info('\tNo hosts found in last scan, skipping port scan')
             return False
 
         port_scan_devices = self.get_port_scan_candidates()
 
         if not port_scan_devices:
-            print('\tNo devices ready for port scan, skipping.')
+            logging.info('\tNo devices ready for port scan, skipping.')
             return
 
-        print('\tStarting Device Port Scans for %s devices' % len(port_scan_devices))
         for device in port_scan_devices:
             self.handle_device_port_scan(device)
 
@@ -63,13 +62,13 @@ class ScanPorts:
 
             # Remove devices that dont allow port scanning.
             if not host['device'].port_scan:
-                logging.info('%s does not have port scanning enabled' % host['device'])
+                logging.debug('%s does not have port scanning enabled' % host['device'])
                 continue
 
             # Remove devices that have been port scanned in x minutes.
             if not host['device'].last_port_scan or \
                 (host['device'].last_port_scan > host_port_scan_timeout):
-                logging.info('%s has been scanned in the last %s minutes' % (
+                logging.debug('%s has been scanned in the last %s minutes' % (
                     host['device'],
                     host_port_scan_interval_mins))
                 continue
@@ -83,9 +82,8 @@ class ScanPorts:
 
         return port_scan_devices
 
-    def handle_device_port_scan(self, device: Device) -> True:
+    def handle_device_port_scan(self, device: Device) -> bool:
         """Run device port scan and related processes for a single device."""
-        device_og_port_scan = device.last_port_scan
         device.conn = self.conn
         device.cursor = self.cursor
 
@@ -102,15 +100,14 @@ class ScanPorts:
 
         # if port scanning failed for any reason.
         if not device_port_scan['ports']:
-
-            print('\t\t\tPort scan failed for %s, will try again soon.' % device)
+            logging.warning('\tPort scan failed for %s, will try again soon.' % device)
             return False
 
         self.handle_ports(device, device_port_scan['ports'])
 
         end = arrow.utcnow()
 
-        print('\t\t\tSaved port scan for %s found %s open ports\n' % (
+        logging.info('\tSaved port scan for %s found %s open ports\n' % (
             device,
             '@todo'))
         device.last_port_scan = arrow.utcnow().datetime
@@ -118,7 +115,7 @@ class ScanPorts:
         device.save()
         return True
 
-    def scan_ports_cmd(self, device: Device) -> list:
+    def scan_ports_cmd(self, device: Device) -> dict:
         """Run and manages an NMAP port scan for a single device to derive port data and returning
            those ports in a list of dicts.
         """
@@ -126,14 +123,13 @@ class ScanPorts:
         start = time.time()
         port_scan_file = os.path.join(self.tmp_dir, "port_scan_%s.xml" % device.id)
         cmd = "%s -oX %s" % (scan.command, port_scan_file)
-        print('\t\tRunning port scan for %s' % device)
-        print('\t\t\tCmd: %s' % scan.command)
+        logging.info('\tRunning port scan for %s' % device)
+        # print('\t\t\tCmd: %s' % scan.command)
 
         try:
             subprocess.check_output(cmd, shell=True)
             scan.success = True
         except subprocess.CalledProcessError:
-            print('Error running scan, please try again')
             end = time.time()
             scan.elapsed_time = end - start
             self._complete_run_error(scan)
@@ -143,8 +139,13 @@ class ScanPorts:
         scan.end_run()
 
         ports = parse_nmap.parse_xml(port_scan_file, 'ports')
-        # scan.units = len(ports)
         os.remove(port_scan_file)
+
+        if ports == False:
+            end = time.time()
+            scan.elapsed_time = end - start
+            self._complete_run_error(scan)
+            return False
         ret = {
             'ports': ports,
             'scan_port_log': scan,
@@ -162,6 +163,7 @@ class ScanPorts:
 
     def handle_ports(self, device: Device, ports: list):
         """Take ports found in scan to report and save."""
+        device_currently_open_ports = ''
         if not ports:
             print('\t\t\tDevice offline or no ports for %s' % device)
             return False
@@ -169,13 +171,14 @@ class ScanPorts:
         num_ports = 0
         col_device_ports = DevicePorts(self.conn, self.cursor)
         device_ports = col_device_ports.get_by_device_id(device.id)
+
         for raw_port in ports:
             self.handle_port(device, device_ports, raw_port)
             num_ports += 1
 
         print('\t\t\tDevice %s has %s ports open' % (device, num_ports))
 
-    def handle_port(self, device, device_ports, raw_port):
+    def handle_port(self, device: Device, device_ports: list, raw_port: list) -> bool:
         """Take a single port for device to report and save them."""
         this_dp = None
         for device_port in device_ports:
@@ -187,12 +190,12 @@ class ScanPorts:
                 this_port = device_port.port
                 break
 
+        this_port = self.get_port(raw_port)
         if not this_dp:
-            this_port = self.get_port(raw_port)
             this_dp = DevicePort(self.conn, self.cursor)
             this_dp.device_id = device.id
             this_dp.port_id = this_port.id
-        this_dp.status = 'open'
+        this_dp.state = raw_port['state']
         this_dp.last_seen = arrow.utcnow().datetime
         this_dp.save()
 
@@ -209,10 +212,12 @@ class ScanPorts:
             port.save()
         return port
 
-    def _complete_run_error(self, scan_log):
+    def _complete_run_error(self, scan_log) -> bool:
+        logging.error('\tError running port scan for device, please try again soon.')
         scan_log.completed = True
         scan_log.success = False
         scan_log.message = 'Failed running command'
         scan_log.end_run()
+        return True
 
 # End File: lan_nanny/nanny-nanny/modules/models/scan_ports.py

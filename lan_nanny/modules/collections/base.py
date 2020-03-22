@@ -131,14 +131,14 @@ class Base:
         total_pages = total / per_page
         return int(round(total_pages, 0))
 
-    def build_models_from_list(self, raws:list) -> list:
+    def build_from_lists(self, raws:list) -> list:
         """Creates list of hydrated collection objects."""
-        prestine = []
+        prestines = []
         for raw_item in raws:
             new_object = self.collect_model(self.conn, self.cursor)
             new_object.build_from_list(raw_item)
-            prestine.append(new_object)
-        return prestine
+            prestines.append(new_object)
+        return prestines
 
     def int_list_to_sql(self, item_list: list) -> str:
         """Transform a list of ints to a sql safe comma separated string."""

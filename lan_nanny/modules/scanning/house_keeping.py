@@ -29,6 +29,7 @@ class HouseKeeping:
 
     def run(self):
         """Main Runner for Scan House Keeping."""
+        logging.info('Running House Keeping')
         self.database_growth()
         self.database_prune()
         self.gather_sys_info()
@@ -51,7 +52,7 @@ class HouseKeeping:
             logging.debug('Not creating new database growth record.')
             return
 
-        print('Creating new DB Growth')
+        logging.info('Creating new DB Growth')
         new_growth = DatabaseGrowth(self.conn, self.cursor)
         new_growth.size = os.path.getsize(self.db_file_loc)
         new_growth.save()
@@ -62,7 +63,7 @@ class HouseKeeping:
             days = int(self.options['db-prune-days'].value)
         else:
             return
-        print('Running prune of data older than %s days' % days)
+        logging.info('Running prune of data older than %s days' % days)
 
         # @todo: Add scan host and scan port model prunes.
         DeviceWitnesses(self.conn, self.cursor).prune(days)

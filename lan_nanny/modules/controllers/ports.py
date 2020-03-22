@@ -31,6 +31,7 @@ def roster() -> str:
 @utils.authenticate
 def info(port_number: str, port_protocol: str) -> str:
     """Port info page."""
+    print('PORT INFO\n\n')
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     port = Port(conn, cursor)
     port.get_by_port_and_protocol(port_number, port_protocol)
@@ -41,7 +42,6 @@ def info(port_number: str, port_protocol: str) -> str:
 
     device_collect = Devices(conn, cursor)
     devices = device_collect.get_with_open_port(port.id)
-
     data = {}
     data['port'] = port
     data['devices'] = devices

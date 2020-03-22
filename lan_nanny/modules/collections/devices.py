@@ -140,12 +140,12 @@ class Devices(Base):
             FROM device_ports
             WHERE
                 port_id = %s AND
-                status = 'open' """ % (port_id)
+                state = 'open' """ % (port_id)
         self.cursor.execute(sql)
-        raw_device_ports = self.cursor.fetchall()
+        raw_device_ids = self.cursor.fetchall()
         device_ids = []
-        for raw_device_port in raw_device_ports:
-            device_ids.append(raw_device_port[0])
+        for raw_device_id in raw_device_ids:
+            device_ids.append(raw_device_id[0])
 
         devices = self.get_by_device_ids(device_ids)
 

@@ -27,10 +27,6 @@ class Port(Base):
                 'type': 'datetime'
             },
             {
-                'name': 'status',
-                'type': 'str'
-            },
-            {
                 'name': 'service',
                 'type': 'str'
             },

@@ -3,7 +3,6 @@
 """
 import os
 
-
 from lan_nanny.modules import db
 from lan_nanny.modules.models.device import Device
 

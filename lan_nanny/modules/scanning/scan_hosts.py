@@ -32,11 +32,12 @@ class ScanHosts:
     def run(self) -> list:
         """Run host nmap scan."""
         self.setup()
+        logging.info('Running Host Scan')
 
         if self.args.force_host:
-            print('Running Host Scan regardless of config because --force-host was used.')
+            logging.info('\tRunning Host Scan regardless of config because --force-host was used.')
         elif self.options['scan-hosts-enabled'].value != True:
-            print('Host scanning disabled. Go to settings to renable.')
+            logging.info('\tHost scanning disabled. Go to settings to renable.')
             self._abort_run('Scanning disabled by option.')
             return False
 
@@ -56,13 +57,13 @@ class ScanHosts:
         scan_range = self.options['scan-hosts-range'].value
         start_ts = time.time()
 
-        print('Scan Range: %s' % scan_range)
+        logging.info('\tScan Range: %s' % scan_range)
         self.scan_log.command = "nmap -sP %s" % scan_range
         cmd = "nmap -sP %s -oX %s" % (scan_range, self.scan_file)
         try:
             subprocess.check_output(cmd, shell=True)
         except subprocess.CalledProcessError:
-            print('Error running scan, please try again')
+            logging.error('Error running scan, please try again')
             end_ts = time.time()
             self._complete_run_error(start_ts, end_ts, 'Running Scan.')
             self.run_success = False
@@ -88,16 +89,16 @@ class ScanHosts:
 
         """
         if not self.hosts:
-            print('No hosts found or error encountered.')
+            logging.warning('\tNo hosts found or error encountered.')
             return False
-        print('Found %s devices:' % len(self.hosts))
+        logging.info('\tFound %s devices:' % len(self.hosts))
         self.new_devices = []
 
         scan_time = arrow.utcnow().datetime
         count = 0
         for host in self.hosts:
             if not host['mac']:
-                logging.debug('Couldnt find mac for device, skipping')
+                logging.debug('\tCouldnt find mac for device, skipping')
                 continue
 
             device = Device(self.conn, self.cursor)
@@ -124,7 +125,7 @@ class ScanHosts:
             if new:
                 self.new_devices.append(device)
                 new_device_str = "\t- New Device"
-            print('\t%s - %s%s' % (device.name, device.ip, new_device_str))
+            logging.info('\t\t%s - %s%s' % (device.name, device.ip, new_device_str))
 
             self.save_witness(device, scan_time)
 

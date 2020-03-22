@@ -2,6 +2,7 @@
 
 """
 from .base import Base
+from .port import Port
 
 
 class DevicePort(Base):
@@ -27,7 +28,7 @@ class DevicePort(Base):
                 'type': 'datetime'
             },
             {
-                'name': 'status',
+                'name': 'state',
                 'type': 'str'
             },
             {
@@ -58,6 +59,11 @@ class DevicePort(Base):
             return False
 
         self.build_from_list(device_port_raw)
+        return True
+
+    def get_port(self) -> bool:
+        self.port = Port(self.conn, self.cursor)
+        self.port.get_by_id(self.port_id)
         return True
 
 # End File: lan-nanny/lan_nanny/modules/models/device_port.py

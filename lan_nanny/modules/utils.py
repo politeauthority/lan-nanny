@@ -35,7 +35,7 @@ def device_icons() -> dict:
         "fas fa-desktop": "Desktop",
         "fas fa-laptop": "Laptop",
         "fas fa-lightbulb": "Light",
-        "fad fa-microchip": "Microchip",
+        "fas fa-microchip": "Microchip",
         "fas fa-phone": "Phone",
         "fas fa-print": "Printer",
         "fas fa-question": "Question Mark",

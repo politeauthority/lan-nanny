@@ -148,7 +148,7 @@ if __name__ == '__main__':
     register_blueprints(app)
     register_jinja_funcs(app)
     # install()
-    app.run(host="0.0.0.0", port=port, debug=True)
+    app.run(host="0.0.0.0", port=port)
 
 
 # End File: lan-nanny/lan_nanny/app.py
