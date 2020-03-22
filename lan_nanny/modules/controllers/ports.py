@@ -27,14 +27,14 @@ def roster() -> str:
     return render_template('ports/roster.html', **data)
 
 
-@ports.route('/info/<port_number>/<port_protocol>')
+@ports.route('/info/<port_id>')
 @utils.authenticate
-def info(port_number: str, port_protocol: str) -> str:
+def info(port_id: int) -> str:
     """Port info page."""
     print('PORT INFO\n\n')
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     port = Port(conn, cursor)
-    port.get_by_port_and_protocol(port_number, port_protocol)
+    port.get_by_id(port_id)
 
     if not port.id:
         return 'ERROR 404: Route this to page_not_found method!', 404
