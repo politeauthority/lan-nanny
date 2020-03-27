@@ -31,10 +31,10 @@ class Devices(Base):
             SELECT *
             FROM %s
             ORDER BY last_seen DESC
-            LIMIT 20;""" % self.table_name
+            LIMIT 10;""" % self.table_name
         self.cursor.execute(sql)
         raw_devices = self.cursor.fetchall()
-        devices = self._build_raw_devices(raw_devices)
+        devices = self.build_from_lists(raw_devices)
         return devices
 
     def get_online(self, since: int) -> list:
@@ -48,7 +48,7 @@ class Devices(Base):
 
         self.cursor.execute(sql)
         raw_devices = self.cursor.fetchall()
-        devices = self._build_raw_devices(raw_devices)
+        devices = self.build_from_lists(raw_devices)
         return devices
 
     def get_offline(self, since: int) -> list:
@@ -62,7 +62,7 @@ class Devices(Base):
 
         self.cursor.execute(sql)
         raw_devices = self.cursor.fetchall()
-        devices = self._build_raw_devices(raw_devices)
+        devices = self.build_from_lists(raw_devices)
         return devices
 
     def get_favorites(self):
@@ -75,7 +75,7 @@ class Devices(Base):
 
         self.cursor.execute(sql)
         raw_devices = self.cursor.fetchall()
-        devices = self._build_raw_devices(raw_devices)
+        devices = self.build_from_lists(raw_devices)
         return devices
 
     def get_new_count(self) -> int:
@@ -102,7 +102,7 @@ class Devices(Base):
 
         self.cursor.execute(sql)
         raw_devices = self.cursor.fetchall()
-        devices = self._build_raw_devices(raw_devices)
+        devices = self.build_from_lists(raw_devices)
         return devices
 
     def with_alerts_on(self):
@@ -117,7 +117,7 @@ class Devices(Base):
 
         self.cursor.execute(sql)
         raw_devices = self.cursor.fetchall()
-        devices = self._build_raw_devices(raw_devices)
+        devices = self.build_from_lists(raw_devices)
         return devices
 
     def with_enabled_port_scanning(self) -> list:
@@ -130,7 +130,7 @@ class Devices(Base):
             ORDER BY last_port_scan DESC;"""
         self.cursor.execute(sql)
         raw_devices = self.cursor.fetchall()
-        devices = self._build_raw_devices(raw_devices)
+        devices = self.build_from_lists(raw_devices)
         return devices
 
     def get_with_open_port(self, port_id: int) -> list:
@@ -163,7 +163,7 @@ class Devices(Base):
             WHERE id IN(%s);""" % (port_ids_sql)
         self.cursor.execute(sql)
         raw_devices = self.cursor.fetchall()
-        devices = self._build_raw_devices(raw_devices)
+        devices = self.build_from_lists(raw_devices)
         return devices
 
     def search(self, phrase: str) -> list:
@@ -190,16 +190,21 @@ class Devices(Base):
 
         self.cursor.execute(sql)
         raw_devices = self.cursor.fetchall()
-        devices = self._build_raw_devices(raw_devices)
+        devices = self.build_from_lists(raw_devices)
         return devices
 
-    def _build_raw_devices(self, raw_devices, build_ports=False) -> list:
-        """Build raw devices into a list of fully built device objects."""
-        devices = []
-        for raw_device in raw_devices:
-            device = Device(self.conn, self.cursor)
-            device.build_from_list(raw_device, build_ports=build_ports)
-            devices.append(device)
+    def build_from_lists(self, raws: list, build_ports: bool=False) -> list:
+        """Build a model from an ordered list, converting data types to their desired type where
+           possible.
+
+           :param raws: Raw data to convert into model objects.
+           :param build_ports: Build the Device's Ports
+        """
+        devices = super(Devices, self).build_from_lists(raws)
+        if not build_ports:
+            return devices
+        for device in devices:
+            device.get_ports()
         return devices
 
     def _get_device_field_map(self, append_table_name=False) -> list:

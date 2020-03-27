@@ -35,19 +35,16 @@
             </h6>
           </div>
           <div class="card-body">
-
-            <div class="form-group">
-              <label for="setting_scan_hosts_range">IP Scan Range</label>
-              <input type="text" class="form-control form-sm" id="setting_scan_hosts_range" name="setting_scan_hosts_range" value="{{settings['scan-hosts-range'].value}}" aria-describedby="scanRangeHelp">
-              <small id="scanRangeHelp" class="form-text text-muted">IP range for device scans.</small>
-            </div>
-
             <div class="form-group">
               <label for="setting_scan_hosts_enabled">Scan Hosts</label>
               <input id="setting_scan_hosts_enabled" type="checkbox" data-toggle="toggle" aria-describedby="scanHostsEnabledeHelp">
               <small id="scanHostsEnabledeHelp" class="form-text text-muted">Enable regular host scanning.</small>
             </div>
-
+            <div class="form-group">
+              <label for="setting_scan_hosts_range">IP Scan Range</label>
+              <input type="text" class="form-control form-sm" id="setting_scan_hosts_range" name="setting_scan_hosts_range" value="{{settings['scan-hosts-range'].value}}" aria-describedby="scanRangeHelp">
+              <small id="scanRangeHelp" class="form-text text-muted">IP range for device scans.</small>
+            </div>
           </div>
         </div>
       </div><!-- End Scan Settings-->

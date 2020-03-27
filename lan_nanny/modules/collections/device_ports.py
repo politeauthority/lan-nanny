@@ -39,7 +39,7 @@ class DevicePorts(Base):
         self.cursor.execute(sql)
         return True
 
-    def build_from_lists(self, raws: list, build_ports: bool=False):
+    def build_from_lists(self, raws: list, build_ports: bool=False) -> list:
         """
         Build a model from an ordered list, converting data types to their desired type where
         possible.
