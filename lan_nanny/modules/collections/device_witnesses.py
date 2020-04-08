@@ -17,8 +17,6 @@ class DeviceWitnesses(Base):
             target model.
         """
         super(DeviceWitnesses, self).__init__(conn, cursor)
-        self.conn = conn
-        self.cursor = cursor
         self.table_name = DeviceWitness().table_name
         self.collect_model = DeviceWitness
 

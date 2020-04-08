@@ -11,8 +11,6 @@ class Alerts(Base):
 
     def __init__(self, conn=None, cursor=None):
         super(Alerts, self).__init__(conn, cursor)
-        self.conn = conn
-        self.cursor = cursor
         self.table_name = Alert().table_name
         self.collect_model = Alert
 

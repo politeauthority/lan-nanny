@@ -15,8 +15,6 @@ class DevicePorts(Base):
             target model.
         """
         super(DevicePorts, self).__init__(conn, cursor)
-        self.conn = conn
-        self.cursor = cursor
         self.table_name = DevicePort().table_name
         self.collect_model = DevicePort
 

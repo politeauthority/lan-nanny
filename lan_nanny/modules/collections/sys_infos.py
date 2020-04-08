@@ -9,8 +9,6 @@ class SysInfos(Base):
 
     def __init__(self, conn=None, cursor=None):
         super(SysInfos, self).__init__(conn, cursor)
-        self.conn = conn
-        self.cursor = cursor
         self.table_name = SysInfo().table_name
         self.collect_model = SysInfo
 

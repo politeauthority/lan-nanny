@@ -16,8 +16,6 @@ class ScanHosts(Base):
             target model.
         """
         super(ScanHosts, self).__init__(conn, cursor)
-        self.conn = conn
-        self.cursor = cursor
         self.table_name = ScanHost().table_name
         self.collect_model = ScanHost
 

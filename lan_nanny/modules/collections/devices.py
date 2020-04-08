@@ -19,11 +19,8 @@ class Devices(Base):
             target model.
         """
         super(Devices, self).__init__(conn, cursor)
-        self.conn = conn
-        self.cursor = cursor
         self.table_name = Device().table_name
         self.collect_model = Device
-        
 
     def get_recent(self) -> list:
         """Get all devices in the database."""
@@ -146,24 +143,7 @@ class Devices(Base):
         device_ids = []
         for raw_device_id in raw_device_ids:
             device_ids.append(raw_device_id[0])
-
-        devices = self.get_by_device_ids(device_ids)
-
-        return devices
-
-    def get_by_device_ids(self, port_ids: list) -> list:
-        """Get ports by a list of port IDs."""
-        port_ids_sql = ""
-        for port_id in port_ids:
-            port_ids_sql += "%s," % port_id
-        port_ids_sql = port_ids_sql[:-1]
-        sql = """
-            SELECT *
-            FROM devices
-            WHERE id IN(%s);""" % (port_ids_sql)
-        self.cursor.execute(sql)
-        raw_devices = self.cursor.fetchall()
-        devices = self.build_from_lists(raw_devices)
+        devices = self.get_by_ids(device_ids)
         return devices
 
     def search(self, phrase: str) -> list:
@@ -192,6 +172,7 @@ class Devices(Base):
         raw_devices = self.cursor.fetchall()
         devices = self.build_from_lists(raw_devices)
         return devices
+
 
     def build_from_lists(self, raws: list, build_ports: bool=False) -> list:
         """Build a model from an ordered list, converting data types to their desired type where

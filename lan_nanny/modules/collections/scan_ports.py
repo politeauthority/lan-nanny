@@ -12,8 +12,7 @@ from ..models.scan_port import ScanPort
 class ScanPorts(Base):
 
     def __init__(self, conn=None, cursor=None):
-        self.conn = conn
-        self.cursor = cursor
+        super(ScanPorts, self).__init__(conn, cursor)
         self.table_name = ScanPort().table_name
         self.collect_model = ScanPort
 

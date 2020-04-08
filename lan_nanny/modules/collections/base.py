@@ -43,12 +43,8 @@ class Base:
         'ids': sql_ids,
         }
         self.cursor.execute(sql)
-        raw = self.cursor.fetchall()
-        prestine = []
-        for raw_item in raw:
-            new_object = self.collect_model(self.conn, self.cursor)
-            new_object.build_from_list(raw_item)
-            prestine.append(new_object)
+        raws = self.cursor.fetchall()
+        prestine = self.build_from_lists(raws)
         return prestine
 
     def get_all_paginated(self, limit: int=20, offset: int=0) -> list:

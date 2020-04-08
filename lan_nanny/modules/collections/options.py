@@ -13,8 +13,6 @@ class Options(Base):
 
     def __init__(self, conn=None, cursor=None):
         super(Options, self).__init__(conn, cursor)
-        self.conn = conn
-        self.cursor = cursor
         self.table_name = Option().table_name
         self.collect_model = Option
 
