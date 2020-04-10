@@ -73,13 +73,11 @@
           <i class="fas fa-fw fa-door-open"></i>
           <span>Ports</span></a>
       </li>
-      {%if g.options['beta-features'].value %}
-        <li class="nav-item {%if active_page == 'scans'%}active{%endif%}">
-          <a class="nav-link" href="/scan">
-            <i class="fas fa-fw fa-map"></i>
-            <span>Scans</span></a>
-        </li>
-      {%endif%}
+      <li class="nav-item {%if active_page == 'scans'%}active{%endif%}">
+        <a class="nav-link" href="/scan">
+          <i class="fas fa-fw fa-map"></i>
+          <span>Scans</span></a>
+      </li>
       <li class="nav-item {%if active_page == 'settings'%}active{%endif%}">
         <a class="nav-link" href="/settings">
           <i class="fas fa-fw fa-cog"></i>
@@ -128,38 +126,44 @@
 
           <!-- Topbar Navbar -->
           <ul class="navbar-nav ml-auto">
+            
 
-            <!-- Nav Item - Alerts -->
-            <li class="nav-item dropdown no-arrow mx-1">
-              <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <i class="fas fa-bell fa-fw"></i>
-                <!-- Counter - Alerts -->
-                {%if g.alerts%}
-                <span class="badge badge-danger badge-counter">{{g.alerts|length}}</span>
-                {%endif%}
-              </a>
-              <!-- Dropdown - Alerts -->
-              <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
-                <h6 class="dropdown-header">
-                  Alerts
-                </h6>
+            {%if g.options['beta-features'].value %}
 
-                {%for alert in g.alerts%}
-                <a class="dropdown-item d-flex align-items-center" href="/alerts/info/{{alert.id}}">
-                  <div class="mr-3">
-                    <div class="icon-circle bg-primary">
-                      <i class="fas fa-file-alt text-white"></i>
-                    </div>
-                  </div>
-                  <div>
-                    <div class="small text-gray-500">{{alert.created_ts|time_ago}}</div>
-                    <span class="font-weight-bold">Device Name</span>
-                  </div>
+              <!-- Nav Item - Alerts -->
+              <li class="nav-item dropdown no-arrow mx-1">
+                <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <i class="fas fa-bell fa-fw"></i>
+
+                  <!-- Counter - Alerts -->
+                  {%if g.alerts%}
+                  <span class="badge badge-danger badge-counter">{{g.alerts|length}}</span>
+                  {%endif%}
                 </a>
-                {%endfor%}
-                <a class="dropdown-item text-center small text-gray-500" href="/alerts">Show All Alerts</a>
-              </div>
+
+                <!-- Dropdown - Alerts -->
+                <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
+                  <h6 class="dropdown-header">
+                    Alerts
+                  </h6>
+
+                  {%for alert in g.alerts%}
+                  <a class="dropdown-item d-flex align-items-center" href="/alerts/info/{{alert.id}}">
+                    <div class="mr-3">
+                      <div class="icon-circle bg-primary">
+                        <i class="fas fa-file-alt text-white"></i>
+                      </div>
+                    </div>
+                    <div>
+                      <div class="small text-gray-500">{{alert.created_ts|time_ago}}</div>
+                      <span class="font-weight-bold">Device Name</span>
+                    </div>
+                  </a>
+                  {%endfor%}
+                  <a class="dropdown-item text-center small text-gray-500" href="/alerts">Show All Alerts</a>
+                </div>
             </li>
+            {%endif%}
 
 
             <div class="topbar-divider d-none d-sm-block"></div>
