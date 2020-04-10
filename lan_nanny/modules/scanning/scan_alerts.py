@@ -1,6 +1,7 @@
 """Scan Alerts
 
 """
+from datetime import timedelta
 import logging
 
 import arrow
@@ -9,6 +10,7 @@ from ..collections.scan_hosts import ScanHosts
 from ..collections.alerts import Alerts as CollectAlerts
 from ..models.alert import Alert
 from ..models.entity_meta import EntityMeta
+from ..models.database_growth import DatabaseGrowth
 
 
 class ScanAlerts:
@@ -26,6 +28,7 @@ class ScanAlerts:
         self.get_active_alerts()
         self.alert_no_hosts_in_scan()
         self.alert_new_device()
+        self.alert_device_offline()
 
     def get_active_alerts(self):
         """Get all currently active alerts."""
@@ -78,9 +81,19 @@ class ScanAlerts:
         """Alert on new device discovery."""
         ## TODO: REWORK TO GRAB devices.new_devices and check for existing alerts
         if not self.hosts:
+            logging.info('Not running new device alert, no hosts found.')
             return False
         if not self.new_devices:
+            logging.info('Not running new device alert, no new devices found.')
             return True
+
+        # Dont run new device alerts if system is only 1 hour old.
+        first_growth = DatabaseGrowth(self.conn, self.cursor)
+        first_growth.get_by_id(1)
+        if first_growth.created_ts > arrow.utcnow().datetime - timedelta(hours=1):
+            logging.info('Not running new device alert, system is too new.')
+            return True
+
         logging.info('Running Alert on new devices, found %s' % len(self.new_devices))
         for new_device in self.new_devices:
             alert_new = Alert(self.conn, self.cursor)
@@ -96,6 +109,11 @@ class ScanAlerts:
             alert_new.save()
 
             logging.info("Created new device alert for %s" % new_device)
+
+    def alert_device_offline(self) -> bool:
+        """Manage alerts for device's offline."""
+
+        return True
 
             
 # End File: lan-nanny/lan_nanny/modules/scanning/scan_alerts.py
