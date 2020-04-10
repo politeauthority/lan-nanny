@@ -91,6 +91,7 @@ class Device(Base):
             {
                 'name': 'type',
                 'type': 'str',
+                'default': 'Unknown',
             },
         ]
         self.ports = []
