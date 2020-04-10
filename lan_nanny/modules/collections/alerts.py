@@ -7,7 +7,7 @@ from ..models.alert import Alert
 from .entity_metas import EntityMetas
 
 
-class Alerts(Base):
+class Alerts(EntityMetas):
 
     def __init__(self, conn=None, cursor=None):
         super(Alerts, self).__init__(conn, cursor)
@@ -65,17 +65,9 @@ class Alerts(Base):
 
     def delete_device(self, device_id: int) -> bool:
         """Delete all device alert records for a device_id."""
-        # sql = """DELETE FROM %s WHERE device_id=%s""" % (self.table_name, device_id)
-        # self.cursor.execute(sql)
-        # print(sql)
-
-        # sql = """
-        #     DELETE FROM entity_metas 
-        #     WHERE
-        #         entity_type="device" AND
-        #         value="%s"; """ % (device_id)
-        # self.cursor.execute(sql)
-        # print(sql)
+        device_alerts = self.get_for_device(device_id)
+        for da in device_alerts:
+            da.delete()
         return True
 
 

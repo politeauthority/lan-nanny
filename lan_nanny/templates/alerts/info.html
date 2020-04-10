@@ -75,12 +75,23 @@
                 </td>
               </tr>
             {%endif%}
+
+            <!-- Show device for new-device alert -->
+            {%if alert.kind == 'new-device' %}
+            <tr>
+              <td>Device</td>
+              <td>
+                {{device|device_icon_status}}
+              </td>
+            </tr>
+            {%endif%}
+            <!-- End device for new-device alert -->
           </table>
         </div>
       </div>
     </div>
 
-  <!-- Alert Actions -->
+    <!-- Alert Actions -->
     <div class="col-xl-6 col-lg-6">
       <div class="card shadow mb-4">
         <!-- Card Header -->

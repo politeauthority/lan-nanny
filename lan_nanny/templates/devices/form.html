@@ -8,26 +8,45 @@
 {% block content %}
   <div class="row">
     <div class="col-lg-6">
+      {%if form == 'edit' %}
       <h2>{%if device.icon%}<i class="{{device.icon}} fa-2x"></i>  {%endif%}{{device.name}}</h2>
+      {%else%}
+        <h2>Create New Device</h2>
+        <p>Create a new device that you are expecting to see on the network Lan Nanny is watching. Every manually created device MUST be created with a mac address</p>
+      {%endif%}
     </div>
-    <div class="col-lg-2">
-      <!-- Button trigger modal -->
-      <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteDeviceModal">
-        Delete
-      </button>
-    </div>
+
+    {%if form == 'edit' %}
+      <div class="col-lg-2">
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteDeviceModal">
+          Delete
+        </button>
+      </div>
+    {%endif%}
   </div>
   <div class="row">
     <div class="col-xl-6 col-lg-6">
       <form action="/device/save" method="POST">
-
-        <input type="hidden" name="device_id" value="{{device.id}}">
+        {%if form == 'edit' %}
+          <input type="hidden" name="device_id" value="{{device.id}}">
+        {%else%}
+          <input type="hidden" name="device_id" value="new">
+        {%endif%}
 
         <div class="form-group">
           <label for="device_name">Device Name</label>
           <input type="text" class="form-control form-control-lg" id="device_name" name="device_name" value="{%if device.name%}{{device.name}}{%endif%}" aria-describedby="nameHelp">
           <small id="nameHelp" class="form-text text-muted">Custom name for the device.</small>
         </div>
+        
+        {%if form == 'new' %}
+          <div class="form-group">
+            <label for="device_mac">Mac</label>
+            <input type="text" class="form-control" id="device_mac" name="device_mac" aria-describedby="macHelp">
+            <small id="macHelp" class="form-text text-muted">MAC address for the new device. (this is required for a new device)</small>
+          </div>
+        {%endif%}
 
         <div class="form-group">
           <label for="device_vendor">Vendor</label>
@@ -36,7 +55,7 @@
         </div>
 
         <!-- Device type select form -->
-        <div id="device_type_select" class="form-group">
+        <div  class="form-group">
           <label for="device_type_select">Type</label>
           <select class="form-control" id="device_type_select" name="device_type_select"  aria-describedby="typeSelectHelp">
             <option value="none">None</option>
@@ -50,7 +69,7 @@
         </div>
 
         <!-- Device icon select form -->
-        <div id="device_icon_select" class="form-group {%if custom_icon%}hidden{%endif%}">
+        <div class="form-group {%if custom_icon%}hidden{%endif%}">
           <label for="device_icon_select">Icon</label>
           <select class="form-control" id="device_icon_select" name="device_icon_select"  aria-describedby="iconSelectHelp">
             <option value="none">None</option>
@@ -115,6 +134,27 @@
 {%block javascript%}
   <script type="text/javascript">
     $( document ).ready(function() {
+
+
+      $("#device_type_select").change(function(){
+        if($('#device_icon_select').val() != 'none'){
+          return
+        }
+        var type_value = $("#device_type_select").val();
+        console.log("heeey");
+        console.log( $('#device_icon_select').val());
+        console.log( type_value);
+        console.log('bs');
+        $('#device_icon_select option').each(function() {
+          if(type_value == $(this).text()){
+            // $("#device_icon_select select").val($(this));
+            $("#device_icon_select select").val('fas fa-laptop').attr('selected', true);
+            console.log($(this).text());
+            console.log($(this).val());
+            return
+          }
+        });
+      });
 
       // Send ajax request to fav/ unfavorite device
       $( "#device-icon-custom-btn" ).click(function(event){

@@ -80,21 +80,12 @@ class ScanAlerts:
     def alert_new_device(self) -> bool:
         """Alert on new device discovery."""
         ## TODO: REWORK TO GRAB devices.new_devices and check for existing alerts
-        if not self.hosts:
-            logging.info('Not running new device alert, no hosts found.')
+
+        # Run checks to see if new device alert should run.
+        if not self._validate_run_new_device_alert():
             return False
-        if not self.new_devices:
-            logging.info('Not running new device alert, no new devices found.')
-            return True
 
-        # Dont run new device alerts if system is only 1 hour old.
-        first_growth = DatabaseGrowth(self.conn, self.cursor)
-        first_growth.get_by_id(1)
-        if first_growth.created_ts > arrow.utcnow().datetime - timedelta(hours=1):
-            logging.info('Not running new device alert, system is too new.')
-            return True
-
-        logging.info('Running Alert on new devices, found %s' % len(self.new_devices))
+        logging.info('\tRunning Alert on new devices, found %s' % len(self.new_devices))
         for new_device in self.new_devices:
             alert_new = Alert(self.conn, self.cursor)
             alert_new.kind = 'new-device'
@@ -108,7 +99,26 @@ class ScanAlerts:
             alert_new.metas['device'].value = new_device.id
             alert_new.save()
 
-            logging.info("Created new device alert for %s" % new_device)
+            logging.info("\tCreated new device alert for %s" % new_device)
+
+    def _validate_run_new_device_alert(self) -> bool:
+        """Run checks to see if the new device alert should run."""
+        if not self.hosts:
+            logging.info('\tNot running new device alert, no hosts found.')
+            return False
+        if not self.new_devices:
+            logging.info('\tNot running new device alert, no new devices found.')
+            return False
+
+        # Dont run new device alerts if system is only 1 hour old.
+        first_growth = DatabaseGrowth(self.conn, self.cursor)
+        first_growth.get_by_id(1)
+        if first_growth.created_ts > arrow.utcnow().datetime - timedelta(hours=1):
+            logging.info('\tNot running new device alert, system is too new.')
+            return False
+
+        return True
+
 
     def alert_device_offline(self) -> bool:
         """Manage alerts for device's offline."""

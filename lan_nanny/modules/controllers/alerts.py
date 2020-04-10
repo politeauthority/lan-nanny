@@ -10,6 +10,7 @@ from .. import db
 from .. import utils
 from ..models.alert import Alert
 from ..models.entity_meta import EntityMeta
+from ..models.device import Device
 from ..collections.alerts import Alerts
 from ..collections.devices import Devices
 
@@ -62,9 +63,14 @@ def info(alert_id: int):
         alert.acked = True
         alert.acked_ts = arrow.utcnow().datetime
         alert.save()
+
+    device = None
+    if alert.kind == 'new-device':
+        device = Device(conn, cursor)
+        device.get_by_id(int(alert.metas['device'].value))
     data = {}
-    data['active_page'] = 'alert-info'
     data['alert'] = alert
+    data['device'] = device
     data['active_page'] = 'alerts'
     return render_template('alerts/info.html', **data)
 
@@ -102,8 +108,6 @@ def alert_quick_save() -> str:
 def delete(alert_id: int):
     """Alert delete."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
-
-    # Delete the alert
     alert = Alert(conn, cursor)
     alert.get_by_id(alert_id)
     alert.delete()

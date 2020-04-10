@@ -78,7 +78,7 @@ def offline() -> str:
 @device.route('/new')
 @utils.authenticate
 def new() -> str:
-    """Get devices roster page for devices new within the last 24 hours."""
+    """Devices roster page for new devices."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     devices = Devices(conn, cursor)
     data = {}
@@ -114,6 +114,19 @@ def info(device_id: int) -> str:
     return render_template('devices/info.html', **data)
 
 
+@device.route('/create')
+@utils.authenticate
+def create() -> str:
+    """Create Device form"""
+    data = {}
+    data['icons'] = utils.device_icons()
+    data['active_page'] = 'devices'
+    data['active_page_devices'] = 'create'
+    data['device'] = None
+    data['form'] = 'new'
+    return render_template('devices/form.html', **data)
+
+
 @device.route('/edit/<device_id>')
 @utils.authenticate
 def edit(device_id: int) -> str:
@@ -134,21 +147,27 @@ def edit(device_id: int) -> str:
     data['device_types'] = utils.device_types()
     data['custom_icon'] = custom_icon
     data['active_page'] = 'devices'
-    return render_template('devices/edit.html', **data)
+    data['form'] = 'edit'
+    return render_template('devices/form.html', **data)
 
 
 @device.route('/save', methods=['POST'])
 @utils.authenticate
 def save():
-    """Device save."""
+    """Device save, route for new and editing devices."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     device = Device()
     device.conn = conn
     device.cursor = cursor
-    device.get_by_id(request.form['device_id'])
-    if not device.id:
-        return 'ERROR 404: Route this to page_not_found method!', 404
-        # return page_not_found('Device not found')
+    if request.form['device_id'] == 'new':
+        device.mac = request.form['device_mac']
+        if not device.mac:
+            return 'ERROR 422: Cannot create a device without a mac', 422
+    else:
+        device.get_by_id(request.form['device_id'])
+        if not device.id:
+            return 'ERROR 404: Route this to page_not_found method!', 404
+            # return page_not_found('Device not found')
 
     device.name = request.form['device_name']
     device.vendor = request.form['device_vendor']
