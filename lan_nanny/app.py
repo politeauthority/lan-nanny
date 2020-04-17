@@ -45,7 +45,9 @@ def get_active_alerts():
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     alerts = Alerts(conn, cursor)
     # g.alerts_active_unacked = alerts.get_active_unacked_num()
-    g.alerts = alerts.get_active(build_devices=True)
+    # g.alerts = alerts.get_active(build_devices=True)
+    g.alerts_active_unacked = []
+    g.alerts = []
 
 
 @app.teardown_appcontext
