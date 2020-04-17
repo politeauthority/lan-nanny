@@ -8,11 +8,11 @@ import arrow
 
 from flask import g
 
-from .base import Base
+from .base_entity_meta import BaseEntityMeta
 from ..collections.device_ports import DevicePorts
 
 
-class Device(Base):
+class Device(BaseEntityMeta):
     """Device object, representing a LanNanny registered device."""
 
     def __init__(self, conn=None, cursor=None):

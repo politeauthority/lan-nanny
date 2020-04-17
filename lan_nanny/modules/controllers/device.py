@@ -1,6 +1,8 @@
 """Device Controller
 
 """
+from datetime import timedelta
+
 import arrow
 
 from flask import Blueprint, render_template, redirect, request, jsonify, g
@@ -19,6 +21,7 @@ from ..models.entity_meta import EntityMeta
 from ..metrics import Metrics
 
 device = Blueprint('Device', __name__, url_prefix='/device')
+PER_PAGE = 20
 
 
 @device.route('/')
@@ -36,43 +39,86 @@ def devices() -> str:
 
 
 @device.route('/all')
+@device.route('/all/<page>')
 @utils.authenticate
-def device_all() -> str:
+def device_all(page: str="1") -> str:
     """Devices Dashboard page."""
+    page = int(page)
+    offset = utils.get_pagination_offset(page, PER_PAGE)
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     devices = Devices(conn, cursor)
     data = {}
     data['active_page'] = 'devices'
     data['active_page_devices'] = 'all'
-    data['devices'] = devices.get_all()
+    data['devices'] = devices.get_paginated(limit=PER_PAGE, offset=offset)
+    data['pagination'] = devices.get_pagination('/device/all/', page, PER_PAGE)
     return render_template('devices/roster.html', **data)
 
 
 @device.route('/online')
+@device.route('/online/<page>')
 @utils.authenticate
-def online() -> str:
+def online(page: str="1") -> str:
     """Devices roster page for only online devices."""
+    app_offline_timeout = g.options['active-timeout'].value
+    last_online = arrow.utcnow().datetime - timedelta(minutes=int(app_offline_timeout))
+    page = int(page)
+    offset = utils.get_pagination_offset(page, PER_PAGE)
+
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     devices = Devices(conn, cursor)
-
     data = {}
     data['active_page'] = 'devices'
     data['active_page_devices'] = 'online'
-    data['devices'] = devices.get_online(int(g.options['active-timeout'].value))
+    data['devices'] = devices.get_paginated(
+        limit=PER_PAGE,
+        offset=offset,
+        where_and=[
+            {
+                'field': 'last_seen',
+                'value': last_online,
+                'op': '>='
+            }
+        ],
+        order_by = {
+            'field': 'last_seen',
+            'op' : 'DESC'
+        })
+    data['pagination'] = devices.get_pagination('/device/online/', page, PER_PAGE)
     return render_template('devices/roster.html', **data)
 
 
 @device.route('/offline')
+@device.route('/offline/<page>')
 @utils.authenticate
-def offline() -> str:
-    """Device roster page for only online devices."""
+def offline(page: str="1") -> str:
+    """Devices roster page for only online devices."""
+    app_offline_timeout = g.options['active-timeout'].value
+    last_online = arrow.utcnow().datetime - timedelta(minutes=int(app_offline_timeout))
+    page = int(page)
+    offset = utils.get_pagination_offset(page, PER_PAGE)
+
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     devices = Devices(conn, cursor)
-
     data = {}
     data['active_page'] = 'devices'
     data['active_page_devices'] = 'offline'
-    data['devices'] = devices.get_offline(int(g.options['active-timeout'].value))
+    data['devices'] = devices.get_paginated(
+        limit=PER_PAGE,
+        offset=offset,
+        where_and=[
+            {
+                'field': 'last_seen',
+                'value': last_online,
+                'op': '<='
+            }
+        ],
+        order_by = {
+            'field': 'last_seen',
+            'op' : 'DESC'
+        }
+        )
+    data['pagination'] = devices.get_pagination('/device/offline/', page, PER_PAGE)
     return render_template('devices/roster.html', **data)
 
 

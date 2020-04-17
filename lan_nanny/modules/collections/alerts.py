@@ -1,20 +1,20 @@
-"""Alerts
+"""Alerts Collection
 Gets collections of alerts.
 
 """
 from .base import Base
 from ..models.alert import Alert
-from .entity_metas import EntityMetas
+from .base_entity_metas import BaseEntityMetas
 
 
-class Alerts(EntityMetas):
+class Alerts(BaseEntityMetas):
 
     def __init__(self, conn=None, cursor=None):
         super(Alerts, self).__init__(conn, cursor)
         self.table_name = Alert().table_name
         self.collect_model = Alert
 
-    def get_active(self) -> list:
+    def get_active(self, build_devices=False) -> list:
         """Gets all active alerts from the database."""
 
         sql = """
@@ -25,11 +25,11 @@ class Alerts(EntityMetas):
 
         self.cursor.execute(sql)
         raw_alerts = self.cursor.fetchall()
-        alerts = self.build_from_lists(raw_alerts)
+        alerts = self.build_from_lists(raw_alerts, build_devices=True)
         return alerts
 
-    def get_active_unacked(self, build_devices: bool=False) -> list:
-        """Gets all active, unacked alerts from the database."""
+    def get_active_unacked_num(self) -> int:
+        """Gets all active, unacked alerts number from the database."""
         sql = """
             SELECT *
             FROM %s
@@ -39,8 +39,7 @@ class Alerts(EntityMetas):
             ORDER BY created_ts DESC;""" % (self.table_name)
         self.cursor.execute(sql)
         raw_alerts = self.cursor.fetchall()
-        alerts = self.build_from_lists(raw_alerts)
-        return alerts
+        return len(raw_alerts)
 
     def get_for_device(self, device_id: int) -> list:
         """Get all alert objects for a single device."""

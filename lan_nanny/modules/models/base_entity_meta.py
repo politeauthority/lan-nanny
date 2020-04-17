@@ -6,15 +6,12 @@ from .base import Base
 from .entity_meta import EntityMeta
 
 
-
 class BaseEntityMeta(Base):
     def __init__(self, conn=None, cursor=None):
         """Base Entity Meta model constructor."""
         super(BaseEntityMeta, self).__init__(conn, cursor)
         self.conn = conn
         self.cursor = cursor
-        self.iodku = True
-
         self.table_name = None
         self.table_name_meta = EntityMeta().table_name
         self.meta = {}
@@ -25,13 +22,21 @@ class BaseEntityMeta(Base):
         return "<%s>" % self.__class__.__name__
 
     def get_by_id(self, model_id: int = None) -> bool:
-        """
-           Get a single model object from db based on an object ID with all meta data loaded into
+        """Get a single model object from db based on an object ID with all meta data loaded into
            self.metas.
-
         """
-        if not super().get_by_id(model_id):
+        if not super(BaseEntityMeta, self).get_by_id(model_id):
             return False
+        self._load_meta(model_id)
+        return True
+
+    def build_from_list(self, raw: list) -> bool:
+        """Build a model from list, and pull its meta data."""
+        super(BaseEntityMeta, self).build_from_list(raw)
+        self._load_meta(self.id)
+
+    def _load_meta(self, model_id) -> bool:
+        """Load the model's meta data."""
         sql = """
             SELECT *
             FROM %s
@@ -84,6 +89,15 @@ class BaseEntityMeta(Base):
             """ % (self.table_name_meta, self.id, self.table_name)
         self.cursor.execute(sql)
         self.conn.commit()
+        return True
+
+    def meta_update(self, meta_name, meta_value, meta_type='str') -> bool:
+        """Set a models entity value if it currently exists or not."""
+        if meta_name not in self.metas:
+            self.metas[meta_name] = EntityMeta(self.conn, self.cursor)
+            self.metas[meta_name].name = meta_name
+            self.metas[meta_name].type = meta_type
+        self.metas[meta_name].value = meta_value
         return True
 
 

@@ -5,13 +5,13 @@ Gets collections of devices.
 from datetime import timedelta
 
 import arrow
-
-from .base import Base
+from flask import g
+from .base_entity_metas import BaseEntityMetas
 from ..models.device import Device
 from .. import utils
 
 
-class Devices(Base):
+class Devices(BaseEntityMetas):
     """ Collection class for gathering groups of devices."""
 
     def __init__(self, conn=None, cursor=None):
@@ -33,6 +33,20 @@ class Devices(Base):
         raw_devices = self.cursor.fetchall()
         devices = self.build_from_lists(raw_devices)
         return devices
+
+    def get_online_count(self) -> int:
+        """Get currently online devices as an int."""
+        since = int(g.options['active-timeout'].value)
+        last_online = arrow.utcnow().datetime - timedelta(minutes=since)
+        sql = """
+            SELECT COUNT(*)
+            FROM devices
+            WHERE last_seen >= '%s'
+            ORDER BY last_seen DESC;""" % last_online
+
+        self.cursor.execute(sql)
+        raw_count = self.cursor.fetchone()
+        return raw_count[0]
 
     def get_online(self, since: int) -> list:
         """Get all online devices in the database."""

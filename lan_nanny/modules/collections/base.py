@@ -16,21 +16,6 @@ class Base:
         self.table_name = None
         self.collect_model = None
 
-    def get_all(self) -> list:
-        """Get all of a models instances from the database."""
-        sql = """
-            SELECT *
-            FROM %s;
-            """ % self.table_name
-        self.cursor.execute(sql)
-        raws = self.cursor.fetchall()
-        pretties = []
-        for raw in raws:
-            model = self.collect_model()
-            model.build_from_list(raw)
-            pretties.append(model)
-        return pretties
-
     def get_by_ids(self, model_ids: list) -> list:
         """Get models instances by their ids from the database."""
         model_ids = list(set(model_ids))
@@ -47,8 +32,23 @@ class Base:
         prestine = self.build_from_lists(raws)
         return prestine
 
+    def get_last(self) -> list:
+        """Get last x created models descending."""
+        sql = """
+            SELECT *
+            FROM %s
+            ORDER BY created_ts DESC
+            LIMIT 10;""" % self.table_name
+        self.cursor.execute(sql)
+        raw = self.cursor.fetchall()
+        prestines = self.build_from_lists(raw)
+        return prestines
+
     def get_all_paginated(self, limit: int=20, offset: int=0) -> list:
-        """Get paginated set run logs."""
+        """
+           Get paginated set run logs.
+           DEPRICATED!
+        """
         sql_vars = {
             'table_name': self.table_name,
             'limit': limit,
@@ -91,6 +91,25 @@ class Base:
         self.cursor.execute(sql)
         raw_scans_count = self.cursor.fetchone()
         return raw_scans_count[0]
+
+    def get_all(self) -> list:
+        """
+            Get all of a models instances from the database.
+            @note: This should NOT be used unless a model has a VERY limited set of results.
+            DEPRICATED!
+        """
+        sql = """
+            SELECT *
+            FROM %s;
+            """ % self.table_name
+        self.cursor.execute(sql)
+        raws = self.cursor.fetchall()
+        pretties = []
+        for raw in raws:
+            model = self.collect_model()
+            model.build_from_list(raw)
+            pretties.append(model)
+        return pretties
 
     def get_count_since(self, seconds_since_created: int) -> int:
         """Get count of model instances in table created in last x seconds."""
@@ -143,6 +162,42 @@ class Base:
             sql_ids += "%s," % i
         sql_ids = sql_ids[:-1]
         return sql_ids
+
+    def _get_pagination_where_and(self, where_and) -> str:
+        """
+            Create the where clause for pagination when where and clauses are supplied.
+            ie: Append multiple statements with an AND in the sql statement
+        """
+        where = False
+        where_and_sql = ""
+        for where_a in where_and:
+            where = True
+            op = "="
+            if 'op' in where_a:
+                op = where_a['op']
+            where_and_sql += '%s%s"%s"' % (where_a['field'], op, where_a['value'])
+        if where:
+            where_and_sql = "WHERE\n\t%s" % where_and_sql
+        return where_and_sql
+
+        if where_exists:
+            where_sql = "WHERE "
+            where_sql += where_and_sql
+        sql_vars['where'] = where_sql
+
+    def _get_pagination_order(self, order) -> str:
+        """
+            Create the order clause for pagination using user supplied arguments or defaulting to
+            created_desc DESC
+        """
+
+        order_sql = "ORDER BY created_ts DESC"
+        if not order:
+            return order_sql
+        order_field = order['field']
+        order_op = order['op']
+        order_sql = 'ORDER BY %s %s' % (order_field, order_op)
+        return order_sql
 
     def _get_previous_page(self, page: int) -> int:
         """Get the previous page, or first page if below 1."""

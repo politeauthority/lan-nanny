@@ -55,7 +55,11 @@
           </div>
       </div>
     </div>
-  </div>
+  </div> <!-- End Main Content -->
+
+  {% with pagination=pagination, alignment="center" %}
+    {% include "pagination.html" %}
+  {% endwith %}
 
 {%endblock%}
 

@@ -1,5 +1,6 @@
 """Entity Metas
-Gets collections of entity options.
+Gets collections of entity meta table directly.
+** NOTE ** This class should NOT be extended by collections that have entity metas!
 
 """
 from .base import Base
@@ -22,7 +23,7 @@ class EntityMetas(Base):
                 entity_type=? AND
                 entity_id=?;
             """ % self.table_name
-        self.cursor.execute(sql(entity_type, entity_id))
+        self.cursor.execute(sql, (entity_type, entity_id))
         raw_metas = self.cursor.fetchall()
         metas = self.build_from_lists(raw_metas)
         keyed_metas = self._get_keyed(metas)
