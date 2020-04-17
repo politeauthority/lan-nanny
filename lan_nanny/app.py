@@ -44,7 +44,7 @@ def get_active_alerts():
     """Get and loads all active alerts in the the flask g options namespace."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     alerts = Alerts(conn, cursor)
-    g.alerts_active_unacked = alerts.get_active_unacked_num()
+    # g.alerts_active_unacked = alerts.get_active_unacked_num()
     g.alerts = alerts.get_active(build_devices=True)
 
 
