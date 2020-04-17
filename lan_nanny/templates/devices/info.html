@@ -238,7 +238,7 @@
           {%if g.options['beta-features'].value %}
             <div class="form-group">
               <label for="alert_device_offline">Alert Offline</label>
-              <input id="alert_device_offline" data-entity-id="{{device.id}}" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="alertDeviceOfflinedHelp">
+              <input id="alert_offline" data-entity-id="{{device.id}}" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="alertDeviceOfflinedHelp">
               <small id="alertDeviceOfflinedHelp" class="form-text text-muted">Alert when device goes offline.</small>
             </div>
           {%endif%}         
@@ -290,6 +290,16 @@
         '/device/quick-save',
         '#port_scan',
         device_port_scan_status);
+
+      {%if device.metas['alert_offline'] %}
+        var device_alert_offline_status = convert_str_bool("{{device.metas['alert_offline'].value}}");
+      {%else%}
+        var device_alert_offline_status = false;
+      {%endif%}
+      register_toggle_ajax(
+        '/device/quick-save',
+        '#alert_offline',
+        device_alert_offline_status);
 
       // var device_port_scan_flagged_status = convert_str_bool("{{device.flagged_for_scan}}");
       // register_toggle_ajax(

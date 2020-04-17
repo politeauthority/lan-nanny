@@ -15,6 +15,7 @@ from ..collections.device_ports import DevicePorts
 from ..collections.scan_ports import ScanPorts
 from ..models.alert import Alert
 from ..models.device import Device
+from ..models.entity_meta import EntityMeta
 from ..metrics import Metrics
 
 device = Blueprint('Device', __name__, url_prefix='/device')
@@ -252,16 +253,24 @@ def quick_save() -> str:
     if not device.id:
         return 'ERROR 404: Route this to page_not_found method!', 404
         # return page_not_found('Device not found')
-    if request.form.get('field_name') not in ['port_scan']:
-
+    field_name = request.form.get('field_name')
+    field_value = request.form.get('field_value')
+    if field_name not in ['port_scan', 'alert_offline']:
+        print("Forbidden field_name %s field_name")
         return jsonify("error", "Forbidden field_name %s field_name"), 403
 
-    if request.form.get('field_value') == 'true'.lower():
+    if field_value == 'true'.lower():
         val = True
     else:
-        val = False
+        val = 0
 
-    setattr(device, request.form.get('field_name'), val)
+    # Handle port_scan and alert settings differently because one is a model attr and the rest are
+    # metas
+    if field_name in ['port_scan']:
+        setattr(device, field_value, val)
+    elif field_name in ['alert_offline']:
+        device.meta_update(field_name, field_value, 'bool')
+
     device.save()
     return jsonify({"success": True})
 

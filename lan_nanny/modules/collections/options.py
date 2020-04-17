@@ -1,4 +1,4 @@
-"""Options
+"""Options Collection
 Gets collections of options.
 
 """
@@ -92,7 +92,6 @@ class Options(Base):
             {
                 'name': 'system-name',
                 'type': 'str',
-                'default': 'Lan Nanny'
             },
         ]
         gen_pass = None

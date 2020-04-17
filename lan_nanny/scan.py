@@ -13,8 +13,11 @@ import logging.config
 import subprocess
 import os
 
+from werkzeug.security import generate_password_hash
+
 from modules import db
 from modules.collections.options import Options
+from modules.models.option import Option
 from modules.scanning.scan_ports import ScanPorts
 from modules.scanning.scan_hosts import ScanHosts
 from modules.scanning.scan_alerts import ScanAlerts
@@ -55,10 +58,15 @@ class Scan:
     def run(self):
         """Main entry point to scanning script."""
         self.setup()
+        self.handle_cli()
         self.hande_hosts()
         self.handle_ports()
         self.handle_alerts()
         self.handle_house_keeping()
+
+    def handle_cli(self) -> bool:
+        """Handle one off/simple CLI requests"""
+        self._cli_change_password()
 
     def hande_hosts(self):
         """Launch host scanning operations."""
@@ -71,6 +79,7 @@ class Scan:
         except:
             logging.error('Error running host scan.')
             return False
+
     def handle_ports(self):
         """
         Scans ports for hosts which appeared in the current scan, checking first if the device and
@@ -89,6 +98,31 @@ class Scan:
     def handle_house_keeping(self):
         """Run house keeping operations like database pruning etc."""
         HouseKeeping(self).run()
+
+    def _cli_change_password(self):
+        if not self.args.password_reset:
+            return True
+        print('Are you sure you want to reset the console password?')
+        verify = input('Verify: (only "y" will continue) ')
+
+        if verify != 'y':
+            print('Not changing password')
+            exit(0)
+        new_password = input('New Password: ')
+        new_password2 = input('New Password Again: ')
+
+        if new_password != new_password2:
+            print('Passwords do not match')
+            exit(1)
+        print('Changing console password')
+        new_pass = generate_password_hash(new_password, "sha256")
+        pass_option = Option(self.conn, self.cursor)
+        pass_option.get_by_name("console-password")
+        pass_option.value = new_pass
+        pass_option.update()
+        print('Saved new console password')
+        exit()
+
 
     def prompt_sudo(self):
         """Make sure the script is being run as sudo, or scanning will not work."""
@@ -114,6 +148,11 @@ def parse_args():
     parser.add_argument(
         "-fp",
         "--force-port",
+        default=False,
+        action='store_true',
+        help="")
+    parser.add_argument(
+        "--password-reset",
         default=False,
         action='store_true',
         help="")

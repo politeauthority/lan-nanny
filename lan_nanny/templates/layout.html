@@ -9,7 +9,7 @@
   <meta name="description" content="">
   <meta name="author" content="politeauthority">
 
-  <title>Lan Nanny</title>
+  <title>Lan Nanny{%if g.options['system-name']%} | {{g.options['system-name'].value}}{%endif%}</title>
   <link rel="shortcut icon" href="/static/favicon.ico" />
 
   <!-- Custom fonts for this template-->
@@ -49,7 +49,8 @@
       <li class="nav-item {%if active_page == 'dashboard'%}active{%endif%}">
         <a class="nav-link" href="/">
           <i class="fas fa-fw fa-tachometer-alt"></i>
-          <span>Dashboard</span></a>
+          <span>Dashboard</span>
+        </a>
       </li>
       {%if g.options['beta-features'].value %}
         <li class="nav-item {%if active_page == 'alerts'%}active{%endif%}">
@@ -137,7 +138,9 @@
 
                   <!-- Counter - Alerts -->
                   {%if g.alerts%}
-                  <span class="badge badge-danger badge-counter">{{g.alerts|length}}</span>
+                    {%if g.alerts_active_unacked == "0"%}
+                      <span class="badge badge-danger badge-counter">{{g.alerts_active_unacked}}</span>
+                    {%endif%}
                   {%endif%}
                 </a>
 

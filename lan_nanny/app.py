@@ -44,7 +44,8 @@ def get_active_alerts():
     """Get and loads all active alerts in the the flask g options namespace."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     alerts = Alerts(conn, cursor)
-    g.alerts = alerts.get_active_unacked(build_devices=True)
+    g.alerts_active_unacked = alerts.get_active_unacked_num()
+    g.alerts = alerts.get_active(build_devices=True)
 
 
 @app.teardown_appcontext
@@ -56,7 +57,7 @@ def close_connection(exception: str):
 
 
 @app.route('/login', methods=['GET', 'POST'])
-def login():
+def login() -> str:
     """Login form and form response"""
     if not request.form:
         return render_template('login.html')
@@ -67,40 +68,10 @@ def login():
 
     return render_template('login.html', error="Incorrect password."), 403
 
-
-@app.route('/')
-@utils.authenticate
-def index() -> str:
-    """App dashboard."""
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
-    metrics = Metrics(conn, cursor)
-
-    # Get favorite devices, if theres none get all devices.
-    # @todo filter already selected devices, not two pulls from db
-    favorites = True
-    fav_devices = metrics.get_favorite_devices()
-    all_devices = metrics.get_all_devices()
-    if not fav_devices:
-        favorites = False
-        devices = all_devices
-    else:
-        devices = fav_devices
-
-    new_devices = Devices(conn, cursor).get_new_count()
-    donut_devices_online = metrics.get_dashboard_online_chart(fav_devices)
-
-    sh = ScanHost(conn, cursor)
-    sh.get_last()
-    data = {}
-    data['active_page'] = 'dashboard'
-    data['num_connected'] = filters.connected_devices(all_devices)
-    data['device_favorites'] = favorites
-    data['devices'] = devices
-    data['new_devices'] = new_devices
-    data['runs_over_24'] = metrics.get_all_scans_24()
-    data['host_scan'] = sh
-    data['online_donut'] = donut_devices_online
-    return render_template('dashboard.html', **data)
+@app.route('/forgot-password')
+def forgot_password() -> str:
+    """Forgotten password info page"""
+    return render_template('forgot-password.html')    
 
 
 @app.route('/logout')
@@ -114,6 +85,41 @@ def logout():
 def page_not_found(e: str):
     """404 Error page."""
     return render_template('errors/404.html', error=e), 404
+
+
+@app.route('/')
+@utils.authenticate
+def index() -> str:
+    """App dashboard for authenticated users."""
+    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    metrics = Metrics(conn, cursor)
+    devices_col = Devices(conn, cursor)
+
+    # Get favorite devices, if theres none get all devices.
+    favorites = True
+    fav_devices = metrics.get_favorite_devices()
+    all_devices = devices_col.get_online_count()
+    if not fav_devices:
+        favorites = False
+        devices = all_devices
+    else:
+        devices = fav_devices
+
+    new_devices = Devices(conn, cursor).get_new_count()
+    donut_devices_online = metrics.get_dashboard_online_chart(fav_devices)
+
+    sh = ScanHost(conn, cursor)
+    sh.get_last()
+    data = {}
+    data['active_page'] = 'dashboard'
+    data['num_connected'] = all_devices
+    data['device_favorites'] = favorites
+    data['devices'] = devices
+    data['new_devices'] = new_devices
+    data['runs_over_24'] = metrics.get_all_scans_24()
+    data['host_scan'] = sh
+    data['online_donut'] = donut_devices_online
+    return render_template('dashboard.html', **data)
 
 
 def register_blueprints(app: Flask):
