@@ -7,6 +7,7 @@ import arrow
 
 from lan_nanny.modules import db
 from lan_nanny.modules.models.device import Device
+from lan_nanny.modules.models.entity_meta import EntityMeta
 from lan_nanny.modules.collections.devices import Devices
 
 test_db = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'test-devices.db')
@@ -30,6 +31,9 @@ class TestCollectionDevices:
         device = Device(conn, cursor)
         device.setup()
         assert device.create_table()
+        entity_meta = EntityMeta(conn, cursor)
+        entity_meta.setup()
+        assert entity_meta.create_table()
 
     def test_insert(self):
         """Tests the Device.insert method."""
@@ -56,7 +60,6 @@ class TestCollectionDevices:
         assert new_device.mac == device.mac
         assert new_device.vendor == device.vendor
         assert new_device.ip == device.ip
-        # assert new_device.port_scan_lock == device.port_scan_lock
 
     def test_get_by_mac(self):
         """Tests the Device.get_by_mac method."""

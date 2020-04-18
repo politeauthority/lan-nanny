@@ -44,8 +44,8 @@ class Base:
 
     def create_table(self) -> bool:
         """
-        Creates a table based on the self.table_name, and self.field_map.
-        @unit-tested
+           Creates a table based on the self.table_name, and self.field_map.
+           @unit-tested
 
         """
         print('Creating %s' % self.__class__.__name__)

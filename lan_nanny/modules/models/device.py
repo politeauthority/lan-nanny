@@ -16,7 +16,10 @@ class Device(BaseEntityMeta):
     """Device object, representing a LanNanny registered device."""
 
     def __init__(self, conn=None, cursor=None):
-        """Device init for a new device object, passing SQLite connection parameters."""
+        """
+           Device init for a new device object, passing SQLite connection parameters.
+           @unit-tested
+        """
         super(Device, self).__init__(conn, cursor)
         self.conn = conn
         self.cursor = cursor
@@ -104,7 +107,10 @@ class Device(BaseEntityMeta):
         return "<Device: %s>" % self.name
 
     def get_by_mac(self, mac: str):
-        """Get a device from the devices table based on mac address."""
+        """
+           Get a device from the devices table based on mac address.
+           @unit-tested
+        """
         sql = """SELECT * FROM devices WHERE mac='%s'""" % mac
         self.cursor.execute(sql)
         device_raw = self.cursor.fetchone()
