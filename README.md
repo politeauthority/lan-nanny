@@ -11,3 +11,12 @@ git clone git@github.com:politeauthority/lan-nanny.git
 cd lan-nanny/
 python3 install-upgrade.py
 ```
+
+## Testing
+The easiest way to properly run the Lan Nanny test suite is via docker.
+```console
+docker build -t lan-nanny .
+docker run \
+    -v your-repos/lan-nanny:/app2 \
+    lan-nanny
+```

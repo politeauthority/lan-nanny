@@ -11,7 +11,11 @@ import pytest
 from lan_nanny.modules import db
 from lan_nanny.modules.models.base import Base
 
-test_db = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'test.db')
+from .configs import CONFIGS
+
+test_db = os.path.join(CONFIGS['tmp_dir'], 'test.db')
+if os.path.exists(test_db):
+    os.remove(test_db)
 conn, cursor = db.create_connection(test_db)
 
 

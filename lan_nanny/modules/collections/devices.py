@@ -23,7 +23,10 @@ class Devices(BaseEntityMetas):
         self.collect_model = Device
 
     def get_recent(self) -> list:
-        """Get all devices in the database."""
+        """
+           Get all devices in the database.
+           @unit-tested
+        """
         sql = """
             SELECT *
             FROM %s
@@ -77,7 +80,10 @@ class Devices(BaseEntityMetas):
         return devices
 
     def get_favorites(self):
-        """Get favorite devices in the database."""
+        """
+           Get favorite devices in the database.
+           @unit-tested
+        """
         sql = """
             SELECT *
             FROM devices
@@ -90,7 +96,10 @@ class Devices(BaseEntityMetas):
         return devices
 
     def get_new_count(self) -> int:
-        """Get new devices from the last 24 hours."""
+        """
+           Get new devices from the last 24 hours.
+           @unit-tested
+        """
         new_since = arrow.utcnow().datetime - timedelta(hours=24)
         sql = """
             SELECT count(*)
@@ -103,7 +112,10 @@ class Devices(BaseEntityMetas):
         return raw_count[0]
 
     def get_new(self) -> int:
-        """Get new devices from the last 24 hours."""
+        """
+           Get new devices from the last 24 hours.
+           @unit-tested
+        """
         new_since = arrow.utcnow().datetime - timedelta(hours=24)
         sql = """
             SELECT *
@@ -132,7 +144,10 @@ class Devices(BaseEntityMetas):
         return devices
 
     def with_enabled_port_scanning(self) -> list:
-        """Get devices with port_scanning enabled."""
+        """
+           Get devices with port_scanning enabled.
+           @unit-tested
+        """
         sql = """
             SELECT *
             FROM devices

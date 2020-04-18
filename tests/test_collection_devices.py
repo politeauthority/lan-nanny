@@ -1,95 +1,119 @@
 """Test Device Collections
 
 """
+from datetime import timedelta
 import os
 
 import arrow
 
 from lan_nanny.modules import db
 from lan_nanny.modules.models.device import Device
+from lan_nanny.modules.models.device_port import DevicePort
 from lan_nanny.modules.models.entity_meta import EntityMeta
 from lan_nanny.modules.collections.devices import Devices
 
-test_db = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'test-devices.db')
+from .configs import CONFIGS
+from .data import data_devices
+
+test_db = os.path.join(CONFIGS['tmp_dir'], 'test.db')
+if os.path.exists(test_db):
+    os.remove(test_db)
 conn, cursor = db.create_connection(test_db)
 
 
 class TestCollectionDevices:
 
     def test___init__(self):
-        """Tests the Device.__init__ method."""
-        device = Device(conn, cursor)
-        device.setup()
-        assert device.conn == conn
-        assert device.cursor == cursor
-        assert device.iodku
-        assert device.table_name == 'devices'
-        # assert device.total_map == DEVICE_TABLE_MAP
+        """Test the Devices.__init__ method."""
+        devices = Devices(conn, cursor)
+        assert devices.conn == conn
+        assert devices.cursor == cursor
+        assert devices.table_name
+        assert devices.collect_model
 
     def test_create_table(self):
-        """Tests the Device.create_table method."""
+        """Test the Device.create_table method and insert test data."""
         device = Device(conn, cursor)
-        device.setup()
         assert device.create_table()
+
+        device_port = DevicePort(conn, cursor)
+        assert device_port.create_table()
+
         entity_meta = EntityMeta(conn, cursor)
-        entity_meta.setup()
         assert entity_meta.create_table()
 
-    def test_insert(self):
-        """Tests the Device.insert method."""
-        device = Device(conn, cursor)
-        device.setup()
-        device.mac = "38:D5:47:DC:48:18"
-        device.vendor = "Asustek Computer"
-        device.ip = "192.168.50.1"
-        device.last_seen = arrow.utcnow().datetime
-        device.first_seen = arrow.utcnow().datetime
-        device.name = "Router"
-        device.icon = "fas fa-wifi"
-        device.port_scan = True
-        device.last_port_scan_id = 1
-        device.first_port_scan_id = 1
-        device.port_scan_lock = False
-        device.host_names = None
-        device.insert()
+        data_devices.create_devices(conn, cursor)
 
-        new_device = Device(conn, cursor)
-        new_device.get_by_id(1)
+    def test_get_recent(self):
+        """Test Devices.get_recent()"""
+        devices = Devices(conn, cursor)
+        recent_devices = devices.get_recent()
+        assert isinstance(recent_devices, list)
+        for device in recent_devices:
+            assert device.last_seen
 
-        assert new_device.id == 1
-        assert new_device.mac == device.mac
-        assert new_device.vendor == device.vendor
-        assert new_device.ip == device.ip
+    def test_get_favorites(self):
+        """Test Devices.get_favorites()"""
+        devices = Devices(conn, cursor)
+        favorite_devices = devices.get_favorites()
+        assert isinstance(favorite_devices, list)
+        for device in favorite_devices:
+            assert device.favorite
 
-    def test_get_by_mac(self):
-        """Tests the Device.get_by_mac method."""
-        device = Device(conn, cursor)
-        device.setup()
-        device.get_by_mac("38:D5:47:DC:48:18")
+    def test_get_new_count(self):
+        """Test Devices.get_new_count()"""
+        devices = Devices(conn, cursor)
+        new_device_count = devices.get_new_count()
+        assert isinstance(new_device_count, int)
 
-        assert device.id == 1
-        assert device.mac == "38:D5:47:DC:48:18"
+    def test_get_new(self):
+        """Test Devices.get_new()"""
+        day_ago = arrow.utcnow().datetime - timedelta(hours=24)
+        devices = Devices(conn, cursor)
+        new_devices = devices.get_new()
+        assert isinstance(new_devices, list)
+        for device in new_devices:
+            assert device.first_seen >= day_ago
 
-    def test_set_icon(self):
-        """Tests the Device.set_icon method."""
-        device = Device(conn, cursor)
-        device.setup()
-        device.name = "My mac"
-        device.vendor = "Apple"
-        device.set_icon()
-        assert device.icon == "fab fa-apple"
+    def test_with_enabled_port_scanning(self):
+        """Test Devices.with_enabled_port_scanning()"""
+        devices = Devices(conn, cursor)
+        port_scan_devices = devices.with_enabled_port_scanning()
+        assert isinstance(port_scan_devices, list)
+        for device in port_scan_devices:
+            assert device.port_scan
 
-    def test_online(self):
-        """Tests the Device.online method."""
-        device = Device(conn, cursor)
-        device.setup()
-        device.name = "My mac"
-        device.vendor = "Apple"
-        assert not device.online()
+    def test_search(self):
+        """Test Devices.search()"""
+        devices = Devices(conn, cursor)
+
+        # # Test searching a device name
+        # devices_search_name = devices.search("Amy")
+        # assert isinstance(devices_search_name, list)
+        # test_validated = False
+        # for device in devices_search_name:
+        #     print(device.name)
+        #     if device.name == "Amy's iPhone":
+        #         test_validated = True
+        #         break
+        # assert test_validated
+
+        # Test searching a vendor name
+        # devices_search_vendor = devices.search('Apple')
+        # assert isinstance(devices_search_vendor, list)
+        # test_validated = False
+        # for device in devices_search_vendor:
+        #     if device.vendor == 'Apple':
+        #         test_validated = True
+        #         break
+        # assert test_validated
 
     @classmethod
     def teardown_class(cls):
         """Tears down the sqlite database after tests finish."""
-        os.remove(test_db)
+        if os.path.exists(test_db):
+            os.remove(test_db)
+
+
 
 # EndFile: lan-nanny/tests/test_model_device.py

@@ -10,9 +10,12 @@ from lan_nanny.modules.models.device import Device
 from lan_nanny.modules.models.device_port import DevicePort
 from lan_nanny.modules.models.entity_meta import EntityMeta
 
+from .configs import CONFIGS
 from .data import data_devices
 
-test_db = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'test.db')
+test_db = os.path.join(CONFIGS['tmp_dir'], 'test.db')
+if os.path.exists(test_db):
+    os.remove(test_db)
 conn, cursor = db.create_connection(test_db)
 
 
@@ -113,7 +116,8 @@ class TestModelDevice:
     @classmethod
     def teardown_class(cls):
         """Tears down the sqlite database after tests finish."""
-        os.remove(test_db)
+        if os.path.exists(test_db):
+            os.remove(test_db)
 
 
 # EndFile: lan-nanny/tests/test_model_device.py
