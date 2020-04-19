@@ -75,14 +75,14 @@ class TestModelDevice:
             assert new_device.last_seen == test_device['last_seen']
             assert new_device.first_seen == test_device['first_seen']
             assert new_device.name == test_device['name']
-            # assert new_device.hide == test_device['hide']
+            assert new_device.hide == test_device['hide']
             assert new_device.favorite == test_device['favorite']
             assert new_device.icon == test_device['icon']
-            # assert new_device.port_scan == test_device['port_scan']
+            assert new_device.port_scan == test_device['port_scan']
             assert new_device.last_port_scan == test_device['last_port_scan']
             assert new_device.last_port_scan_id == test_device['last_port_scan_id']
             assert new_device.first_port_scan_id == test_device['first_port_scan_id']
-            # assert new_device.port_scan_lock == test_device['port_scan_lock']
+            assert new_device.port_scan_lock == test_device['port_scan_lock']
             assert new_device.host_names == test_device['host_names']
             assert new_device.type == test_device['type']
 
@@ -90,12 +90,13 @@ class TestModelDevice:
         """Test the Device.get_by_mac method."""
         for test_device in data_devices.devices:
             new_device = Device(conn, cursor)
-            assert new_device.get_by_mac(test_device['mac'])
-
+            get_by_mac = new_device.get_by_mac(test_device['mac'])
+            assert get_by_mac
+            assert new_device.mac == test_device['mac']
 
     def test_set_icon(self):
         """
-           Test the device.set_icon method, to make sure it sets default device icons appropriately.
+        Test the device.set_icon method, to make sure it sets default device icons appropriately.
         """
         device = Device(conn, cursor)
         device.icon = "fab fa-icon-already-set"

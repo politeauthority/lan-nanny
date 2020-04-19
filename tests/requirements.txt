@@ -1,3 +1,4 @@
 Faker==4.0.3
 flake8==3.7.9
+ipdb==0.13.2
 pytest==5.3.2

@@ -48,7 +48,7 @@ class Base:
            @unit-tested
 
         """
-        print('Creating %s' % self.__class__.__name__)
+        logging.info('Creating %s' % self.__class__.__name__)
         self._create_total_map()
         if not self.table_name:
             raise AttributeError('Model table name not set, (self.table_name)')
@@ -62,18 +62,16 @@ class Base:
             print(e)
         return False
 
-    def setup(self):
-        """
-        Sets up model class vars, sets class var defaults, and corrects types where possible.
-
-        """
+    def setup(self) -> bool:
+        """Set up model class vars, sets class var defaults, and corrects types where possible."""
         self._create_total_map()
         self._set_defaults()
         self._set_types()
+        return True
 
     def insert(self):
         """
-        Inserts a new record of the model.
+        Insert a new record of the model.
         @unit-tested
 
         """
@@ -166,30 +164,41 @@ class Base:
         self.build_from_list(run_raw)
         return True
 
-    def build_from_list(self, raw: list):
+    def build_from_list(self, raw: list) -> bool:
         """
-           Builds a model from an ordered list, converting data types to their desired type where
-           possible.
-           @unit-tested *
-            # elif field['type'] == 'bool':
-            #     if raw[count] == 1:
-            #         setattr(self, field['name'], True)
-            #     else:
-            #         setattr(self, field['name'], False)
-            # else:
-            #     setattr(self, field['name'], raw[count])
+        Build a model from an ordered list, converting data types to their desired type where
+        possible.
+        @unit-tested
+        :param raw: The raw data from the database to be converted to model data.
+
         """
         count = 0
         for field in self.total_map:
-            if field['type'] == 'datetime':
-                if raw[count]:
-                    setattr(self, field['name'], arrow.get(raw[count]).datetime)
+            field_name = field['name']
+            field_value = raw[count]
+
+            # Handle the bool field type.
+            if field['type'] == 'bool':
+                if field_value == 1:
+                    setattr(self, field_name, True)
+                elif field_value == 0:
+                    setattr(self, field_name, False)
                 else:
-                    setattr(self, field['name'], None)
+                    setattr(self, field_name, None)
+
+            # Handle the datetime field type.
+            elif field['type'] == 'datetime':
+                if field_value:
+                    setattr(self, field_name, arrow.get(field_value).datetime)
+                else:
+                    setattr(self, field_name, None)
+
+            # Handle all other field types without any translation.
             else:
-                setattr(self, field['name'], raw[count])
+                setattr(self, field_name, field_value)
 
             count += 1
+
         return True
 
     def get_fields_sql(self, skip_fields: list = ['id']) -> str:
@@ -226,8 +235,8 @@ class Base:
 
     def get_values_sql(self, skip_fields: list = ['id']) -> tuple:
         """
-           Generates the model values to send to the sql lite interpretor as a tuple.
-           @unit-tested
+        Generates the model values to send to the sql lite interpretor as a tuple.
+        @unit-tested
 
         """
         vals = []
@@ -280,11 +289,11 @@ class Base:
             set_sql += "%s = ?,\n" % field['name']
         return set_sql[:-2]
 
-    def check_required_class_vars(self, extra_class_vars: list = []):
+    def check_required_class_vars(self, extra_class_vars: list = []) -> bool:
         """
-           Quick class var checks to make sure the required class vars are set before proceeding
-           with an operation.
-           @unit-tested
+        Quick class var checks to make sure the required class vars are set before proceeding
+        with an operation.
+        @unit-tested
 
         """
         if not self.conn:
@@ -300,10 +309,12 @@ class Base:
             if not getattr(self, class_var):
                 raise AttributeError('Missing self.%s' % class_var)
 
+        return True
+
     def _create_total_map(self) -> bool:
         """
-           Slams the base_map and models field_map together into self.total_map.
-           @unit-tested
+        Concatenate the base_map and models field_map together into self.total_map.
+        @unit-tested
 
         """
         self.total_map = self.base_map + self.field_map
@@ -311,35 +322,38 @@ class Base:
 
     def _set_defaults(self) -> bool:
         """
-           Sets the defaults for the class field vars and populates the self.field_list var
-           containing all table field names.
-           @unit-tested
+        Set the defaults for the class field vars and populates the self.field_list var
+        containing all table field names.
+        @unit-tested
 
         """
         self.field_list = []
-
         for field in self.total_map:
-            name = field['name']
+            field_name = field['name']
+            self.field_list.append(field_name)
+
             default = None
             if 'default' in field:
                 default = field['default']
-            self.field_list.append(name)
 
             # Sets all class field vars with defaults.
-            if not getattr(self, name, None):
-                setattr(self, name, default)
+            field_value = getattr(self, field_name, None)
+            if not field_value and field_value != False:
+                setattr(self, field_name, default)
+
         return True
 
     def _set_types(self) -> bool:
         """
-           Sets the types of class table field vars and corrects their types where possible.
-           @unit-tested
+        Set the types of class table field vars and corrects their types where possible.
+        @unit-tested
 
         """
         for field in self.total_map:
             class_var_name = field['name']
+
             class_var_value = getattr(self, class_var_name)
-            if not class_var_value:
+            if class_var_value == None:
                 continue
 
             if field['type'] == 'int' and type(class_var_value) != int:
@@ -347,7 +361,7 @@ class Base:
                 setattr(self, class_var_name, converted_value)
                 continue
 
-            if field['type'] == 'bool' and type(class_var_value) != bool:
+            if field['type'] == 'bool':
                 converted_value = self._convert_bools(class_var_name, class_var_value)
                 setattr(self, class_var_name, converted_value)
                 continue
@@ -355,7 +369,7 @@ class Base:
             if field['type'] == 'datetime' and type(class_var_value) != datetime:
                 setattr(
                     self,
-                    field['name'],
+                    class_var_name,
                     arrow.get(class_var_value).datetime)
                 continue
 
@@ -376,12 +390,15 @@ class Base:
 
     def _convert_bools(self, name: str, value) -> bool:
         """
-           Attempts to convert bools into usable value or raises an AttributeError.
-           @unit-tested
+        Convert bools into usable value or raises an AttributeError.
+        @unit-tested
 
         """
         if isinstance(value, bool):
             return value
+
+        if value == None:
+            return None
 
         value = str(value).lower()
         # Try to convert values to the positive.
@@ -392,6 +409,8 @@ class Base:
             return False
         else:
             AttributeError('%s field %s should be type bool.' % (
+                __class__.__name__, name))
+            logging.error('%s field %s should be type bool.' % (
                 __class__.__name__, name))
 
     def _generate_create_table_feilds(self) -> str:

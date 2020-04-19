@@ -112,6 +112,7 @@ class TestModelBase():
         assert base.field_three == False
         assert base.field_four == 'test'
         assert base.field_five == 7
+        assert base.field_six == None
 
     def test_set_types(self):
         """
@@ -132,7 +133,7 @@ class TestModelBase():
         assert base.field_three == True
         assert base.field_five == 5
         assert base.field_seven == False
-        # assert type(base.field_six) == 'datetime'
+        assert type(base.field_six) == datetime
 
         base.field_five = 'five'
         with pytest.raises(AttributeError):
@@ -157,6 +158,7 @@ class TestModelBase():
         assert base._convert_bools('test_int_1_false', 0) == False
         assert base._convert_bools('test_str_1_false', '0') == False
         assert base._convert_bools('test_str_2_false', 'false') == False
+        assert base._convert_bools('test_str_3_none', None) == None
 
         # @todo fix this
         # with pytest.raises(AttributeError):
@@ -228,7 +230,7 @@ field_seven INTEGER"""
         assert base.field_four == 'TEST'
         assert base.field_five == 5
         assert base.field_six == datetime(2020, 1, 8, 5, 1, 48, tzinfo=tzutc())
-        assert base.field_seven == 0
+        assert base.field_seven == False
 
     def test_check_required_class_vars(self):
         """
@@ -325,10 +327,7 @@ field_seven = ?"""
         assert self.get_table(base.table_name)
 
     def test_insert(self):
-        """
-        Tests the insert method making sure it can actually make a table.
-
-        """
+        """Test the Base.insert method making sure it can actually make a table."""
         base = Base(conn, cursor)
         base.field_map = GENERIC_FIELDS
         base.table_name = 'test_table'
@@ -344,8 +343,7 @@ field_seven = ?"""
         assert isinstance(arrow.get(data[0][1]).datetime, datetime)
 
     def test_get_by_id(self):
-        """
-        """
+        """Test the Base.get_by_id() method."""
         base = Base(conn, cursor)
         base.field_map = GENERIC_FIELDS
         base.table_name = 'test_table'
@@ -399,10 +397,8 @@ field_seven = ?"""
 
     @classmethod
     def teardown_class(cls):
-        """
-        Tears down the sqlite database after tests finish.
-
-        """
+        """Tear down the sqlite database after tests finish."""
         os.remove(test_db)
+
 
 # EndFile: lan-nanny/tests/test_model_base.py

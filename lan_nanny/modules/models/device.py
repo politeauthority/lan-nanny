@@ -106,20 +106,21 @@ class Device(BaseEntityMeta):
         """Device representation show the name if we have one."""
         return "<Device: %s>" % self.name
 
-    def get_by_mac(self, mac: str):
+    def get_by_mac(self, mac: str) -> bool:
         """
-           Get a device from the devices table based on mac address.
-           @unit-tested
+        Get a device from the devices table based on mac address.
+        @unit-tested
+
         """
         sql = """SELECT * FROM devices WHERE mac='%s'""" % mac
         self.cursor.execute(sql)
         device_raw = self.cursor.fetchone()
         if not device_raw:
-            return self
+            return False
 
         self.build_from_list(device_raw)
 
-        return self
+        return True
 
     def get_ports(self):
         """Get device ports added to self.ports."""
