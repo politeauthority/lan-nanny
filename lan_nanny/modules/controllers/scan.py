@@ -48,8 +48,8 @@ def roster_hosts(page: str="1"):
     page = int(page)
     offset = utils.get_pagination_offset(page, PER_PAGE)
     scan_hosts_collect = ScanHosts(conn, cursor)
-    scan_hosts = scan_hosts_collect.get_all_paginated(limit=PER_PAGE, offset=offset)
-    pagination = scan_hosts_collect.get_pagination('/scan/hosts/', page, PER_PAGE)
+    scan_hosts = scan_hosts_collect.get_paginated(limit=PER_PAGE, offset=offset)
+    pagination = scan_hosts_collect.get_pagination_info('/scan/hosts/', page, PER_PAGE)
     data = {
         'active_page': 'scans',
         'active_page_scans': 'hosts',
@@ -67,8 +67,8 @@ def roster_ports(page: str="1"):
     page = int(page)
     offset = utils.get_pagination_offset(page, PER_PAGE)
     scan_ports_collect = ScanPorts(conn, cursor)
-    scan_ports = scan_ports_collect.get_all_paginated(limit=PER_PAGE, offset=offset)
-    pagination = scan_ports_collect.get_pagination('/scan/ports/', page, PER_PAGE)
+    scan_ports = scan_ports_collect.get_paginated(limit=PER_PAGE, offset=offset)
+    pagination = scan_ports_collect.get_pagination_info('/scan/ports/', page, PER_PAGE)
 
     device_ids = []
     for sp in scan_ports:

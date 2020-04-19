@@ -32,6 +32,56 @@ class Base:
         prestine = self.build_from_lists(raws)
         return prestine
 
+    def get_paginated(self,
+        limit: int=20,
+        offset: int=0,
+        order_by: dict={},
+        where_and: list=[]) -> list:
+        """
+        Get paginated collection of models.
+        :param limit: The limit of results per page.
+        :param offset: The offset to return pages from or the "page" to return.
+        :param order_by: A dict with the field to us, and the direction of the order.
+            example value for order_by:
+            {
+                'field': 'last_seen',
+                'op' : 'DESC'
+            }
+        :param where_and: a list of dictionaries, containing fields, values and the operator of AND
+            statements to concatenate for the query.
+            example value for where_and:
+            [
+                {
+                    'field': 'last_seen',
+                    'value': last_online,
+                    'op': '>='
+                }
+            ]
+        :returns: A list of model objects, hydrated to the default of the base.build_from_list()
+
+        """
+        sql_vars = {
+            'table_name': self.table_name,
+            'limit': limit,
+            'offset': offset,
+            'where': self._get_pagination_where_and(where_and),
+            'order': self._get_pagination_order(order_by)
+        }
+        sql = """
+            SELECT *
+            FROM %(table_name)s
+            %(where)s
+            %(order)s
+            LIMIT %(limit)s OFFSET %(offset)s;""" % sql_vars
+        self.cursor.execute(sql)
+        raw = self.cursor.fetchall()
+        prestine = []
+        for raw_item in raw:
+            new_object = self.collect_model(self.conn, self.cursor)
+            new_object.build_from_list(raw_item)
+            prestine.append(new_object)
+        return prestine
+
     def get_last(self) -> list:
         """Get last x created models descending."""
         sql = """
@@ -44,32 +94,13 @@ class Base:
         prestines = self.build_from_lists(raw)
         return prestines
 
-    def get_all_paginated(self, limit: int=20, offset: int=0) -> list:
+    def get_pagination_info(self, base_url: str, page: int, per_page: int) -> dict:
         """
-           Get paginated set run logs.
-           DEPRICATED!
-        """
-        sql_vars = {
-            'table_name': self.table_name,
-            'limit': limit,
-            'offset': offset,
-        }
-        sql = """
-            SELECT *
-            FROM %(table_name)s
-            ORDER BY created_ts DESC
-            LIMIT %(limit)s OFFSET %(offset)s;""" % sql_vars
-        self.cursor.execute(sql)
-        raw = self.cursor.fetchall()
-        prestine = []
-        for raw_item in raw:
-            new_object = self.collect_model(self.conn, self.cursor)
-            new_object.build_from_list(raw_item)
-            prestine.append(new_object)
-        return prestine
+        Get pagination details, supplementary info from the get_paginated method. This contains
+        details like total_units, next_page, previous page and other details needed for properly
+        drawing pagination info on a GUI.
 
-    def get_pagination(self, base_url: str, page: int, per_page: int) -> dict:
-        """Get numeric count of table rows."""
+        """
         pagination = {}
         pagination['total_units'] = self.get_count_total()
         pagination['first_page'] = 1
@@ -163,10 +194,11 @@ class Base:
         sql_ids = sql_ids[:-1]
         return sql_ids
 
-    def _get_pagination_where_and(self, where_and) -> str:
+    def _get_pagination_where_and(self, where_and: list) -> str:
         """
-            Create the where clause for pagination when where and clauses are supplied.
-            ie: Append multiple statements with an AND in the sql statement
+        Create the where clause for pagination when where and clauses are supplied.
+        Note: We append multiple statements with an AND in the sql statement.
+
         """
         where = False
         where_and_sql = ""
@@ -175,22 +207,20 @@ class Base:
             op = "="
             if 'op' in where_a:
                 op = where_a['op']
-            where_and_sql += '%s%s"%s"' % (where_a['field'], op, where_a['value'])
-        if where:
-            where_and_sql = "WHERE\n\t%s" % where_and_sql
-        return where_and_sql
+            where_and_sql += '%s%s"%s" AND ' % (where_a['field'], op, where_a['value'])
 
-        if where_exists:
-            where_sql = "WHERE "
-            where_sql += where_and_sql
-        sql_vars['where'] = where_sql
+        if where:
+            where_and_sql = "WHERE " + where_and_sql
+            where_and_sql = where_and_sql[:-4]
+
+        return where_and_sql
 
     def _get_pagination_order(self, order) -> str:
         """
-            Create the order clause for pagination using user supplied arguments or defaulting to
-            created_desc DESC
-        """
+        Create the order clause for pagination using user supplied arguments or defaulting to
+        created_desc DESC.
 
+        """
         order_sql = "ORDER BY created_ts DESC"
         if not order:
             return order_sql

@@ -50,7 +50,7 @@ def device_all(page: str="1") -> str:
     data = {}
     data['active_page'] = 'devices'
     data['active_page_devices'] = 'all'
-    data['devices'] = devices.get_paginated(limit=PER_PAGE, offset=offset)
+    data['devices'] = devices.get_pagination(limit=PER_PAGE, offset=offset)
     data['pagination'] = devices.get_pagination('/device/all/', page, PER_PAGE)
     return render_template('devices/roster.html', **data)
 
@@ -84,7 +84,7 @@ def online(page: str="1") -> str:
             'field': 'last_seen',
             'op' : 'DESC'
         })
-    data['pagination'] = devices.get_pagination('/device/online/', page, PER_PAGE)
+    data['pagination'] = devices.get_pagination_info('/device/online/', page, PER_PAGE)
     return render_template('devices/roster.html', **data)
 
 
