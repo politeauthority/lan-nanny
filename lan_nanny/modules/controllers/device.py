@@ -21,13 +21,12 @@ from ..models.entity_meta import EntityMeta
 from ..metrics import Metrics
 
 device = Blueprint('Device', __name__, url_prefix='/device')
-PER_PAGE = 20
 
 
 @device.route('/')
 @utils.authenticate
 def devices() -> str:
-    """Devices roster page."""
+    """Devices Dashboard page."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     devices = Devices(conn, cursor)
     data = {}
@@ -41,38 +40,43 @@ def devices() -> str:
 @device.route('/all')
 @device.route('/all/<page>')
 @utils.authenticate
-def device_all(page: str="1") -> str:
-    """Devices Dashboard page."""
+def roster(page: str="1") -> str:
+    """Devices roster pages."""
     page = int(page)
-    offset = utils.get_pagination_offset(page, PER_PAGE)
+
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
-    devices = Devices(conn, cursor)
+    device_collection = Devices(conn, cursor)
+    device_pages = device_collection.get_paginated(
+        page=page,
+        order_by={
+            'field': 'last_seen',
+            'op' : 'DESC'
+        })
+
+    if not device_pages['objects']:
+        return page_not_found('Device page not found.')
+
     data = {}
     data['active_page'] = 'devices'
     data['active_page_devices'] = 'all'
-    data['devices'] = devices.get_pagination(limit=PER_PAGE, offset=offset)
-    data['pagination'] = devices.get_pagination('/device/all/', page, PER_PAGE)
+    data['devices'] = device_pages['objects']
+    data['pagination'] = utils.gen_pagination_urls('/device/all/', device_pages['info'])
     return render_template('devices/roster.html', **data)
 
 
 @device.route('/online')
 @device.route('/online/<page>')
 @utils.authenticate
-def online(page: str="1") -> str:
+def roster_online(page: str="1") -> str:
     """Devices roster page for only online devices."""
     app_offline_timeout = g.options['active-timeout'].value
     last_online = arrow.utcnow().datetime - timedelta(minutes=int(app_offline_timeout))
     page = int(page)
-    offset = utils.get_pagination_offset(page, PER_PAGE)
 
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
-    devices = Devices(conn, cursor)
-    data = {}
-    data['active_page'] = 'devices'
-    data['active_page_devices'] = 'online'
-    data['devices'] = devices.get_paginated(
-        limit=PER_PAGE,
-        offset=offset,
+    devices_collection = Devices(conn, cursor)
+    device_pages = devices_collection.get_paginated(
+        page=page,
         where_and=[
             {
                 'field': 'last_seen',
@@ -84,28 +88,28 @@ def online(page: str="1") -> str:
             'field': 'last_seen',
             'op' : 'DESC'
         })
-    data['pagination'] = devices.get_pagination_info('/device/online/', page, PER_PAGE)
+
+    data = {}
+    data['active_page'] = 'devices'
+    data['active_page_devices'] = 'online'
+    data['devices'] = device_pages['objects']
+    data['pagination'] = utils.gen_pagination_urls('/device/online/', device_pages['info'])
     return render_template('devices/roster.html', **data)
 
 
 @device.route('/offline')
 @device.route('/offline/<page>')
 @utils.authenticate
-def offline(page: str="1") -> str:
+def roster_offline(page: str="1") -> str:
     """Devices roster page for only online devices."""
     app_offline_timeout = g.options['active-timeout'].value
     last_online = arrow.utcnow().datetime - timedelta(minutes=int(app_offline_timeout))
     page = int(page)
-    offset = utils.get_pagination_offset(page, PER_PAGE)
 
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
-    devices = Devices(conn, cursor)
-    data = {}
-    data['active_page'] = 'devices'
-    data['active_page_devices'] = 'offline'
-    data['devices'] = devices.get_paginated(
-        limit=PER_PAGE,
-        offset=offset,
+    devices_collection = Devices(conn, cursor)
+    device_pages = devices_collection.get_paginated(
+        page=page,
         where_and=[
             {
                 'field': 'last_seen',
@@ -116,9 +120,14 @@ def offline(page: str="1") -> str:
         order_by = {
             'field': 'last_seen',
             'op' : 'DESC'
-        }
-        )
-    data['pagination'] = devices.get_pagination('/device/offline/', page, PER_PAGE)
+        })
+
+
+    data = {}
+    data['active_page'] = 'devices'
+    data['active_page_devices'] = 'offline'
+    data['devices'] = device_pages['objects']
+    data['pagination'] = utils.gen_pagination_urls('/device/offline/', device_pages['info'])
     return render_template('devices/roster.html', **data)
 
 
@@ -143,8 +152,7 @@ def info(device_id: int) -> str:
     device = Device(conn, cursor)
     device.get_by_id(device_id)
     if not device.id:
-        return 'ERROR 404: Route this to page_not_found method!', 404
-        # return page_not_found('Device not found')
+        return page_not_found('Device not found')
 
     alerts_col = Alerts(conn, cursor)
     device_alerts = alerts_col.get_for_device(device.id)
@@ -344,5 +352,10 @@ def delete(device_id: int):
     Alerts(conn, cursor).delete_device(device.id)
 
     return redirect('/device')
+
+
+def page_not_found(e: str):
+    """404 Error page."""
+    return render_template('errors/404.html', error=e), 404
 
 # End File: lan-nanny/lan_nanny/modules/controllers/device.py

@@ -88,10 +88,7 @@ def size_of_fmt(num: int, suffix: str = 'B') -> str:
 
 
 def get_active_timeout_from_now(timeout: int) -> datetime:
-    """
-    Gets a datetime object representing the time from now to declare a device active.
-
-    """
+    """Get a datetime object representing the time from now to declare a device active."""
     now = arrow.utcnow().datetime - timedelta(minutes=timeout)
     return now
 
@@ -109,14 +106,13 @@ def gen_where_in_sql(ids: list) -> str:
     ids_sql = ids_sql[:-1]
     return ids_sql
 
-
-def get_pagination_offset(page: int, per_page: int) -> int:
-    """Gets the offset number for pagination queries."""
-    if page == 1:
-        offset = 0
-    else:
-        offset = (page * per_page) - per_page
-    return offset
+def gen_pagination_urls(base_url: str, pagination: dict) -> dict:
+    """Generate pagination urls to use on the frontend."""
+    pagination['first_page_url'] = _clean_url(base_url, pagination['first_page'])
+    pagination['last_page_url'] = _clean_url(base_url, pagination['last_page'])
+    pagination['next_page_url'] = _clean_url(base_url, pagination['next_page'])
+    pagination['previous_page_url'] = _clean_url(base_url, pagination['previous_page'])
+    return pagination
 
 
 def get_percent(whole: int, part: int, round_ret: int=0, invert: bool=False) -> int:
@@ -156,5 +152,15 @@ def run_shell(cmd: str) -> str:
     """Run a shell command and get a string result back."""
     result = subprocess.check_output(cmd, shell=True)
     return result.decode("utf-8")
+
+
+def _clean_url(base_url: str, url: str) -> str:
+    """Clean a url so its pretty and valid."""
+    url =  "%s/%s" % (base_url, url)
+    url = url.replace('//', '/')
+    if url[0] != '/':
+        url = '/' + url
+    return url
+
 
 # End File: lan-nanny/lan_nanny/modules/utils.py

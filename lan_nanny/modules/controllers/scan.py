@@ -15,7 +15,6 @@ from ..collections.scan_hosts import ScanHosts
 from ..collections.scan_ports import ScanPorts
 
 scan = Blueprint('Scan', __name__, url_prefix='/scan')
-PER_PAGE = 20
 
 @scan.route('/')
 @utils.authenticate
@@ -46,15 +45,17 @@ def roster_hosts(page: str="1"):
     """Host scan roster page."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     page = int(page)
-    offset = utils.get_pagination_offset(page, PER_PAGE)
-    scan_hosts_collect = ScanHosts(conn, cursor)
-    scan_hosts = scan_hosts_collect.get_paginated(limit=PER_PAGE, offset=offset)
-    pagination = scan_hosts_collect.get_pagination_info('/scan/hosts/', page, PER_PAGE)
+    scan_hosts_collection = ScanHosts(conn, cursor)
+    scan_pages = scan_hosts_collection.get_paginated(page=page)
+
+    if not scan_pages['objects']:
+        return page_not_found('Scan Hosts page not found.')
+
     data = {
         'active_page': 'scans',
         'active_page_scans': 'hosts',
-        'scans':scan_hosts,
-        'pagination': pagination
+        'scans':scan_pages['objects'],
+        'pagination': utils.gen_pagination_urls('/scan/hosts/', scan_pages['info'])
     }
     return render_template('scans/roster_hosts.html', **data)
 
@@ -65,23 +66,25 @@ def roster_ports(page: str="1"):
     """Port scan roster page."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     page = int(page)
-    offset = utils.get_pagination_offset(page, PER_PAGE)
-    scan_ports_collect = ScanPorts(conn, cursor)
-    scan_ports = scan_ports_collect.get_paginated(limit=PER_PAGE, offset=offset)
-    pagination = scan_ports_collect.get_pagination_info('/scan/ports/', page, PER_PAGE)
+    scan_ports_collection = ScanPorts(conn, cursor)
+    scan_pages = scan_ports_collection.get_paginated(page=page)
 
+    if not scan_pages['objects']:
+        return page_not_found('Scan Ports page not found.')
+
+    # Get the Scan Port's Device object
     device_ids = []
-    for sp in scan_ports:
+    for sp in scan_pages['objects']:
         device_ids.append(sp.device_id)
-
     col_devices = Devices(conn, cursor)
     devices = col_devices.get_by_ids(device_ids)
     devices = utils.key_list_on_id(devices)
+
     data = {
         'active_page': 'scans',
         'active_page_scans': 'ports',
-        'scans': scan_ports,
-        'pagination': pagination,
+        'scans': scan_pages['objects'],
+        'pagination': utils.gen_pagination_urls('/scan/ports/', scan_pages['info']),
         'devices': devices
     }
     return render_template('scans/roster_ports.html', **data)
@@ -119,6 +122,11 @@ def info_port(scan_id: int):
         'device': device,
     }
     return render_template('scans/info_port.html', **data)
+
+
+def page_not_found(e: str):
+    """404 Error page."""
+    return render_template('errors/404.html', error=e), 404
 
 
 # End File: lan-nanny/modules/controllers/scan.py

@@ -93,6 +93,11 @@ class Options(Base):
                 'name': 'system-name',
                 'type': 'str',
             },
+            {
+                'name': 'alerts-enabled',
+                'type': 'bool',
+                'default': False,
+            },
         ]
         gen_pass = None
         for opt in default_opts:

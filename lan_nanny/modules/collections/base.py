@@ -2,6 +2,7 @@
 
 """
 from datetime import timedelta
+import math
 
 import arrow
 
@@ -15,6 +16,7 @@ class Base:
 
         self.table_name = None
         self.collect_model = None
+        self.per_page = 20
 
     def get_by_ids(self, model_ids: list) -> list:
         """Get models instances by their ids from the database."""
@@ -33,8 +35,8 @@ class Base:
         return prestine
 
     def get_paginated(self,
-        limit: int=20,
-        offset: int=0,
+        page: int=1,
+        limit: int=0,
         order_by: dict={},
         where_and: list=[]) -> list:
         """
@@ -60,12 +62,14 @@ class Base:
         :returns: A list of model objects, hydrated to the default of the base.build_from_list()
 
         """
+        if limit == 0:
+            limit = self.per_page
         sql_vars = {
             'table_name': self.table_name,
             'limit': limit,
-            'offset': offset,
-            'where': self._get_pagination_where_and(where_and),
-            'order': self._get_pagination_order(order_by)
+            'offset': self._pagination_offset(page, limit),
+            'where': self._pagination_where_and(where_and),
+            'order': self._pagination_order(order_by)
         }
         sql = """
             SELECT *
@@ -75,42 +79,63 @@ class Base:
             LIMIT %(limit)s OFFSET %(offset)s;""" % sql_vars
         self.cursor.execute(sql)
         raw = self.cursor.fetchall()
-        prestine = []
+        prestines = []
         for raw_item in raw:
             new_object = self.collect_model(self.conn, self.cursor)
             new_object.build_from_list(raw_item)
-            prestine.append(new_object)
-        return prestine
+            prestines.append(new_object)
+        ret = {
+            'objects': prestines,
+            'info': self.get_pagination_info(sql, page, limit)
+        }
+        return ret
 
-    def get_last(self) -> list:
-        """Get last x created models descending."""
-        sql = """
-            SELECT *
-            FROM %s
-            ORDER BY created_ts DESC
-            LIMIT 10;""" % self.table_name
-        self.cursor.execute(sql)
-        raw = self.cursor.fetchall()
-        prestines = self.build_from_lists(raw)
-        return prestines
-
-    def get_pagination_info(self, base_url: str, page: int, per_page: int) -> dict:
+    def get_pagination_info(self, sql: str, current_page: int, per_page: int) -> dict:
         """
         Get pagination details, supplementary info from the get_paginated method. This contains
         details like total_units, next_page, previous page and other details needed for properly
         drawing pagination info on a GUI.
 
         """
-        pagination = {}
-        pagination['total_units'] = self.get_count_total()
-        pagination['first_page'] = 1
-        pagination['current_page'] = page
-        pagination['last_page'] = self.get_total_pages(pagination['total_units'], per_page)
-        pagination['next_page'] = self._get_next_page(page, pagination['last_page'])
-        pagination['previous_page'] = self._get_previous_page(page)
-        pagination['base_url'] = base_url
-        pagination = self._get_urls(base_url, pagination)
-        return pagination
+        total_units = self._pagination_total(sql)
+        ret = {
+            'total_units': total_units,
+            'first_page': 1,
+            'current_page': current_page,
+            'last_page': math.ceil(total_units / per_page),
+            'previous_page': self._get_previous_page(current_page)
+        }
+        ret['next_page'] = self._get_next_page(current_page, ret['last_page'])
+
+        return ret
+
+    def _pagination_offset(self, page: int, per_page: int) -> int:
+        """Get the offset number for pagination queries."""
+        if page == 1:
+            offset = 0
+        else:
+            offset = (page * per_page) - per_page
+        return offset
+
+    def _pagination_total(self, sql: str) -> int:
+        """Get the total number of pages for a pagination query."""
+        total_sql = self._edit_pagination_sql_for_info(sql)
+        self.cursor.execute(sql)
+        raw = self.cursor.fetchone()
+        if not raw:
+            return 0
+        return raw[0]
+
+    def _edit_pagination_sql_for_info(self, original_sql):
+        sql = original_sql.replace("SELECT *", "SELECT COUNT(*)")
+        end_sql = sql.find("LIMIT ")
+        sql = sql[:end_sql]
+        return sql
+
+    def get_total_pages(self, total, per_page) -> int:
+        """Get total number of pages based on a total count and per page value."""
+        total_pages = total / per_page
+        return int(round(total_pages, 0))
 
     def get_count_total(self) -> int:
         """Get count of total model instances in table."""
@@ -172,10 +197,17 @@ class Base:
             prestines.append(new_object)
         return prestines
 
-    def get_total_pages(self, total, per_page) -> int:
-        """Get total number of pages based on a total count and per page value."""
-        total_pages = total / per_page
-        return int(round(total_pages, 0))
+    def get_last(self) -> list:
+        """Get last x created models descending."""
+        sql = """
+            SELECT *
+            FROM %s
+            ORDER BY created_ts DESC
+            LIMIT 10;""" % self.table_name
+        self.cursor.execute(sql)
+        raw = self.cursor.fetchall()
+        prestines = self.build_from_lists(raw)
+        return prestines
 
     def build_from_lists(self, raws:list) -> list:
         """Creates list of hydrated collection objects."""
@@ -194,7 +226,7 @@ class Base:
         sql_ids = sql_ids[:-1]
         return sql_ids
 
-    def _get_pagination_where_and(self, where_and: list) -> str:
+    def _pagination_where_and(self, where_and: list) -> str:
         """
         Create the where clause for pagination when where and clauses are supplied.
         Note: We append multiple statements with an AND in the sql statement.
@@ -215,7 +247,7 @@ class Base:
 
         return where_and_sql
 
-    def _get_pagination_order(self, order) -> str:
+    def _pagination_order(self, order) -> str:
         """
         Create the order clause for pagination using user supplied arguments or defaulting to
         created_desc DESC.
@@ -236,24 +268,10 @@ class Base:
 
     def _get_next_page(self, page: int, last_page: int) -> int:
         """Get the next page."""
+        if page == last_page:
+            return None
         next_page = page + 1
         return next_page
-
-    def _get_urls(self, base_url: str, pagination: dict) -> dict:
-        """Get urls for pagination."""
-        pagination['first_page_url'] = self._clean_url(base_url, pagination['first_page'])
-        pagination['last_page_url'] = self._clean_url(base_url, pagination['last_page'])
-        pagination['next_page_url'] = self._clean_url(base_url, pagination['next_page'])
-        pagination['previous_page_url'] = self._clean_url(base_url, pagination['previous_page'])
-        return pagination
-
-    def _clean_url(self, base_url, url: str) -> str:
-        """Clean a url so its pretty and valid."""
-        url =  "%s/%s" % (base_url, url)
-        url = url.replace('//', '/')
-        if url[0] != '/':
-            url = '/' + url
-        return url
 
 
 # End File: lan-nanny/lan_nanny/modules/collections/base.py

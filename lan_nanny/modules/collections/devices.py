@@ -24,8 +24,9 @@ class Devices(BaseEntityMetas):
 
     def get_recent(self) -> list:
         """
-           Get all devices in the database.
-           @unit-tested
+        Get all devices in the database.
+        @unit-tested
+
         """
         sql = """
             SELECT *
