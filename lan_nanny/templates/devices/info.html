@@ -198,7 +198,6 @@
                     {%else%}
                       static black
                     {%endif%}
-                    
                   </td>
                   <td>
                     <a href="/alerts/info/{{alert.id}}">
@@ -285,12 +284,14 @@
       var device_favorite_status = convert_str_bool("{{device.favorite}}");
       register_favorite_button('#device-favorite', device_favorite_status, '/device/favorite/{{device.id}}')
 
+      // Device port scan enable toggle.
       var device_port_scan_status = convert_str_bool("{{device.port_scan}}");
       register_toggle_ajax(
         '/device/quick-save',
         '#port_scan',
         device_port_scan_status);
 
+      // Device Meta Ajax
       {%if device.metas['alert_offline'] %}
         var device_alert_offline_status = convert_str_bool("{{device.metas['alert_offline'].value}}");
       {%else%}

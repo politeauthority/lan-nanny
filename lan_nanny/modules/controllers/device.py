@@ -316,12 +316,12 @@ def quick_save() -> str:
     if field_value == 'true'.lower():
         val = True
     else:
-        val = 0
+        val = False
 
     # Handle port_scan and alert settings differently because one is a model attr and the rest are
     # metas
-    if field_name in ['port_scan']:
-        setattr(device, field_value, val)
+    if field_name == 'port_scan':
+        setattr(device, field_name, val)
     elif field_name in ['alert_offline']:
         device.meta_update(field_name, field_value, 'bool')
 

@@ -49,7 +49,6 @@ def roster(page: str="1") -> str:
             'op' : 'ASC'
         })
 
-
     data = {}
     data['ports'] = port_pages['objects']
     data['pagination'] = utils.gen_pagination_urls('/ports/all/', port_pages['info'])
@@ -62,14 +61,12 @@ def roster(page: str="1") -> str:
 @utils.authenticate
 def info(port_id: int) -> str:
     """Port info page."""
-    print('PORT INFO\n\n')
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     port = PortModel(conn, cursor)
     port.get_by_id(port_id)
 
     if not port.id:
         return 'ERROR 404: Route this to page_not_found method!', 404
-        # return page_not_found('Device not found')
 
     device_collect = Devices(conn, cursor)
     devices = device_collect.get_with_open_port(port.id)
