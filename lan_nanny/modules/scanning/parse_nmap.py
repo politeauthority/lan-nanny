@@ -122,16 +122,16 @@ def _get_host_hostname(host: dict) -> str:
 def parse_ports(parsed):
     """Parse an NMap output file for port data, returning the relevant info."""
     if 'host' not in parsed['nmaprun']:
-        logging.error('\tNo data in parsed Nmap')
+        logging.error('\t\tNo data in parsed Nmap')
         return False
 
     if 'ports' not in parsed['nmaprun']['host']:
-        logging.error('\tNo host in Nmap parsed scan')
+        logging.error('\t\tNo host in Nmap parsed scan')
         return False
 
     if not isinstance(parsed['nmaprun']['host']['ports'], OrderedDict):
-        logging.error('Cannot parse Nmap port file.')
-        logging.error(parsed['nmaprun']['host']['ports'])
+        logging.error('\t\tCannot parse Nmap port file.')
+        logging.error("\t\t%s" % parsed['nmaprun']['host']['ports'])
         import ipdb; ipdb.set_trace()
         return False
 
@@ -163,7 +163,7 @@ def _get_port_number(port: dict) -> int:
         return ''
     try:
         if type(port['@portid']) == str:
-            return port['@portid']
+            return int(port['@portid'])
     except TypeError:
         return ''
     return ''

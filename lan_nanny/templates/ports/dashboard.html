@@ -6,10 +6,14 @@
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">
       Ports
-      {%if ports|length%}<span class="badge badge-secondary">{{ports|length}}</span>{%endif%}
+      <span class="badge badge-secondary">{{ports_total}}</span>
     </h1>
   </div>
-
+  <div class="row">
+    {% with active_page=active_page_ports %}
+      {% include "ports/sub_nav.html" %}
+    {% endwith %}
+  </div>
   <!-- Content Row -->
   <div class="row">
 
@@ -19,7 +23,7 @@
         <!-- Card Header -->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h6 class="m-0 font-weight-bold text-primary">
-            Discovered Ports
+            Privileged Ports Found
           </h6>
         </div>
         <!-- Card Body -->
@@ -36,7 +40,7 @@
                 </thead>
                 {% for port in ports %}
                 <tr>
-                  <td><a href="/ports/info/{{port.id}}">{{port.port}}</a></td>
+                  <td><a href="/ports/info/{{port.id}}">{{port.number}}</a></td>
                   <td>{{port.service}}</td>
                   <td>{{port.protocol}}</td>
                 </tr>

@@ -156,9 +156,7 @@ class Device(BaseEntityMeta):
         """
         super(Device, self).build_from_list(raw)
         if build_ports:
-            self.check_required_class_vars()
-            ports = Ports(self.conn, self.cursor)
-            self.ports = ports.get_by_device(self.id)
+            self.get_ports()
         return True
 
 # End File: lan-nanny/lan_nanny/modules/models/device.py

@@ -15,8 +15,8 @@ class Port(Base):
 
         self.field_map = [
             {
-                'name': 'port',
-                'type': 'str'
+                'name': 'number',
+                'type': 'int'
             },
             {
                 'name': 'protocol',
@@ -48,7 +48,6 @@ class Port(Base):
                 'type': 'datetime'
             }
         ]
-        self.devices = []
         self.setup()
 
     def __repr__(self):
@@ -56,19 +55,19 @@ class Port(Base):
 
     def get_by_port_and_protocol(self, port_number: str=None, protocol: str=None) -> bool:
         """Get a Port obj by port number and protocol."""
-        if not port_number and self.port:
-            port_number = self.port
+        if not port_number and self.number:
+            port_number = self.number
 
         if not protocol and self.protocol:
             protocol = self.protocol
 
         sql = """
         SELECT *
-        FROM ports
+        FROM %s
         WHERE
-            port = ? AND
+            number = ? AND
             protocol = ?
-        LIMIT 1"""
+        LIMIT 1""" % self.table_name
 
         vals = (port_number, protocol)
         self.cursor.execute(sql, vals)

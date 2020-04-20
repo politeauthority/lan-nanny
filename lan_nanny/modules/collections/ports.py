@@ -28,12 +28,19 @@ class Ports(Base):
             'service': service_sql}
         self.cursor.execute(sql)
         raw_ports = self.cursor.fetchall()
-        ports = []
-        for raw_port in raw_ports:
-            port = Port(self.conn, self.cursor)
-            port.build_from_list(raw_port)
-            ports.append(port)
+        ports = self.self.build_from_lists(raw_ports)
         return ports
 
+    def get_privileged(self):
+        """Collect ports that a privileged, ie running on 1000 or under."""
+        sql = """
+            SELECT *
+            FROM %s
+            WHERE
+                number <= 1000;""" % (self.table_name)
+        self.cursor.execute(sql)
+        raw_ports = self.cursor.fetchall()
+        ports = self.build_from_lists(raw_ports)
+        return ports
 
 # End File: lan-nanny/modules/collections/ports.py
