@@ -8,6 +8,7 @@ import arrow
 
 from ..collections.scan_hosts import ScanHosts
 from ..collections.alerts import Alerts as CollectAlerts
+from ..collections.devices import Devices
 from ..models.alert import Alert
 from ..models.entity_meta import EntityMeta
 from ..models.database_growth import DatabaseGrowth
@@ -21,10 +22,15 @@ class ScanAlerts:
         self.options = scan.options
         self.hosts = scan.hosts
         self.new_devices = scan.new_devices
+        self.trigger = scan.trigger
 
     def run(self):
         """Handle various LanNanny alerts."""
         logging.info('Running alerts')
+        if not self.options['alerts-enabled'].value:
+            logging.info('\tAlerts are Disabled')
+            return True
+
         self.get_active_alerts()
         self.alert_no_hosts_in_scan()
         self.alert_new_device()
@@ -33,7 +39,7 @@ class ScanAlerts:
     def get_active_alerts(self):
         """Get all currently active alerts."""
         alert_collect = CollectAlerts(self.conn, self.cursor)
-        active = alert_collect.get_active()
+        active = alert_collect.get_firing()
         self.active_alerts = active
 
         self.active_no_hosts = None
@@ -80,7 +86,6 @@ class ScanAlerts:
     def alert_new_device(self) -> bool:
         """Alert on new device discovery."""
         ## TODO: REWORK TO GRAB devices.new_devices and check for existing alerts
-
         # Run checks to see if new device alert should run.
         if not self._validate_run_new_device_alert():
             return False
@@ -91,8 +96,6 @@ class ScanAlerts:
             alert_new.kind = 'new-device'
             alert_new.active = True
             alert_new.last_observed_ts = arrow.utcnow().datetime
-            alert_new.save()
-
             alert_new.metas['device'] = EntityMeta(self.conn, self.cursor)
             alert_new.metas['device'].name = 'device'
             alert_new.metas['device'].type = 'str'
@@ -102,7 +105,17 @@ class ScanAlerts:
             logging.info("\tCreated new device alert for %s" % new_device)
 
     def _validate_run_new_device_alert(self) -> bool:
-        """Run checks to see if the new device alert should run."""
+        """
+        Run checks to see if the new device alert should run.
+        This alert should only run if all are True
+            - The `alerts-new-device` setting is set True
+            - Hosts were found in the last scan
+            - New devices were found in the last scan
+            - The Lan Nanny install is more than 1 hour old
+        """
+        if not self.options['alerts-new-device'].value:
+            logging.info("\tNot running new device alert, because of alerts-new-device setting.")
+            return False
         if not self.hosts:
             logging.info('\tNot running new device alert, no hosts found.')
             return False
@@ -110,20 +123,52 @@ class ScanAlerts:
             logging.info('\tNot running new device alert, no new devices found.')
             return False
 
-        # Dont run new device alerts if system is only 1 hour old.
+        # Don't run new device alerts if system is only 1 hour old.
         first_growth = DatabaseGrowth(self.conn, self.cursor)
         first_growth.get_by_id(1)
         if first_growth.created_ts > arrow.utcnow().datetime - timedelta(hours=1):
             logging.info('\tNot running new device alert, system is too new.')
-            return False
+            return True
 
         return True
-
 
     def alert_device_offline(self) -> bool:
-        """Manage alerts for device's offline."""
+        """Manage alerts for devices offline."""
+        if self.trigger  != 'manual':
+            return True
+
+        logging.info('\tRunning Device offline alerts')
+        devices_offline = self._get_devices_offline_w_alerting()
+
+        for device in devices_offline:
+            alert = Alert(self.conn, self.cursor)
+            alert.kind = 'device-offline'
+            alert.active = True
+            alert.last_observed_ts = arrow.utcnow().datetime
+            alert.meta_update('device', device.id, 'int')
+            alert.save()
+            print('saved alert')
+
 
         return True
+
+    def _get_devices_offline_w_alerting(self) -> list:
+        device_collect = Devices(self.conn, self.cursor)
+        devices_w_alert = device_collect.get_with_meta_value('alert_offline', 'true')
+        jitter_timeout = arrow.utcnow().datetime - \
+            timedelta(minutes=int(self.options["active-timeout"].value))
+
+        # Run through devices with offline alerts.
+        devices_offline_to_alert = []
+        for device in devices_w_alert:
+            # If device was last seen within the active timeout range, skip it.
+            if device.last_seen > jitter_timeout:
+                continue
+            for up_host in self.hosts:
+                if up_host['device'].id == device.id:
+                    break
+            devices_offline_to_alert.append(device)
+        return devices_offline_to_alert
 
             
 # End File: lan-nanny/lan_nanny/modules/scanning/scan_alerts.py
