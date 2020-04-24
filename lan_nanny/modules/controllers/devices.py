@@ -36,6 +36,7 @@ def dashboard() -> str:
     data['active_page'] = 'devices'
     data['active_page_devices'] = 'dashboard'
     data['devices'] = devices.get_recent()
+    data['devices_total'] = devices.get_count_total()
     data['device_venders'] = Metrics(conn, cursor).get_device_vendor_grouping()
     return render_template('devices/dashboard.html', **data)
 
@@ -63,7 +64,7 @@ def roster(page: str="1") -> str:
     data['active_page'] = 'devices'
     data['active_page_devices'] = 'all'
     data['devices'] = device_pages['objects']
-    data['pagination'] = utils.gen_pagination_urls('/device/all/', device_pages['info'])
+    data['pagination'] = utils.gen_pagination_urls('/devices/all/', device_pages['info'])
     return render_template('devices/roster.html', **data)
 
 

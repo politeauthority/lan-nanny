@@ -120,7 +120,7 @@ class Base:
     def _pagination_total(self, sql: str) -> int:
         """Get the total number of pages for a pagination query."""
         total_sql = self._edit_pagination_sql_for_info(sql)
-        self.cursor.execute(sql)
+        self.cursor.execute(total_sql)
         raw = self.cursor.fetchone()
         if not raw:
             return 0

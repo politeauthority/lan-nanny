@@ -14,7 +14,7 @@ class Alerts(BaseEntityMetas):
         self.table_name = Alert().table_name
         self.collect_model = Alert
 
-    def get_active(self, build_devices=False) -> list:
+    def get_firing(self, build_devices=False) -> list:
         """Gets all active alerts from the database."""
 
         sql = """
@@ -25,7 +25,22 @@ class Alerts(BaseEntityMetas):
 
         self.cursor.execute(sql)
         raw_alerts = self.cursor.fetchall()
-        alerts = self.build_from_lists(raw_alerts, build_devices=True)
+        alerts = self.build_from_lists(raw_alerts)
+        return alerts
+
+    def get_recent(self, build_devices=False) -> list:
+        """Gets all active alerts from the database."""
+
+        sql = """
+            SELECT *
+            FROM %s
+            WHERE active = 0
+            ORDER BY created_ts DESC
+            LIMIT 10;""" % (self.table_name)
+
+        self.cursor.execute(sql)
+        raw_alerts = self.cursor.fetchall()
+        alerts = self.build_from_lists(raw_alerts)
         return alerts
 
     def get_active_unacked_num(self) -> int:

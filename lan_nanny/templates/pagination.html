@@ -72,19 +72,21 @@
 
       {%endif%}
           
-      <li class="page-item">
-        <a class="page-link" href="{{pagination['next_page_url']}}" aria-label="Next">
-          <span aria-hidden="true">&#8250;</span>
-          <span class="sr-only">Next</span>
-        </a>
-      </li>
+      {%if pagination['next_page'] != pagination['last_page'] %}
+        <li class="page-item">
+          <a class="page-link" href="{{pagination['next_page_url']}}" aria-label="Next">
+            <span aria-hidden="true">&#8250;</span>
+            <span class="sr-only">Next</span>
+          </a>
+        </li>
 
-      <li class="page-item">
-        <a class="page-link" href="{{pagination['last_page_url']}}" aria-label="Next">
-          <span aria-hidden="true">&raquo;</span>
-          <span class="sr-only">Last</span>
-        </a>
-      </li>
+        <li class="page-item">
+          <a class="page-link" href="{{pagination['last_page_url']}}" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+            <span class="sr-only">Last</span>
+          </a>
+        </li>
+      {%endif%}
     {%endif%}
   </ul>
 </nav>

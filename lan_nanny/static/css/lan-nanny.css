@@ -64,6 +64,9 @@
   color: green;
 }
 
+.scan-fail {
+  color: red;
+}
 
 .sub_nav {
   margin-bottom: 15px;

@@ -234,7 +234,7 @@ def create() -> str:
     data['active_page_devices'] = 'create'
     data['device'] = None
     data['form'] = 'new'
-    return render_template('device/form.html', **data)
+    return render_template('device/create.html', **data)
 
 
 def page_not_found(e: str):
