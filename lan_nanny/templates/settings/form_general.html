@@ -1,4 +1,4 @@
-<!-- Settings -->
+<!-- Settings - Form General -->
 
 {% extends "layout.html" %}
 
@@ -13,7 +13,6 @@
       <h2>Settings</h2>
     </div>
   </div>
-
 
   <form action="/settings/save-general" method="POST">
     <!-- Second Row -->
@@ -86,7 +85,6 @@
 
             </div>
             
-            
             <!--
             <div class="form-group">
               <label for="setting_scan_hosts_enabled">Alert on new devices</label>
@@ -102,7 +100,6 @@
         </div>
       </div> <!-- End General Settings -->
 
-
       <div id="hidden_forms" class=""></div>
 
     </div>
@@ -110,8 +107,6 @@
     <div class="row">
       <button class="btn btn-success" type="submit">Save</button>
     </div>
-
-
   </form>
 
 {%endblock%}
@@ -120,19 +115,13 @@
   <script src="/static/js/bootstrap4-toggle.min.js"></script>
   <script type="text/javascript">
     $( document ).ready(function(){
-      // var alert_new_device_value = convert_str_bool("{{settings['alert-new-device'].value}}");
-      // register_toggle_form('setting_alert_new_device', alert_new_device_value);
-
       var beta_features_value = convert_str_bool("{{settings['beta-features'].value}}");
       register_toggle_form('setting_beta_features', beta_features_value);
 
       var auto_reload_console_value = convert_str_bool("{{settings['auto-reload-console'].value}}");
       register_toggle_form('setting_auto_reload_console', auto_reload_console_value);
-
-      console.log(auto_reload_console_value)
-      
     });
   </script>
 {%endblock%}
 
-<!-- EndFile: lan-nanny/lan_nanny/templates/settings.html -->
+<!-- EndFile: lan-nanny/lan_nanny/templates/form_general.html -->

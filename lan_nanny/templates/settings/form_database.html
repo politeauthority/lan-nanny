@@ -59,9 +59,6 @@
   <script src="/static/js/bootstrap4-toggle.min.js"></script>
   <script type="text/javascript">
     $( document ).ready(function(){
-      // var alert_new_device_value = convert_str_bool("{{settings['alert-new-device'].value}}");
-      // register_toggle_form('setting_alert_new_device', alert_new_device_value);
-
       var beta_features_value = convert_str_bool("{{settings['beta-features'].value}}");
       register_toggle_form('setting_beta_features', beta_features_value);
 
@@ -73,7 +70,6 @@
 
       var scan_hosts_default_value = convert_str_bool("{{settings['scan-ports-default'].value}}");
       register_toggle_form('setting_scan_ports_default', scan_hosts_default_value);
-      
     });
   </script>
 {%endblock%}

@@ -1,18 +1,22 @@
 """ScanPorts controls device port scanning efforts.
 
-    Device Port Scanning contains several steps
+Device Port Scanning contains several steps
 
-    0 - Check if this should even run.
-        - Is port scanning enabled?
-        - Were there any results from the host scan which ran just before.
-    1 - Get devices that are port scan candidates
-        Candidates must be:
-            - Devices that were found in the prior host scan.
-            *- Have .port_scan True.
-            *- Has not been scanned since the options[scan-device-ports-interval] timeout.
-    2 - For each device elligible for a port scan
-        - Start a new ScanPortLog
-        - Run the port scan Nmap command
+0 - Check if this should even run.
+    - Is port scanning enabled?
+    - Were there any results from the host scan which ran just before.
+1 - Get devices that are port scan candidates
+    Candidates must be:
+        - Devices that were found in the prior host scan.
+        *- Have .port_scan True.
+        *- Has not been scanned since the options[scan-device-ports-interval] timeout.
+2 - For each device eligible for a port scan
+    - Start a new ScanPortLog
+    - Run the port scan Nmap command
+    - Parse the ports found into system Ports
+    - Parse the ports found into DevicePorts
+
+
 """
 from datetime import timedelta
 import logging
@@ -129,8 +133,9 @@ class ScanPorts:
 
     def scan_ports_cmd(self, port_scan_log, device: Device) -> dict:
         """
-            Run and manages an NMAP port scan for a single device to derive port data and returning
-            those ports in a list of dicts.
+        Run and manages an NMAP port scan for a single device to derive port data and returning
+        those ports in a list of dicts.
+
         """
         start = time.time()
         port_scan_file = os.path.join(self.tmp_dir, "port_scan_%s.xml" % device.id)
@@ -188,10 +193,7 @@ class ScanPorts:
         return True
 
     def handle_port(self, raw_port: dict, psl) -> Port:
-        """
-            Get a port model from the port scan data.
-            @todo: Load this data into memory to save db loads.
-        """
+        """Get a port model from the port scan data."""
         port_key = "%s/%s" % (raw_port['number'], raw_port['protocol'])
         if port_key in self.ports:
             this_port = self.ports[port_key]
@@ -201,9 +203,7 @@ class ScanPorts:
         return this_port
 
     def get_port(self, raw_port: dict, psl) -> Port:
-        """Get a port model from the port scan data.
-           @todo: Load this data into memory to save db loads.
-        """
+        """Get a port model from the port scan data."""
         this_port = Port(self.conn, self.cursor)
         this_port.number = raw_port['number']
         this_port.protocol = raw_port['protocol']
@@ -218,10 +218,10 @@ class ScanPorts:
 
     def handle_device_port(self, device, port, port_scan_data):
         """
-            Deals with the Device's relationship to a single Port.
-            First it checks if the Device already has a relationship with the Port in question.
-            If not creates one and sets the defaults.
-            Once it has the DevicePort relationship it updates the DP object and is completed.
+        Deals with the Device's relationship to a single Port.
+        First it checks if the Device already has a relationship with the Port in question.
+        If not creates one and sets the defaults.
+        Once it has the DevicePort relationship it updates the DP object and is completed.
 
         """
         this_dp = None

@@ -22,42 +22,21 @@ class BaseEntityMeta(Base):
         return "<%s>" % self.__class__.__name__
 
     def get_by_id(self, model_id: int = None) -> bool:
-        """Get a single model object from db based on an object ID with all meta data loaded into
-           self.metas.
+        """
+        Get a single model object from db based on an object ID with all meta data loaded into
+        self.metas.
+
         """
         if not super(BaseEntityMeta, self).get_by_id(model_id):
             return False
-        self._load_meta(model_id)
+        self.load_meta(model_id)
         return True
 
-    def build_from_list(self, raw: list) -> bool:
+    def build_from_list(self, raw: list, meta=False) -> bool:
         """Build a model from list, and pull its meta data."""
         super(BaseEntityMeta, self).build_from_list(raw)
-        self._load_meta(self.id)
-
-    def _load_meta(self, model_id) -> bool:
-        """Load the model's meta data."""
-        sql = """
-            SELECT *
-            FROM %s
-            WHERE
-                entity_id = %s AND
-                entity_type = '%s';
-            """ % (self.table_name_meta, model_id, self.table_name)
-        self.cursor.execute(sql)
-        meta_raws = self.cursor.fetchall()
-        self._load_from_meta_raw(meta_raws)
-        return True
-
-    def _load_from_meta_raw(self, meta_raws) -> bool:
-        """Create self.metas for an object from raw_metas data."""
-        ret_metas = {}
-        for meta_raw in meta_raws:
-            em = EntityMeta(self.conn, self.cursor)
-            em.build_from_list(meta_raw)
-            ret_metas[em.name] = em
-        self.metas = ret_metas
-        return True
+        if meta:
+            self.load_meta(self.id)
 
     def save(self) -> bool:
         """Extend the Base model save, settings saves for all model self.metas objects."""
@@ -79,7 +58,7 @@ class BaseEntityMeta(Base):
         return True
 
     def delete(self) -> bool:
-        """Delete a model item."""
+        """Delete a model item and it's meta."""
         super().delete()
         sql = """
             DELETE FROM %s
@@ -98,6 +77,30 @@ class BaseEntityMeta(Base):
             self.metas[meta_name].name = meta_name
             self.metas[meta_name].type = meta_type
         self.metas[meta_name].value = meta_value
+        return True
+
+    def load_meta(self, model_id) -> bool:
+        """Load the model's meta data."""
+        sql = """
+            SELECT *
+            FROM %s
+            WHERE
+                entity_id = %s AND
+                entity_type = '%s';
+            """ % (self.table_name_meta, model_id, self.table_name)
+        self.cursor.execute(sql)
+        meta_raws = self.cursor.fetchall()
+        self._load_from_meta_raw(meta_raws)
+        return True
+
+    def _load_from_meta_raw(self, meta_raws) -> bool:
+        """Create self.metas for an object from raw_metas data."""
+        ret_metas = {}
+        for meta_raw in meta_raws:
+            em = EntityMeta(self.conn, self.cursor)
+            em.build_from_list(meta_raw)
+            ret_metas[em.name] = em
+        self.metas = ret_metas
         return True
 
 

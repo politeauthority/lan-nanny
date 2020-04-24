@@ -1,4 +1,4 @@
-"""DevicePorts Model
+"""DevicePort Model
 
 """
 from .base import Base
@@ -46,11 +46,11 @@ class DevicePort(Base):
         """Get a DevicePort by device_id and port_id."""
         sql = """
         SELECT *
-        FROM device_ports
+        FROM %s
         WHERE
             device_id = ? AND
             port_id = ?
-        LIMIT 1"""
+        LIMIT 1""" % (self.table_name)
 
         vals = (device_id, port_id)
         self.cursor.execute(sql, vals)

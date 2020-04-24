@@ -1,19 +1,23 @@
 <ul class="nav roster_nav">
   <li class="nav-item">
-    <a class="nav-link {%if active_page=='dashboard'%}active{%endif%}" href="/device">Dashboard</a>
+    <a class="nav-link {%if active_page=='dashboard'%}active{%endif%}" href="/devices">Dashboard</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link {%if active_page=='all'%}active{%endif%}" href="/device/all">All</a>
+    <a class="nav-link {%if active_page=='all'%}active{%endif%}" href="/devices/all">All</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link  {%if active_page=='online'%}active{%endif%}" href="/device/online">Online</a>
+    <a class="nav-link  {%if active_page=='online'%}active{%endif%}" href="/devices/online">Online</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link  {%if active_page=='offline'%}active{%endif%}" href="/device/offline">Offline</a>
+    <a class="nav-link  {%if active_page=='offline'%}active{%endif%}" href="/devices/offline">Offline</a>
   </li>
   {%if g.options['beta-features'].value %}
     <li class="nav-item">
       <a class="nav-link  {%if active_page=='create'%}active{%endif%}" href="/device/create">Create</a>
     </li>
+    <li class="nav-item">
+      <a class="nav-link  {%if active_page=='export'%}active{%endif%}" href="/devices/export">Export</a>
+    </li>
+
   {%endif%}
 </ul> 

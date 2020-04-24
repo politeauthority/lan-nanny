@@ -17,15 +17,6 @@ class Metrics:
         self.conn = conn
         self.cursor = cursor
 
-    def get_all_devices(self) -> list:
-        """
-        Gets all known devices.
-
-        """
-        devices = Devices(self.conn, self.cursor)
-        all_devices = devices.get_all()
-        return all_devices
-
     def get_all_scans_24(self) -> int:
         seconds_in_24_hours = 60 * 60 * 24
         col_scan_host = ScanHosts(self.conn, self.cursor)
@@ -36,10 +27,7 @@ class Metrics:
         return total
 
     def get_favorite_devices(self) -> list:
-        """
-        Gets all favorite devices.
-
-        """
+        """Get all favorite devices."""
         devices = Devices(self.conn, self.cursor)
         favorites = devices.get_favorites()
         return favorites

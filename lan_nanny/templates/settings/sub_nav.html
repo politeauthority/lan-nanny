@@ -5,10 +5,15 @@
   <li class="nav-item">
     <a class="nav-link {%if active_page=='scan' %}active_sub_link{%endif%}" href="/settings/scanning">Scanning</a>
   </li>
+  {%if g.options['beta-features'].value %}
+    <li class="nav-item">
+      <a class="nav-link {%if active_page=='alerts' %}active_sub_link{%endif%}" href="/settings/alerts">Alerts</a>
+    </li>
+  {%endif%}
   <li class="nav-item">
     <a class="nav-link {%if active_page=='database' %}active_sub_link{%endif%}" href="/settings/database">Database</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link {%if active_page=='password' %}active_sub_link{%endif%}" href="/settings/password">Password</a>
+    <a class="nav-link {%if active_page=='security' %}active_sub_link{%endif%}" href="/settings/security">Security</a>
   </li>
 </ul> 

@@ -62,9 +62,9 @@ class Devices(BaseEntityMetas):
             ORDER BY last_seen DESC;""" % last_online
 
         self.cursor.execute(sql)
-        raw_devices = self.cursor.fetchall()
-        devices = self.build_from_lists(raw_devices)
-        return devices
+        raws = self.cursor.fetchall()
+        presetines = self.build_from_lists(raws)
+        return presetines
 
     def get_offline(self, since: int) -> list:
         """Get all offline devices in the database."""

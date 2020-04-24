@@ -150,9 +150,9 @@ class Base:
 
     def get_all(self) -> list:
         """
-            Get all of a models instances from the database.
-            @note: This should NOT be used unless a model has a VERY limited set of results.
-            DEPRICATED!
+        Get all of a models instances from the database.
+        @note: This should NOT be used unless a model has a VERY limited set of results or all
+               models are absolutely required for a task.
         """
         sql = """
             SELECT *

@@ -1,0 +1,98 @@
+<!-- Device Info -->
+
+{% extends "layout.html" %}
+
+{%block head%}
+  <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
+{%endblock%}
+
+{% block content %}
+  {% with active_page=active_page_devices %}
+    {% include "device/heading.html" %}
+  {% endwith %}
+
+  <!-- Content Row -->
+  <div class="row">
+
+    <!-- Device Scan Options -->
+    <div class="col-xl-6 col-lg-6">
+      <div class="card shadow mb-4">
+        <!-- Card Header -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">
+            Scan Options
+          </h6>
+        </div>
+        <div class="card-body">
+          {{device.port_scan}}
+          <div class="form-group">
+            <label for="port_scan">Port Scan</label>
+            <input id="port_scan" data-entity-id="{{device.id}}" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="portScanHelp">
+            <small id="portScanHelp" class="form-text text-muted">Enable port scanning of device.</small>
+          </div>
+        </div>
+      </div>
+    </div><!-- END Device Scan Options -->
+
+    <!-- Device Alert Options -->
+    {%if g.options['beta-features'].value %}
+
+      <div class="col-xl-6 col-lg-6">
+        <div class="card shadow mb-4">
+          <!-- Card Header -->
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">
+              Alert Options
+            </h6>
+          </div>
+          <div class="card-body">
+              <div class="form-group">
+                <label for="alert_device_offline">Alert Offline</label>
+                <input id="alert_offline" data-entity-id="{{device.id}}" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="alertDeviceOfflinedHelp">
+                <small id="alertDeviceOfflinedHelp" class="form-text text-muted">Alert when device goes offline.</small>
+              </div>
+          </div>
+        </div>
+      </div><!-- END Device Alert Options -->
+    {%endif%}         
+
+
+  </div>
+{%endblock%}
+
+{%block javascript%}
+  <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
+  <script type="text/javascript">
+    $( document ).ready(function(){
+
+      var device_favorite_status = convert_str_bool("{{device.favorite}}");
+      register_favorite_button('#device-favorite', device_favorite_status, '/device/favorite/{{device.id}}')
+
+      // Device port scan enable toggle.
+      var device_port_scan_status = convert_str_bool("{{device.port_scan}}");
+      register_toggle_ajax(
+        '/device/quick-save',
+        '#port_scan',
+        device_port_scan_status);
+
+      // Device Meta Ajax
+      {%if device.metas['alert_offline'] %}
+        var device_alert_offline_status = convert_str_bool("{{device.metas['alert_offline'].value}}");
+      {%else%}
+        var device_alert_offline_status = false;
+      {%endif%}
+      register_toggle_ajax(
+        '/device/quick-save',
+        '#alert_offline',
+        device_alert_offline_status);
+
+      // var device_port_scan_flagged_status = convert_str_bool("{{device.flagged_for_scan}}");
+      // register_toggle_ajax(
+      //   '/device/quick-save',
+      //   '#port_scan_flagged',
+      //   device_port_scan_flagged_status);
+    });
+  </script>
+{%endblock%}
+
+<!-- End File: lan-nanny/templates/devices/info.html

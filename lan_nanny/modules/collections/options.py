@@ -33,11 +33,6 @@ class Options(Base):
                 'default': 'America/Denver'
             },
             {
-                'name': 'alert-new-device',
-                'type': 'bool',
-                'default': True
-            },
-            {
                 'name': 'active-timeout',
                 'type': 'int',
                 'default': 16
@@ -77,7 +72,21 @@ class Options(Base):
                 'default': 2
             },
             {
+                'name': 'console-password-enabled',
+                'type': 'bool',
+                'default': False
+            },
+            {
                 'name': 'console-password',
+                'type': 'str',
+            },
+            {
+                'name': 'api-enabled',
+                'type': 'bool',
+                'default': False
+            },
+            {
+                'name': 'api-key',
                 'type': 'str',
             },
             {
@@ -97,6 +106,11 @@ class Options(Base):
                 'name': 'alerts-enabled',
                 'type': 'bool',
                 'default': False,
+            },
+            {
+                'name': 'alerts-new-device',
+                'type': 'bool',
+                'default': True
             },
         ]
         gen_pass = None

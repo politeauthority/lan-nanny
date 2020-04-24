@@ -29,6 +29,7 @@ def dashboard() -> str:
     data['active_page_ports'] = 'dashboard'
     return render_template('ports/dashboard.html', **data)
 
+
 @ports.route('/all')
 @ports.route('/all/<page>')
 @utils.authenticate
@@ -48,7 +49,6 @@ def roster(page: str="1") -> str:
             'field': 'number',
             'op' : 'ASC'
         })
-
     data = {}
     data['ports'] = port_pages['objects']
     data['pagination'] = utils.gen_pagination_urls('/ports/all/', port_pages['info'])
@@ -56,6 +56,7 @@ def roster(page: str="1") -> str:
     data['active_page'] = 'ports'
     data['active_page_ports'] = 'all'
     return render_template('ports/roster.html', **data)
+
 
 @ports.route('/info/<port_id>')
 @utils.authenticate

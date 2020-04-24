@@ -16,6 +16,21 @@ class ScanPorts(Base):
         self.table_name = ScanPort().table_name
         self.collect_model = ScanPort
 
+    def get_by_device_id(self, device_id: int, limit=10) -> list:
+        """Get a collection of ScanPorts by Device id."""
+        sql = """
+            SELECT *
+            FROM %s
+            WHERE
+                device_id=%s
+            ORDER BY created_ts DESC
+            LIMIT %s;
+        """ % (self.table_name, device_id, limit)
+        self.cursor.execute(sql)
+        raws = self.cursor.fetchall()
+        presetines = self.build_from_lists(raws)
+        return presetines
+
     def delete_device(self, device_id: int) -> bool:
         """Delete all device port records for a device_id."""
         sql = """DELETE FROM %s WHERE device_id=%s""" % (self.table_name, device_id)

@@ -14,8 +14,7 @@
     </div>
   </div>
 
-
-  <form action="/settings/save-password" method="POST">
+  <form action="/settings/save-security" method="POST">
     <!-- Second Row -->
     <div class="row">
     {% with active_page=active_page_scans %}
@@ -23,20 +22,24 @@
     {% endwith %}
     </div><!-- End Second Row -->
 
-
+    <!-- Main Content -->
     <div class="row">
-
-      <!-- Password -->
+      <!-- Password Security -->
       <div class="col-xl-6 col-lg-6">
         <div class="card shadow mb-4">
           <!-- Card Header -->
           <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
             <h6 class="m-0 font-weight-bold text-primary">
-              Console Password
+              Require Console Password
             </h6>
           </div>
           <div class="card-body">
-            <p>Set a new password for the LanNanny web utility.</p>
+
+            <div class="form-group">
+              <label for="setting_console_password_enabled">Require Console Password</label>
+              <input id="setting_console_password_enabled" type="checkbox" data-toggle="toggle" aria-describedby="console_password_enabled_help">
+              <small id="console_password_enabled_help" class="form-text text-muted">Require a password to access to Lan Nanny console.</small>
+            </div>
 
             <div class="form-group form-sm">
               <label for="currentPasswordHelp">Current Password</label>
@@ -58,18 +61,31 @@
 
           </div>
         </div>
-      </div> <!-- End Password Settings -->
+      </div> <!-- End General Security Settings -->
 
+      {%if g.options['beta-features'].value %}
+        <!-- Api Security -->
+        <div class="col-xl-6 col-lg-6">
+          <div class="card shadow mb-4">
+            <!-- Card Header -->
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+              <h6 class="m-0 font-weight-bold text-primary">
+                Api Settings
+              </h6>
+            </div>
+            <div class="card-body">
+            </div>
+          </div>
+        </div> <!-- End API Security -->
+      {%endif%}
 
       <div id="hidden_forms" class=""></div>
 
-    </div>
+    </div> <!-- End Main Content -->
 
     <div class="row">
       <button class="btn btn-success" type="submit">Save</button>
     </div>
-
-
   </form>
 
 {%endblock%}
@@ -78,23 +94,10 @@
   <script src="/static/js/bootstrap4-toggle.min.js"></script>
   <script type="text/javascript">
     $( document ).ready(function(){
-      // var alert_new_device_value = convert_str_bool("{{settings['alert-new-device'].value}}");
-      // register_toggle_form('setting_alert_new_device', alert_new_device_value);
-
-      var beta_features_value = convert_str_bool("{{settings['beta-features'].value}}");
-      register_toggle_form('setting_beta_features', beta_features_value);
-
-      var scan_hosts_enabled_value = convert_str_bool("{{settings['scan-hosts-enabled'].value}}");
-      register_toggle_form('setting_scan_hosts_enabled', scan_hosts_enabled_value);
-
-      var scan_ports_enabled_value = convert_str_bool("{{settings['scan-ports-enabled'].value}}");
-      register_toggle_form('setting_scan_ports_enabled', scan_ports_enabled_value);
-
-      var scan_hosts_default_value = convert_str_bool("{{settings['scan-ports-default'].value}}");
-      register_toggle_form('setting_scan_ports_default', scan_hosts_default_value);
-      
+      var console_password_enabled = convert_str_bool("{{settings['console-password-enabled'].value}}");
+      register_toggle_form('setting_console_password_enabled', console_password_enabled);
     });
   </script>
 {%endblock%}
 
-<!-- EndFile: lan-nanny/lan_nanny/templates/settings.html -->
+<!-- EndFile: lan-nanny/lan_nanny/templates/settings/form_security.html -->

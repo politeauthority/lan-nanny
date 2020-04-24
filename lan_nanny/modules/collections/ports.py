@@ -1,4 +1,4 @@
-"""Ports
+"""Ports Collections
 Gets collections of ports.
 
 """
@@ -16,19 +16,20 @@ class Ports(Base):
 
     def search(self, phrase):
         """Collect ports matching a search phrase, matching the port number or service name."""
-        port_sql = utils.gen_like_sql('port', phrase)
+        port_sql = utils.gen_like_sql('number', phrase)
         service_sql = utils.gen_like_sql('service', phrase)
         sql = """
             SELECT *
-            FROM ports
+            FROM %(table_name)s
             WHERE
             %(port)s OR
             %(service)s """ % {
+            'table_name': self.table_name,
             'port': port_sql,
             'service': service_sql}
         self.cursor.execute(sql)
         raw_ports = self.cursor.fetchall()
-        ports = self.self.build_from_lists(raw_ports)
+        ports = self.build_from_lists(raw_ports)
         return ports
 
     def get_privileged(self):

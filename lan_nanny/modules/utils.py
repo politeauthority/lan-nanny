@@ -9,7 +9,7 @@ import secrets
 import string
 import subprocess
 
-from flask import session, redirect
+from flask import session, redirect, g
 
 import arrow
 
@@ -17,6 +17,8 @@ import arrow
 def authenticate(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
+        if not g.options['console-password-enabled'].value:
+            return f(*args, **kwargs)
         if 'auth' not in session or not session['auth']:
             return redirect('/login'), 403
         return f(*args, **kwargs)

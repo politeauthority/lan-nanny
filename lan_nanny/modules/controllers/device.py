@@ -11,7 +11,7 @@ from flask import current_app as app
 from .. import db
 from .. import utils
 from ..collections.alerts import Alerts
-from ..collections.devices import Devices
+from ..collections.devices import Devices as DevicesCollection
 from ..collections.device_witnesses import DeviceWitnesses
 from ..collections.device_ports import DevicePorts
 from ..collections.scan_ports import ScanPorts
@@ -23,128 +23,7 @@ from ..metrics import Metrics
 device = Blueprint('Device', __name__, url_prefix='/device')
 
 
-@device.route('/')
-@utils.authenticate
-def devices() -> str:
-    """Devices Dashboard page."""
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
-    devices = Devices(conn, cursor)
-    data = {}
-    data['active_page'] = 'devices'
-    data['active_page_devices'] = 'dashboard'
-    data['devices'] = devices.get_recent()
-    data['device_venders'] = Metrics(conn, cursor).get_device_vendor_grouping()
-    return render_template('devices/dashboard.html', **data)
-
-
-@device.route('/all')
-@device.route('/all/<page>')
-@utils.authenticate
-def roster(page: str="1") -> str:
-    """Devices roster pages."""
-    page = int(page)
-
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
-    device_collection = Devices(conn, cursor)
-    device_pages = device_collection.get_paginated(
-        page=page,
-        order_by={
-            'field': 'last_seen',
-            'op' : 'DESC'
-        })
-
-    if not device_pages['objects']:
-        return page_not_found('Device page not found.')
-
-    data = {}
-    data['active_page'] = 'devices'
-    data['active_page_devices'] = 'all'
-    data['devices'] = device_pages['objects']
-    data['pagination'] = utils.gen_pagination_urls('/device/all/', device_pages['info'])
-    return render_template('devices/roster.html', **data)
-
-
-@device.route('/online')
-@device.route('/online/<page>')
-@utils.authenticate
-def roster_online(page: str="1") -> str:
-    """Devices roster page for only online devices."""
-    app_offline_timeout = g.options['active-timeout'].value
-    last_online = arrow.utcnow().datetime - timedelta(minutes=int(app_offline_timeout))
-    page = int(page)
-
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
-    devices_collection = Devices(conn, cursor)
-    device_pages = devices_collection.get_paginated(
-        page=page,
-        where_and=[
-            {
-                'field': 'last_seen',
-                'value': last_online,
-                'op': '>='
-            }
-        ],
-        order_by = {
-            'field': 'last_seen',
-            'op' : 'DESC'
-        })
-
-    data = {}
-    data['active_page'] = 'devices'
-    data['active_page_devices'] = 'online'
-    data['devices'] = device_pages['objects']
-    data['pagination'] = utils.gen_pagination_urls('/device/online/', device_pages['info'])
-    return render_template('devices/roster.html', **data)
-
-
-@device.route('/offline')
-@device.route('/offline/<page>')
-@utils.authenticate
-def roster_offline(page: str="1") -> str:
-    """Devices roster page for only online devices."""
-    app_offline_timeout = g.options['active-timeout'].value
-    last_online = arrow.utcnow().datetime - timedelta(minutes=int(app_offline_timeout))
-    page = int(page)
-
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
-    devices_collection = Devices(conn, cursor)
-    device_pages = devices_collection.get_paginated(
-        page=page,
-        where_and=[
-            {
-                'field': 'last_seen',
-                'value': last_online,
-                'op': '<='
-            }
-        ],
-        order_by = {
-            'field': 'last_seen',
-            'op' : 'DESC'
-        })
-
-
-    data = {}
-    data['active_page'] = 'devices'
-    data['active_page_devices'] = 'offline'
-    data['devices'] = device_pages['objects']
-    data['pagination'] = utils.gen_pagination_urls('/device/offline/', device_pages['info'])
-    return render_template('devices/roster.html', **data)
-
-
-@device.route('/new')
-@utils.authenticate
-def new() -> str:
-    """Devices roster page for new devices."""
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
-    devices = Devices(conn, cursor)
-    data = {}
-    data['active_page'] = 'devices'
-    data['active_page_devices'] = 'new'
-    data['devices'] = devices.get_new()
-    return render_template('devices/roster.html', **data)
-
-
-@device.route('/info/<device_id>')
+@device.route('/<device_id>')
 @utils.authenticate
 def info(device_id: int) -> str:
     """Device info page."""
@@ -162,25 +41,49 @@ def info(device_id: int) -> str:
     device.get_ports()
     data = {}
     data['device'] = device
-    data['active_page'] = 'devices'
+    data['active_page'] = 'device_info'
     data['device_over_day'] = device_online_over_day
     data['device_over_week'] = device_online_over_week
     data['alerts'] = device_alerts
-    return render_template('devices/info.html', **data)
+    return render_template('device/info.html', **data)
 
 
-@device.route('/create')
+@device.route('/ports/<device_id>')
 @utils.authenticate
-def create() -> str:
-    """Create Device form"""
-    data = {}
-    data['icons'] = utils.device_icons()
-    data['active_page'] = 'devices'
-    data['active_page_devices'] = 'create'
-    data['device'] = None
-    data['form'] = 'new'
-    return render_template('devices/form.html', **data)
+def info_ports(device_id: int) -> str:
+    """Device info ports sub page."""
+    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    device = Device(conn, cursor)
+    device.get_by_id(device_id)
+    if not device.id:
+        return page_not_found('Device not found')
 
+
+    device.get_ports()
+
+    scan_ports_log = ScanPorts(conn, cursor).get_by_device_id(device.id)
+
+    data = {}
+    data['device'] = device
+    data['scan_ports'] = scan_ports_log
+    data['active_page'] = 'device_info_ports'
+    return render_template('device/ports.html', **data)
+
+
+@device.route('/options/<device_id>')
+@utils.authenticate
+def info_options(device_id: int) -> str:
+    """Device info ports sub page."""
+    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    device = Device(conn, cursor)
+    device.get_by_id(device_id)
+    if not device.id:
+        return page_not_found('Device not found')
+
+    data = {}
+    data['device'] = device
+    data['active_page'] = 'device_info_option'
+    return render_template('device/options.html', **data)
 
 @device.route('/edit/<device_id>')
 @utils.authenticate
@@ -203,7 +106,7 @@ def edit(device_id: int) -> str:
     data['custom_icon'] = custom_icon
     data['active_page'] = 'devices'
     data['form'] = 'edit'
-    return render_template('devices/form.html', **data)
+    return render_template('device/form.html', **data)
 
 
 @device.route('/save', methods=['POST'])
@@ -242,7 +145,7 @@ def save():
     # device.hide = request.form['device_hide']
     device.save()
 
-    return redirect('/device/info/%s' % device.id)
+    return redirect('/device/%s' % device.id)
 
 
 @device.route('/favorite/<device_id>')
@@ -263,33 +166,6 @@ def favorite(device_id):
         device.favorite = 0
     else:
         device.favorite = 1
-    device.save()
-    return jsonify({"success": True})
-
-
-@device.route('/alert-save', methods=['POST'])
-@utils.authenticate
-def alert_save() -> str:
-    """
-    Ajax web route for update a device alert settings or not when coming on or off the network.
-
-    """
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
-    device = Device(conn, cursor)
-    device.get_by_id(request.form.get('id'))
-    if not device.id:
-        return 'ERROR 404: Route this to page_not_found method!', 404
-        # return page_not_found('Device not found')
-
-    if request.form.get('field_name') not in ['alert_online', 'alert_offline']:
-        return jsonify("error", "Forbidden field_name %s field_name"), 403
-
-    if request.form.get('field_value') == 'true'.lower():
-        val = True
-    else:
-        val = False
-
-    setattr(device, request.form.get('field_name'), val)
     device.save()
     return jsonify({"success": True})
 
@@ -334,24 +210,31 @@ def quick_save() -> str:
 def delete(device_id: int):
     """Device delete."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
-
     # Delete the device
     device = Device(conn, cursor)
     device.get_by_id(device_id)
     device.delete()
-
     # Delete device witnesses
     DeviceWitnesses(conn, cursor).delete_device(device.id)
-
     # Delete device ports
     DevicePorts(conn, cursor).delete_device(device.id)
-
     # Delete device scan ports logs
     ScanPorts(conn, cursor).delete_device(device.id)
-
     Alerts(conn, cursor).delete_device(device.id)
+    return redirect('/devices')
 
-    return redirect('/device')
+
+@device.route('/create')
+@utils.authenticate
+def create() -> str:
+    """Create Device form"""
+    data = {}
+    data['icons'] = utils.device_icons()
+    data['active_page'] = 'devices'
+    data['active_page_devices'] = 'create'
+    data['device'] = None
+    data['form'] = 'new'
+    return render_template('device/form.html', **data)
 
 
 def page_not_found(e: str):

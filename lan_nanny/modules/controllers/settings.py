@@ -60,6 +60,7 @@ def form_scanning() -> str:
     }
     return render_template('settings/form_scanning.html', **data)
 
+
 @settings.route('/save-scanning', methods=['POST'])
 @utils.authenticate
 def save_scanning():
@@ -86,6 +87,27 @@ def save_scanning():
     return redirect('/settings/scanning')
 
 
+@settings.route('/alerts')
+@utils.authenticate
+def form_alerts() -> str:
+    """Alerts form page."""
+    data = {
+        'active_page': 'settings',
+        'active_page_settings': 'alerts',
+        'settings': g.options,
+    }
+    return render_template('settings/form_alerts.html', **data)
+
+
+@settings.route('/save-alerts', methods=['POST'])
+@utils.authenticate
+def save_alerts():
+    """Alerts settings save."""
+    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    _save_setting(conn, cursor, 'alerts-enabled', request.form['setting_alerts_enabled'])
+    return redirect('/settings/alerts')
+
+
 @settings.route('/database')
 @utils.authenticate
 def form_database() -> str:
@@ -108,37 +130,42 @@ def save_database():
     return redirect('/settings/database')
 
 
-@settings.route('/password')
+@settings.route('/security')
 @utils.authenticate
-def form_password() -> str:
-    """Password setting page."""
+def form_security() -> str:
+    """Security setting page."""
     data = {
         'active_page': 'settings',
-        'active_page_settings': 'password',
+        'active_page_settings': 'security',
         'settings': g.options,
     }
-    return render_template('settings/form_password.html', **data)
+    return render_template('settings/form_security.html', **data)
 
 
-@settings.route('/save-password', methods=['POST'])
+@settings.route('/save-security', methods=['POST'])
 @utils.authenticate
-def save_password():
-    """Password settings save."""
+def save_security():
+    """Security settings save."""
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
-    if not check_password_hash(g.options['console-password'].value, request.form['setting_current_password']):
-        return redirect('/'), 403
-    if request.form['setting_password_1'] != request.form['setting_password_1']:
-        return redirect('/'), 403
 
-    new_pass = generate_password_hash(request.form['setting_password_1'], "sha256")
-    _save_setting(conn, cursor, 'console-password', new_pass)
+    # Handle password change, this can probably be done better.
+    if request.form['setting_password_1'] and request.form['setting_password_2']:
+        if not check_password_hash(g.options['console-password'].value, request.form['setting_current_password']):
+            return redirect('/'), 403
+        if request.form['setting_password_1'] != request.form['setting_password_1']:
+            return redirect('/'), 403
 
-    return redirect('/settings/password')
+        new_pass = generate_password_hash(request.form['setting_password_1'], "sha256")
+        _save_setting(conn, cursor, 'console-password', new_pass)
+
+    # Save Console Password Enabled.
+    _save_setting(conn, cursor, 'console-password-enabled', request.form['setting_console_password_enabled'])
+
+    return redirect('/settings/security')
 
 
 def _save_setting(conn, cursor, option_name, option_value):
-    """
-    """
+    """Save a single option with a new value."""
     option = g.options[option_name]
     option.conn = conn
     option.cursor = cursor

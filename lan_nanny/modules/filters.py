@@ -134,7 +134,7 @@ def device_icon_status(device: Device) -> int:
     html = """
     <i class="fas fa-bolt icon-pad%(online)s"></i>
     %(icon)s
-    <a href="/device/info/%(id)s">%(name)s</a>
+    <a href="/device/%(id)s">%(name)s</a>
     """ % {
         'icon': icon,
         'online': online,
