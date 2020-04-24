@@ -37,6 +37,9 @@ def save_general():
     # Update timezone
     _save_setting(conn, cursor, 'timezone', request.form['settings_timezone'])
 
+    # Update console-ui-color
+    _save_setting(conn, cursor, 'console-ui-color', request.form['settings_console_ui_color'])
+
     # Save "active-timeout"
     _save_setting(conn, cursor, 'active-timeout', request.form['setting_active_timeout'])
 

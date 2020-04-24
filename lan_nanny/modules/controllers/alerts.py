@@ -11,7 +11,7 @@ from .. import utils
 from ..models.alert import Alert
 from ..models.entity_meta import EntityMeta
 from ..models.device import Device
-from ..collections.alerts import Alerts
+from ..collections.alerts import Alerts as AlertsCollect
 from ..collections.devices import Devices
 
 
@@ -23,28 +23,27 @@ alerts = Blueprint('Alert', __name__, url_prefix='/alerts')
 def dashboard():
     """Alerts dashboard page."""
     # Send everything to all, theres no good dashboard now
-    return redirect('/alerts/all')
-  
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
-    alerts = Alerts(conn, cursor)
+    alerts_collect = AlertsCollect(conn, cursor)
     data = {}
-    data['alerts'] = alerts.get_all()
+    data['alerts_firing'] = alerts_collect.get_firing()
+    data['alerts_recent'] = alerts_collect.get_recent()
     data['active_page'] = 'alerts'
     data['active_page_alerts'] = 'dashboard'
     return render_template('alerts/dashboard.html', **data)
 
 
-@alerts.route('/all')
-@utils.authenticate
-def roster():
-    """Alerts roster page."""
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
-    alerts = Alerts(conn, cursor)
-    data = {}
-    data['alerts'] = alerts.get_all()
-    data['active_page'] = 'alerts'
-    data['active_page_alerts'] = 'dashboard'
-    return render_template('alerts/roster.html', **data)
+# @alerts.route('/all')
+# @utils.authenticate
+# def roster():
+#     """Alerts roster page."""
+#     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+#     alerts = Alerts(conn, cursor)
+#     data = {}
+#     data['alerts'] = alerts.get_all()
+#     data['active_page'] = 'alerts'
+#     data['active_page_alerts'] = 'dashboard'
+#     return render_template('alerts/roster.html', **data)
 
 
 @alerts.route('/info/<alert_id>')

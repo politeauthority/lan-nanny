@@ -112,6 +112,11 @@ class Options(Base):
                 'type': 'bool',
                 'default': True
             },
+            {
+                'name': 'console-ui-color',
+                'type': 'str',
+                'default': 'black'
+            },
         ]
         gen_pass = None
         for opt in default_opts:

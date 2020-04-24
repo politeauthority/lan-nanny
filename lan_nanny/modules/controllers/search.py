@@ -46,7 +46,7 @@ def redirect_if_one_result(data: dict):
         return False
 
     if len(data['devices']) == 1:
-        return '/device/info/%s' % data['devices'][0].id
+        return '/device/%s' % data['devices'][0].id
 
     if len(data['ports']) == 1:
         return '/ports/info/%s' % data['ports'][0].id

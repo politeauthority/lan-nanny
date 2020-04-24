@@ -33,7 +33,7 @@ class DatabaseGrowth(Base):
             WHERE created_ts>='%s'
             ORDER BY created_ts
             LIMIT 1;
-        """ % (self.table_name, str(date_24_hours_ago)[0:10])
+        """ % (self.table_name, str(date_24_hours_ago))
         self.cursor.execute(sql)
         raw_db_growth = self.cursor.fetchone()
         if not raw_db_growth:

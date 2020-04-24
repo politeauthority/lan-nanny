@@ -1,0 +1,6 @@
+.bg-gradient-primary {
+    background-color: #1B0273;
+    /*background-image: linear-gradient(180deg, #BF1784 10%, #1B0273 100%);*/
+    background-image: linear-gradient(180deg, #F2059F 10%, #011F26 100%);
+    background-size: cover;
+}

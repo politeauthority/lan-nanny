@@ -16,7 +16,11 @@
       {% include "ports/sub_nav.html" %}
     {% endwith %}
   </div>
-
+  
+  {% with pagination=pagination, alignment="center" %}
+    {% include "pagination.html" %}
+  {% endwith %}
+  
   <!-- Content Row -->
   <div class="row">
 

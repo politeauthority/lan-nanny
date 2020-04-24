@@ -97,7 +97,7 @@ def roster_online(page: str="1") -> str:
     data['active_page'] = 'devices'
     data['active_page_devices'] = 'online'
     data['devices'] = device_pages['objects']
-    data['pagination'] = utils.gen_pagination_urls('/device/online/', device_pages['info'])
+    data['pagination'] = utils.gen_pagination_urls('/devices/online/', device_pages['info'])
     return render_template('devices/roster.html', **data)
 
 
@@ -129,7 +129,7 @@ def roster_offline(page: str="1") -> str:
     data['active_page'] = 'devices'
     data['active_page_devices'] = 'offline'
     data['devices'] = device_pages['objects']
-    data['pagination'] = utils.gen_pagination_urls('/device/offline/', device_pages['info'])
+    data['pagination'] = utils.gen_pagination_urls('/devices/offline/', device_pages['info'])
     return render_template('devices/roster.html', **data)
 
 

@@ -62,15 +62,15 @@
               <input id="setting_scan_ports_enabled" type="checkbox" data-toggle="toggle" aria-describedby="scanPortsEnabledeHelp">
               <small id="scanPortsEnabledeHelp" class="form-text text-muted">Enable regular host port scanning.</small>
             </div>
-            <div class="form-group form-sm port_setting">
-              <label for="setting_scan_ports_per_run">Port Scans Per Run</label>
-              <input type="number" class="form-control form-sm" id="setting_scan_ports_per_run" name="setting_scan_ports_per_run" value="{{settings['scan-ports-per-run'].value}}" aria-describedby="scanPortsPerRunHelp">
-              <small id="scanPortsPerRunHelp" class="form-text text-muted">Max number of devices to run a port scan per scan run.</small>
-            </div>
             <div class="form-group">
               <label for="setting_scan_ports_default">Scan Device Ports by Default</label>
               <input id="setting_scan_ports_default" type="checkbox" data-toggle="toggle" aria-describedby="scanPortsDefaultHelp">
               <small id="scanPortsDefaultHelp" class="form-text text-muted">Will automatically set new devices to be port scanned.</small>
+            </div>
+            <div class="form-group form-sm port_setting">
+              <label for="setting_scan_ports_per_run">Port Scans Per Run</label>
+              <input type="number" class="form-control form-sm" id="setting_scan_ports_per_run" name="setting_scan_ports_per_run" value="{{settings['scan-ports-per-run'].value}}" aria-describedby="scanPortsPerRunHelp">
+              <small id="scanPortsPerRunHelp" class="form-text text-muted">Max number of devices to run a port scan per scan run.</small>
             </div>
             <div class="form-group">
               <label for="setting_scan_ports_default">Scan Device Ports Interval</label>
