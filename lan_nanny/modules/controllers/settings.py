@@ -74,6 +74,10 @@ def save_scanning():
     _save_setting(conn, cursor, 'scan-hosts-range', request.form['setting_scan_hosts_range'])
     # Save "scan-hosts-enabled"
     _save_setting(conn, cursor, 'scan-hosts-enabled', request.form['setting_scan_hosts_enabled'])
+
+    # Save scan-hosts-tool
+    _save_setting(conn, cursor, 'scan-hosts-tool', request.form['setting_scan_hosts_tool'])
+
     # Save "scan-ports-enabled"
     _save_setting(conn, cursor, 'scan-ports-enabled', request.form['setting_scan_ports_enabled'])
     # Save "scan-scan-ports-per-run"

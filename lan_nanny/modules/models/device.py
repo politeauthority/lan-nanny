@@ -93,7 +93,7 @@ class Device(BaseEntityMeta):
                 'type': 'str',
             },
             {
-                'name': 'device_type',
+                'name': 'kind',
                 'type': 'str',
                 'default': 'Unknown',
             },

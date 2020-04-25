@@ -140,9 +140,9 @@ def save():
         device.icon = request.form['device_icon_input']
 
     if request.form['device_type_select'] == 'None':
-        device.type = None
+        device.kind = None
     else:
-        device.type = request.form['device_type_select']
+        device.kind = request.form['device_type_select']
 
     # @todo figure out how hide works.
     # device.hide = request.form['device_hide']
