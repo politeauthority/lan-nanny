@@ -9,7 +9,6 @@ import sqlite3
 from sqlite3 import Error
 
 from flask import g
-from flaskext.mysql import MySQL
 import mysql.connector
 from mysql.connector import Error
 
@@ -28,7 +27,7 @@ from .collections.options import Options
 
 DATABASE_NAME = 'lan_nanny'
 
-def connect_mysql():
+def connect_mysql(host: dict=None):
     """Connect to MySql database and get a cursor object."""
     try:
         connection = mysql.connector.connect(
@@ -44,6 +43,7 @@ def connect_mysql():
     except Error as e:
         print("Error while connecting to MySQL", e)
     return connection, cursor
+
 
 def connect_mysql_no_db():
     """Connect to MySql database and get a cursor object."""
@@ -63,14 +63,12 @@ def connect_mysql_no_db():
         print("Error while connecting to MySQL", e)
     return connection, cursor
 
-# def connect_flask_mysql():
-#     mysql = MySQL()
-#     mysql.init_app(app)
 
 def create_mysql_database(conn, cursor):
     sql = """CREATE DATABASE IF NOT EXISTS %s""" % DATABASE_NAME
     cursor.execute(sql)
     print('Created database: %s' % DATABASE_NAME)
+
 
 def create_connection(database_file: str):
     """Create a database connection to a SQLite database."""

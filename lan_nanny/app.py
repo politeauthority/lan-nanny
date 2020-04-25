@@ -2,7 +2,7 @@
 Web application entry point.
 
 """
-
+import os
 import sys
 
 from flask import Flask, render_template, request, redirect, session, g
@@ -24,10 +24,14 @@ from modules.collections.options import Options
 from modules.metrics import Metrics
 from modules import utils
 from modules import filters
-from config import docker as default_config_obj
 
 app = Flask(__name__)
-app.config.from_object(default_config_obj)
+if os.environ.get('LAN_NANNY_CONFIG'):
+    print('Using config: %s' % os.environ.get('LAN_NANNY_CONFIG') )
+    app.config.from_object('config.%s' % os.environ.get('LAN_NANNY_CONFIG'))
+else:
+    print('Using config: default')
+    app.config.from_object('config.default')
 
 
 @app.before_request
