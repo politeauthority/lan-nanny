@@ -22,15 +22,15 @@ from modules.scanning.scan_ports import ScanPorts
 from modules.scanning.scan_hosts import ScanHosts
 from modules.scanning.scan_alerts import ScanAlerts
 from modules.scanning.house_keeping import HouseKeeping
-from config import default as config_default
+from config import docker as config
 from config import logging_conf
 
 logger = logging.getLogger(__name__)
 logging.config.dictConfig(logging_conf.base)
 logging.getLogger('root').setLevel('DEBUG')
-TMP_DIR = config_default.LAN_NANNY_TMP_DIR
+TMP_DIR = config.LAN_NANNY_TMP_DIR
 
-conn, cursor = db.create_connection(config_default.LAN_NANNY_DB_FILE)
+conn, cursor = db.connect_mysql()
 
 
 class Scan:
@@ -41,7 +41,7 @@ class Scan:
         self.args = args
         self.force_scan = False
         self.trigger = 'manual'
-        self.db_file_loc = config_default.LAN_NANNY_DB_FILE
+        # self.db_file_loc = config_default.LAN_NANNY_DB_FILE
         self.new_alerts = []
         self.hosts = []
         self.new_devices = []
@@ -62,7 +62,7 @@ class Scan:
         self.hande_hosts()
         self.handle_ports()
         self.handle_alerts()
-        self.handle_house_keeping()
+        # self.handle_house_keeping()
 
     def handle_cli(self) -> bool:
         """Handle one off/simple CLI requests"""
@@ -70,15 +70,24 @@ class Scan:
 
     def hande_hosts(self):
         """Launch host scanning operations."""
-        try:
-            scan_hosts = ScanHosts(self).run()
-            if scan_hosts:
-                self.hosts, self.new_devices = scan_hosts
-            else:
-                logging.error('Error scanning hosts, ending scan.')
-        except:
-            logging.error('Error running host scan.')
-            return False
+        print('hey')
+
+        scan_hosts = ScanHosts(self).run()
+        if scan_hosts:
+            self.hosts, self.new_devices = scan_hosts
+        else:
+            logging.error('Error scanning hosts, ending scan.')
+
+        # try:
+        #     print('hey2')
+        #     scan_hosts = ScanHosts(self).run()
+        #     if scan_hosts:
+        #         self.hosts, self.new_devices = scan_hosts
+        #     else:
+        #         logging.error('Error scanning hosts, ending scan.')
+        # except:
+        #     logging.error('Error running host scan.')
+        #     return False
 
     def handle_ports(self):
         """

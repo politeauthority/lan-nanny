@@ -24,7 +24,7 @@ from modules.collections.options import Options
 from modules.metrics import Metrics
 from modules import utils
 from modules import filters
-from config import default as default_config_obj
+from config import docker as default_config_obj
 
 app = Flask(__name__)
 app.config.from_object(default_config_obj)
@@ -33,7 +33,7 @@ app.config.from_object(default_config_obj)
 @app.before_request
 def get_settings():
     """Get and loads all settings in the the flask g options namespace."""
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    conn, cursor = db.connect_mysql()
     options = Options()
     options.conn = conn
     options.cursor = cursor
@@ -43,7 +43,7 @@ def get_settings():
 @app.before_request
 def get_active_alerts():
     """Get and loads all active alerts in the the flask g options namespace."""
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    conn, cursor = db.connect_mysql()
     alerts = Alerts(conn, cursor)
     # g.alerts_active_unacked = alerts.get_active_unacked_num()
     # g.alerts = alerts.get_active(build_devices=True)
@@ -94,7 +94,7 @@ def page_not_found(e: str):
 @utils.authenticate
 def index() -> str:
     """App dashboard for authenticated users."""
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    conn, cursor = db.connect_mysql()
     metrics = Metrics(conn, cursor)
     devices_col = Devices(conn, cursor)
 
@@ -158,7 +158,7 @@ if __name__ == '__main__':
     register_blueprints(app)
     register_jinja_funcs(app)
     # install()
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port, debug=True)
 
 
 # End File: lan-nanny/lan_nanny/app.py

@@ -17,7 +17,7 @@ ports = Blueprint('Port', __name__, url_prefix='/ports')
 @utils.authenticate
 def dashboard() -> str:
     """Port roster page."""
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    conn, cursor = db.connect_mysql()
     ports_collect = PortsCollect(conn, cursor)
     devices = Devices(conn, cursor).with_enabled_port_scanning()
     data = {}
@@ -34,14 +34,9 @@ def dashboard() -> str:
 @ports.route('/all/<page>')
 @utils.authenticate
 def roster(page: str="1") -> str:
-    """
-        Port Roster pages.
-        @todo: Pagination appears broken!!
-
-    """
+    """Port roster pages."""
     page = int(page)
-
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    conn, cursor = db.connect_mysql()
     ports_collect = PortsCollect(conn, cursor)
     port_pages = ports_collect.get_paginated(
         page=page,
@@ -62,7 +57,7 @@ def roster(page: str="1") -> str:
 @utils.authenticate
 def info(port_id: int) -> str:
     """Port info page."""
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    conn, cursor = db.connect_mysql()
     port = PortModel(conn, cursor)
     port.get_by_id(port_id)
 

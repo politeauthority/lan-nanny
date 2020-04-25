@@ -12,6 +12,11 @@ cd lan-nanny/
 python3 install-upgrade.py
 ```
 
+### Docker install
+```
+curl -sSL https://get.docker.com | sh
+```
+
 ## Testing
 The easiest way to properly run the Lan Nanny test suite is via docker.
 ```console

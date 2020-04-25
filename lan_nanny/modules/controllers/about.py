@@ -22,7 +22,7 @@ about = Blueprint('About', __name__, url_prefix='/about')
 @utils.authenticate
 def index(scan_type: str=''):
     """About page."""
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    conn, cursor = db.connect_mysql()
     db_stats = database_stats(conn, cursor)
     machine_stats = get_machine_stats()
     data = {
