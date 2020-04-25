@@ -68,24 +68,15 @@ class Scan:
 
     def hande_hosts(self):
         """Launch host scanning operations."""
-        print('hey')
-
-        scan_hosts = ScanHosts(self).run()
-        if scan_hosts:
-            self.hosts, self.new_devices = scan_hosts
-        else:
-            logging.error('Error scanning hosts, ending scan.')
-
-        # try:
-        #     print('hey2')
-        #     scan_hosts = ScanHosts(self).run()
-        #     if scan_hosts:
-        #         self.hosts, self.new_devices = scan_hosts
-        #     else:
-        #         logging.error('Error scanning hosts, ending scan.')
-        # except:
-        #     logging.error('Error running host scan.')
-        #     return False
+        try:
+            scan_hosts = ScanHosts(self).run()
+            if scan_hosts:
+                self.hosts, self.new_devices = scan_hosts
+            else:
+                logging.error('Error scanning hosts, ending scan.')
+        except:
+            logging.error('Error running host scan.')
+            return False
 
     def handle_ports(self):
         """

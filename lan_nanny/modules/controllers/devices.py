@@ -169,7 +169,7 @@ def export_all():
     devices_csv = []
     for device in devices:
         device_row = [
-            device.id, device.name, device.mac, device.ip, device.vendor, device.type,
+            device.id, device.name, device.mac, device.ip, device.vendor, device.kind,
             device.last_seen, device.favorite]
         devices_csv.append(device_row)
 

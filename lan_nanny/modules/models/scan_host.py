@@ -60,8 +60,7 @@ class ScanHost(Base):
         insert_sql = """
             INSERT INTO %s
             (`created_ts`, `completed`, `trigger`)
-            VALUES (?, ?, ?)""" % (self.table_name)
-
+            VALUES (?, ?, ?)""" % self.table_name
         insert_sql = insert_sql.replace("?", "%s")
         self.cursor.execute(insert_sql, (self.created_ts, 0, self.trigger))
         self.conn.commit()
