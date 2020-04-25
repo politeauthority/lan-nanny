@@ -33,11 +33,11 @@ def dashboard() -> str:
     conn, cursor = db.connect_mysql()
     devices = DevicesCollect(conn, cursor)
     data = {}
-    data['active_page'] = 'devices'
-    data['active_page_devices'] = 'dashboard'
     data['devices'] = devices.get_recent()
     data['devices_total'] = devices.get_count_total()
     data['device_venders'] = Metrics(conn, cursor).get_device_vendor_grouping()
+    data['active_page'] = 'devices'
+    data['active_page_devices'] = 'dashboard'
     return render_template('devices/dashboard.html', **data)
 
 

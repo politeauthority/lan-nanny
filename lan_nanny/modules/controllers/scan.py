@@ -30,12 +30,13 @@ def index():
     collect_scan_ports = ScanPorts(conn, cursor)
 
     data = {
-        'active_page_scans': 'dashboard',
         'host_scan_last': scan_host,
         'host_scans_today': collect_scan_hosts.get_count_since(60*60*24),
         'port_scan_last': scan_port,
         'port_scans_today': collect_scan_ports.get_count_since(60*60*24),
     }
+    data['active_page'] = 'scans'
+    data['active_page_sub'] = 'dashboard'
     return render_template('scans/dashboard.html', **data)
 
 @scan.route('/hosts/')
@@ -52,11 +53,11 @@ def roster_hosts(page: str="1"):
         return page_not_found('Scan Hosts page not found.')
 
     data = {
-        'active_page': 'scans',
-        'active_page_scans': 'hosts',
         'scans':scan_pages['objects'],
         'pagination': utils.gen_pagination_urls('/scan/hosts/', scan_pages['info'])
     }
+    data['active_page'] = 'scans'
+    data['active_page_sub'] = 'hosts'
     return render_template('scans/roster_hosts.html', **data)
 
 @scan.route('/ports')
@@ -81,12 +82,12 @@ def roster_ports(page: str="1"):
     devices = utils.key_list_on_id(devices)
 
     data = {
-        'active_page': 'scans',
-        'active_page_scans': 'ports',
         'scans': scan_pages['objects'],
         'pagination': utils.gen_pagination_urls('/scan/ports/', scan_pages['info']),
         'devices': devices
     }
+    data['active_page'] = 'scans'
+    data['active_page_sub'] = 'ports'
     return render_template('scans/roster_ports.html', **data)
 
 

@@ -41,7 +41,8 @@ def info(device_id: int) -> str:
     device.get_ports()
     data = {}
     data['device'] = device
-    data['active_page'] = 'device_info'
+    data['active_page'] = 'devices'
+    data['active_page_device'] = 'general'
     data['device_over_day'] = device_online_over_day
     data['device_over_week'] = device_online_over_week
     data['alerts'] = device_alerts
@@ -58,7 +59,6 @@ def info_ports(device_id: int) -> str:
     if not device.id:
         return page_not_found('Device not found')
 
-
     device.get_ports()
 
     scan_ports_log = ScanPorts(conn, cursor).get_by_device_id(device.id)
@@ -66,7 +66,8 @@ def info_ports(device_id: int) -> str:
     data = {}
     data['device'] = device
     data['scan_ports'] = scan_ports_log
-    data['active_page'] = 'device_info_ports'
+    data['active_page'] = 'devices'
+    data['active_page_device'] = 'ports'
     return render_template('device/ports.html', **data)
 
 
@@ -82,7 +83,8 @@ def info_options(device_id: int) -> str:
 
     data = {}
     data['device'] = device
-    data['active_page'] = 'device_info_option'
+    data['active_page'] = 'devices'
+    data['active_page_device'] = 'options'
     return render_template('device/options.html', **data)
 
 @device.route('/edit/<device_id>')
@@ -104,8 +106,9 @@ def edit(device_id: int) -> str:
     data['icons'] = icons
     data['device_types'] = utils.device_types()
     data['custom_icon'] = custom_icon
-    data['active_page'] = 'devices'
     data['form'] = 'edit'
+    data['active_page'] = 'devices'
+    data['active_page_device'] = 'edit'
     return render_template('device/form.html', **data)
 
 

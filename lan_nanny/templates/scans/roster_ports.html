@@ -12,7 +12,7 @@
 
   <!-- Sub Nav -->
   <div class="row">
-    {% with active_page_scans=active_page_scans %}
+    {% with active_page=active_page_sub %}
       {% include "scans/sub_nav.html" %}
     {% endwith %}
     {% with pagination=pagination, alignment="right" %}
