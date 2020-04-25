@@ -29,7 +29,7 @@ def form_general() -> str:
 @utils.authenticate
 def save_general():
     """General settings save."""
-    conn, cursor = db.connect_mysql()
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
 
     # Update System Name
     _save_setting(conn, cursor, 'system-name', request.form['setting_system_name'])
@@ -68,7 +68,7 @@ def form_scanning() -> str:
 @utils.authenticate
 def save_scanning():
     """Scanning settings save."""
-    conn, cursor = db.connect_mysql()
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
 
     # Save "scan-hosts-range"
     _save_setting(conn, cursor, 'scan-hosts-range', request.form['setting_scan_hosts_range'])
@@ -106,7 +106,7 @@ def form_alerts() -> str:
 @utils.authenticate
 def save_alerts():
     """Alerts settings save."""
-    conn, cursor = db.connect_mysql()
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     _save_setting(conn, cursor, 'alerts-enabled', request.form['setting_alerts_enabled'])
     return redirect('/settings/alerts')
 
@@ -127,7 +127,7 @@ def form_database() -> str:
 @utils.authenticate
 def save_database():
     """Database settings save."""
-    conn, cursor = db.connect_mysql()
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     _save_setting(conn, cursor, 'db-prune-days', request.form['setting_db_prune_days'])
 
     return redirect('/settings/database')
@@ -149,7 +149,7 @@ def form_security() -> str:
 @utils.authenticate
 def save_security():
     """Security settings save."""
-    conn, cursor = db.connect_mysql()
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
 
     # Handle password change, this can probably be done better.
     if request.form['setting_password_1'] and request.form['setting_password_2']:

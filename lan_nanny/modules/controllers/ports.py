@@ -17,7 +17,7 @@ ports = Blueprint('Port', __name__, url_prefix='/ports')
 @utils.authenticate
 def dashboard() -> str:
     """Port roster page."""
-    conn, cursor = db.connect_mysql()
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     ports_collect = PortsCollect(conn, cursor)
     devices = Devices(conn, cursor).with_enabled_port_scanning()
     data = {}
@@ -36,7 +36,7 @@ def dashboard() -> str:
 def roster(page: str="1") -> str:
     """Port roster pages."""
     page = int(page)
-    conn, cursor = db.connect_mysql()
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     ports_collect = PortsCollect(conn, cursor)
     port_pages = ports_collect.get_paginated(
         page=page,
@@ -57,7 +57,7 @@ def roster(page: str="1") -> str:
 @utils.authenticate
 def info(port_id: int) -> str:
     """Port info page."""
-    conn, cursor = db.connect_mysql()
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     port = PortModel(conn, cursor)
     port.get_by_id(port_id)
 

@@ -56,7 +56,6 @@ class Base:
             self.table_name,
             self._generate_create_table_feilds())
         print('Creating table: %s' % self.table_name)
-        print(sql)
         try:
             self.cursor.execute(sql)
             return True
@@ -87,7 +86,6 @@ class Base:
             self.table_name,
             self.get_fields_sql(),
             self.get_parmaterized_num())
-        print(insert_sql)
         self.cursor.execute(insert_sql, self.get_values_sql())
         self.conn.commit()
         self.id = self.cursor.lastrowid
@@ -120,8 +118,6 @@ class Base:
             self.table_name,
             self.get_update_set_sql(),
             where_sql)
-        logging.debug(update_sql)
-        logging.debug(self.get_values_sql())
         self.cursor.execute(update_sql, self.get_values_sql())
         self.conn.commit()
         return True
@@ -468,7 +464,7 @@ class Base:
         if field_type == 'int':
             return 'INTEGER'
         elif field_type == 'datetime':
-            return 'DATE'
+            return 'DATETIME'
         elif field_type[:3] == 'str':
             return 'VARCHAR(200)'
         elif field_type == 'bool':

@@ -15,7 +15,7 @@ search = Blueprint('Search', __name__, url_prefix='/search')
 @search.route('/results', methods=['POST'])
 def results() -> str:
     """Search results page."""
-    conn, cursor = db.connect_mysql()
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
 
     search_phrase = request.form['search'].strip()
     devices = Devices(conn, cursor)

@@ -37,7 +37,7 @@ else:
 @app.before_request
 def get_settings():
     """Get and loads all settings in the the flask g options namespace."""
-    conn, cursor = db.connect_mysql()
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     options = Options()
     options.conn = conn
     options.cursor = cursor
@@ -47,7 +47,7 @@ def get_settings():
 @app.before_request
 def get_active_alerts():
     """Get and loads all active alerts in the the flask g options namespace."""
-    conn, cursor = db.connect_mysql()
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     alerts = Alerts(conn, cursor)
     # g.alerts_active_unacked = alerts.get_active_unacked_num()
     # g.alerts = alerts.get_active(build_devices=True)
@@ -98,14 +98,14 @@ def page_not_found(e: str):
 @utils.authenticate
 def index() -> str:
     """App dashboard for authenticated users."""
-    conn, cursor = db.connect_mysql()
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     metrics = Metrics(conn, cursor)
     devices_col = Devices(conn, cursor)
 
     # Get favorite devices, if theres none get all devices.
     favorites = True
     fav_devices = metrics.get_favorite_devices()
-    all_devices = devices_col.get_online_count()
+    all_devices = devices_col.get_recent()
     if not fav_devices:
         favorites = False
         devices = all_devices
@@ -119,13 +119,14 @@ def index() -> str:
     sh.get_last()
     data = {}
     data['active_page'] = 'dashboard'
-    data['num_connected'] = all_devices
+    data['num_connected'] = devices_col.get_online_count()
     data['device_favorites'] = favorites
     data['devices'] = devices
     data['new_devices'] = new_devices
     data['runs_over_24'] = metrics.get_all_scans_24()
     data['host_scan'] = sh
     data['online_donut'] = donut_devices_online
+    print(data)
     return render_template('dashboard.html', **data)
 
 
@@ -154,7 +155,7 @@ def register_jinja_funcs(app: Flask):
 
 
 if __name__ == '__main__':
-    port = 5000
+    port = app.config['APP_PORT']
     if len(sys.argv) > 1:
         port = sys.argv[1]
     app.secret_key = 'super secret key'

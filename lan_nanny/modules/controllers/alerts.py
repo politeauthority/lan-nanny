@@ -23,7 +23,7 @@ alerts = Blueprint('Alert', __name__, url_prefix='/alerts')
 def dashboard():
     """Alerts dashboard page."""
     # Send everything to all, theres no good dashboard now
-    conn, cursor = db.connect_mysql()
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     alerts_collect = AlertsCollect(conn, cursor)
     data = {}
     data['alerts_firing'] = alerts_collect.get_firing()
@@ -37,7 +37,7 @@ def dashboard():
 # @utils.authenticate
 # def roster():
 #     """Alerts roster page."""
-#     conn, cursor = db.connect_mysql()
+#     conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
 #     alerts = Alerts(conn, cursor)
 #     data = {}
 #     data['alerts'] = alerts.get_all()
@@ -50,7 +50,7 @@ def dashboard():
 @utils.authenticate
 def info(alert_id: int):
     """Alert info page."""
-    conn, cursor = db.connect_mysql()
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     alert = Alert(conn, cursor)
     alert.get_by_id(alert_id)
     if not alert.id:
@@ -81,7 +81,7 @@ def alert_quick_save() -> str:
        Ajax web route for update a device alert settings or not when coming on or off the network.
 
     """
-    conn, cursor = db.connect_mysql()
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     alert = Alert(conn, cursor)
     alert.get_by_id(request.form.get('id'))
 
@@ -106,7 +106,7 @@ def alert_quick_save() -> str:
 @utils.authenticate
 def delete(alert_id: int):
     """Alert delete."""
-    conn, cursor = db.connect_mysql()
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     alert = Alert(conn, cursor)
     alert.get_by_id(alert_id)
     alert.delete()

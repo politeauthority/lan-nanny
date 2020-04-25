@@ -92,7 +92,6 @@ class ScanHosts:
             logging.warning('\tNo hosts found or error encountered.')
             return False
         logging.info('\tFound %s devices:' % len(self.hosts))
-        import ipdb; ipdb.set_trace()
         self.new_devices = []
 
         scan_time = arrow.utcnow().datetime

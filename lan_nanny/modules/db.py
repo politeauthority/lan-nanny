@@ -27,14 +27,14 @@ from .collections.options import Options
 
 DATABASE_NAME = 'lan_nanny'
 
-def connect_mysql(host: dict=None):
+def connect_mysql(server: dict=None):
     """Connect to MySql database and get a cursor object."""
     try:
         connection = mysql.connector.connect(
-            host='lan-nanny-mysql',
-            user='root',
-            database=DATABASE_NAME,
-            password='cleancut')
+            host=server['host'],
+            user=server['user'],
+            password=server['pass'],
+            database=server['name'])
         if connection.is_connected():
             db_Info = connection.get_server_info()
             cursor = connection.cursor()
@@ -45,13 +45,13 @@ def connect_mysql(host: dict=None):
     return connection, cursor
 
 
-def connect_mysql_no_db():
+def connect_mysql_no_db(server):
     """Connect to MySql database and get a cursor object."""
     try:
         connection = mysql.connector.connect(
-            host='lan-nanny-mysql',
-            user='root',
-            password='cleancut')
+            host=server['host'],
+            user=server['user'],
+            password=server['pass'])
         if connection.is_connected():
             db_Info = connection.get_server_info()
             print("Connected to MySQL Server version ", db_Info)
