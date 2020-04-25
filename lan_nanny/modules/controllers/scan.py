@@ -79,7 +79,10 @@ def roster_ports(page: str="1"):
         device_ids.append(sp.device_id)
     col_devices = Devices(conn, cursor)
     devices = col_devices.get_by_ids(device_ids)
-    devices = utils.key_list_on_id(devices)
+    if devices:
+        devices = utils.key_list_on_id(devices)
+    else:
+        devices = {}
 
     data = {
         'scans': scan_pages['objects'],

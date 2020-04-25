@@ -20,6 +20,8 @@ class Base:
 
     def get_by_ids(self, model_ids: list) -> list:
         """Get models instances by their ids from the database."""
+        if not model_ids:
+            return []
         model_ids = list(set(model_ids))
         sql_ids = self.int_list_to_sql(model_ids)
         sql = """
@@ -60,7 +62,6 @@ class Base:
                 }
             ]
         :returns: A list of model objects, hydrated to the default of the base.build_from_list()
-
         """
         if limit == 0:
             limit = self.per_page
