@@ -78,6 +78,8 @@ def pretty_time_adaptive(date_val: datetime) -> str:
 
 def time_switch(the_time) -> str:
     """Draw a datetime var in "time ago" with a hidden span containing the pretty time."""
+    if not the_time:
+        return ''
     the_arrow = arrow.get(the_time)
     pretty_time = pretty_time_adaptive(the_time)
     html = '<div class="time_switch">'
@@ -92,6 +94,8 @@ def online(seen_at: datetime) -> bool:
     Checks to see if the device's last_seen attribute has checked in within x minutes.
 
     """
+    if not seen_at:
+        return False
     now = arrow.utcnow().datetime
     seen = arrow.get(seen_at).datetime
 
@@ -116,7 +120,6 @@ def connected_devices(devices: list) -> int:
 
 def device_icon_status(device: Device) -> int:
     """
-    Takes a list of devices and determines the number of currently connected devices.
 
     """
     now = arrow.utcnow().datetime
@@ -125,6 +128,9 @@ def device_icon_status(device: Device) -> int:
     online = ''
     if now - seen < timedelta(minutes=int(g.options['active-timeout'].value)):
         online = ' connected_bolt'
+
+    if not device.last_seen:
+        online = ''
 
     icon = ''
     if device.icon:

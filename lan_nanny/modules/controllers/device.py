@@ -122,6 +122,7 @@ def save():
     device.cursor = cursor
     if request.form['device_id'] == 'new':
         device.mac = request.form['device_mac']
+        device.last_seen = None
         if not device.mac:
             return 'ERROR 422: Cannot create a device without a mac', 422
     else:

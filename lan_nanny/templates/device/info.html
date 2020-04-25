@@ -39,7 +39,11 @@
               </tr>
               <tr>
                 <td><b>Vendor</b></td>
-                <td>{{device.vendor}}</td>
+                <td>
+                  {%if device.vendor %}
+                    {{device.vendor}}
+                  {%endif%}
+                </td>
               </tr>
               <tr>
                 <td><b>Type</b></td>
@@ -59,7 +63,13 @@
               </tr>
               <tr>
                 <td><b>Last Seen</b></td>
-                <td>{{device.last_seen|time_switch}}</td>
+                <td>
+                  {%if device.last_seen %}
+                    {{device.last_seen|time_switch}}
+                  {%else%}
+                    Never
+                  {%endif%}
+                </td>
               </tr>
               <tr>
                 <td><b>First Seen</b></td>
