@@ -211,7 +211,7 @@ class Base:
             # Skip fields we don't want included in db writes
             if field['name'] in skip_fields:
                 continue
-            field_sql += "%s, " % field['name']
+            field_sql += "`%s`, " % field['name']
         return field_sql[:-2]
 
     def get_parmaterized_num(self, skip_fields: list = ['id']) -> str:

@@ -10,6 +10,7 @@ import time
 import arrow
 
 from . import parse_nmap
+from . import parse_arp
 from ..models.scan_host import ScanHost
 from ..models.device import Device
 from ..models.device_witness import DeviceWitness
@@ -41,7 +42,13 @@ class ScanHosts:
             self._abort_run('Scanning disabled by option.')
             return False
 
-        self.scan()
+        if self.options['scan-hosts-tool'].value == 'arp':
+            self.scan_with_arp()
+        else:
+            self.scan_with_nmap()
+        
+        # self.scan_with_nmap()
+
         self._complete_run()
         self.handle_devices()
         return (self.hosts, self.new_devices)
@@ -50,10 +57,11 @@ class ScanHosts:
         """Set up the scan hosts run."""
         self.scan_log = ScanHost(self.conn, self.cursor)
         self.scan_log.trigger = self.trigger
-        self.scan_log.insert_run_start()
 
-    def scan(self) -> bool:
+
+    def scan_with_nmap(self) -> bool:
         """Run the port scan operation."""
+        logging.info('Scanning with Nmap')
         scan_range = self.options['scan-hosts-range'].value
         start_ts = time.time()
 
@@ -70,6 +78,43 @@ class ScanHosts:
 
         end_ts = time.time()
         hosts = parse_nmap.parse_xml(self.scan_file, 'hosts')
+        if not hosts:
+            self._complete_run_error('Reading XML')
+            self.run_success = False
+
+        if self.run_success:
+            self.scan_log.elapsed_time = round(end_ts - start_ts, 2)
+        
+        self.hosts = hosts
+        self.scan_log.save()
+
+        return True
+
+    def scan_with_arp(self) -> bool:
+        """Run the port scan operation."""
+        scan_range = self.options['scan-hosts-range'].value
+        start_ts = time.time()
+        scan_range = "192.168.50.0/23"
+
+        logging.info('Scanning with Arp')
+        logging.info('\tScan Range: %s' % scan_range)
+        self.scan_log.command = "/usr/sbin/arp-scan %s" % scan_range
+        self.scan_log.created_ts = arrow.utcnow().datetime
+        self.scan_log.save()
+        logging.info('Saved')
+        logging.info('running: %s' % self.scan_log.command)
+        arp_response = subprocess.check_output(self.scan_log.command, shell=True)
+        logging.info('Finished arp')
+        # try:
+        #     arp_response = subprocess.check_output(self.scan_log.command, shell=True)
+        # except subprocess.CalledProcessError:
+        #     logging.error('Error running scan, please try again')
+        #     end_ts = time.time()
+        #     self._complete_run_error(start_ts, end_ts, 'Running Scan.')
+        #     self.run_success = False
+        end_ts = time.time()
+
+        hosts = parse_arp.parse_hosts(arp_response)
         if not hosts:
             self._complete_run_error('Reading XML')
             self.run_success = False
@@ -152,11 +197,11 @@ class ScanHosts:
 
         """
         # if we dont have a device name and we have a hostname, use the hostname
-        if not device.name and host['hostname']:
+        if not device.name and 'hostname' in host and host['hostname']:
             return host['hostname']
 
         # if the device name is the same as vendor, and we have a hostname, use the hostname
-        if device.name == device.vendor and host['hostname']:
+        if device.name == device.vendor and 'hostname' in host and host['hostname']:
             return host['hostname']
 
         # at this point if we have a device name, lets use that.

@@ -4,7 +4,7 @@
 import os
 import subprocess
 
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, g
 from flask import current_app as app
 
 from .. import db
@@ -12,6 +12,7 @@ from .. import utils
 from ..collections.scan_hosts import ScanHosts
 from ..collections.scan_ports import ScanPorts
 from ..collections.device_witnesses import DeviceWitnesses
+from ..collections.sys_infos import SysInfos
 from ..models.database_growth import DatabaseGrowth
 
 
@@ -36,6 +37,23 @@ def index(scan_type: str=''):
     }
     return render_template('about.html', **data)
 
+
+@about.route('/debug')
+@utils.authenticate
+def debug(scan_type: str=''):
+    """Debug page."""
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
+    envs = {
+        'LAN_NANNY_CONFIG': os.environ.get('LAN_NANNY_CONFIG')
+    }
+    sys_infos = SysInfos(conn, cursor).get_all_keyed()
+    data = {
+        'active_page': 'about',
+        'options': g.options,
+        'environment': envs,
+        'sys_infos': sys_infos
+    }
+    return render_template('debug.html', **data)
 
 def database_stats(conn, cursor):
     """ """

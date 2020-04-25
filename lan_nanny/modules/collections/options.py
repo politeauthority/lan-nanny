@@ -75,7 +75,7 @@ class Options(Base):
             {
                 'name': 'scan-ports-interval',
                 'type': 'int',
-                'default': 2
+                'default': 120
             },
             {
                 'name': 'console-password-enabled',

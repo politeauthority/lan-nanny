@@ -34,8 +34,7 @@
               <table class="table" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                   <tr>
-                    <td></td>
-                    <td>ID</td>
+                    <td>Status</td>
                     <td>Device</td>
                     <td>Started</td>
                     <td>Ports Found</td>
@@ -47,14 +46,24 @@
                 <!--  href="/scan/info/host/{{scan.id}} -->
                 <tr class="link_row" data-href="/scan/info/hosts/{{scan.id}}">
                   <td>
-                    {%if scan.completed==1 and scan.success==1%}
-                      <i class="fas fa-check scan-success"></i>
-                    {%else%}
+                    {%if scan.completed and scan.success%}
+                      <a href="/scan/info/port/{{scan.id}}">
+                        <i class="fas fa-check scan-success"></i>
+                      </a>
+                    {%elif not scan.completed and scan.success == None%}
+                    <a href="/scan/info/port/{{scan.id}}">
+                      RUNNING?
                       <i class="fas fa-exclamation-triangle scan-fail"></i>
+                    </a>
+                    {%else%}
+                    <a href="/scan/info/port/{{scan.id}}">
+                      <i class="fas fa-exclamation-triangle scan-fail"></i>
+                    </a>
                     {%endif%}
                   </td>
-                  <td><a href="/scan/info/port/{{scan.id}}">{{scan.id}}</a></td>
-                  <td>{{devices[scan.device_id]|device_icon_status}}</td>
+                  <td>
+                    {{scan.completed}}
+                  {{devices[scan.device_id]|device_icon_status}}</td>
                   <td>{{scan.created_ts|smart_time}}</td>
                   <td>
                     {%if scan.units%}

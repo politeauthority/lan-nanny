@@ -25,13 +25,12 @@ class HouseKeeping:
         self.cursor = scan.cursor
         self.tmp_dir = scan.tmp_dir
         self.options = scan.options
-        self.db_file_loc = scan.db_file_loc
 
     def run(self):
         """Main Runner for Scan House Keeping."""
         logging.info('Running House Keeping')
-        self.database_growth()
-        self.database_prune()
+        # self.database_growth()
+        # self.database_prune()
         self.gather_sys_info()
 
     def database_growth(self):
@@ -54,7 +53,7 @@ class HouseKeeping:
 
         logging.info('Creating new DB Growth')
         new_growth = DatabaseGrowth(self.conn, self.cursor)
-        new_growth.size = os.path.getsize(self.db_file_loc)
+        new_growth.size = None
         new_growth.save()
 
     def database_prune(self):
@@ -70,8 +69,19 @@ class HouseKeeping:
 
     def gather_sys_info(self):
         sys_infos = SysInfos(self.conn, self.cursor).get_all_keyed()
+        if 'start-date' not in sys_infos:
+            self.sys_info_start()
         # if 'nmap-version' not in sys_infos:
         #     self.sys_info_nmap_version()
+
+    def sys_info_start(self):
+        info = SysInfo(self.conn, self.cursor)
+        info.name = "start-date"
+        info.type = "date"
+        info.value = arrow.utcnow().datetime
+        info.save()
+        logging.info('Created Lan Nanny start date sys info')
+        return True
 
     def sys_info_nmap_version(self):
         nmap_version = self._get_nmap_version()

@@ -50,7 +50,9 @@
       </div>
     </div>
   </div>
-
+  {%if g.options['beta-features'].value %}  
+    <a href="/about/debug">DEBUG</a>
+  {%endif%}
 {%endblock%}
 
 <!-- EndFile: lan-nanny/lan_nanny/templates/about.html -->

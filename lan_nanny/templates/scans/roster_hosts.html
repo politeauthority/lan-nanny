@@ -34,8 +34,7 @@
               <table class="table" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                   <tr>
-                    <td></td>
-                    <td>Scan ID</td>
+                    <td>Status</td>
                     <td>Started</td>
                     <td>Devices Found</td>
                     <td>Trigger</td>
@@ -52,10 +51,6 @@
                     {%else%}
                       <i class="fas fa-exclamation-triangle scan-fail"></i>
                     {%endif%}
-                  </td>
-
-                  <td>
-                    <a href="/scan/info/host/{{scan.id}}">{{scan.id}}</a>
                   </td>
                   <td>
                     {{scan.created_ts|smart_time}}
