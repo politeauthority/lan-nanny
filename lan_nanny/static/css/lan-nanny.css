@@ -38,10 +38,12 @@
   margin-top: : 5px;
   margin-bottom: : 15px;
 }
-.active_sub_link {
+
+
+.sub_nav .active {
   border-radius: 10px;
   background: #ffffff;
-  margin: 3px; 
+  font-weight: 800;
 }
 
 #toasts {

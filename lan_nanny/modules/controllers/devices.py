@@ -33,11 +33,11 @@ def dashboard() -> str:
     conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
     devices = DevicesCollect(conn, cursor)
     data = {}
-    data['active_page'] = 'devices'
-    data['active_page_devices'] = 'dashboard'
     data['devices'] = devices.get_recent()
     data['devices_total'] = devices.get_count_total()
     data['device_venders'] = Metrics(conn, cursor).get_device_vendor_grouping()
+    data['active_page'] = 'devices'
+    data['active_page_devices'] = 'dashboard'
     return render_template('devices/dashboard.html', **data)
 
 

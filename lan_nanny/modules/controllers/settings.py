@@ -19,7 +19,7 @@ def form_general() -> str:
     """Setting page."""
     data = {
         'active_page': 'settings',
-        'active_page_settings': 'general',
+        'active_page_sub': 'general',
         'settings': g.options,
     }
     return render_template('settings/form_general.html', **data)
@@ -58,7 +58,7 @@ def form_scanning() -> str:
     """Scanning settings form page."""
     data = {
         'active_page': 'settings',
-        'active_page_settings': 'scanning',
+        'active_page_sub': 'scan',
         'settings': g.options,
     }
     return render_template('settings/form_scanning.html', **data)
@@ -96,7 +96,7 @@ def form_alerts() -> str:
     """Alerts form page."""
     data = {
         'active_page': 'settings',
-        'active_page_settings': 'alerts',
+        'active_page_sub': 'alerts',
         'settings': g.options,
     }
     return render_template('settings/form_alerts.html', **data)
@@ -117,7 +117,7 @@ def form_database() -> str:
     """Setting page."""
     data = {
         'active_page': 'settings',
-        'active_page_settings': 'database',
+        'active_page_sub': 'database',
         'settings': g.options,
     }
     return render_template('settings/form_database.html', **data)
@@ -139,7 +139,7 @@ def form_security() -> str:
     """Security setting page."""
     data = {
         'active_page': 'settings',
-        'active_page_settings': 'security',
+        'active_page_sub': 'security',
         'settings': g.options,
     }
     return render_template('settings/form_security.html', **data)

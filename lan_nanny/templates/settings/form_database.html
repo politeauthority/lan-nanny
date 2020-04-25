@@ -1,4 +1,4 @@
-<!-- Settings -->
+<!-- Database Settings -->
 
 {% extends "layout.html" %}
 
@@ -18,7 +18,7 @@
   <form action="/settings/save-database" method="POST">
     <!-- Second Row -->
     <div class="row">
-    {% with active_page=active_page_scans %}
+    {% with active_page=active_page_sub %}
       {% include "settings/sub_nav.html" %}
     {% endwith %}
     </div><!-- End Second Row -->
