@@ -76,7 +76,6 @@ def roster_online(page: str="1") -> str:
     app_offline_timeout = g.options['active-timeout'].value
     last_online = arrow.utcnow().datetime - timedelta(minutes=int(app_offline_timeout))
     page = int(page)
-
     conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     devices_collection = DevicesCollect(conn, cursor)
     device_pages = devices_collection.get_paginated(

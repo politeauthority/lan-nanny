@@ -3,8 +3,7 @@ base = {
     "formatters": {
         'detailed': {
             'class': 'logging.Formatter',
-            'format': '%(asctime)s %(levelname)-8s %(message)s', 
-            'datefmt': "%H:%M:%S"
+            'format': '%(asctime)s %(name)-10s %(levelname)-8s %(processName)-15s %(message)s'
         }
     },
     "handlers": {
@@ -12,7 +11,6 @@ base = {
             "class": "logging.StreamHandler",
             "level": "DEBUG",
             "formatter": "detailed",
-            # "stream": "ext://sys.stdout"
         },
     },
     "root": {
@@ -29,4 +27,4 @@ base = {
     },
 }
 
-# End File: lan-nanny/lan_nanny/config/logging_conf.py
+# End File: packagehistory/src/modules/logging_conf.py

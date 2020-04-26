@@ -7,7 +7,7 @@ To use the config set the environment variable LAN_NANNY_CONFIG=hybrid
 import os
 
 DEBUG = True
-APP_PORT = 5050
+APP_PORT = 5000
 LAN_NANNY_TMP_DIR = "/tmp"
 LAN_NANNY_SCAN_LOG = os.path.join(LAN_NANNY_TMP_DIR, 'lan_nanny_scan.log')
 LAN_NANNY_WEB_LOG = os.path.join(LAN_NANNY_TMP_DIR, 'lan_nanny_web.log')
@@ -16,7 +16,7 @@ LAN_NANNY_DB = {
     'user': 'user',
     'pass': 'password',
     'port': 3306,
-    'name': os.environ.get('LAN_NANNY_DB_NAME', 'lan_nanny'),
+    'name': 'lan_nanny'
 }
 
 

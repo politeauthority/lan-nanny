@@ -56,7 +56,7 @@ class Scan:
         self.hande_hosts()
         self.handle_ports()
         self.handle_alerts()
-        self.handle_house_keeping()
+        # self.handle_house_keeping()
 
     def handle_cli(self) -> bool:
         """Handle one off/simple CLI requests"""
