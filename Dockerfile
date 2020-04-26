@@ -3,6 +3,12 @@ FROM debian:bullseye-slim
 VOLUME /app/
 WORKDIR /app/
 ADD ./ /app/
+ENV LAN_NANNY_CONFIG=docker
+ENV LAN_NANNY_DB_HOST=lan-nanny-mysql
+ENV LAN_NANNY_DB_PORT=3306
+ENV LAN_NANNY_DB_NAME=lan_nanny
+ENV LAN_NANNY_DB_USER=root
+ENV LAN_NANNY_DB_PASS=pass
 
 # Install apt requirements
 RUN apt-get update && \
@@ -11,7 +17,9 @@ RUN apt-get update && \
         libpython3-dev \
         python3-pip \
         python3-mysqldb \
-        nmap
+        vim \
+        nmap \
+        arp-scan
 
 # Install Lan Nanny
 RUN pip3 install -r /app/requirements.txt  && \
