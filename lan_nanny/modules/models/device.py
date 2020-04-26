@@ -98,6 +98,7 @@ class Device(BaseEntityMeta):
                 'default': 'Unknown',
             },
         ]
+        self.api_omit_fields = ['hide', 'first_port_scan_id']
         self.ports = []
         self.metas = {}
 

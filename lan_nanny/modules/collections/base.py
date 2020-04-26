@@ -227,6 +227,16 @@ class Base:
         sql_ids = sql_ids[:-1]
         return sql_ids
 
+    def unpack_models(self, objects: list) -> list:
+        """
+        Unpack a list of model objects into a list of dictionaries, useful for rendering the
+        API.
+        """
+        unpack_objects = []
+        for o in objects:
+            unpack_objects.append(o.unpack_model())
+        return unpack_objects
+
     def _pagination_where_and(self, where_and: list) -> str:
         """
         Create the where clause for pagination when where and clauses are supplied.

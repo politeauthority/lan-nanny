@@ -35,6 +35,7 @@ class Base:
             }
         ]
         self.field_map = []
+        self.api_omit_fields = []
         self.setup()
 
     def __repr__(self):
@@ -310,6 +311,15 @@ class Base:
                 raise AttributeError('Missing self.%s' % class_var)
 
         return True
+
+    def unpack_model(self) -> dict:
+        """Unpack a model object into a dictionary, useful for generating API data."""
+        unpacked_dict = {}
+        for field in self.total_map:
+            if field['name'] in self.api_omit_fields:
+                continue
+            unpacked_dict[field['name']] = getattr(self, field['name'])
+        return unpacked_dict
 
     def _create_total_map(self) -> bool:
         """
