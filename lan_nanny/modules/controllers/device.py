@@ -27,7 +27,7 @@ device = Blueprint('Device', __name__, url_prefix='/device')
 @utils.authenticate
 def info(device_id: int) -> str:
     """Device info page."""
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     device = Device(conn, cursor)
     device.get_by_id(device_id)
     if not device.id:
@@ -53,7 +53,7 @@ def info(device_id: int) -> str:
 @utils.authenticate
 def info_ports(device_id: int) -> str:
     """Device info ports sub page."""
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     device = Device(conn, cursor)
     device.get_by_id(device_id)
     if not device.id:
@@ -75,7 +75,7 @@ def info_ports(device_id: int) -> str:
 @utils.authenticate
 def info_options(device_id: int) -> str:
     """Device info ports sub page."""
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     device = Device(conn, cursor)
     device.get_by_id(device_id)
     if not device.id:
@@ -91,7 +91,7 @@ def info_options(device_id: int) -> str:
 @utils.authenticate
 def edit(device_id: int) -> str:
     """Device edit page."""
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     device = Device()
     device.conn = conn
     device.cursor = cursor
@@ -116,12 +116,13 @@ def edit(device_id: int) -> str:
 @utils.authenticate
 def save():
     """Device save, route for new and editing devices."""
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     device = Device()
     device.conn = conn
     device.cursor = cursor
     if request.form['device_id'] == 'new':
         device.mac = request.form['device_mac']
+        device.last_seen = None
         if not device.mac:
             return 'ERROR 422: Cannot create a device without a mac', 422
     else:
@@ -140,9 +141,9 @@ def save():
         device.icon = request.form['device_icon_input']
 
     if request.form['device_type_select'] == 'None':
-        device.type = None
+        device.kind = None
     else:
-        device.type = request.form['device_type_select']
+        device.kind = request.form['device_type_select']
 
     # @todo figure out how hide works.
     # device.hide = request.form['device_hide']
@@ -155,7 +156,7 @@ def save():
 @utils.authenticate
 def favorite(device_id):
     """Web route for making a device a favorite or not."""
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     device = Device()
     device.conn = conn
     device.cursor = cursor
@@ -180,7 +181,7 @@ def quick_save() -> str:
     Ajax web route for update a device alert settings or not when coming on or off the network.
 
     """
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     device = Device(conn, cursor)
     device.get_by_id(request.form.get('id'))
     if not device.id:
@@ -212,7 +213,7 @@ def quick_save() -> str:
 @utils.authenticate
 def delete(device_id: int):
     """Device delete."""
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     # Delete the device
     device = Device(conn, cursor)
     device.get_by_id(device_id)

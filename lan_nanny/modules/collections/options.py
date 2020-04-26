@@ -50,6 +50,12 @@ class Options(Base):
             {
                 'name': 'scan-hosts-range',
                 'type': 'str',
+                'default': '192.168.50.1-255'
+            },
+            {
+                'name': 'scan-hosts-tool',
+                'type': 'str',
+                'default': 'nmap'
             },
             {
                 'name': 'scan-ports-enabled',

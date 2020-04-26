@@ -44,8 +44,8 @@ class Base:
 
     def create_table(self) -> bool:
         """
-           Creates a table based on the self.table_name, and self.field_map.
-           @unit-tested
+        Create a table based on the self.table_name, and self.field_map.
+        @unit-tested
 
         """
         logging.info('Creating %s' % self.__class__.__name__)
@@ -55,6 +55,7 @@ class Base:
         sql = "CREATE TABLE IF NOT EXISTS %s \n(%s)" % (
             self.table_name,
             self._generate_create_table_feilds())
+        print('Creating table: %s' % self.table_name)
         try:
             self.cursor.execute(sql)
             return True
@@ -117,8 +118,6 @@ class Base:
             self.table_name,
             self.get_update_set_sql(),
             where_sql)
-        logging.debug(update_sql)
-        logging.debug(self.get_values_sql())
         self.cursor.execute(update_sql, self.get_values_sql())
         self.conn.commit()
         return True
@@ -228,7 +227,7 @@ class Base:
             if field['name'] in skip_fields:
                 continue
 
-            field_value_param_sql += "?, "
+            field_value_param_sql += "%s, "
 
         field_value_param_sql = field_value_param_sql[:-2]
         return field_value_param_sql
@@ -254,7 +253,7 @@ class Base:
                     vals.append(field_value)
                     continue
                 elif not field_value:
-                    field_value = "NULL"
+                    field_value = None
                     vals.append(field_value)
                     continue
 
@@ -278,15 +277,16 @@ class Base:
 
     def get_update_set_sql(self, skip_fields=['id']):
         """
-           Generates the models SET sql statements, ie: SET key = value, other_key = other_value.
-           @unit-tested - @todo needs updating for "skip_fields"
+        Generates the models SET sql statements, ie: SET key = value, other_key = other_value.
+        @unit-tested - @todo needs updating for "skip_fields"
 
         """
         set_sql = ""
         for field in self.total_map:
             if field['name'] in skip_fields:
                 continue
-            set_sql += "%s = ?,\n" % field['name']
+            set_sql += "`%s` = ?,\n" % field['name']
+        set_sql = set_sql.replace("?", "%s")
         return set_sql[:-2]
 
     def check_required_class_vars(self, extra_class_vars: list = []) -> bool:
@@ -361,10 +361,10 @@ class Base:
                 setattr(self, class_var_name, converted_value)
                 continue
 
-            if field['type'] == 'bool':
-                converted_value = self._convert_bools(class_var_name, class_var_value)
-                setattr(self, class_var_name, converted_value)
-                continue
+            # if field['type'] == 'bool':
+            #     converted_value = self._convert_bools(class_var_name, class_var_value)
+            #     setattr(self, class_var_name, converted_value)
+            #     continue
 
             if field['type'] == 'datetime' and type(class_var_value) != datetime:
                 setattr(
@@ -415,8 +415,8 @@ class Base:
 
     def _generate_create_table_feilds(self) -> str:
         """
-           Generates all fields column create sql statements.
-           @unit-tested
+        Generates all fields column create sql statements.
+        @unit-tested
 
         """
         field_sql = ""
@@ -425,7 +425,7 @@ class Base:
         for field in self.total_map:
             primary_stmt = ''
             if 'primary' in field and field['primary']:
-                primary_stmt = ' PRIMARY KEY AUTOINCREMENT'
+                primary_stmt = ' PRIMARY KEY AUTO_INCREMENT'
 
             not_null_stmt = ''
             if 'not_null' in field and field['not_null']:
@@ -433,9 +433,12 @@ class Base:
 
             default_stmt = ''
             if 'default' in field and field['default']:
-                default_stmt = ' DEFAULT %s' % field['default']
+                if field['type'] == "str":
+                    default_stmt = ' DEFAULT "%s"' % field['default']
+                else:
+                    default_stmt = ' DEFAULT %s' % field['default']
 
-            field_line = "%(name)s %(type)s%(primary_stmt)s%(not_null_stmt)s%(default_stmt)s," % {
+            field_line = "`%(name)s` %(type)s%(primary_stmt)s%(not_null_stmt)s%(default_stmt)s," % {
                 'name': field['name'],
                 'type': self._xlate_field_type(field['type']),
                 'primary_stmt': primary_stmt,
@@ -461,11 +464,11 @@ class Base:
         if field_type == 'int':
             return 'INTEGER'
         elif field_type == 'datetime':
-            return 'DATE'
-        elif field_type == 'str':
-            return 'TEXT'
+            return 'DATETIME'
+        elif field_type[:3] == 'str':
+            return 'VARCHAR(200)'
         elif field_type == 'bool':
-            return 'INTEGER'
+            return 'BOOLEAN'
         elif field_type == 'float':
             return 'DECIMAL(10, 5)'
 

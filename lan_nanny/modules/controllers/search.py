@@ -14,11 +14,8 @@ search = Blueprint('Search', __name__, url_prefix='/search')
 
 @search.route('/results', methods=['POST'])
 def results() -> str:
-    """
-    Port roster page.
-
-    """
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    """Search results page."""
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
 
     search_phrase = request.form['search'].strip()
     devices = Devices(conn, cursor)

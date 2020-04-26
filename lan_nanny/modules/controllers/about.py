@@ -22,16 +22,16 @@ about = Blueprint('About', __name__, url_prefix='/about')
 @utils.authenticate
 def index(scan_type: str=''):
     """About page."""
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
-    db_stats = database_stats(conn, cursor)
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
+    # db_stats = database_stats(conn, cursor)
     machine_stats = get_machine_stats()
     data = {
         'active_page': 'about',
-        'db_name': os.path.normpath(app.config['LAN_NANNY_DB_FILE']),
+        # 'db_name': os.path.normpath(app.config['LAN_NANNY_DB_FILE']),
         'db_witness_length': DeviceWitnesses(conn, cursor).get_count_total(),
         'db_scan_host_length': ScanHosts(conn, cursor).get_count_total(),
         'db_scan_port_length': ScanPorts(conn, cursor).get_count_total(),
-        'db_growth': db_stats,
+        # 'db_growth': db_stats,
         'machine_stats': machine_stats
     }
     return render_template('about.html', **data)

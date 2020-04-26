@@ -182,7 +182,7 @@ class Devices(BaseEntityMetas):
         mac_sql = utils.gen_like_sql('mac', phrase)
         ip_sql = utils.gen_like_sql('ip', phrase)
         vendor_sql = utils.gen_like_sql('vendor', phrase)
-        type_sql = utils.gen_like_sql('type', phrase)
+        type_sql = utils.gen_like_sql('kind', phrase)
         sql = """
             SELECT *
             FROM devices

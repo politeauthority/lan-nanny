@@ -64,9 +64,9 @@ class ScanPort(Base):
         self.setup()
         insert_sql = """
             INSERT INTO %s
-            (created_ts, device_id, completed, trigger, command)
-            VALUES (?, ?, ?, ?, ?)""" % (self.table_name)
-
+            (`created_ts`, `device_id`, `completed`, `trigger`, `command`)
+            VALUES (?, ?, ?, ?, ?)""" % self.table_name
+        insert_sql = insert_sql.replace("?", "%s")
         values = (
             self.created_ts,
             self.device_id,

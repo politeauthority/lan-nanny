@@ -30,7 +30,7 @@ devices = Blueprint('Devices', __name__, url_prefix='/devices')
 @utils.authenticate
 def dashboard() -> str:
     """Devices Dashboard page."""
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     devices = DevicesCollect(conn, cursor)
     data = {}
     data['devices'] = devices.get_recent()
@@ -48,7 +48,7 @@ def roster(page: str="1") -> str:
     """Devices roster pages."""
     page = int(page)
 
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     device_collection = DevicesCollect(conn, cursor)
     device_pages = device_collection.get_paginated(
         page=page,
@@ -77,7 +77,7 @@ def roster_online(page: str="1") -> str:
     last_online = arrow.utcnow().datetime - timedelta(minutes=int(app_offline_timeout))
     page = int(page)
 
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     devices_collection = DevicesCollect(conn, cursor)
     device_pages = devices_collection.get_paginated(
         page=page,
@@ -110,7 +110,7 @@ def roster_offline(page: str="1") -> str:
     last_online = arrow.utcnow().datetime - timedelta(minutes=int(app_offline_timeout))
     page = int(page)
 
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     devices_collection = DevicesCollect(conn, cursor)
     device_pages = devices_collection.get_paginated(
         page=page,
@@ -137,7 +137,7 @@ def roster_offline(page: str="1") -> str:
 @utils.authenticate
 def roster_new() -> str:
     """Devices roster page for new devices."""
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     devices = DevicesCollect(conn, cursor)
     data = {}
     data['active_page'] = 'devices'
@@ -161,7 +161,7 @@ def export() -> str:
 def export_all():
     """Export all devices as a CSV to be downloaded."""
     # Collect the data for the CSV.
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     devices = DevicesCollect(conn, cursor).get_all()
     header = [
         'id', 'name', 'mac', 'ip', 'vendor', 'device type', 'last seen', 'favorite',
@@ -169,7 +169,7 @@ def export_all():
     devices_csv = []
     for device in devices:
         device_row = [
-            device.id, device.name, device.mac, device.ip, device.vendor, device.type,
+            device.id, device.name, device.mac, device.ip, device.vendor, device.kind,
             device.last_seen, device.favorite]
         devices_csv.append(device_row)
 

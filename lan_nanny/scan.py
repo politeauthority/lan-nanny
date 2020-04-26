@@ -8,6 +8,7 @@
 
 """
 import argparse
+from importlib import import_module
 import logging
 import logging.config
 import subprocess
@@ -22,26 +23,23 @@ from modules.scanning.scan_ports import ScanPorts
 from modules.scanning.scan_hosts import ScanHosts
 from modules.scanning.scan_alerts import ScanAlerts
 from modules.scanning.house_keeping import HouseKeeping
-from config import default as config_default
+from config import docker as config
 from config import logging_conf
 
 logger = logging.getLogger(__name__)
 logging.config.dictConfig(logging_conf.base)
 logging.getLogger('root').setLevel('DEBUG')
-TMP_DIR = config_default.LAN_NANNY_TMP_DIR
-
-conn, cursor = db.create_connection(config_default.LAN_NANNY_DB_FILE)
+TMP_DIR = config.LAN_NANNY_TMP_DIR
 
 
 class Scan:
 
-    def __init__(self, args):
-        self.conn = conn
-        self.cursor = cursor
+    def __init__(self, configs, args):
+        self.conn, self.cursor = db.connect_mysql(configs.LAN_NANNY_DB)
         self.args = args
         self.force_scan = False
         self.trigger = 'manual'
-        self.db_file_loc = config_default.LAN_NANNY_DB_FILE
+        # self.db_file_loc = config_default.LAN_NANNY_DB_FILE
         self.new_alerts = []
         self.hosts = []
         self.new_devices = []
@@ -49,7 +47,7 @@ class Scan:
     def setup(self):
         """Sets up run log and loads options."""
         self.prompt_sudo()
-        options = Options(conn, cursor)
+        options = Options(self.conn, self.cursor)
         self.options = options.get_all_keyed()
         self.tmp_dir = TMP_DIR
         if self.args.cron:
@@ -62,7 +60,7 @@ class Scan:
         self.hande_hosts()
         self.handle_ports()
         self.handle_alerts()
-        self.handle_house_keeping()
+        # self.handle_house_keeping()
 
     def handle_cli(self) -> bool:
         """Handle one off/simple CLI requests"""
@@ -164,9 +162,22 @@ def parse_args():
     args = parser.parse_args()
     return args
 
+def get_config():
+    """Get the application configs."""
+    if os.environ.get('LAN_NANNY_CONFIG'):
+        config_file = os.environ.get('LAN_NANNY_CONFIG')
+        configs = import_module('config.%s' % config_file)
+        # imported_module = import_module('.config.%s' % config)
+        print('Using config: %s' % os.environ.get('LAN_NANNY_CONFIG') )
+    else:
+        print('Using config: default')
+        configs = import_module('config.default')
+    return configs
+
 
 if __name__ == '__main__':
     args = parse_args()
-    Scan(args).run()
+    configs = get_config()
+    Scan(configs, args).run()
 
 # End File: lan-nanny/lan_nanny/scan.py

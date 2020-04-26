@@ -65,10 +65,11 @@ class Port(Base):
         SELECT *
         FROM %s
         WHERE
-            number = ? AND
-            protocol = ?
+            `number` = ? AND
+            `protocol` = ?
         LIMIT 1""" % self.table_name
 
+        sql = sql.replace("?", "%s")
         vals = (port_number, protocol)
         self.cursor.execute(sql, vals)
         port_raw = self.cursor.fetchone()

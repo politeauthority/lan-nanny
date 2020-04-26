@@ -24,6 +24,7 @@ def run():
     if console_password:
         print('Console password: %s' % console_password)
 
+
 def create_lan_nanny_space():
     """Create the lan nanny install space"""
     linux_install_path = "/opt/lan-nanny"

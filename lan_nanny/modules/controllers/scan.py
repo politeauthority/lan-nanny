@@ -21,7 +21,7 @@ scan = Blueprint('Scan', __name__, url_prefix='/scan')
 def index():
     """Host scan roster page."""
     page = 1
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     scan_host = ScanHost(conn, cursor)
     scan_host.get_last()
     scan_port = ScanPort(conn, cursor)
@@ -44,12 +44,12 @@ def index():
 @utils.authenticate
 def roster_hosts(page: str="1"):
     """Host scan roster page."""
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     page = int(page)
     scan_hosts_collection = ScanHosts(conn, cursor)
     scan_pages = scan_hosts_collection.get_paginated(page=page)
 
-    if not scan_pages['objects']:
+    if not scan_pages['objects'] and page > 1:
         return page_not_found('Scan Hosts page not found.')
 
     data = {
@@ -65,12 +65,12 @@ def roster_hosts(page: str="1"):
 @utils.authenticate
 def roster_ports(page: str="1"):
     """Port scan roster page."""
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     page = int(page)
     scan_ports_collection = ScanPorts(conn, cursor)
     scan_pages = scan_ports_collection.get_paginated(page=page)
 
-    if not scan_pages['objects']:
+    if not scan_pages['objects'] and page > 1:
         return page_not_found('Scan Ports page not found.')
 
     # Get the Scan Port's Device object
@@ -79,7 +79,10 @@ def roster_ports(page: str="1"):
         device_ids.append(sp.device_id)
     col_devices = Devices(conn, cursor)
     devices = col_devices.get_by_ids(device_ids)
-    devices = utils.key_list_on_id(devices)
+    if devices:
+        devices = utils.key_list_on_id(devices)
+    else:
+        devices = {}
 
     data = {
         'scans': scan_pages['objects'],
@@ -95,7 +98,7 @@ def roster_ports(page: str="1"):
 @utils.authenticate
 def info_host(scan_id: int):
     """Info on host scan."""
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     scan_host = ScanHost(conn, cursor)
     scan_host.get_by_id(scan_id)
     device_witnesses = DeviceWitnesses(conn, cursor).get_by_scan_id(scan_id)
@@ -112,7 +115,7 @@ def info_host(scan_id: int):
 @utils.authenticate
 def info_port(scan_id: int):
     """Info on host scan"""
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     scan_port = ScanPort(conn, cursor)
     scan_port.get_by_id(scan_id)
     device = Device(conn, cursor)

@@ -2,7 +2,7 @@
 Web application entry point.
 
 """
-
+import os
 import sys
 
 from flask import Flask, render_template, request, redirect, session, g
@@ -24,16 +24,20 @@ from modules.collections.options import Options
 from modules.metrics import Metrics
 from modules import utils
 from modules import filters
-from config import default as default_config_obj
 
 app = Flask(__name__)
-app.config.from_object(default_config_obj)
+if os.environ.get('LAN_NANNY_CONFIG'):
+    print('Using config: %s' % os.environ.get('LAN_NANNY_CONFIG') )
+    app.config.from_object('config.%s' % os.environ.get('LAN_NANNY_CONFIG'))
+else:
+    print('Using config: default')
+    app.config.from_object('config.default')
 
 
 @app.before_request
 def get_settings():
     """Get and loads all settings in the the flask g options namespace."""
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     options = Options()
     options.conn = conn
     options.cursor = cursor
@@ -43,7 +47,7 @@ def get_settings():
 @app.before_request
 def get_active_alerts():
     """Get and loads all active alerts in the the flask g options namespace."""
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     alerts = Alerts(conn, cursor)
     # g.alerts_active_unacked = alerts.get_active_unacked_num()
     # g.alerts = alerts.get_active(build_devices=True)
@@ -94,14 +98,14 @@ def page_not_found(e: str):
 @utils.authenticate
 def index() -> str:
     """App dashboard for authenticated users."""
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     metrics = Metrics(conn, cursor)
     devices_col = Devices(conn, cursor)
 
     # Get favorite devices, if theres none get all devices.
     favorites = True
     fav_devices = metrics.get_favorite_devices()
-    all_devices = devices_col.get_online_count()
+    all_devices = devices_col.get_recent()
     if not fav_devices:
         favorites = False
         devices = all_devices
@@ -115,13 +119,14 @@ def index() -> str:
     sh.get_last()
     data = {}
     data['active_page'] = 'dashboard'
-    data['num_connected'] = all_devices
+    data['num_connected'] = devices_col.get_online_count()
     data['device_favorites'] = favorites
     data['devices'] = devices
     data['new_devices'] = new_devices
     data['runs_over_24'] = metrics.get_all_scans_24()
     data['host_scan'] = sh
     data['online_donut'] = donut_devices_online
+    print(data)
     return render_template('dashboard.html', **data)
 
 
@@ -150,7 +155,7 @@ def register_jinja_funcs(app: Flask):
 
 
 if __name__ == '__main__':
-    port = 5000
+    port = app.config['APP_PORT']
     if len(sys.argv) > 1:
         port = sys.argv[1]
     app.secret_key = 'super secret key'
@@ -158,7 +163,7 @@ if __name__ == '__main__':
     register_blueprints(app)
     register_jinja_funcs(app)
     # install()
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port, debug=True)
 
 
 # End File: lan-nanny/lan_nanny/app.py

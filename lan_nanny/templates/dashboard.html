@@ -35,7 +35,7 @@
             <div class="col mr-2">
               <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Scan Status</div>
               <div class="h5 mb-0 font-weight-bold text-gray-800">
-                {%if host_scan.completed%}
+                {%if host_scan and host_scan.completed%}
                   {{host_scan.end_ts|smart_time}}
                 {%else%}
                   Currently Running
@@ -58,7 +58,7 @@
             <div class="col mr-2">
               <div class="text-xs font-weight-bold text-info text-uppercase mb-1">New Devices Today</div>
               <div class="h5 mb-0 font-weight-bold text-gray-800">
-                {%if new_devices == 0%}
+                {%if new_devices and new_devices == 0%}
                   0
                 {%else%}
                   {{new_devices}}

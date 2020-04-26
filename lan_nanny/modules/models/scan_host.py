@@ -59,9 +59,9 @@ class ScanHost(Base):
         self.setup()
         insert_sql = """
             INSERT INTO %s
-            (created_ts, completed, trigger)
-            VALUES (?, ?, ?)""" % (self.table_name)
-
+            (`created_ts`, `completed`, `trigger`)
+            VALUES (?, ?, ?)""" % self.table_name
+        insert_sql = insert_sql.replace("?", "%s")
         self.cursor.execute(insert_sql, (self.created_ts, 0, self.trigger))
         self.conn.commit()
         self.id = self.cursor.lastrowid

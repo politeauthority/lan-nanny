@@ -22,42 +22,6 @@
             <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
               <tr>
                 <td>
-                  DB File
-                </td>
-                <td>
-                  <code>{{db_name}}</code>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  DB Size
-                </td>
-                <td>
-                  {{db_growth['db_current']['size_pretty']}}
-                </td>
-              </tr>
-              {%if g.options['beta-features'].value %}
-                <tr>
-                  <td>
-                    DB Growth Over 24 Hours
-                  </td>
-                  <td>
-                    {{db_growth['db_24_hour']['size_pretty']}} ({{db_growth['db_24_hour']['percent']}}%)
-                  </td>
-                </tr>
-                {%if db_growth['db_first']%}
-                <tr>
-                  <td>
-                    DB Started
-                  </td>
-                  <td>
-                    {{db_growth['db_first'].created_ts|pretty_time}}
-                  </td>
-                </tr>
-                {%endif%}
-              {%endif%}
-              <tr>
-                <td>
                   Recorded Witness
                 </td>
                 <td>
