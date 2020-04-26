@@ -11,5 +11,5 @@ dist
 .pytest_cache
 
 #Lan Nanny
-lan_nanny/config/default.py
+lan_nanny/config/*
 

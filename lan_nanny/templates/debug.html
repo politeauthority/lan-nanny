@@ -21,10 +21,12 @@
           <div class="table-responsive">
             <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
               {%for option_name, option in options.items()%}
+                {%if option_name != "console-password"%}
                 <tr>
                   <td>{{option_name}}</td>
                   <td>{{option.value}}</td>
                 </tr>
+                {%endif%}
               {%endfor%}
             </table>
           </div>

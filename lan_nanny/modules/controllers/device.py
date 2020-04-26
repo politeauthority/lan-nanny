@@ -109,7 +109,7 @@ def edit(device_id: int) -> str:
     data['form'] = 'edit'
     data['active_page'] = 'devices'
     data['active_page_device'] = 'edit'
-    return render_template('device/form.html', **data)
+    return render_template('device/edit.html', **data)
 
 
 @device.route('/save', methods=['POST'])

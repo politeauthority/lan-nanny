@@ -39,14 +39,14 @@
           <small id="vendorHelp" class="form-text text-muted">Vendor of the device (optional).</small>
         </div>
 
-        <!-- Device type select form -->
+        <!-- Device kind select form -->
         <div  class="form-group">
           <label for="device_type_select">Type</label>
           <select class="form-control" id="device_type_select" name="device_type_select"  aria-describedby="typeSelectHelp">
             <option value="none">None</option>
             {% for device_type in device_types%}
               {%if device.icon == icon_css %}selected{%endif%}
-              <option value="{{device_type}}" {%if device.type == device_type %}selected{%endif%}>{{device_type}}</option>
+              <option value="{{device_type}}" {%if device.kind == device_type %}selected{%endif%}>{{device_type}}</option>
             {%endfor%}
           </select>
           <small id="typeSelectHelp" class="form-text text-muted">Type of device</small>

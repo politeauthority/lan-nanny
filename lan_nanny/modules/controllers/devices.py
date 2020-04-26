@@ -134,15 +134,32 @@ def roster_offline(page: str="1") -> str:
 
 
 @devices.route('/new')
+@devices.route('/new/<page>')
 @utils.authenticate
-def roster_new() -> str:
+def roster_new(page: str="1") -> str:
     """Devices roster page for new devices."""
+    page = int(page)
+    hours_24 = arrow.utcnow().datetime - timedelta(hours=24)
     conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
-    devices = DevicesCollect(conn, cursor)
+    devices_collection = DevicesCollect(conn, cursor)
+    device_pages = devices_collection.get_paginated(
+        page=page,
+        where_and=[
+            {
+                'field': 'first_seen',
+                'value': hours_24,
+                'op': '>='
+            }
+        ],
+        order_by = {
+            'field': 'first_seen',
+            'op' : 'DESC'
+        })
     data = {}
     data['active_page'] = 'devices'
     data['active_page_devices'] = 'new'
-    data['devices'] = devices.get_new()
+    data['devices'] = device_pages['objects']
+    data['pagination'] = utils.gen_pagination_urls('/devices/new/', device_pages['info'])
     return render_template('devices/roster.html', **data)
 
 
