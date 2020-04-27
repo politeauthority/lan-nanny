@@ -3,12 +3,14 @@ FROM debian:bullseye-slim
 VOLUME /app/
 WORKDIR /app/
 ADD ./ /app/
+ENV LAN_NANNY_APP_PORT=5050
 ENV LAN_NANNY_CONFIG=docker
 ENV LAN_NANNY_DB_HOST=lan-nanny-mysql
 ENV LAN_NANNY_DB_PORT=3306
 ENV LAN_NANNY_DB_NAME=lan_nanny
 ENV LAN_NANNY_DB_USER=root
 ENV LAN_NANNY_DB_PASS=pass
+ENV LAN_NANNY_APP_PORT=5000
 
 # Install apt requirements
 RUN apt-get update && \
