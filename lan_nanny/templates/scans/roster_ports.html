@@ -44,7 +44,7 @@
                 </thead>
                 {% for scan in scans %}
                 <!--  href="/scan/info/host/{{scan.id}} -->
-                <tr class="link_row" data-href="/scan/info/hosts/{{scan.id}}">
+                <tr class="link_row" data-href="/scan/info/port/{{scan.id}}">
                   <td>
                     {%if scan.completed and scan.success%}
                       <a href="/scan/info/port/{{scan.id}}">
@@ -62,7 +62,6 @@
                     {%endif%}
                   </td>
                   <td>
-                    {{scan.completed}}
                   {{devices[scan.device_id]|device_icon_status}}</td>
                   <td>{{scan.created_ts|smart_time}}</td>
                   <td>
