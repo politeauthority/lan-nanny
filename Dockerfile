@@ -3,6 +3,7 @@ FROM debian:bullseye-slim
 VOLUME /app/
 WORKDIR /app/
 ADD ./ /app/
+ENV LAN_NANNY_APP_PORT=5050
 ENV LAN_NANNY_CONFIG=docker
 ENV LAN_NANNY_DB_HOST=lan-nanny-mysql
 ENV LAN_NANNY_DB_PORT=3306

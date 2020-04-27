@@ -50,7 +50,7 @@ class Options(Base):
             {
                 'name': 'scan-hosts-range',
                 'type': 'str',
-                'default': '192.168.50.1-255'
+                'default': '192.168.1.0/23'
             },
             {
                 'name': 'scan-hosts-tool',
