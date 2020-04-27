@@ -9,6 +9,7 @@ ENV LAN_NANNY_DB_PORT=3306
 ENV LAN_NANNY_DB_NAME=lan_nanny
 ENV LAN_NANNY_DB_USER=root
 ENV LAN_NANNY_DB_PASS=pass
+ENV LAN_NANNY_APP_PORT=5000
 
 # Install apt requirements
 RUN apt-get update && \

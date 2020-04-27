@@ -4,7 +4,7 @@
 import os
 
 DEBUG = True
-APP_PORT = 5000
+APP_PORT = int(os.environ.get('LAN_NANNY_APP_PORT', 5000))
 LAN_NANNY_TMP_DIR = "/tmp"
 LAN_NANNY_SCAN_LOG = os.path.join(LAN_NANNY_TMP_DIR, 'lan_nanny_scan.log')
 LAN_NANNY_WEB_LOG = os.path.join(LAN_NANNY_TMP_DIR, 'lan_nanny_web.log')
