@@ -27,8 +27,9 @@ from .collections.options import Options
 
 DATABASE_NAME = 'lan_nanny'
 
-def connect_mysql(server: dict=None):
+def connect_mysql(server: dict):
     """Connect to MySql database and get a cursor object."""
+    print(server)
     try:
         connection = mysql.connector.connect(
             host=server['host'],
@@ -47,6 +48,7 @@ def connect_mysql(server: dict=None):
 
 def connect_mysql_no_db(server):
     """Connect to MySql database and get a cursor object."""
+    print(server)
     try:
         connection = mysql.connector.connect(
             host=server['host'],
@@ -64,10 +66,12 @@ def connect_mysql_no_db(server):
     return connection, cursor
 
 
-def create_mysql_database(conn, cursor):
-    sql = """CREATE DATABASE IF NOT EXISTS %s""" % DATABASE_NAME
+def create_mysql_database(conn, cursor, db_name: str):
+    """Create the MySQL database."""
+    sql = """CREATE DATABASE IF NOT EXISTS %s""" % db_name
     cursor.execute(sql)
-    print('Created database: %s' % DATABASE_NAME)
+    print('Created database: %s' % db_name)
+    return True
 
 
 def create_connection(database_file: str):
