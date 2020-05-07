@@ -10,6 +10,7 @@ from flask import g, Markup
 
 from .models.device import Device
 from .models.port import Port
+from . import utils
 
 
 def time_ago(seen_at: datetime) -> str:
@@ -55,11 +56,46 @@ def smart_time(date_val: datetime, format_switch_range_seconds: int = None) -> s
         return parsed.humanize()
 
 
+def pretty_time_adaptive(date_val: datetime) -> str:
+    """
+    Create a switchable time display, starting with time ago value, which can be clicked to show
+    a more standard date value via javascript.
+
+    """
+    if not date_val:
+        return ''
+    parsed = arrow.get(date_val)
+    parsed = parsed.to(g.options['timezone'].value)
+    format_switch_range_seconds = (60 * 60) * 12  # default 12 hours
+
+    delta = arrow.utcnow().datetime - parsed.datetime
+
+    if delta.seconds > format_switch_range_seconds:
+        return parsed.format('ddd MMM Do h:mm:ss a')
+    else:
+        return parsed.format('h:mm:ss a')
+
+
+def time_switch(the_time) -> str:
+    """Draw a datetime var in "time ago" with a hidden span containing the pretty time."""
+    if not the_time:
+        return ''
+    the_arrow = arrow.get(the_time)
+    pretty_time = pretty_time_adaptive(the_time)
+    html = '<div class="time_switch">'
+    html += '<i class="fas fa-clock"></i>'
+    html += '<span class="time-pretty">%s</span>' % arrow.get(the_time).humanize()
+    html += '<span class="time-long hidden">%s</span>' % pretty_time
+    html += '</div>'
+    return Markup(html)
+
 def online(seen_at: datetime) -> bool:
     """
     Checks to see if the device's last_seen attribute has checked in within x minutes.
 
     """
+    if not seen_at:
+        return False
     now = arrow.utcnow().datetime
     seen = arrow.get(seen_at).datetime
 
@@ -84,7 +120,6 @@ def connected_devices(devices: list) -> int:
 
 def device_icon_status(device: Device) -> int:
     """
-    Takes a list of devices and determines the number of currently connected devices.
 
     """
     now = arrow.utcnow().datetime
@@ -94,6 +129,9 @@ def device_icon_status(device: Device) -> int:
     if now - seen < timedelta(minutes=int(g.options['active-timeout'].value)):
         online = ' connected_bolt'
 
+    if not device.last_seen:
+        online = ''
+
     icon = ''
     if device.icon:
         icon = '<a href="/device/info/%s"><i class="%s"></i></a>' % (
@@ -102,7 +140,7 @@ def device_icon_status(device: Device) -> int:
     html = """
     <i class="fas fa-bolt icon-pad%(online)s"></i>
     %(icon)s
-    <a href="/device/info/%(id)s">%(name)s</a>
+    <a href="/device/%(id)s">%(name)s</a>
     """ % {
         'icon': icon,
         'online': online,
@@ -112,18 +150,11 @@ def device_icon_status(device: Device) -> int:
     return Markup(html)
 
 
-def time_switch(the_time):
-    """Draw a datetime var in "time ago" with a hidden span containing the pretty time."""
-    the_arrow = arrow.get(the_time)
-    pretty_time = the_arrow.to(g.options['timezone'].value).format('ddd MMM Do h:mm:ss a')
-    html = ''
-    html += '<span class="time-pretty">%s</span>' % arrow.get(the_time).humanize()
-    html += '<span class="time-long hidden">%s</span>' % pretty_time
-    return Markup(html)
-
-
 def number(number: int) -> str:
     """Format an int as a comma broken fiscal numeric string."""
     return format(number, ",")
+
+def get_percent(whole: int, part: int, round_ret: int=0) -> int:
+    return utils.get_percent(whole, part, round_ret)
 
 # End File: lan-nanny/lan_nanny/modules/filters.py

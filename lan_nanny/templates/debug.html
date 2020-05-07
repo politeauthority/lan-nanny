@@ -1,0 +1,85 @@
+<!-- Dashboard -->
+{% extends "layout.html" %}
+{% block content %}
+
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">DEBUG</h1>
+  </div>
+
+  <!-- Content Row -->
+  <div class="row">
+    <!-- Options Table -->
+    <div class="col-xl-6 col-lg-6">
+      <div class="card shadow mb-4">
+        <!-- Card Header -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          Options
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
+              {%for option_name, option in options.items()%}
+                {%if option_name != "console-password"%}
+                <tr>
+                  <td>{{option_name}}</td>
+                  <td>{{option.value}}</td>
+                </tr>
+                {%endif%}
+              {%endfor%}
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sys Info Table -->
+    <div class="col-xl-6 col-lg-6">
+      <div class="card shadow mb-4">
+        <!-- Card Header -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          Sys Info
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
+              {%for sys_info_name, sys_info in sys_infos.items()%}
+                <tr>
+                  <td>{{sys_info_name}}</td>
+                  <td>{{sys_info.value}}</td>
+                </tr>
+              {%endfor%}
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENV Table -->
+    <div class="col-xl-6 col-lg-6">
+      <div class="card shadow mb-4">
+        <!-- Card Header -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          Environmental Vars
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
+              <tr>
+                <td>LAN_NANNY_CONFIG</td>
+                <td>{{environment['LAN_NANNY_CONFIG']}}</td>
+              </tr>
+            </table>
+            {{sys_infos}}
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+{%endblock%}
+
+<!-- EndFile: lan-nanny/lan_nanny/templates/debug.html -->

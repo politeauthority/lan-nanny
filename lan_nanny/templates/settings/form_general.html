@@ -1,0 +1,131 @@
+<!-- Settings - Form General -->
+
+{% extends "layout.html" %}
+
+{%block head%}
+  <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
+{%endblock%}
+
+
+{% block content %}
+  <div class="row">
+    <div class="col-lg-6">
+      <h2>Settings</h2>
+    </div>
+  </div>
+
+  <form action="/settings/save-general" method="POST">
+    <!-- Second Row -->
+    <div class="row">
+    {% with active_page=active_page_sub %}
+      {% include "settings/sub_nav.html" %}
+    {% endwith %}
+    </div><!-- End Second Row -->
+
+
+    <div class="row">
+
+      <!-- General Settings -->
+      <div class="col-xl-6 col-lg-6">
+        <div class="card shadow mb-4">
+          <!-- Card Header -->
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">
+              General
+            </h6>
+          </div>
+          <div class="card-body">
+
+            <div class="form-group form-sm">
+              <label for="systemNameHelp">System Name</label>
+              <input type="input" class="form-control form-sm" id="setting_system_name" name="setting_system_name" aria-describedby="systemNameHelp" value="{{settings['system-name'].value}}">
+              <small id="systemNameHelp" class="form-text text-muted">If you run multiple instances of Lan Nanny, name them uniquely to differentiate them.</small>
+            </div>
+
+            <!-- Timezone -->
+            <div class="form-group">
+              <label for="settings_timezone">Timezone</label>
+              <select class="form-control" id="settings_timezone" name="settings_timezone"  aria-describedby="timezoneHelp">
+                <option selected="selected">{{settings['timezone'].value}}</option>
+                <option>US/Alaska</option>
+                <option>US/Aleutian</option>
+                <option>US/Arizona</option>
+                <option>US/Central</option>
+                <option>US/East-Indiana</option>
+                <option>US/Eastern</option>
+                <option>US/Hawaii</option>
+                <option>US/Indiana-Starke</option>
+                <option>US/Michigan</option>
+                <option>US/Mountain</option>
+                <option>US/Pacific</option>
+                <option>US/Pacific-New</option>
+                <option>US/Samoa</option>
+                <option>UTC</option>
+              </select>
+              <small id="timezoneHelp" class="form-text text-muted">Timezone for display</small>
+            </div>
+
+            <!-- Console Color -->
+            <div class="form-group">
+              <label for="settings_console_ui_color">Console Color</label>
+              <select class="form-control" id="settings_timezone" name="settings_console_ui_color"  aria-describedby="settings_console_ui_color_help">
+                <option value="{{settings['console-ui-color'].value}}" selected="selected">{{settings['console-ui-color'].value|capitalize}}</option>
+                <option value="black">Black</option>
+                <option value="red">Red</option>
+                <option value="pink">Pink</option>
+
+              </select>
+              <small id="settings_console_ui_color_help" class="form-text text-muted">Console color theme</small>
+            </div>
+
+            <div class="form-group form-sm">
+              <label for="setting_active_timeout">Active Device Timeout</label>
+              <input type="number" class="form-control form-sm" id="setting_active_timeout" name="setting_active_timeout" value="{{settings['active-timeout'].value}}" aria-describedby="activeTimeoutHelp">
+              <small id="activeTimeoutHelp" class="form-text text-muted">Number of minutes a device has to be missing from scans to be marked offline.</small>
+            </div>
+            
+            <div class="form-group">
+              <label for="setting_auto_reload_console">Auto Reload Web Console</label>
+              <input id="setting_auto_reload_console" type="checkbox" data-toggle="toggle" aria-describedby="autoReloadConsoleHelp">
+              <small id="autoReloadConsoleHelp" class="form-text text-muted">Reloads console every 5 minutes.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="setting_beta_features">Enable Beta Features</label>
+              <input id="setting_beta_features" type="checkbox" data-toggle="toggle" aria-describedby="betaFeaturesHelp">
+              <small id="betaFeaturesHelp" class="form-text text-muted">Enable beta features (may be buggy)</small>
+
+            </div>
+
+            <div id="hidden_forms" class=""></div>
+            <br/>
+
+          </div>
+        </div>
+      </div> <!-- End General Settings -->
+
+      <div id="hidden_forms" class=""></div>
+
+    </div>
+
+    <div class="row">
+      <button class="btn btn-success" type="submit">Save</button>
+    </div>
+  </form>
+
+{%endblock%}
+
+{%block javascript%}
+  <script src="/static/js/bootstrap4-toggle.min.js"></script>
+  <script type="text/javascript">
+    $( document ).ready(function(){
+      var beta_features_value = convert_str_bool("{{settings['beta-features'].value}}");
+      register_toggle_form('setting_beta_features', beta_features_value);
+
+      var auto_reload_console_value = convert_str_bool("{{settings['auto-reload-console'].value}}");
+      register_toggle_form('setting_auto_reload_console', auto_reload_console_value);
+    });
+  </script>
+{%endblock%}
+
+<!-- EndFile: lan-nanny/lan_nanny/templates/form_general.html -->

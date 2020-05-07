@@ -19,23 +19,7 @@
         <!-- Card Body -->
         <div class="card-body">
           <div class="table-responsive">
-            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-              <tr>
-                <td>
-                  DB Name
-                </td>
-                <td>
-                  {{db_name}}
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  DB Size
-                </td>
-                <td>
-                  {{db_size}}
-                </td>
-              </tr>
+            <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
               <tr>
                 <td>
                   Recorded Witness
@@ -66,7 +50,9 @@
       </div>
     </div>
   </div>
-
+  {%if g.options['beta-features'].value %}  
+    <a href="/about/debug">DEBUG</a>
+  {%endif%}
 {%endblock%}
 
 <!-- EndFile: lan-nanny/lan_nanny/templates/about.html -->

@@ -1,0 +1,32 @@
+<!-- Device info header -->
+<div class="row">
+  <div class="col-lg-6">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+      <h1 class="h3 mb-0 text-gray-800">
+        {%if device %}
+          {%if device.last_seen|online%}
+            <i class="fas fa-bolt fa-2x device_info_connect connected_bolt"></i>
+          {%endif%}
+          {%if device.icon%}
+            <i style="padding-right:15px" class="{{device.icon}} fa-2x"></i>
+          {%endif%}
+        {%endif%}
+        {{device.name}}
+      </h1>
+    </div>
+  </div>
+  <div class="col-lg-6 text-right">
+    <!-- <i class="fas fa-bolt"></i> -->
+    <a id="device-favorite" href="#" class="btn btn-warning btn-circle btn-lg">
+      <i class="fa"></i>
+    </a>
+  </div>
+</div>
+<!-- End Device info header -->
+
+<!-- Sub Nav -->
+<div class="row">
+  {% with active_page=active_page_device %}
+    {% include "device/sub_nav.html" %}
+  {% endwith %}
+</div> <!-- end Sub Nav-->

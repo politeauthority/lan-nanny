@@ -1,32 +1,38 @@
 <!-- Device Roster -->
 {% extends "layout.html" %}
 {% block head%}
-  <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
 {%endblock%}
+
 {% block content %}
   <!-- Page Heading -->
-  <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Devices{%if devices|length%} ({{devices|length}}){%endif%}</h1><br/>
-  </div>
   <div class="row">
-    <ul class="nav roster_nav">
-      <li class="nav-item">
-        <a class="nav-link {%if active_page_devices=='all'%}active{%endif%}" href="/device">All</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link  {%if active_page_devices=='online'%}active{%endif%}" href="/device/online">Online</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link  {%if active_page_devices=='offline'%}active{%endif%}" href="/device/offline">Offline</a>
-      </li>
-    </ul> 
+    <div class="col-lg-6">
+      <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+          Devices - {{active_page_devices|capitalize}}
+          {%if pagination['total_units']%}
+            <span class="badge badge-secondary">{{pagination['total_units']}}</span>
+          {%endif%}
+        </h1>
+      </div>
+    </div>
   </div>
+  <!-- Sub Nav -->
+  <div class="row">
+    {% with active_page=active_page_devices %}
+      {% include "devices/sub_nav.html" %}
+    {% endwith %}
+  </div> <!-- end Sub Nav-->
+
+  {% with pagination=pagination, alignment="center" %}
+    {% include "pagination.html" %}
+  {% endwith %}
 
   <!-- Content Row -->
   <div class="row">
 
     <!-- Device Table -->
-    <div class="col-xl-12 col-lg-12">
+    <div class="col-xl-8 col-lg-8">
       <div class="card shadow mb-4">
         <!-- Card Body -->
         <div class="card-body">
@@ -38,7 +44,6 @@
                     <td>Name</td>
                     <td>IP</td>
                     <td>Last Seen</td>
-                    <td>First Seen</td>
                   </tr>
                 </thead>
                 {% for device in devices %}
@@ -48,7 +53,6 @@
                   </td>
                   <td>{{device.ip}}</td>
                   <td>{{device.last_seen|time_ago}}</td>
-                  <td>{{device.first_seen|pretty_time}}</td>
                 </tr>
                 {%endfor%}
               </table>
@@ -60,8 +64,11 @@
           </div>
       </div>
     </div>
+  </div> <!-- End Main Content -->
 
-  </div>
+  {% with pagination=pagination, alignment="center" %}
+    {% include "pagination.html" %}
+  {% endwith %}
 
 {%endblock%}
 

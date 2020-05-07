@@ -6,6 +6,11 @@
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Alerts</h1>
   </div>
+  <div class="row">
+    {% with active_page=active_page_alerts %}
+      {% include "alerts/sub_nav.html" %}
+    {% endwith %}
+  </div>
 
   <!-- Content Row -->
   <div class="row">
@@ -18,66 +23,33 @@
           <h4>Active Alerts</h4>
           <div class="table-responsive">
             {%if alerts%}
-              <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+              <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                   <tr>
                     <td></td>
-                    <td>Device</td>
                     <td>Alert Type</td>
-                    <td>Acknowledged</td>
-                    <td>Notification Sent</td>
+                    <td>Trigger Time</td>
+                    <td>Last Observed</td>
                   </tr>
                 </thead>
                 {% for alert in alerts %}
                 <tr>
+                  <td><a href="/alerts/info/{{alert.id}}">{{alert.id}}</a></td>
                   <td>
-                    {%if alert.device.icon %}
-                      <i class="{{alert.device.icon}}"></i>
-                    {%endif%}
+                  {%if alert.kind == 'no-hosts-over-time'%}
+                    No Hosts Scanned
+                  {%elif alert.kind == 'new-device'%}
+                    New Device
+                  {%endif%}
                   </td>
-                  <td>
-                    <i class="fas fa-bolt {%if alert.device.last_seen|online %}connected_bolt{%endif%}"></i>
-                    <a href="/alert/info/{{alert.id}}">{{alert.device.name}}</a>
-                  </td>
-                  <td>{{alert.alert_type}}</td>
-                  <td>
-                    {% if alert.acked %}
-                      True
-                    {%else%}
-                      False
-                    {% endif %}
-                  </td>
-                  <td>{{alert.notification_sent}}</td>
+                  <td>{{alert.created_ts|time_switch}}</td>
+                  <td>{{alert.last_observed_ts|time_switch}}</td>
                 </tr>
                 {%endfor%}
               </table>
             {%else%}
               <div class="text-center">
                 No Alerts!
-              </div>
-            {%endif%}
-          </div>
-      </div>
-    </div>
-    <div class="col-xl-12 col-lg-12">
-      <div class="card shadow mb-4">
-        <!-- Card Body -->
-        <div class="card-body">
-          <h4>Device's with set alerts ({{devices|length}})</h4>
-          <div class="table-responsive">
-            {%if devices%}
-              <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                {% for device in devices %}
-                <tr>
-                  <td>
-                    {{device|device_icon_status}}
-                  </td>
-                </tr>
-                {%endfor%}
-              </table>
-            {%else%}
-              <div class="text-center">
-                No devices with alerts yet.
               </div>
             {%endif%}
           </div>

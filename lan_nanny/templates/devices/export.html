@@ -1,0 +1,38 @@
+<!-- Device Roster -->
+{% extends "layout.html" %}
+{% block head%}
+  <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+{%endblock%}
+{% block content %}
+  <!-- Page Heading -->
+  <div class="row">
+    <div class="col-lg-6">
+      <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+          Devices
+        </h1>
+      </div>
+    </div>
+  </div>
+  <!-- Sub Nav -->
+  <div class="row">
+    {% with active_page=active_page_devices %}
+      {% include "devices/sub_nav.html" %}
+    {% endwith %}
+  </div> <!-- end Sub Nav-->
+
+  <!-- Content Row -->
+  <div class="row">
+    <div class="col-xl-12 col-lg-12">
+      <div class="card shadow mb-4">
+        <!-- Card Body -->
+        <div class="card-body">
+          <a class="btn btn-primary" href="/devices/export/all">Export</a> Export Devices to CSV 
+        </div>
+      </div>
+    </div>
+  </div> <!-- End Main Content -->
+
+{%endblock%}
+
+<!-- EndFile: lan-nanny/lan_nanny/templates/devices/export.html -->

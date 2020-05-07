@@ -8,21 +8,29 @@ import arrow
 
 from flask import g
 
-from .base import Base
+from .base_entity_meta import BaseEntityMeta
 from ..collections.device_ports import DevicePorts
 
 
-class Device(Base):
+class Device(BaseEntityMeta):
     """Device object, representing a LanNanny registered device."""
 
     def __init__(self, conn=None, cursor=None):
-        """Device init for a new device object, passing SQLite connection parameters."""
+        """
+        Device init for a new device object, passing SQLite connection parameters.
+        @unit-tested
+
+        """
         super(Device, self).__init__(conn, cursor)
         self.conn = conn
         self.cursor = cursor
         self.table_name = 'devices'
 
         self.field_map = [
+            {
+                'name': 'update_ts',
+                'type': 'datetime'
+            },
             {
                 'name': 'mac',
                 'type': 'str',
@@ -69,8 +77,25 @@ class Device(Base):
                 'type': 'datetime'
             },
             {
-                'name': 'update_ts',
-                'type': 'datetime'
+                'name': 'last_port_scan_id',
+                'type': 'int',
+            },
+            {
+                'name': 'first_port_scan_id',
+                'type': 'int',
+            },
+            {
+                'name': 'port_scan_lock',
+                'type': 'bool',
+            },
+            {
+                'name': 'host_names',
+                'type': 'str',
+            },
+            {
+                'name': 'kind',
+                'type': 'str',
+                'default': 'Unknown',
             },
         ]
         self.ports = []
@@ -82,17 +107,21 @@ class Device(Base):
         """Device representation show the name if we have one."""
         return "<Device: %s>" % self.name
 
-    def get_by_mac(self, mac: str):
-        """Get a device from the devices table based on mac address."""
+    def get_by_mac(self, mac: str) -> bool:
+        """
+        Get a device from the devices table based on mac address.
+        @unit-tested
+
+        """
         sql = """SELECT * FROM devices WHERE mac='%s'""" % mac
         self.cursor.execute(sql)
         device_raw = self.cursor.fetchone()
         if not device_raw:
-            return self
+            return False
 
         self.build_from_list(device_raw)
 
-        return self
+        return True
 
     def get_ports(self):
         """Get device ports added to self.ports."""
@@ -128,9 +157,7 @@ class Device(Base):
         """
         super(Device, self).build_from_list(raw)
         if build_ports:
-            self.check_required_class_vars()
-            ports = Ports(self.conn, self.cursor)
-            self.ports = ports.get_by_device(self.id)
+            self.get_ports()
         return True
 
 # End File: lan-nanny/lan_nanny/modules/models/device.py

@@ -1,0 +1,255 @@
+<!-- Device Info -->
+
+{% extends "layout.html" %}
+
+{%block head%}
+  <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
+{%endblock%}
+
+{% block content %}
+  {% with active_page=active_page_device %}
+    {% include "device/heading.html" %}
+  {% endwith %}
+
+  <!-- Content Row -->
+  <div class="row">
+    <!-- Device Info -->
+    <div class="col-xl-6 col-lg-6">
+      <div class="card shadow mb-4">
+        <!-- Card Header -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">
+            Info
+          </h6>
+        </div>
+
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
+              <tr>
+                <td><b>IP</b></td>
+                <td>
+                  <code>{{device.ip}}</code>
+                </td>
+              </tr>
+              <tr>
+                <td><b>Mac</b></td>
+                <td><code>{{device.mac}}</code></td>
+              </tr>
+              <tr>
+                <td><b>Vendor</b></td>
+                <td>
+                  {%if device.vendor %}
+                    {{device.vendor}}
+                  {%endif%}
+                </td>
+              </tr>
+              <tr>
+                <td><b>Type</b></td>
+                <td>
+                  {%if device.kind %}
+                    {{device.kind}}
+                  {%endif%}
+                </td>
+              </tr>
+              <tr>
+                <td><b>Status</b></td>
+                {%if device.last_seen|online%}
+                  <td>Online</td>
+                {%else%}
+                  <td>Disconnected</td>
+                {%endif%}
+              </tr>
+              <tr>
+                <td><b>Last Seen</b></td>
+                <td>
+                  {%if device.last_seen %}
+                    {{device.last_seen|time_switch}}
+                  {%else%}
+                    Never
+                  {%endif%}
+                </td>
+              </tr>
+              <tr>
+                <td><b>First Seen</b></td>
+                <td>{{device.first_seen|pretty_time}}</td>
+              </tr>
+
+              <tr>
+                <td><b>Port Scanning</b></td>
+                <td>
+                  {{device.port_scan}}
+                </td>
+              </tr>
+              <tr>
+                <td><b>Last Port Scan</b></td>
+                <td>
+                  {% if device.last_port_scan%}
+                    {{device.last_port_scan|time_switch}}
+                  {%else%}
+                    Never Ran
+                  {%endif%}
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div><!-- END Device Info -->
+
+    <!-- Device Ports -->
+    <div class="col-xl-6 col-lg-6">
+      <div class="card shadow mb-4">
+        <!-- Card Header -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">
+            <a href="/device/info/ports/{{device.id}}">Ports</a>
+          </h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="table-responsive">
+            {%if device.ports%}
+              <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                  <tr>
+                    <td>Port</td>
+                    <td>Service</td>
+                    <td>Protocol</td>
+                    <td>Last Seen</td>
+                  </tr>
+                </thead>
+                {%for port in device.ports%}
+                  <tr>
+                    <td>
+                      <a href="/ports/info/{{port.port.id}}">{{port.port.number}}</a>
+                    </td>
+                    <td>{{port.port.service}}</td>
+                    <td>{{port.port.protocol}}</td>
+                    <td>{{port.last_seen|smart_time}}</td>
+                  </tr>
+                {%endfor%}
+              </table>
+            {%elif device.port_scan==1%}
+              No ports found yet for device.
+            {%else%}
+              No ports found, enable port scanning for this device.
+            {%endif%}
+          </div>
+        </div>
+      </div>
+    </div><!-- End Device Ports-->
+  
+    {%if g.options['beta-features'].value %}
+      <!-- Device Stats -->
+      <div class="col-xl-6 col-lg-6">
+        <div class="card shadow mb-4">
+          <!-- Card Header -->
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">
+              Stats
+            </h6>
+          </div>
+          <!-- Card Body -->
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
+                <tr>
+                  <td>Connectivity last 24 hours</td>
+                  <td>{{device_over_day['device_online_percent']}}%</td>
+                </tr>
+                <tr>
+                  <td>Connectivity last week</td>
+                  <td>{{device_over_week['device_online_percent']}}%</td>
+                </tr>
+              </table>
+              
+            </div>
+          </div>
+        </div>
+      </div><!-- End Device Stats-->
+    {%endif%}
+
+    {%if g.options['beta-features'].value %}
+      {%if alerts%}
+        <!-- Device Alerts -->
+        <div class="col-xl-6 col-lg-6">
+          <div class="card shadow mb-4">
+            <!-- Card Header -->
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+              <h6 class="m-0 font-weight-bold text-primary">
+                Alerts
+              </h6>
+            </div>
+            <div class="card-body">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <td></td>
+                    <td>Alert Type</td>
+                    <td>Last Observed</td>
+                  </tr>
+                </thead>
+                {%for alert in alerts%}
+                <tr>
+                  <td>
+                    {%if alert.active %}
+                      blink red active
+                    {%else%}
+                      static black
+                    {%endif%}
+                  </td>
+                  <td>
+                    <a href="/alerts/info/{{alert.id}}">
+                      {%if alert.kind == 'new-device'%}
+                        New Device
+                      {%else%}
+                        {{alert.kind}}
+                      {%endif%}
+                    </a>
+                  </td>
+                  <td>{{alert.last_observed_ts|smart_time}}</td>
+                </tr>
+                {%endfor%}
+              </table>
+            </div>
+          </div>
+        </div><!-- END Device Alerts -->
+      {%endif%}
+    {%endif%}
+
+    {%if g.options['beta-features'].value %}
+      <!-- Device online Chart -->
+      <div class="card shadow mb-4">
+        <div class="card-header py-3">
+          <h6 class="m-0 font-weight-bold text-primary">Device Connectivity Over 24 Hours</h6>
+        </div>
+        <div class="card-body">
+          <div class="chart-area">
+            <canvas id="myAreaChart"></canvas>
+          </div>
+          <hr>
+
+          Api Route: <code>http://192.168.50.10:5000/api/device-online/{{device.id}}</code>
+          <div id="debug">debug</div>
+        </div>
+      </div><!-- End Device online chart -->
+    {%endif%}
+
+  </div>
+{%endblock%}
+
+{%block javascript%}
+  <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
+  <script src="/static/vendor/chart.js/Chart.min.js"></script>
+  <script src="/static/js/device-chart.js"></script>
+  <script type="text/javascript">
+    $( document ).ready(function(){
+      var device_favorite_status = convert_str_bool("{{device.favorite}}");
+      register_favorite_button('#device-favorite', device_favorite_status, '/device/favorite/{{device.id}}')
+    });
+  </script>
+{%endblock%}
+
+<!-- End File: lan-nanny/templates/devices/info.html

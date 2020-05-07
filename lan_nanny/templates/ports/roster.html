@@ -1,41 +1,51 @@
-<!-- Ports Roster -->
+<!-- Port Roster -->
 {% extends "layout.html" %}
-
+{% block head%}
+  <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+{%endblock%}
 {% block content %}
   <!-- Page Heading -->
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Ports</h1>
+    <h1 class="h3 mb-0 text-gray-800">
+      Ports
+      <span class="badge badge-secondary">{{ports_total}}</span>
+    </h1>
   </div>
-
+  <div class="row">
+    {% with active_page=active_page_ports %}
+      {% include "ports/sub_nav.html" %}
+    {% endwith %}
+  </div>
+  
+  {% with pagination=pagination, alignment="center" %}
+    {% include "pagination.html" %}
+  {% endwith %}
+  
   <!-- Content Row -->
   <div class="row">
 
-    <!-- Ports Table -->
-    <div class="col-xl-6 col-lg-6">
+    <!-- Device Table -->
+    <div class="col-xl-12 col-lg-12">
       <div class="card shadow mb-4">
-        <!-- Card Header -->
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">
-            Discovered Ports
-          </h6>
-        </div>
         <!-- Card Body -->
         <div class="card-body">
           <div class="table-responsive">
             {%if ports%}
-              <table class="table" id="dataTable" width="100%" cellspacing="0">
+              <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                   <tr>
-                    <td>Name</td>
+                    <td>Number</td>
                     <td>Service Name</td>
                     <td>Protocol</td>
+                    <td>Last Seen Open</td>
                   </tr>
                 </thead>
                 {% for port in ports %}
                 <tr>
-                  <td><a href="/ports/info/{{port.port}}/{{port.protocol}}">{{port.port}}</a></td>
+                  <td><a href="/ports/info/{{port.id}}">{{port.number}}</a></td>
                   <td>{{port.service}}</td>
                   <td>{{port.protocol}}</td>
+                  <td>{{port.updated_ts|smart_time}}</td>
                 </tr>
                 {%endfor%}
               </table>
@@ -45,43 +55,13 @@
               </div>
             {%endif%}
           </div>
-        </div>
       </div>
     </div>
+  </div> <!-- End Main Content -->
 
-    <!-- Devices with port scanning -->
-    <div class="col-xl-6 col-lg-6">
-      <div class="card shadow mb-4">
-        <!-- Card Header -->
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">
-            Devices with Port Scanning Enabled
-          </h6>
-        </div>
-        <!-- Card Body -->
-        <div class="card-body">
-          <div class="table-responsive">
-
-            {%if devices%}
-              <table class="table" id="dataTable" width="100%" cellspacing="0">
-                {% for device in devices %}
-                <tr>
-                  <td>{{device|device_icon_status}}</td>
-                  <td>{{device.last_port_scan|smart_time}}</td>
-                </tr>
-                {%endfor%}
-              </table>
-            {%else%}
-              <div class="text-center">
-                No devices with port scanning enabled.
-              </div>
-            {%endif%}
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
+  {% with pagination=pagination, alignment="center" %}
+    {% include "pagination.html" %}
+  {% endwith %}
 
 {%endblock%}
 
@@ -89,4 +69,5 @@
   <script src="vendor/datatables/jquery.dataTables.min.js"></script>
   <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
 {%endblock%}
+
 <!-- EndFile: lan-nanny/lan_nanny/templates/ports/roster.html -->

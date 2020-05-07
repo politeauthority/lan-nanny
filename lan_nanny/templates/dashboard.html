@@ -35,7 +35,7 @@
             <div class="col mr-2">
               <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Scan Status</div>
               <div class="h5 mb-0 font-weight-bold text-gray-800">
-                {%if host_scan.completed%}
+                {%if host_scan and host_scan.completed%}
                   {{host_scan.end_ts|smart_time}}
                 {%else%}
                   Currently Running
@@ -50,18 +50,18 @@
       </div>
     </div>
 
-    <!-- Favorites -->
-    <div class="col-xl-3 col-md-6 mb-4">
+    <!-- New Devices Today -->
+    <div id="devices_new" class="col-xl-3 col-md-6 mb-4">
       <div class="card border-left-info shadow h-100 py-2">
         <div class="card-body">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
               <div class="text-xs font-weight-bold text-info text-uppercase mb-1">New Devices Today</div>
               <div class="h5 mb-0 font-weight-bold text-gray-800">
-                {%if new_devices == 0%}
+                {%if new_devices and new_devices == 0%}
                   0
                 {%else%}
-                  <a href="/device/new">{{new_devices}}</a>
+                  {{new_devices}}
                 {%endif%}
               </div>
             </div>
@@ -130,7 +130,7 @@
               </table>
             {%else%}
               <div class="text-center">
-                No Devices Found.
+                No devices found.
               </div>
             {%endif%}
           </div>
@@ -167,7 +167,11 @@
   <script type="text/javascript">
     $( document ).ready(function(){
       $("#devices_online").click(function(){
-        window.location = "/device/online";
+        window.location = "/devices/online";
+      });
+
+      $("#devices_new").click(function(){
+        window.location = "/devices/new";
       });
 
       var donut_data = [];

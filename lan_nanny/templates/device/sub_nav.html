@@ -1,0 +1,14 @@
+<ul class="nav sub_nav">
+  <li class="nav-item">
+    <a class="nav-link {%if active_page=='general'%}active{%endif%}" href="/device/{{device.id}}">General</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {%if active_page=='ports'%}active{%endif%}" href="/device/ports/{{device.id}}">Ports</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {%if active_page=='options'%}active{%endif%}" href="/device/options/{{device.id}}">Options</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {%if active_page=='edit'%}active{%endif%}" href="/device/edit/{{device.id}}">Edit</a>
+  </li>
+</ul> 

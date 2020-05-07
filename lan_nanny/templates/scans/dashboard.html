@@ -1,0 +1,102 @@
+<!-- Scans Dashboard -->
+{% extends "layout.html" %}
+{% block content %}
+
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Scan Dashboard</h1>
+  </div>
+
+  {% with active_page=active_page_sub %}
+    {% include "scans/sub_nav.html" %}
+  {% endwith %}
+
+  <!-- Stats Row -->
+  <div class="row">
+
+    <!-- Host Scans today -->
+    <div id="devices_online" class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-success shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Host Scans Today</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{{host_scans_today}}</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-bolt fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Last Host Scan -->
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-primary shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Host Scan Status</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                {%if host_scan_last.completed%}
+                  {{host_scan_last.end_ts|smart_time}}
+                {%else%}
+                  Currently Running
+                {%endif%}
+              </div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-network-wired fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Port Scans Today -->
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-info shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Port Scans Today</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                {{port_scans_today}}
+              </div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-plus fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Last Port Scan -->
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-warning shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Port Scan Status</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                {%if port_scan_last.completed%}
+                  {{port_scan_last.end_ts|smart_time}}
+                {%else%}
+                  Currently Running
+                {%endif%}
+              </div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-comments fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- End Stats Row -->
+
+{%endblock%}
+
+<!-- EndFile: lan-nanny/lan_nanny/templates/scans/dashboard.html -->

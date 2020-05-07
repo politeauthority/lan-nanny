@@ -14,11 +14,8 @@ search = Blueprint('Search', __name__, url_prefix='/search')
 
 @search.route('/results', methods=['POST'])
 def results() -> str:
-    """
-    Port roster page.
-
-    """
-    conn, cursor = db.get_db_flask(app.config['LAN_NANNY_DB_FILE'])
+    """Search results page."""
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
 
     search_phrase = request.form['search'].strip()
     devices = Devices(conn, cursor)
@@ -33,7 +30,24 @@ def results() -> str:
     data['total_results'] = total
     data['devices'] = found_devices
     data['ports'] = found_ports
+
+    redir = redirect_if_one_result(data)
+    if redir:
+        return redirect(redir)
+
     return render_template('search/results.html', **data)
 
+def redirect_if_one_result(data: dict):
+    """If only one search result comes up, create the uri to go directly to that object."""
+    if data['total_results'] != 1:
+        return False
+
+    if len(data['devices']) == 1:
+        return '/device/%s' % data['devices'][0].id
+
+    if len(data['ports']) == 1:
+        return '/ports/info/%s' % data['ports'][0].id
+
+    return False
 
 # End File: lan-nanny/lan_nanny/modules/controllers/search.py

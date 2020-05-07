@@ -1,0 +1,77 @@
+<!-- Settings - Form Alerts -->
+
+{% extends "layout.html" %}
+
+{%block head%}
+  <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
+{%endblock%}
+
+
+{% block content %}
+  <div class="row">
+    <div class="col-lg-6">
+      <h2>Settings</h2>
+    </div>
+  </div>
+
+  <form action="/settings/save-alerts" method="POST">
+    <!-- Second Row -->
+    <div class="row">
+    {% with active_page=active_page_sub %}
+      {% include "settings/sub_nav.html" %}
+    {% endwith %}
+    </div><!-- End Second Row -->
+
+    <div class="row">
+
+      <!-- Alert General Settings -->
+      <div class="col-xl-6 col-lg-6">
+        <div class="card shadow mb-4">
+          <!-- Card Header -->
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">
+              General Alert Settings
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label for="setting_alerts_enabled">Enable Alerts</label>
+              <input id="setting_alerts_enabled" type="checkbox" data-toggle="toggle" aria-describedby="setting_alerts_enabled_help">
+              <small id="setting_alerts_enabled_help" class="form-text text-muted">Enable the alerting system.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="setting_alert_new_device">Alert on new devices</label>
+              <input id="setting_alert_new_device" type="checkbox" data-toggle="toggle" aria-describedby="setting_alert_new_device_help">
+              <small id="setting_alert_new_device_help" class="form-text text-muted">Create an alert when new devices are found on network.</small>
+            </div>
+
+          </div>
+        </div>
+      </div> <!-- End Alert General Settings -->
+
+      <div id="hidden_forms" class=""></div>
+
+    </div>
+
+    <div class="row">
+      <button class="btn btn-success" type="submit">Save</button>
+    </div>
+  </form>
+
+{%endblock%}
+
+{%block javascript%}
+  <script src="/static/js/bootstrap4-toggle.min.js"></script>
+  <script type="text/javascript">
+    $( document ).ready(function(){
+      var alerts_enabled_value = convert_str_bool("{{settings['alerts-enabled'].value}}");
+      register_toggle_form('setting_alerts_enabled', alerts_enabled_value);
+
+      var alert_new_device_value = convert_str_bool("{{settings['alerts-new-device'].value}}");
+      register_toggle_form('setting_alert_new_device', alert_new_device_value);
+    });
+  </script>
+{%endblock%}
+
+<!-- EndFile: lan-nanny/lan_nanny/templates/form_general.html -->

@@ -4,7 +4,7 @@
   <div class="row">
     <div class="col-lg-6">
       <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Scan: {{scan.id}}</h1>
+        <h1 class="h3 mb-0 text-gray-800">Hosts Scan {{scan.id}}</h1>
       </div>
     </div>
   </div>
@@ -25,30 +25,42 @@
         <div class="card-body">
           <div class="table-responsive">
             <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
-              <table class="table" id="dataTable" width="100%" cellspacing="0">
-                <tr>
-                  <td>ID</td>
-                  <td>{{scan.id}}</td>
-                </tr>
-                <tr>
-                  <td>Start</td>
-                  <td>{{scan.created_ts|smart_time}}</td>
-                </tr>
-                <tr>
-                  <td>End</td>
-                  <td>{{scan.end_ts|smart_time}}</td>
-                </tr>
-                <tr>
-                  <td>Status</td>
-                  <td>
-                    {%if scan.completed%}Completed{%endif%}
-                  </td>
-                </tr>
-                <tr>
-                  <td>Devices Found</td>
-                  <td>{{scan.num_devices}}</td>
-                </tr>
-              </table>
+              <tr>
+                <td><strong>ID</strong></td>
+                <td>{{scan.id}}</td>
+              </tr>
+              <tr>
+                <td><strong>Start</strong></td>
+                <td>{{scan.created_ts|smart_time}}</td>
+              </tr>
+              <tr>
+                <td><strong>End</strong></td>
+                <td>{{scan.end_ts|smart_time}}</td>
+              </tr>
+              <tr>
+                <td><strong>Status</strong></td>
+                <td>
+                  {%if scan.completed%}Completed{%endif%}
+                </td>
+              </tr>
+              <!-- 
+              <tr>
+                <td><strong>Devices Found</strong></td>
+                <td>{{scan.units}}</td>
+              </tr> -->
+
+              <tr>
+                <td><strong>Total Time</strong></td>
+                <td>{{scan.elapsed_time}}</td>
+              </tr>
+              <tr>
+                <td><strong>Command</strong></td>
+                <td>{{scan.command}}</td>
+              </tr>
+              <tr>
+                <td><strong>Trigger</strong></td>
+                <td>{{scan.trigger}}</td>
+              </tr>
             </table>
           </div>
         </div>
@@ -61,24 +73,26 @@
         <!-- Card Header -->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h6 class="m-0 font-weight-bold text-primary">
-            Devices
+            Devices - {{witnesses|length}}
           </h6>
         </div>
 
         <!-- Card Body -->
         <div class="card-body">
           <div class="table-responsive">
-            <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
-              {%if witnesses%}
-              <table class="table" id="dataTable" width="100%" cellspacing="0">
+            {%if witnesses%}
+              <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
                 {%for witness in witnesses%}
                 <tr>
                   <td>{{witness.device|device_icon_status}}</td>
                 </tr>
                 {%endfor%}
               </table>
-              {%endif%}
-            </table>
+            {%else%}
+              <div class="text-center">
+                No devices found in this scan.
+              </div>
+            {%endif%}
           </div>
         </div>
       </div>

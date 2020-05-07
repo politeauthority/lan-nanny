@@ -1,0 +1,119 @@
+<!-- Device Info Ports-->
+
+{% extends "layout.html" %}
+
+{% block content %}
+  {% with active_page=active_page_devices %}
+    {% include "device/heading.html" %}
+  {% endwith %}
+
+  <!-- Content Row -->
+  <div class="row">
+
+    <!-- Device Ports -->
+    <div class="col-xl-6 col-lg-6">
+      <div class="card shadow mb-4">
+        <!-- Card Header -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary model-sub">
+            Device Ports
+          </h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="table-responsive">
+            {%if device.ports%}
+              <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                  <tr>
+                    <td>Port</td>
+                    <td>Service</td>
+                    <td>Protocol</td>
+                    <td>Last Seen</td>
+                  </tr>
+                </thead>
+                {%for port in device.ports%}
+                  <tr>
+                    <td>
+                      <a href="/ports/info/{{port.port.id}}">{{port.port.number}}</a>
+                    </td>
+                    <td>{{port.port.service}}</td>
+                    <td>{{port.port.protocol}}</td>
+                    <td>{{port.last_seen|smart_time}}</td>
+                  </tr>
+                {%endfor%}
+              </table>
+            {%elif device.port_scan==1%}
+              No ports found yet for device.
+            {%else%}
+              No ports found, enable port scanning for this device.
+            {%endif%}
+          </div>
+        </div>
+      </div>
+    </div><!-- End Device Ports-->
+
+    <!-- Device Port Scan Logs -->
+    <div class="col-xl-6 col-lg-6">
+      <div class="card shadow mb-4">
+        <!-- Card Header -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">
+            Port Scan History
+          </h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="table-responsive">
+            {%if scan_ports%}
+              <p class="text-center">Last 10 port scans</p>
+              <table class="table" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                  <tr>
+                    <td>Status</td>
+                    <td>Scan Time</td>
+                    <td>Elapsed Time<td>
+                  </tr>
+                </thead>
+                {% for scan in scan_ports %}
+                <tr>
+                  <td>
+                    {%if scan.completed==1 and scan.success==1%}
+                      <a href="/scan/info/port/{{scan.id}}">
+                        <i class="fas fa-check scan-success"></i>
+                      </a>
+                    {%else%}
+                      <a href="/scan/info/port/{{scan.id}}">
+                        <i class="fas fa-exclamation-triangle scan-fail"></i>
+                      </a>
+                    {%endif%}
+                  </td>
+                  <td>{{scan.created_ts|time_switch}}</td>
+                  <td>{{scan.elapsed_time}} sec</td>
+                </tr>
+                {%endfor%}
+              </table>
+            {%else%}
+              <div class="text-center">
+                No port scans run for device yet.
+              </div>
+            {%endif%}
+          </div>
+        </div>
+      </div>
+    </div><!-- End Device Ports-->
+  </div>
+{%endblock%}
+{%block javascript%}
+  <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
+  <script type="text/javascript">
+    $( document ).ready(function(){
+
+      var device_favorite_status = convert_str_bool("{{device.favorite}}");
+      register_favorite_button('#device-favorite', device_favorite_status, '/device/favorite/{{device.id}}')
+
+    });
+  </script>
+{%endblock%}
+
+<!-- End File: lan-nanny/templates/devices/info_ports.html

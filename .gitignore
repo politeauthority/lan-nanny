@@ -4,12 +4,12 @@
 *.xml
 *.DS_Store
 .flake8
-Lan_nanny.egg-info/
-Lan_Nanny.egg-info*
+*.egg-info*
+__pycache__/
 build
 dist
 .pytest_cache
 
 #Lan Nanny
-lan_nanny/config/default.py
+lan_nanny/config/*
 

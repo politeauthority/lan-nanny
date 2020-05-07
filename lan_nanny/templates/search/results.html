@@ -3,7 +3,10 @@
 {% block content %}
   <!-- Page Heading -->
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Results: "{{search_phrase}}"" ({{total_results}})</h1>
+    <h1 class="h3 mb-0 text-gray-800">
+      Results for "<strong>{{search_phrase}}</strong>"
+      {%if total_results%}<span class="badge badge-secondary">{{total_results}}</span>{%endif%}
+    </h1>
   </div>
 
   <!-- Content Row -->
@@ -59,8 +62,8 @@
                   </thead>
                   {% for port in ports %}
                   <tr>
-                    <td><a href="/ports/info/{{port.port}}/{{port.protocol}}">{{port.port}}</a></td>
-                    <td>{{port.service_name}}</td>
+                    <td><a href="/ports/info/{{port.id}}">{{port.number}}</a></td>
+                    <td>{{port.service}}</td>
                     <td>{{port.protocol}}</td>
                   </tr>
                   {%endfor%}

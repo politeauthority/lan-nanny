@@ -1,56 +1,79 @@
-"""Scan
+"""Entry point to all scan operations and other tasks that need to be run on a regular schedule.
+
+    Scans hosts on network
+    Scans ports for a given host
+    Runs house keeping operations.
+
+    This script must be run with sudo privileges for network scanning to work properly.
 
 """
 import argparse
+from importlib import import_module
+import logging
+import logging.config
+import subprocess
 import os
+
+from werkzeug.security import generate_password_hash
 
 from modules import db
 from modules.collections.options import Options
+from modules.models.option import Option
 from modules.scanning.scan_ports import ScanPorts
 from modules.scanning.scan_hosts import ScanHosts
-from modules.scanning.scan_prune import ScanPrune
-from config import default as config_default
-
-TMP_DIR = "/opt/lan_nanny/"
-
-conn, cursor = db.create_connection(config_default.LAN_NANNY_DB_FILE)
+from modules.scanning.scan_alerts import ScanAlerts
+from modules.scanning.house_keeping import HouseKeeping
+from config import logging_conf
 
 
 class Scan:
 
-    def __init__(self, args):
-        self.conn = conn
-        self.cursor = cursor
+    def __init__(self, configs, args):
+        self.conn, self.cursor = db.connect_mysql(configs.LAN_NANNY_DB)
         self.args = args
         self.force_scan = False
         self.trigger = 'manual'
         self.new_alerts = []
         self.hosts = []
+        self.new_devices = []
+        self.config = configs
 
     def setup(self):
-        """
-        Sets up run log and loads options.
-
-        """
+        """Sets up run log and loads options."""
+        self.setup_logging()
         self.prompt_sudo()
-        options = Options(conn, cursor)
+        options = Options(self.conn, self.cursor)
         self.options = options.get_all_keyed()
-        self.tmp_dir = TMP_DIR
+        self.tmp_dir = self.config.LAN_NANNY_TMP_DIR
         if self.args.cron:
             self.trigger = 'cron'
+        logging.info('Scan triggered by %s' % self.trigger)
 
     def run(self):
-        """
-        Main entry point to scanning script.
-
-        """
+        """Main entry point to scanning script."""
         self.setup()
+        self.handle_cli()
         self.hande_hosts()
         self.handle_ports()
-        self.handle_prune()
+        self.handle_alerts()
+        # self.handle_house_keeping()
 
-    def hande_hosts(self):
-        self.hosts = ScanHosts(self).run()
+    def handle_cli(self) -> bool:
+        """Handle one off/simple CLI requests"""
+        self._cli_change_password()
+
+    def hande_hosts(self) -> bool:
+        """Launch host scanning operations."""
+        try:
+            scan_hosts = ScanHosts(self).run()
+            if scan_hosts:
+                self.hosts, self.new_devices = scan_hosts
+            else:
+                logging.error('Error scanning hosts, ending scan.')
+        except:
+            logging.error('Error running host scan.')
+            return False
+        return True
 
     def handle_ports(self):
         """
@@ -58,21 +81,54 @@ class Scan:
         global settings allow for a device to be port scanned.
 
         """
-        print("Running port scans")
-        if not self.hosts:
-            print('No hosts found in last scan, skipping port scan')
-            return False
-        if self.options['scan-ports-enabled'].value != True:
-            print('Port Scanning disabled')
-            return False
-        ScanPorts(self).run()
+        try:
+            ScanPorts(self).run()
+        except:
+            logging.error('Scan Ports failed')
 
-    def handle_prune(self):
-        if not self.options['db-prune-days'] or self.options['db-prune-days'].value == 0:
-            return
-        ScanPrune(self).run()
+    def handle_alerts(self):
+        """Handle system alerts."""
+        ScanAlerts(self).run()
+
+    def handle_house_keeping(self):
+        """Run house keeping operations like database pruning etc."""
+        HouseKeeping(self).run()
+
+    def _cli_change_password(self):
+        if not self.args.password_reset:
+            return True
+        print('Are you sure you want to reset the console password?')
+        verify = input('Verify: (only "y" will continue) ')
+
+        if verify != 'y':
+            print('Not changing password')
+            exit(0)
+        new_password = input('New Password: ')
+        new_password2 = input('New Password Again: ')
+
+        if new_password != new_password2:
+            print('Passwords do not match')
+            exit(1)
+        print('Changing console password')
+        new_pass = generate_password_hash(new_password, "sha256")
+        pass_option = Option(self.conn, self.cursor)
+        pass_option.get_by_name("console-password")
+        pass_option.value = new_pass
+        pass_option.update()
+        print('Saved new console password')
+        exit()
+
+    def setup_logging(self) -> bool:
+        """Create the logger."""
+        logging.basicConfig(
+            filename=self.config.LAN_NANNY_SCAN_LOG,
+            format='%(asctime)s %(message)s',
+            datefmt='%m/%d/%Y %I:%M:%S %p',
+            level=logging.DEBUG)
+        return True
 
     def prompt_sudo(self):
+        """Make sure the script is being run as sudo, or scanning will not work."""
         ret = 0
         if os.geteuid() != 0:
             msg = "[sudo] password for %u:"
@@ -87,8 +143,19 @@ def parse_args():
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-s",
-        "--force-scan",
+        "-fh",
+        "--force-host",
+        default=False,
+        action='store_true',
+        help="")
+    parser.add_argument(
+        "-fp",
+        "--force-port",
+        default=False,
+        action='store_true',
+        help="")
+    parser.add_argument(
+        "--password-reset",
         default=False,
         action='store_true',
         help="")
@@ -98,12 +165,25 @@ def parse_args():
         action='store_true',
         help="")
     args = parser.parse_args()
-    print(args)
     return args
+
+def get_config():
+    """Get the application configs."""
+    if os.environ.get('LAN_NANNY_CONFIG'):
+        config_file = os.environ.get('LAN_NANNY_CONFIG')
+        configs = import_module('config.%s' % config_file)
+        # imported_module = import_module('.config.%s' % config)
+        print('Using config: %s' % os.environ.get('LAN_NANNY_CONFIG') )
+    else:
+        print('Using config: default')
+        configs = import_module('config.default')
+    return configs
 
 
 if __name__ == '__main__':
     args = parse_args()
-    Scan(args).run()
+    configs = get_config()
+    Scan(configs, args).run()
+
 
 # End File: lan-nanny/lan_nanny/scan.py

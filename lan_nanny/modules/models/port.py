@@ -15,8 +15,8 @@ class Port(Base):
 
         self.field_map = [
             {
-                'name': 'port',
-                'type': 'str'
+                'name': 'number',
+                'type': 'int'
             },
             {
                 'name': 'protocol',
@@ -25,10 +25,6 @@ class Port(Base):
             {
                 'name': 'last_seen',
                 'type': 'datetime'
-            },
-            {
-                'name': 'status',
-                'type': 'str'
             },
             {
                 'name': 'service',
@@ -40,11 +36,18 @@ class Port(Base):
                 'default': 0,
             },
             {
+                'name': 'last_port_scan_id',
+                'type': 'int',
+            },
+            {
+                'name': 'first_port_scan_id',
+                'type': 'int',
+            },
+            {
                 'name': 'updated_ts',
                 'type': 'datetime'
             }
         ]
-        self.devices = []
         self.setup()
 
     def __repr__(self):
@@ -52,20 +55,21 @@ class Port(Base):
 
     def get_by_port_and_protocol(self, port_number: str=None, protocol: str=None) -> bool:
         """Get a Port obj by port number and protocol."""
-        if not port_number and self.port:
-            port_number = self.port
+        if not port_number and self.number:
+            port_number = self.number
 
         if not protocol and self.protocol:
             protocol = self.protocol
 
         sql = """
         SELECT *
-        FROM ports
+        FROM %s
         WHERE
-            port = ? AND
-            protocol = ?
-        LIMIT 1"""
+            `number` = ? AND
+            `protocol` = ?
+        LIMIT 1""" % self.table_name
 
+        sql = sql.replace("?", "%s")
         vals = (port_number, protocol)
         self.cursor.execute(sql, vals)
         port_raw = self.cursor.fetchone()

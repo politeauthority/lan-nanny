@@ -35,44 +35,58 @@
       </li>
     {%endif%}
 
+    <!-- Current Page -->
     <li class="page-item active disabled">
       <a class="page-link" href="#">{{pagination['current_page']}}</a>
     </li>
+    <!-- End Current Page -->
 
-    {%if pagination['next_page'] > 0%}
+    {%if pagination['next_page']%}
+      {%if pagination['next_page'] != pagination['last_page']%}
+      <!-- Next Page Number -->
       <li class="page-item">
         <a class="page-link" href="{{pagination['next_page_url']}}">{{pagination['next_page']}}</a>
       </li>
-
-      {%if pagination['current_page'] == 1%}
-        <li class="page-item">
-          <a class="page-link" href="{{pagination['base_url']}} 3">3</a>
-        </li>
+      <!-- End Next Page Number -->
       {%endif%}
 
-      <!-- elipses between current and end -->
-      {%if pagination['last_page'] > 3 and pagination['current_page'] != pagination['last_page']%}
+      {%if pagination['current_page'] != pagination['last_page']%}
+        {%if pagination['next_page'] != pagination['last_page']%}
+          <!-- Ellipses between current and end -->
+          <li class="page-item">
+            <a class="page-link" href="#">
+            <span aria-hidden="true">&#8230;</span>
+            </a>
+          </li>
+          <!-- End ellipses between current and end -->
+        {%endif%}
+
+        <!-- Last Page Number -->
         <li class="page-item">
-          <a class="page-link" href="#">
-          <span aria-hidden="true">&#8230;</span>
+          <a class="page-link" href="{{pagination['last_page_url']}}">
+          <span aria-hidden="true">{{pagination['last_page']}}</span>
+          </a>
+        </li>
+        <!-- End Last Page Number-->
+
+
+      {%endif%}
+          
+      {%if pagination['next_page'] != pagination['last_page'] %}
+        <li class="page-item">
+          <a class="page-link" href="{{pagination['next_page_url']}}" aria-label="Next">
+            <span aria-hidden="true">&#8250;</span>
+            <span class="sr-only">Next</span>
+          </a>
+        </li>
+
+        <li class="page-item">
+          <a class="page-link" href="{{pagination['last_page_url']}}" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+            <span class="sr-only">Last</span>
           </a>
         </li>
       {%endif%}
-      <!-- end elipses between current and end -->
-          
-      <li class="page-item">
-        <a class="page-link" href="{{pagination['next_page_url']}}" aria-label="Next">
-          <span aria-hidden="true">&#8250;</span>
-          <span class="sr-only">Next</span>
-        </a>
-      </li>
-
-      <li class="page-item">
-        <a class="page-link" href="{{pagination['last_page_url']}}" aria-label="Next">
-          <span aria-hidden="true">&raquo;</span>
-          <span class="sr-only">Last</span>
-        </a>
-      </li>
     {%endif%}
   </ul>
 </nav>

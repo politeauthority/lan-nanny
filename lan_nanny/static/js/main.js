@@ -35,6 +35,7 @@ function register_favorite_button(favorite_selector, load_state, base_ajax_uri){
   });
 }
 
+
 function register_toggle_ajax(base_ajax_uri, input_selector, starting_value){
   /*
   Will setup a toggle input for sending values on device change.
@@ -61,6 +62,7 @@ function register_toggle_ajax(base_ajax_uri, input_selector, starting_value){
   });
 }
 
+
 function send_ajax_update(base_ajax_uri, data){
   /*
   Creates a generic AJAX POST request to the url with the data containing the id, field_name, and
@@ -78,6 +80,7 @@ function send_ajax_update(base_ajax_uri, data){
     }
   });
 }
+
 
 function register_toggle_form(setting_name, setting_value){
   /*
@@ -128,6 +131,7 @@ function convert_str_bool(bool_str){
   }
 }
 
+
 function create_toast(level, title, message, persist=true){
   /*
   Creates a toast via javascript.
@@ -155,14 +159,36 @@ function create_toast(level, title, message, persist=true){
     delay: 5000
   });
   new_toast.toast('show');
-
 }
+
 
 /* Global setup for page loads */
 $(document).ready(function(){
+
+  // Show Toasts on page load.
   $('.toast').toast({
     delay: 5000
   });
   $('.toast').toast('show');
+
+  $('.time_switch').css({'cursor': 'pointer'});
+  $('.time_switch').hover(function(){
+    var icon = $(this).find('i');
+    icon.addClass('icon_hover_over');
+  });
+  $('.time_switch').mouseout(function(){
+    var icon = $(this).find('i');
+    icon.removeClass('icon_hover_over');
+  });
+  $('.time_switch').click(function(){
+    var time_box = $(this);
+    time_box.find('span').each(function( index ) {
+      if ($(this).hasClass('hidden')){
+        $(this).removeClass('hidden');
+      } else {
+        $(this).addClass('hidden');
+      }
+    });
+  });
 });
 

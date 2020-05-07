@@ -9,7 +9,7 @@
   <div class="row">
     <div class="col-lg-6">
       <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Alert - {{alert.device.name}}</h1>
+        <h1 class="h3 mb-0 text-gray-800">Alert - {{alert.kind}}</h1>
       </div>
     </div>
     <div class="col-lg-6 text-right">
@@ -21,15 +21,83 @@
   </div>
 
   <div class="row">
-  <!-- Alert Actions -->
 
+  <!-- Alert Info -->
     <div class="col-xl-6 col-lg-6">
-
       <div class="card shadow mb-4">
         <!-- Card Header -->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h6 class="m-0 font-weight-bold text-primary">
-            Alerts
+            Info
+          </h6>
+        </div>
+        <div class="card-body">
+          <table class="table table-striped">
+            <tr>
+              <td>Alert Type</td>
+              <td>{{alert.kind}}</td>
+            </tr>
+            <tr>
+              <td>First Triggered</td>
+              <td>{{alert.created_ts|time_switch}}</td>
+            </tr>
+            {%if alert.kind != 'new-device'%}
+            <tr>
+              <td>Last Observed</td>
+              <td>{{alert.last_observed_ts|time_switch}}</td>
+            </tr>
+            {%endif%}
+            <tr>
+              <td>Currently Active</td>
+              <td>
+                {%if alert.active == 0%}
+                  Resolved
+                {%else%}
+                  Active
+                {%endif%}
+              </td>
+            </tr>
+            <tr>
+              <td>Acknowledged</td>
+              <td>
+                {%if alert.acked == 0%}
+                  No
+                {%else%}
+                  Yes
+                {%endif%}
+              </td>
+            </tr>
+            {%if alert.message%}
+              <tr>
+                <td>Message</td>
+                <td>
+                  {{alert.message}}
+                </td>
+              </tr>
+            {%endif%}
+
+            <!-- Show device for new-device alert -->
+            {%if alert.kind == 'new-device' %}
+            <tr>
+              <td>Device</td>
+              <td>
+                {{device|device_icon_status}}
+              </td>
+            </tr>
+            {%endif%}
+            <!-- End device for new-device alert -->
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alert Actions -->
+    <div class="col-xl-6 col-lg-6">
+      <div class="card shadow mb-4">
+        <!-- Card Header -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">
+            Actions
           </h6>
         </div>
         <div class="card-body">
@@ -44,35 +112,6 @@
             <input id="active" data-entity-id="{{alert.id}}" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="alertActiveHelp">
             <small id="alertActiveHelp" class="form-text text-muted">Deactivate the alert.</small>
           </div>
-
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <div class="row">
-    <div class="col-xl-6 col-lg-6">
-
-      <div class="card shadow mb-4">
-        <!-- Card Header -->
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">
-            Alert Events
-
-          </h6>
-        </div>
-        <div class="card-body">
-          {%if alert.events %}
-            {%for event in alert.events %}
-              {{event.event_type}} : {{event.created_ts|smart_time}}<br/>
-
-              
-            {%endfor%}
-          {%else%}
-            No alert events.
-          {%endif%}
-
         </div>
       </div>
     </div>
@@ -97,7 +136,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <a href="/alert/delete/{{alert.id}}" type="button" class="btn btn-danger">Delete</a>
+          <a href="/alerts/delete/{{alert.id}}" type="button" class="btn btn-danger">Delete</a>
         </div>
       </div>
     </div>
@@ -111,11 +150,11 @@
       var alert_acked_initial_status = convert_str_bool("{{alert.acked}}");
       var alert_active_initial_status = convert_str_bool("{{alert.active}}");
       register_toggle_ajax(
-        '/alert/alert-quick-save',
+        '/alerts/alert-quick-save',
         '#acked',
         alert_acked_initial_status);
       register_toggle_ajax(
-        '/alert/alert-quick-save',
+        '/alerts/alert-quick-save',
         '#active',
         alert_active_initial_status);
     });

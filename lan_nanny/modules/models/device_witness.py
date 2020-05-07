@@ -1,19 +1,18 @@
-"""Witness Model
+"""Device Witness Model
 
 """
 from .base import Base
 from .device import Device
 
 
-class Witness(Base):
+class DeviceWitness(Base):
 
     def __init__(self, conn=None, cursor=None):
-        super(Witness, self).__init__(conn, cursor)
+        super(DeviceWitness, self).__init__(conn, cursor)
         self.conn = conn
         self.cursor = cursor
 
-        self.model_name = 'Witness'
-        self.table_name = 'witness'
+        self.table_name = 'device_witness'
 
         self.field_map = [
             {
@@ -44,9 +43,6 @@ class Witness(Base):
         self.setup()
         self.device = None
 
-    def __repr__(self):
-        return "<Witness %s>" % self.id
-
     def get_device_for_scan(self, device_id: int, scan_id: int) -> bool:
         """
         Checks the witness table for a device's presence in a particular scan. If the device was in
@@ -71,7 +67,7 @@ class Witness(Base):
     def build_from_list(self, raw: list, build_device: bool=True):
         """
         Builds a witness from list
-        @todo: should be redone to use parent for intial load and this class for device load.
+        @todo: should be redone to use parent for initial load and this class for device load.
 
         """
         c = 0
@@ -84,14 +80,4 @@ class Witness(Base):
 
         return True
 
-    def delete_device(self, device_id: int) -> bool:
-        """
-        Deletes all records from the `witness` table containing a device_id, this should be
-        performed when deleting a device.
-
-        """
-        sql = """DELETE FROM witness WHERE device_id = %s """ % device_id
-        self.cursor.execute(sql)
-        return True
-
-# End File: lan-nanny/lan_nanny/modules/models/witness.py
+# End File: lan-nanny/lan_nanny/modules/models/device_witness.py

@@ -49,25 +49,13 @@ class ScanPort(Base):
                 'name': 'trigger',
                 'type': 'str'
             },
+            {
+                'name': 'message',
+                'type': 'str'
+            },
         ]
+        self.device = None
         self.setup()
-
-    def get_last(self):
-        """Gets the last run log form the `scan_port` table."""
-        sql = """
-            SELECT *
-            FROM %s
-            ORDER BY created_ts DESC
-            LIMIT 1""" % (self.table_name)
-
-        self.cursor.execute(sql)
-        run_raw = self.cursor.fetchone()
-        if not run_raw:
-            return False
-
-        self.build_from_list(run_raw)
-
-        return self
 
     def insert_run_start(self):
         """Insert a new record of the model."""
@@ -76,9 +64,9 @@ class ScanPort(Base):
         self.setup()
         insert_sql = """
             INSERT INTO %s
-            (created_ts, device_id, completed, trigger, command)
-            VALUES (?, ?, ?, ?, ?)""" % (self.table_name)
-
+            (`created_ts`, `device_id`, `completed`, `trigger`, `command`)
+            VALUES (?, ?, ?, ?, ?)""" % self.table_name
+        insert_sql = insert_sql.replace("?", "%s")
         values = (
             self.created_ts,
             self.device_id,

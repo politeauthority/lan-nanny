@@ -1,4 +1,7 @@
 arrow==0.13.0
 Flask==1.1.1
 Flask-Debug==0.4.3
+gunicorn==20.0.4
+mysql-connector-python==8.0.19
+mysqlclient==1.4.4
 xmltodict==0.12.0

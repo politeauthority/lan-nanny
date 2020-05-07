@@ -22,7 +22,7 @@ class ScanHost(Base):
             },
             {
                 'name': 'elapsed_time',
-                'type': 'int'
+                'type': 'float'
             },
             {
                 'name': 'completed',
@@ -45,25 +45,12 @@ class ScanHost(Base):
                 'name': 'trigger',
                 'type': 'str'
             },
+            {
+                'name': 'message',
+                'type': 'str'
+            },
         ]
         self.setup()
-
-    def get_last(self):
-        """Get the last run log form the `scan_hosts` table."""
-        sql = """
-            SELECT *
-            FROM %s
-            ORDER BY created_ts DESC
-            LIMIT 1""" % (self.table_name)
-
-        self.cursor.execute(sql)
-        run_raw = self.cursor.fetchone()
-        if not run_raw:
-            return False
-
-        self.build_from_list(run_raw)
-
-        return self
 
     def insert_run_start(self) -> bool:
         """Insert a new record of the model."""
@@ -72,10 +59,10 @@ class ScanHost(Base):
         self.setup()
         insert_sql = """
             INSERT INTO %s
-            (created_ts, completed, trigger)
-            VALUES (?, ?, ?)""" % (self.table_name)
-
-        self.cursor.execute(insert_sql, (self.created_ts, 0, self.trigger))
+            (`created_ts`, `trigger`)
+            VALUES (?, ?)""" % self.table_name
+        insert_sql = insert_sql.replace("?", "%s")
+        self.cursor.execute(insert_sql, (self.created_ts, self.trigger))
         self.conn.commit()
         self.id = self.cursor.lastrowid
         return True
@@ -83,7 +70,6 @@ class ScanHost(Base):
     def end_run(self):
         """End a scan run."""
         self.end_ts = arrow.utcnow().datetime
-        self.elapsed_time = (arrow.utcnow() - self.created_ts).seconds
         self.completed = True
         self.save()
 
