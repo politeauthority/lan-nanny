@@ -219,11 +219,31 @@
       {%endif%}
     {%endif%}
 
+    {%if g.options['beta-features'].value %}
+      <!-- Device online Chart -->
+      <div class="card shadow mb-4">
+        <div class="card-header py-3">
+          <h6 class="m-0 font-weight-bold text-primary">Device Connectivity Over 24 Hours</h6>
+        </div>
+        <div class="card-body">
+          <div class="chart-area">
+            <canvas id="myAreaChart"></canvas>
+          </div>
+          <hr>
+
+          Api Route: <code>http://192.168.50.10:5000/api/device-online/{{device.id}}</code>
+          <div id="debug">debug</div>
+        </div>
+      </div><!-- End Device online chart -->
+    {%endif%}
+
   </div>
 {%endblock%}
 
 {%block javascript%}
   <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
+  <script src="/static/vendor/chart.js/Chart.min.js"></script>
+  <script src="/static/js/device-chart.js"></script>
   <script type="text/javascript">
     $( document ).ready(function(){
       var device_favorite_status = convert_str_bool("{{device.favorite}}");

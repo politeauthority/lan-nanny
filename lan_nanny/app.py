@@ -16,6 +16,7 @@ from modules.controllers.scan import scan as ctrl_scan
 from modules.controllers.search import search as ctrl_search
 from modules.controllers.about import about as ctrl_about
 from modules.controllers.settings import settings as ctrl_settings
+from modules.controllers.api import api as ctrl_api
 from modules.models.scan_host import ScanHost
 from modules import db
 from modules.collections.alerts import Alerts
@@ -140,6 +141,7 @@ def register_blueprints(app: Flask):
     app.register_blueprint(ctrl_settings)
     app.register_blueprint(ctrl_about)
     app.register_blueprint(ctrl_search)
+    app.register_blueprint(ctrl_api)
 
 
 def register_jinja_funcs(app: Flask):
@@ -162,7 +164,6 @@ if __name__ == '__main__':
     app.config['SESSION_TYPE'] = 'filesystem'
     register_blueprints(app)
     register_jinja_funcs(app)
-    # install()
     app.run(host="0.0.0.0", port=port, debug=True)
 
 
