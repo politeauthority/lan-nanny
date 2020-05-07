@@ -58,8 +58,14 @@
               <label for="setting_beta_features">Enable Beta Features</label>
               <input id="setting_beta_features" type="checkbox" data-toggle="toggle" aria-describedby="betaFeaturesHelp">
               <small id="betaFeaturesHelp" class="form-text text-muted">Enable beta features (may be buggy)</small>
-
             </div>
+
+            <div class="form-group">
+              <label for="setting_debug_features">Enable Debug Features</label>
+              <input id="setting_debug_features" type="checkbox" data-toggle="toggle" aria-describedby="debugFeaturesHelp">
+              <small id="debugFeaturesHelp" class="form-text text-muted">Enable debugging features (mostly just for development)</small>
+            </div>
+
           </div>
         </div>
       </div>
@@ -133,6 +139,10 @@
     $( document ).ready(function(){
       var beta_features_value = convert_str_bool("{{settings['beta-features'].value}}");
       register_toggle_form('setting_beta_features', beta_features_value);
+
+      var debug_features_value = convert_str_bool("{{settings['debug-features'].value}}");
+      register_toggle_form('setting_debug_features', debug_features_value);
+
 
       var auto_reload_console_value = convert_str_bool("{{settings['auto-reload-console'].value}}");
       register_toggle_form('setting_auto_reload_console', auto_reload_console_value);

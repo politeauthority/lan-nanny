@@ -17,6 +17,7 @@ from modules.controllers.search import search as ctrl_search
 from modules.controllers.about import about as ctrl_about
 from modules.controllers.settings import settings as ctrl_settings
 from modules.controllers.api_devices import api_devices as ctrl_api_devices
+from modules.controllers.api_device import api_device as ctrl_api_device
 from modules.models.scan_host import ScanHost
 from modules import db
 from modules.collections.alerts import Alerts
@@ -142,6 +143,7 @@ def register_blueprints(app: Flask):
     app.register_blueprint(ctrl_about)
     app.register_blueprint(ctrl_search)
     app.register_blueprint(ctrl_api_devices)
+    app.register_blueprint(ctrl_api_device)
 
 
 def register_jinja_funcs(app: Flask):

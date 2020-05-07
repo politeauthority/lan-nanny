@@ -241,6 +241,21 @@ def create() -> str:
     return render_template('device/create.html', **data)
 
 
+@device.route('/debug/<device_id>')
+@utils.authenticate
+def debug(device_id: int) -> str:
+    """Device edit page."""
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
+    device = Device()
+    device.conn = conn
+    device.cursor = cursor
+    device.get_by_id(device_id)
+    data = {}
+    data['device'] = device
+    data['active_page'] = 'devices'
+    data['active_page_device'] = 'debug'
+    return render_template('device/debug.html', **data)
+
 def page_not_found(e: str):
     """404 Error page."""
     return render_template('errors/404.html', error=e), 404

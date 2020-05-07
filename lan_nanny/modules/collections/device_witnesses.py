@@ -34,6 +34,19 @@ class DeviceWitnesses(Base):
         raw_witness_count = self.cursor.fetchone()
         return raw_witness_count[0]
 
+    def get_device_since(self, device_id, since=86400):
+        then = arrow.utcnow().datetime - timedelta(seconds=since)
+        sql = """
+            SELECT *
+            FROM `%s`
+            WHERE
+                `device_id` = %s AND
+                `created_ts` >= "%s";
+        """ % (self.table_name, device_id, then)
+        self.cursor.execute(sql)
+        raw_device_witness = self.cursor.fetchall()
+        return raw_device_witness
+
     def get_by_scan_id(self, scan_id: int) -> list:
         """Get all witness records from a scan_id."""
         sql = """

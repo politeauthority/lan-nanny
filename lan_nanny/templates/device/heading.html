@@ -3,13 +3,11 @@
   <div class="col-lg-6">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
       <h1 class="h3 mb-0 text-gray-800">
-        {%if device %}
-          {%if device.last_seen|online%}
-            <i class="fas fa-bolt fa-2x device_info_connect connected_bolt"></i>
-          {%endif%}
-          {%if device.icon%}
-            <i style="padding-right:15px" class="{{device.icon}} fa-2x"></i>
-          {%endif%}
+        {%if device.last_seen|online%}
+          <i class="fas fa-bolt fa-2x device_info_connect connected_bolt"></i>
+        {%endif%}
+        {%if device.icon%}
+          <i style="padding-right:15px" class="{{device.icon}} fa-2x"></i>
         {%endif%}
         {{device.name}}
       </h1>

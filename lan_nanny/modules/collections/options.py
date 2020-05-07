@@ -35,6 +35,11 @@ class Options(Base):
                 'default': False
             },
             {
+                'name': 'debug-features',
+                'type': 'bool',
+                'default': False
+            },
+            {
                 'name': 'scan-hosts-enabled',
                 'type': 'bool',
                 'default': True

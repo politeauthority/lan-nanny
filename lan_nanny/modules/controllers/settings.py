@@ -49,6 +49,9 @@ def save_general():
     # Save beta-features
     _save_setting(conn, cursor, 'beta-features', request.form['setting_beta_features'])
 
+    # Save debug-features
+    _save_setting(conn, cursor, 'debug-features', request.form['setting_debug_features'])
+
     return redirect('/settings')
 
 

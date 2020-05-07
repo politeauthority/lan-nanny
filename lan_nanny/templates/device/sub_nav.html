@@ -11,4 +11,9 @@
   <li class="nav-item">
     <a class="nav-link {%if active_page=='edit'%}active{%endif%}" href="/device/edit/{{device.id}}">Edit</a>
   </li>
+  {%if g.options['debug-features'].value %}
+  <li class="nav-item">
+    <a class="nav-link {%if active_page=='debug'%}active{%endif%}" href="/device/debug/{{device.id}}">Debug</a>
+  </li>
+  {%endif%}
 </ul> 

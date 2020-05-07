@@ -51,7 +51,11 @@
                   <td>
                     {{device|device_icon_status}}
                   </td>
-                  <td class="d-none d-sm-block">{{device.ip}}</td>
+                  <td class="d-none d-sm-block">
+                    {%if device.ip%}
+                      {{device.ip}}
+                    {%endif%}
+                  </td>
                   <td>{{device.last_seen|time_ago}}</td>
                 </tr>
                 {%endfor%}

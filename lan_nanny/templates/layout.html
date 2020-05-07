@@ -98,7 +98,7 @@
 
       <!-- Sidebar Toggler (Sidebar) -->
       <div class="text-center d-none d-md-inline">
-        <button class="rounded-circle border-0" id="sidebarToggle"></button>
+        <button class="rounded-circle border-0 menu_toggle" id="sidebarToggle"></button>
       </div>
 
     </ul>
@@ -270,12 +270,48 @@
   <script src="/static/js/fontawesome.js" crossorigin="anonymous"></script>
 
   <!-- JS cookie -->
-  <!-- <script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script> -->
+  <script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>
 
   <!-- CDN version of font-awesome -->
   <!-- <script src="https://kit.fontawesome.com/7c2d391bcd.js" crossorigin="anonymous"></script> -->
 
   <script src="/static/js/main.js" crossorigin="anonymous"></script>
+
+
+<!--   <script type="module">
+    Cookies.set('foo', 'bar');
+    var x = Cookies.get('foo');
+    console.log(x);
+  </script>
+
+
+  <script type="text/javascript">
+    $( document ).ready(function(){
+
+
+        $(".menu_toggle").click(function(e) {
+            console.log('ccc');
+            e.preventDefault();
+            
+            $("#wrapper").toggleClass("toggled");
+            if($('#wrapper.toggled').find("#sidebar-wrapper").hasClass("collapse")){
+              console.log('collapsed currently');
+            } else {
+              console.log('collapsed xx');
+
+            }
+
+
+            $('#wrapper.toggled').find("#sidebar-wrapper").find(".collapse").collapse('hide');
+            
+        });
+
+
+      $('.menu_toggle').click(function(){
+        console.log('clicked');
+      });
+    });
+  </script> -->
 
   {%block javascript%}{%endblock%}
 
