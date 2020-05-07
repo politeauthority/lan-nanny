@@ -21,7 +21,7 @@
 
   <!-- Content Row -->
   <div class="row">
-    <!-- Device Table -->
+    <!-- Recent Device Table -->
     <div class="col-xl-8 col-lg-7">
       <div class="card shadow mb-4">
         <!-- Card Header -->
@@ -37,9 +37,9 @@
               <table class="table" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                   <tr>
-                    <td>Name</td>
-                    <td>IP</td>
-                    <td>Last Seen</td>
+                    <th>Name</th>
+                    <th class="d-none d-sm-block">IP</th>
+                    <th>Last Seen</th>
                   </tr>
                 </thead>
                 {% for device in devices %}
@@ -47,7 +47,7 @@
                   <td>
                     {{device|device_icon_status}}
                   </td>
-                  <td>{{device.ip}}</td>
+                  <td class="d-none d-sm-block">{{device.ip}}</td>
                   <td>{{device.last_seen|time_ago}}</td>
                 </tr>
                 {%endfor%}
@@ -60,28 +60,28 @@
           </div>
         </div>
       </div>
-    </div>
+    </div><!-- End Recent Devices -->
 
-  {%if devices%}
-    <!-- Devices by vendor donut chart -->
-    <div class="col-xl-4 col-lg-5">
-      <!-- Donut Chart -->
-      <div class="card shadow mb-4">
-        <!-- Card Header - Dropdown -->
-        <div class="card-header py-3">
-          <h6 class="m-0 font-weight-bold text-primary">Devices by Vendor</h6>
-        </div>
-        <!-- Card Body -->
-        <div class="card-body">
-          <div class="chart-pie pt-4">
-            <canvas id="device_pie_chart"></canvas>
+    {%if devices%}
+      <!-- Devices by vendor donut chart -->
+      <div class="col-xl-4 col-lg-5">
+        <!-- Donut Chart -->
+        <div class="card shadow mb-4">
+          <!-- Card Header - Dropdown -->
+          <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Devices by Vendor</h6>
+          </div>
+          <!-- Card Body -->
+          <div class="card-body">
+            <div class="chart-pie pt-4">
+              <canvas id="device_pie_chart"></canvas>
+            </div>
           </div>
         </div>
-      </div>
-    </div><!-- End devices by vendor chart -->
-  {%endif%}
+      </div><!-- End devices by vendor chart -->
+    {%endif%}
 
-  </div>
+  </div><!-- End row -->
 
 
 {%endblock%}

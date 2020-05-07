@@ -44,7 +44,7 @@ def debug(scan_type: str=''):
     envs = {
         'LAN_NANNY_CONFIG': os.environ.get('LAN_NANNY_CONFIG')
     }
-    sys_infos = SysInfos(conn, cursor).get_all_keyed()
+    sys_infos = SysInfos(conn, cursor).get_all_keyed('name')
     data = {
         'active_page': 'about',
         'options': g.options,

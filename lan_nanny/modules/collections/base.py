@@ -33,8 +33,29 @@ class Base:
         }
         self.cursor.execute(sql)
         raws = self.cursor.fetchall()
-        prestine = self.build_from_lists(raws)
-        return prestine
+        prestines = self.build_from_lists(raws)
+        return prestines
+
+    def get_by_ids_keyed(self, model_ids: list, key_field: str="id") -> dict:
+        """
+        Get models instances by their ids from the database, returned as a dict, keyed off of the 
+        model id or any model attribute supplied by `key_field`.
+        """
+        prestines = self.get_by_ids(model_ids)
+        prestine_dict = {}
+        for prestine in prestines:
+            key = getattr(prestine, key_field)
+            prestine_dict[key] = prestine
+        return prestine_dict
+
+    def get_all_keyed(self, key_field: str="id") -> dict:
+        """Get all models in a dictionary keyed on the id, or supplied `key_field` value."""
+        prestines = self.get_all()
+        prestines_dict = {}
+        for prestine in prestines:
+            key = getattr(prestine, key_field)
+            prestines_dict[key] = prestine
+        return prestines_dict
 
     def get_paginated(self,
         page: int=1,
@@ -198,13 +219,13 @@ class Base:
             prestines.append(new_object)
         return prestines
 
-    def get_last(self) -> list:
-        """Get last x created models descending."""
+    def get_last(self, num_units: int=10) -> list:
+        """Get last `num_units` created models descending."""
         sql = """
             SELECT *
             FROM %s
             ORDER BY created_ts DESC
-            LIMIT 10;""" % self.table_name
+            LIMIT %s;""" % (self.table_name, num_units)
         self.cursor.execute(sql)
         raw = self.cursor.fetchall()
         prestines = self.build_from_lists(raw)

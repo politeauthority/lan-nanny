@@ -37,8 +37,8 @@
                     <td>Status</td>
                     <td>Device</td>
                     <td>Started</td>
-                    <td>Ports Found</td>
-                    <td>Trigger</td>
+                    <td class="d-none d-sm-block">Ports Found</td>
+                    <td class="d-none d-sm-block">Trigger</td>
                     <td>Total Time</td>
                   </tr>
                 </thead>
@@ -62,14 +62,17 @@
                     {%endif%}
                   </td>
                   <td>
-                  {{devices[scan.device_id]|device_icon_status}}</td>
+                    {{devices[scan.device_id]|device_icon_status}}
+                  </td>
                   <td>{{scan.created_ts|smart_time}}</td>
-                  <td>
+                  <td class="d-none d-sm-block">
                     {%if scan.units%}
                       {{scan.units}}
                     {%endif%}
                   </td>
-                  <td>{{scan.trigger}}</td>
+                  <td class="d-none d-sm-block">
+                    {{scan.trigger}}
+                  </td>
                   <td>
                     {%if scan.elapsed_time%}
                       {{scan.elapsed_time}} sec
