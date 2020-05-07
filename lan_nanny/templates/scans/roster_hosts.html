@@ -43,7 +43,6 @@
                 </thead>
                 {% for scan in scans %}
                 <!--  href="/scan/info/host/{{scan.id}} -->
-
                 <tr class="link_row" data-href="/scan/info/host/{{scan.id}}">
                   <td>
                     {%if scan.completed==1 and scan.success==1%}

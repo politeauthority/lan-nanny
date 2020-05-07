@@ -36,7 +36,7 @@
                   <tr>
                     <td>Number</td>
                     <td>Service Name</td>
-                    <td>Protocol</td>
+                    <td class="d-none d-sm-block">Protocol</td>
                     <td>Last Seen Open</td>
                   </tr>
                 </thead>
@@ -44,7 +44,7 @@
                 <tr>
                   <td><a href="/ports/info/{{port.id}}">{{port.number}}</a></td>
                   <td>{{port.service}}</td>
-                  <td>{{port.protocol}}</td>
+                  <td class="d-none d-sm-block">{{port.protocol}}</td>
                   <td>{{port.updated_ts|smart_time}}</td>
                 </tr>
                 {%endfor%}

@@ -41,9 +41,9 @@
               <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                   <tr>
-                    <td>Name</td>
-                    <td>IP</td>
-                    <td>Last Seen</td>
+                    <th>Name</th>
+                    <th class="d-none d-sm-block"> Hide small IP</th>
+                    <th>Last Seen</th>
                   </tr>
                 </thead>
                 {% for device in devices %}
@@ -51,7 +51,7 @@
                   <td>
                     {{device|device_icon_status}}
                   </td>
-                  <td>{{device.ip}}</td>
+                  <td class="d-none d-sm-block">{{device.ip}}</td>
                   <td>{{device.last_seen|time_ago}}</td>
                 </tr>
                 {%endfor%}

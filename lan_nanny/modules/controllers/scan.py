@@ -27,13 +27,25 @@ def index():
     scan_port = ScanPort(conn, cursor)
     scan_port.get_last()
     collect_scan_hosts = ScanHosts(conn, cursor)
+    host_scans_last = collect_scan_hosts.get_last(10)
+    host_scans_avg_24 = collect_scan_hosts.get_avg_runtime()
     collect_scan_ports = ScanPorts(conn, cursor)
+    last_port_scans = collect_scan_ports.get_last(10)
+    collect_devices = Devices(conn, cursor)
+
+    # Get the Scan Port's Device object
+    device_ids = get_device_ids_from_port_scans(last_port_scans)
+    devices = collect_devices.get_by_ids_keyed(device_ids)
 
     data = {
         'host_scan_last': scan_host,
+        'host_scan_avg_24': host_scans_avg_24,
         'host_scans_today': collect_scan_hosts.get_count_since(60*60*24),
         'port_scan_last': scan_port,
         'port_scans_today': collect_scan_ports.get_count_since(60*60*24),
+        'last_host_scans': host_scans_last,
+        'last_port_scans': last_port_scans,
+        'port_devices': devices
     }
     data['active_page'] = 'scans'
     data['active_page_sub'] = 'dashboard'
@@ -69,21 +81,14 @@ def roster_ports(page: str="1"):
     page = int(page)
     scan_ports_collection = ScanPorts(conn, cursor)
     scan_pages = scan_ports_collection.get_paginated(page=page)
+    collect_devices = Devices(conn, cursor)
 
     if not scan_pages['objects'] and page > 1:
         return page_not_found('Scan Ports page not found.')
 
     # Get the Scan Port's Device object
-    device_ids = []
-    for sp in scan_pages['objects']:
-        device_ids.append(sp.device_id)
-    col_devices = Devices(conn, cursor)
-    devices = col_devices.get_by_ids(device_ids)
-    if devices:
-        devices = utils.key_list_on_id(devices)
-    else:
-        devices = {}
-
+    device_ids = get_device_ids_from_port_scans(scan_pages['objects'])
+    devices = collect_devices.get_by_ids_keyed(device_ids)
     data = {
         'scans': scan_pages['objects'],
         'pagination': utils.gen_pagination_urls('/scan/ports/', scan_pages['info']),
@@ -131,6 +136,16 @@ def info_port(scan_id: int):
 def page_not_found(e: str):
     """404 Error page."""
     return render_template('errors/404.html', error=e), 404
+
+
+def get_device_ids_from_port_scans(collected_port_scans: list) -> list:
+    """Get device objects from a ScanPorts Collection pagination return. Device's are returned as a
+       dictionary keyed on the device.id.
+    """
+    device_ids = []
+    for port_scan in collected_port_scans:
+        device_ids.append(port_scan.device_id)
+    return device_ids
 
 
 # End File: lan-nanny/modules/controllers/scan.py

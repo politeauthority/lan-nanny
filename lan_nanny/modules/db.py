@@ -29,7 +29,6 @@ DATABASE_NAME = 'lan_nanny'
 
 def connect_mysql(server: dict):
     """Connect to MySql database and get a cursor object."""
-    print(server)
     try:
         connection = mysql.connector.connect(
             host=server['host'],
@@ -48,7 +47,6 @@ def connect_mysql(server: dict):
 
 def connect_mysql_no_db(server):
     """Connect to MySql database and get a cursor object."""
-    print(server)
     try:
         connection = mysql.connector.connect(
             host=server['host'],

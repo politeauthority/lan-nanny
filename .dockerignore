@@ -5,3 +5,4 @@ Lan_Nanny.egg-info*
 build*
 dist*
 *.db
+logs/*
