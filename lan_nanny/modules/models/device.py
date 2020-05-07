@@ -141,6 +141,22 @@ class Device(BaseEntityMeta):
         if self.name == self.mac:
             self.icon = "fas fa-question"
 
+    def set_vendor(self, vendor: str) -> bool:
+        """
+        Set the vendor value for a device, if the vendor is a suitable name, update that as
+        well.
+
+        """
+        if not vendor:
+            return True
+        self.vendor = vendor
+
+        # If the device doesn't have a name, or it's name is set to its mac as a placeholder, update
+        # it to it's vendor
+        if not self.name or (self.name == self.mac):
+            self.name = self.vendor
+        return True
+
     def online(self) -> bool:
         """Determine if a device is considered 'online' currently."""
         if not self.last_seen:

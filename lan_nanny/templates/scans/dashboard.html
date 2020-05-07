@@ -22,6 +22,7 @@
             <div class="col mr-2">
               <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Host Scans Today</div>
               <div class="h5 mb-0 font-weight-bold text-gray-800">{{host_scans_today}}</div>
+              <small>Avg scan time <b>{{host_scan_avg_24}}</b> secs</small>
             </div>
             <div class="col-auto">
               <i class="fas fa-bolt fa-2x text-gray-300"></i>
@@ -96,6 +97,114 @@
       </div>
     </div>
   </div><!-- End Stats Row -->
+
+
+  <!-- Content Row -->
+  <div class="row">
+    <!-- Last Host Scans Table -->
+    <div class="col-xl-6 col-lg-6">
+      <div class="card shadow mb-4">
+        <!-- Card Header -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">
+            Recent Host Scans
+          </h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="table-responsive">
+            {%if last_host_scans %}
+              <table class="table" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>Started</th>
+                    <th>Elapsed Time</th>
+                  </tr>
+                </thead>
+                {%for scan in last_host_scans%}
+                  <tr>
+                    <td>
+                      {%if scan.completed==1 and scan.success==1%}
+                        <a href="/scan/info/host/{{scan.id}}">
+                          <i class="fas fa-check scan-success"></i>
+                        </a>
+                      {%else%}
+                        <a href="/scan/info/host/{{scan.id}}">
+                          <i class="fas fa-exclamation-triangle scan-fail"></i>
+                        </a>
+                      {%endif%}
+                    </td>
+                    <td>{{scan.created_ts|smart_time}}</td>
+                    <td>
+                      {%if scan.elapsed_time%}
+                        {{scan.elapsed_time}} sec
+                      {%endif%}
+                    </td>
+                  </tr>
+                {%endfor%}
+              </table>
+            {%endif%}
+          </div>
+        </div>
+      </div>
+    </div><!-- End Last Host Scans -->
+
+    <!-- Last Host Scans Table -->
+    <div class="col-xl-6 col-lg-6">
+      <div class="card shadow mb-4">
+        <!-- Card Header -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">
+            Recent Port Scans
+          </h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="table-responsive">
+            {%if last_port_scans %}
+              <table class="table" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>Device</th>
+                    <th>Started</th>
+                    <th class="d-none d-sm-block">Elapsed Time</th>
+                  </tr>
+                </thead>
+                {%for scan in last_port_scans%}
+                  <tr>
+                    <td>
+                      {%if scan.completed==1 and scan.success==1%}
+                        <a href="/scan/info/port/{{scan.id}}">
+                          <i class="fas fa-check scan-success"></i>
+                        </a>
+                      {%else%}
+                        <a href="/scan/info/port/{{scan.id}}">
+                          <i class="fas fa-exclamation-triangle scan-fail"></i>
+                        </a>
+                      {%endif%}
+                    </td>
+                    <td>
+                      {{port_devices[scan.device_id]|device_icon_status}}
+                    </td>
+                    <td>{{scan.created_ts|smart_time}}</td>
+                    <td class="d-none d-sm-block">
+                      {%if scan.elapsed_time%}
+                        {{scan.elapsed_time}} sec
+                      {%endif%}
+                    </td>
+                  </tr>
+                {%endfor%}
+              </table>
+            {%endif%}
+          </div>
+        </div>
+      </div>
+    </div><!-- End Last Port Scans -->
+
+  </div><!-- End row -->
+
 
 {%endblock%}
 

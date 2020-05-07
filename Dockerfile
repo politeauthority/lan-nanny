@@ -2,15 +2,17 @@ FROM debian:bullseye-slim
 
 VOLUME /app/
 WORKDIR /app/
-ADD ./ /app/
-ENV LAN_NANNY_APP_PORT=5050
 ENV LAN_NANNY_CONFIG=docker
 ENV LAN_NANNY_DB_HOST=lan-nanny-mysql
 ENV LAN_NANNY_DB_PORT=3306
 ENV LAN_NANNY_DB_NAME=lan_nanny
 ENV LAN_NANNY_DB_USER=root
 ENV LAN_NANNY_DB_PASS=pass
+ENV LAN_NANNY_STATIC_PATH='/static'
 ENV LAN_NANNY_APP_PORT=5000
+ENV LAN_NANNY_LOG_DIR=/app/logs
+ENV LAN_NANNY_TMP_DIR=/tmp/lan_nanny
+ENV LAN_NANNY_GIT_BRANCH=0.0.1
 
 # Install apt requirements
 RUN apt-get update && \
@@ -19,19 +21,19 @@ RUN apt-get update && \
         libpython3-dev \
         python3-pip \
         python3-mysqldb \
-        vim \
+        git \
         nmap \
         arp-scan
 
 # Install Lan Nanny
-RUN pip3 install -r /app/requirements.txt  && \
+RUN git clone https://github.com/politeauthority/lan-nanny.git /app && \
+    cd /app && \
+    git fetch origin && \
+    git checkout 0.0.1 && \
+    pip3 install -r /app/requirements.txt  && \
     python3 /app/setup.py build && \
-    python3 /app/setup.py install
+    python3 /app/setup.py install && \
+    mkdir -p /app/logs && \
+    mkdir -p /tmp/lan_nanny
 
-# Install test suite tools (should be optional)
-RUN apt-get install -y \
-        screen \
-        inetutils-ping && \
-    pip3 install -r /app/tests/requirements.txt
-
-CMD tail -f /dev/null
+CMD cd lan_nanny && gunicorn -b 0.0.0.0:5008 app:app

@@ -9,7 +9,7 @@
   <meta name="description" content="">
   <meta name="author" content="politeauthority">
 
-  <title>Lan Nanny{%if g.options['system-name']%} | {{g.options['system-name'].value}}{%endif%}</title>
+  <title>Lan Nanny{%if page_title %} | {{page_title}}{%endif%}{%if g.options['system-name']%} | {{g.options['system-name'].value}}{%endif%}</title>
   <link rel="shortcut icon" href="/static/favicon.ico" />
 
   <!-- Custom fonts for this template-->
@@ -54,12 +54,14 @@
           <span>Dashboard</span>
         </a>
       </li>
-      {%if g.options['beta-features'].value %}
-        <li class="nav-item {%if active_page == 'alerts'%}active{%endif%}">
-          <a class="nav-link" href="/alerts">
-            <i class="fas fa-fw fa-bell"></i>
-            <span>Alerts</span></a>
-        </li>
+      {%if g.options['alerts-enabled'].value %}
+        {%if g.options['beta-features'].value %}
+          <li class="nav-item {%if active_page == 'alerts'%}active{%endif%}">
+            <a class="nav-link" href="/alerts">
+              <i class="fas fa-fw fa-bell"></i>
+              <span>Alerts</span></a>
+          </li>
+        {%endif%}
       {%endif%}
       <li class="nav-item {%if active_page == 'devices'%}active{%endif%}">
         <a class="nav-link" href="/devices/">

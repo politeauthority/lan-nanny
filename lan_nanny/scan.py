@@ -43,7 +43,7 @@ class Scan:
         self.setup_logging()
         self.prompt_sudo()
         options = Options(self.conn, self.cursor)
-        self.options = options.get_all_keyed()
+        self.options = options.get_all_keyed('name')
         self.tmp_dir = self.config.LAN_NANNY_TMP_DIR
         if self.args.cron:
             self.trigger = 'cron'

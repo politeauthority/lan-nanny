@@ -16,14 +16,6 @@ class Options(Base):
         self.table_name = Option().table_name
         self.collect_model = Option
 
-    def get_all_keyed(self) -> dict:
-        """Get all options in a dictionary keyed on the option name."""
-        all_options = self.get_all()
-        ret_options = {}
-        for option in all_options:
-            ret_options[option.name] = option
-        return ret_options
-
     def set_defaults(self):
         """Tool for creating option defaults if they do not exist."""
         default_opts = [

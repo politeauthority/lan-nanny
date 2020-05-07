@@ -42,6 +42,40 @@
               <small id="systemNameHelp" class="form-text text-muted">If you run multiple instances of Lan Nanny, name them uniquely to differentiate them.</small>
             </div>
 
+            <div class="form-group form-sm">
+              <label for="setting_active_timeout">Active Device Timeout</label>
+              <input type="number" class="form-control form-sm" id="setting_active_timeout" name="setting_active_timeout" value="{{settings['active-timeout'].value}}" aria-describedby="activeTimeoutHelp">
+              <small id="activeTimeoutHelp" class="form-text text-muted">Number of minutes a device has to be missing from scans to be marked offline.</small>
+            </div>
+            
+            <div class="form-group">
+              <label for="setting_auto_reload_console">Auto Reload Web Console</label>
+              <input id="setting_auto_reload_console" type="checkbox" data-toggle="toggle" aria-describedby="autoReloadConsoleHelp">
+              <small id="autoReloadConsoleHelp" class="form-text text-muted">Reloads console every 5 minutes.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="setting_beta_features">Enable Beta Features</label>
+              <input id="setting_beta_features" type="checkbox" data-toggle="toggle" aria-describedby="betaFeaturesHelp">
+              <small id="betaFeaturesHelp" class="form-text text-muted">Enable beta features (may be buggy)</small>
+
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- End General Settings -->
+
+      <!-- Visual Settings -->
+      <div class="col-xl-6 col-lg-6">
+        <div class="card shadow mb-4">
+          <!-- Card Header -->
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">
+              Visual
+            </h6>
+          </div>
+          <div class="card-body">
+
             <!-- Timezone -->
             <div class="form-group">
               <label for="settings_timezone">Timezone</label>
@@ -77,32 +111,10 @@
               </select>
               <small id="settings_console_ui_color_help" class="form-text text-muted">Console color theme</small>
             </div>
-
-            <div class="form-group form-sm">
-              <label for="setting_active_timeout">Active Device Timeout</label>
-              <input type="number" class="form-control form-sm" id="setting_active_timeout" name="setting_active_timeout" value="{{settings['active-timeout'].value}}" aria-describedby="activeTimeoutHelp">
-              <small id="activeTimeoutHelp" class="form-text text-muted">Number of minutes a device has to be missing from scans to be marked offline.</small>
-            </div>
-            
-            <div class="form-group">
-              <label for="setting_auto_reload_console">Auto Reload Web Console</label>
-              <input id="setting_auto_reload_console" type="checkbox" data-toggle="toggle" aria-describedby="autoReloadConsoleHelp">
-              <small id="autoReloadConsoleHelp" class="form-text text-muted">Reloads console every 5 minutes.</small>
-            </div>
-
-            <div class="form-group">
-              <label for="setting_beta_features">Enable Beta Features</label>
-              <input id="setting_beta_features" type="checkbox" data-toggle="toggle" aria-describedby="betaFeaturesHelp">
-              <small id="betaFeaturesHelp" class="form-text text-muted">Enable beta features (may be buggy)</small>
-
-            </div>
-
-            <div id="hidden_forms" class=""></div>
-            <br/>
-
           </div>
         </div>
-      </div> <!-- End General Settings -->
+      </div>
+      <!-- End Visual Settings -->
 
       <div id="hidden_forms" class=""></div>
 

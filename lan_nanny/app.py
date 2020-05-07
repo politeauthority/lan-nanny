@@ -42,7 +42,7 @@ def get_settings():
     options = Options()
     options.conn = conn
     options.cursor = cursor
-    g.options = options.get_all_keyed()
+    g.options = options.get_all_keyed('name')
 
 
 @app.before_request
@@ -119,7 +119,6 @@ def index() -> str:
     sh = ScanHost(conn, cursor)
     sh.get_last()
     data = {}
-    data['active_page'] = 'dashboard'
     data['num_connected'] = devices_col.get_online_count()
     data['device_favorites'] = favorites
     data['devices'] = devices
@@ -127,7 +126,8 @@ def index() -> str:
     data['runs_over_24'] = metrics.get_all_scans_24()
     data['host_scan'] = sh
     data['online_donut'] = donut_devices_online
-    print(data)
+    data['active_page'] = 'dashboard'
+    data['page_title'] = 'Dashboard'
     return render_template('dashboard.html', **data)
 
 
