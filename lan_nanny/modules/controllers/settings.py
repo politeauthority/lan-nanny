@@ -112,6 +112,9 @@ def save_alerts():
     """Alerts settings save."""
     conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     _save_setting(conn, cursor, 'alerts-enabled', request.form['setting_alerts_enabled'])
+    _save_setting(conn, cursor, 'notification-slack-enabled', request.form['setting_notification_slack_enabled'])
+    _save_setting(conn, cursor, 'notification-slack-token', request.form['setting_notification_slack_token'])
+    _save_setting(conn, cursor, 'notification-slack-channel', request.form['setting_notification_slack_channel'])
     return redirect('/settings/alerts')
 
 

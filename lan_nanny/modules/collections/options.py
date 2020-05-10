@@ -115,6 +115,21 @@ class Options(Base):
                 'type': 'str',
                 'default': 'black'
             },
+            {
+                'name': 'notification-slack-enabled',
+                'type': 'bool',
+                'default': False
+            },
+            {
+                'name': 'notification-slack-token',
+                'type': 'str',
+                'default': '',
+            },
+            {
+                'name': 'notification-slack-channel',
+                'type': 'str',
+                'default': '',
+            },
         ]
         gen_pass = None
         for opt in default_opts:

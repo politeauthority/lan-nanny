@@ -187,7 +187,7 @@ def quick_save() -> str:
         # return page_not_found('Device not found')
     field_name = request.form.get('field_name')
     field_value = request.form.get('field_value')
-    if field_name not in ['port_scan', 'alert_offline']:
+    if field_name not in ['port_scan', 'alert_offline', 'alert_online']:
         print("Forbidden field_name %s field_name")
         return jsonify("error", "Forbidden field_name %s field_name"), 403
 
@@ -200,7 +200,7 @@ def quick_save() -> str:
     # metas
     if field_name == 'port_scan':
         setattr(device, field_name, val)
-    elif field_name in ['alert_offline']:
+    elif field_name in ['alert_offline', 'alert_online']:
         device.meta_update(field_name, field_value, 'bool')
 
     device.save()

@@ -5,6 +5,7 @@ from datetime import timedelta
 import logging
 
 import arrow
+import slack
 
 from ..collections.scan_hosts import ScanHosts
 from ..collections.alerts import Alerts as CollectAlerts
@@ -21,8 +22,11 @@ class ScanAlerts:
         self.cursor = scan.cursor
         self.options = scan.options
         self.hosts = scan.hosts
+        self.devices = {}
         self.new_devices = scan.new_devices
         self.trigger = scan.trigger
+        self.new_alerts = []
+        self.resolved_alerts = []
 
     def run(self):
         """Handle various LanNanny alerts."""
@@ -39,6 +43,7 @@ class ScanAlerts:
         self.alert_no_hosts_in_scan()
         self.alert_new_device()
         self.alert_device_offline()
+        self.notify()
 
     def get_active_alerts(self):
         """Get all currently active alerts."""
@@ -105,6 +110,7 @@ class ScanAlerts:
             alert_new.metas['device'].type = 'str'
             alert_new.metas['device'].value = new_device.id
             alert_new.save()
+            self.new_alerts.append(alert_new)
 
             logging.info("\tCreated new device alert for %s" % new_device)
 
@@ -161,6 +167,7 @@ class ScanAlerts:
                 alert.last_observed_ts = arrow.utcnow().datetime
                 alert.meta_update('device', device.id, 'int')
                 created_offline_alerts += 1
+                self.new_alerts.append(alert)
             else:
                 logging.debug('\t%s is offline and has an active alert.' % device)
                 alert = active_alert
@@ -187,6 +194,8 @@ class ScanAlerts:
                 continue
             logging.debug('\tDevice %s is offline' % device)
             devices_offline_to_alert.append(device)
+            self.devices[device.id] = device
+
         return devices_offline_to_alert
 
     def device_alert_offline_active(self, device):
@@ -221,6 +230,7 @@ class ScanAlerts:
                 if alert_device_id == host_id:
                     logging.debug('\tDevice %s is back online.' % host['device'])
                     device_alerts_to_resolve.append(alert)
+                    self.devices[host_id] = host['device']
                     break
 
         if not device_alerts_to_resolve:
@@ -233,7 +243,68 @@ class ScanAlerts:
             alert.save()
             logging.info('Resolved offline device alert for device id: %s'
                 % alert.metas['device'].value)
+            self.resolved_alerts.append(alert)
         return True
 
+    def notify(self):
+        """ """
+
+        if not self.new_alerts and not self.resolved_alerts:
+            logging.debug('No new alerts or resolved alerts, not sending notifications.')
+            return True
+
+        if not self.options['notification-slack-enabled'].value:
+            logging.debug('Slack notifications not enabled')
+            return True
+
+        msg = self.notify_new_alerts()
+        msg += self.notify_resolved_alerts()
+        self.send_slack(msg)
+
+    def notify_new_alerts(self) -> str:
+        msg = ""
+        for alert in self.new_alerts:
+            alert_device = None
+            if 'device' in alert.metas:
+                alert_device = self.devices[int(alert.metas['device'].value)]
+            if alert.kind == 'device-offline':
+                msg += "Device %s is now offline.\n" % alert_device.name
+            else:
+                msg += "There was an alert we don't know how to talk about yet.\n"
+        return msg
+
+    def notify_resolved_alerts(self) -> str:
+        msg = ""
+        for alert in self.resolved_alerts:
+            alert_device = None
+            if 'device' in alert.metas:
+                alert_device = self.devices[int(alert.metas['device'].value)]
+            if alert.kind == 'device-offline':
+                msg += "Device %s is back online, resolving the alert.\n" % alert_device.name
+            else:
+                msg += "There was an alert resolved we dont know how to talk about yet.\n"
+        return msg
+
+    def send_slack(self, msg: str) -> bool:
+        """Sends a slack message to 
+        """
+        slack_token = self.options['notification-slack-token'].value
+        if not slack_token:
+            logging.error('No slack token found, cannot send notifications.')
+            return False
+        slack_channel = self.options['notification-slack-channel'].value
+        if not slack_channel:
+            logging.error('No slack channel found, cannot send notifications.')
+            return False
+
+
+        slack_client = slack.WebClient(token=slack_token)
+        logging.info('Sending: %s' % msg)
+        slack_client.chat_postMessage(
+            username='Lan Nanny',
+            channel=slack_channel,
+            text=msg
+        )
+        return True
 
 # End File: lan-nanny/lan_nanny/modules/scanning/scan_alerts.py

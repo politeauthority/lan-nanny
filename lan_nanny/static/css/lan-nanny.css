@@ -20,7 +20,7 @@
   100% {color: #ffffff;}
 }
 
-.alert_active {
+.alert_active_red {
   animation-name: blink_red;
   animation-duration: 2s;
   animation-iteration-count: infinite;
@@ -29,6 +29,18 @@
 @keyframes blink_red {
   0% {color: #cccccc;}
   50% {color: #ff0000; }
+  100% {color: #cccccc;}
+}
+
+.alert_active_yellow {
+  animation-name: blink_yellow;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+}
+
+@keyframes blink_yellow {
+  0% {color: #cccccc;}
+  50% {color: #ff9900; }
   100% {color: #cccccc;}
 }
 

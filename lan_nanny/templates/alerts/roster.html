@@ -26,7 +26,7 @@
                 <thead>
                   <tr>
                     <th>Status</th>
-                    <th>Type</th>
+                    <th>Alert</th>
                     <th>Device</th>
                     <th>Created</th>
                     <th>Resolved</th>
@@ -36,7 +36,11 @@
                 <tr>
                   <td>
                     {%if alert.active%}
-                      <i class="fas fa-exclamation-circle alert_active"></i>
+                      {%if alert.kind == 'new-device'%}
+                        <i class="fas fa-exclamation-circle alert_active_yellow"></i>
+                      {%else%}
+                        <i class="fas fa-exclamation-circle alert_active_red"></i>
+                      {%endif%}
                     {%else%}
                       <i class="fas fa-check-circle alert_resolved"></i>
                     {%endif%}
@@ -44,11 +48,12 @@
                   <td>
                     {%if alert.kind == 'device-offline'%}
                       <a href="/alerts/info/{{alert.id}}">Device Offline</a>
+                    {%elif alert.kind == 'new-device'%}
+                      <a href="/alerts/info/{{alert.id}}">New Device</a>
                     {%endif%}
                   </td>
                   <td>
                     {%if 'device' in alert.metas%}
-
                       {{devices[alert.metas['device'].value|int]|device_icon_status}}
                     {%endif%}
                   </td>

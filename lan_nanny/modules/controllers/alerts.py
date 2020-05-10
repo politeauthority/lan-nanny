@@ -24,10 +24,17 @@ def dashboard():
     # Send everything to all, theres no good dashboard now
     conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     alerts_collect = AlertsCollect(conn, cursor)
+    alerts_firing = alerts_collect.get_firing()
+    alerts_unacked_resolved = alerts_collect.get_unacked_resolved()
+
+    device_alerts = alerts_firing + alerts_unacked_resolved
+    devices = get_alert_devices(conn, cursor, device_alerts)
     data = {}
     data['alerts_num_today'] = alerts_collect.get_count_since(86400)
-    data['alerts_firing'] = alerts_collect.get_firing()
+    data['alerts_firing'] = alerts_firing
+    data['alerts_unacked_resolved'] = alerts_unacked_resolved
     data['alerts_recent'] = alerts_collect.get_recent()
+    data['devices'] = devices
     data['active_page'] = 'alerts'
     data['active_page_alerts'] = 'dashboard'
     return render_template('alerts/dashboard.html', **data)
@@ -52,17 +59,7 @@ def roster(page: str="1") -> str:
     for alert_obj in alert_pages['objects']:
         alert_obj.get_meta()
 
-    # Get alert devices
-    alert_device_ids = []
-    for alert_obj in alert_pages['objects']:
-        if 'device' in alert_obj.metas:
-            device_id = int(alert_obj.metas['device'].value)
-            if device_id not in alert_device_ids:
-                alert_device_ids.append(device_id)
-    devices = {}
-    if alert_device_ids:
-        device_collect = DevicesCollect(conn, cursor)
-        devices = device_collect.get_by_ids_keyed(alert_device_ids)
+    devices = get_alert_devices(conn, cursor, alert_pages['objects'])
 
     data = {}
     data['alerts'] = alert_pages['objects']
@@ -144,5 +141,19 @@ def delete(alert_id: int):
     alert.delete()
     return redirect('/alerts')
 
+
+def get_alert_devices(conn, cursor, alerts):
+    # Get alert devices
+    alert_device_ids = []
+    for alert_obj in alerts:
+        if 'device' in alert_obj.metas:
+            device_id = int(alert_obj.metas['device'].value)
+            if device_id not in alert_device_ids:
+                alert_device_ids.append(device_id)
+    devices = {}
+    if alert_device_ids:
+        device_collect = DevicesCollect(conn, cursor)
+        devices = device_collect.get_by_ids_keyed(alert_device_ids)
+    return devices
 
 # End File: lan-nanny/lan_nanny/modules/controllers/alerts.py

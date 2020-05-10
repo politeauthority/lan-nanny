@@ -62,6 +62,15 @@ class Alert(BaseEntityMeta):
             return "<Alert %s:%s>" % (self.kind, self.id)
         return "<Alert>"
 
+    def pretty_kind(self) -> str:
+        if self.kind == 'device-offline':
+            return 'Device offline'
+        elif self.kind == 'device-online':
+            return 'Device online'
+        elif self.kind == 'new-device':
+            return 'New device'
+        return ''
+
     def delete_device(self, device_id: int) -> bool:
         """Deletes all records from the `alerts` table containing a device_id, this should be
            performed when deleting a device.

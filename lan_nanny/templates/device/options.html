@@ -44,11 +44,27 @@
             </h6>
           </div>
           <div class="card-body">
-              <div class="form-group">
-                <label for="alert_device_offline">Alert Offline</label>
-                <input id="alert_offline" data-entity-id="{{device.id}}" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="alertDeviceOfflinedHelp">
-                <small id="alertDeviceOfflinedHelp" class="form-text text-muted">Alert when device goes offline.</small>
-              </div>
+            <div class="form-group">
+              <label for="alert_device_offline">Alert Offline</label>
+              <input id="alert_offline" data-entity-id="{{device.id}}" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="alertDeviceOfflinedHelp">
+              <small id="alertDeviceOfflinedHelp" class="form-text text-muted">Alert when device goes offline.</small>
+            </div>
+
+            <!-- Alert Offline custom time form -->
+<!--             <div class="form-group">
+              <label for="alert_device_offline_custom_time">Custom Offline Time</label>
+              <input type="number" class="form-control form-sm" id="alert_device_offline_custom_time" name="alert_device_offline_custom_time" value="" aria-describedby="alert_device_offline_custom_time_help">
+              <small id="alert_device_offline_custom_time_help" class="form-text text-muted">Some devices come on and off network sporadically, making it desirable to set a custom value to consider a device offline rather than the system setting (currently at x).</small>
+            </div>
+ -->
+
+            <!-- Alert Online form -->
+<!--             <div class="form-group">
+              <label for="alert_device_online">Alert Online</label>
+              <input id="alert_online" data-entity-id="{{device.id}}" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="alert_device_online_help">
+              <small id="alert_device_online_help" class="form-text text-muted">Alert when device comes online.</small>
+            </div> -->
+
           </div>
         </div>
       </div><!-- END Device Alert Options -->
@@ -83,6 +99,18 @@
         '/device/quick-save',
         '#alert_offline',
         device_alert_offline_status);
+
+      // Device Meta Ajax
+      {%if device.metas['alert_online'] %}
+        var device_alert_online_status = convert_str_bool("{{device.metas['alert_online'].value}}");
+      {%else%}
+        var device_alert_online_status = false;
+      {%endif%}
+      register_toggle_ajax(
+        '/device/quick-save',
+        '#alert_online',
+        device_alert_online_status);
+
 
       // var device_port_scan_flagged_status = convert_str_bool("{{device.flagged_for_scan}}");
       // register_toggle_ajax(

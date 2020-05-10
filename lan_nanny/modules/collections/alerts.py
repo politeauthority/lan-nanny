@@ -27,6 +27,20 @@ class Alerts(BaseEntityMetas):
         alerts = self.build_from_lists(raw_alerts, meta=True)
         return alerts
 
+    def get_unacked_resolved(self, limit=10) -> list:
+        sql = """
+            SELECT *
+            FROM %s
+            WHERE
+                active = 0 AND
+                acked = 0
+            ORDER BY created_ts DESC;""" % (self.table_name)
+
+        self.cursor.execute(sql)
+        raw_alerts = self.cursor.fetchall()
+        alerts = self.build_from_lists(raw_alerts, meta=True)
+        return alerts
+
     def get_recent(self, build_devices=False) -> list:
         """Gets all active alerts from the database."""
 
@@ -42,7 +56,7 @@ class Alerts(BaseEntityMetas):
         alerts = self.build_from_lists(raw_alerts)
         return alerts
 
-    def get_active_unacked_num(self) -> int:
+    def get_active_unacked(self) -> int:
         """Gets all active, unacked alerts number from the database."""
         sql = """
             SELECT *
@@ -53,7 +67,8 @@ class Alerts(BaseEntityMetas):
             ORDER BY created_ts DESC;""" % (self.table_name)
         self.cursor.execute(sql)
         raw_alerts = self.cursor.fetchall()
-        return len(raw_alerts)
+        alerts = self.build_from_lists(raw_alerts)
+        return alerts
 
     def get_for_device(self, device_id: int) -> list:
         """Get all alert objects for a single device."""

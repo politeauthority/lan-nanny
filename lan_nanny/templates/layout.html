@@ -139,11 +139,10 @@
               <li class="nav-item dropdown no-arrow mx-1">
                 <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   <i class="fas fa-bell fa-fw"></i>
-
                   <!-- Counter - Alerts -->
                   {%if g.alerts%}
-                    {%if g.alerts_active_unacked == "0"%}
-                      <span class="badge badge-danger badge-counter">{{g.alerts_active_unacked}}</span>
+                    {%if g.alerts %}
+                      <span class="badge badge-danger badge-counter">{{g.alerts|length}}</span>
                     {%endif%}
                   {%endif%}
                 </a>
@@ -155,17 +154,17 @@
                   </h6>
 
                   {%for alert in g.alerts%}
-                  <a class="dropdown-item d-flex align-items-center" href="/alerts/info/{{alert.id}}">
-                    <div class="mr-3">
-                      <div class="icon-circle bg-primary">
-                        <i class="fas fa-file-alt text-white"></i>
+                    <a class="dropdown-item d-flex align-items-center" href="/alerts/info/{{alert.id}}">
+                      <div class="mr-3">
+                        <div class="icon-circle bg-primary">
+                          <i class="fas fa-file-alt text-white"></i>
+                        </div>
                       </div>
-                    </div>
-                    <div>
-                      <div class="small text-gray-500">{{alert.created_ts|time_ago}}</div>
-                      <span class="font-weight-bold">Device Name</span>
-                    </div>
-                  </a>
+                      <div>
+                        <div class="small text-gray-500">{{alert.created_ts|time_ago}}</div>
+                        <span class="font-weight-bold">Device Name</span>
+                      </div>
+                    </a>
                   {%endfor%}
                   <a class="dropdown-item text-center small text-gray-500" href="/alerts">Show All Alerts</a>
                 </div>
