@@ -51,13 +51,12 @@ class ScanHosts:
 
         self._complete_run()
         self.handle_devices()
-        return (self.hosts, self.new_devices)
+        return (self.hosts, self.new_devices, self.scan_log)
 
     def setup(self):
         """Set up the scan hosts run."""
         self.scan_log = ScanHost(self.conn, self.cursor)
         self.scan_log.trigger = self.trigger
-
 
     def scan_with_nmap(self) -> bool:
         """Run the port scan operation."""

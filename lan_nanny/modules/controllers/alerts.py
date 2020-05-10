@@ -70,6 +70,21 @@ def roster(page: str="1") -> str:
     return render_template('alerts/roster.html', **data)
 
 
+@alerts.route('/monitors')
+@utils.authenticate
+def monitors():
+    """Alert info page."""
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
+    device_collect = DevicesCollect(conn, cursor)
+    devices_alert_online = device_collect.get_with_meta_value('alert_online', 'true')
+    devices_alert_offline = device_collect.get_with_meta_value('alert_offline', 'true')
+    data = {}
+    data['devices_alert_online'] = devices_alert_online
+    data['devices_alert_offline'] = devices_alert_offline
+    data['active_page'] = 'alerts'
+    data['active_page_alerts'] = 'monitors'
+    return render_template('alerts/monitors.html', **data)
+
 @alerts.route('/info/<alert_id>')
 @utils.authenticate
 def info(alert_id: int):

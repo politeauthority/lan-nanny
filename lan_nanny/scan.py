@@ -71,7 +71,7 @@ class Scan:
         try:
             scan_hosts = ScanHosts(self).run()
             if scan_hosts:
-                self.hosts, self.new_devices = scan_hosts
+                self.hosts, self.new_devices, self.scan_hosts_log = scan_hosts
             else:
                 logging.error('Error scanning hosts, ending scan.')
         except:
