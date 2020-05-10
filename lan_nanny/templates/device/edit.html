@@ -10,9 +10,9 @@
   {%if form == 'edit' %}
     <h3>Edit Device</h3>
   {%endif%}
+  <form action="/device/save" method="POST">
   <div class="row">
     <div class="col-xl-6 col-lg-6">
-      <form action="/device/save" method="POST">
         {%if form == 'edit' %}
           <input type="hidden" name="device_id" value="{{device.id}}">
         {%else%}
@@ -93,9 +93,10 @@
             Delete
           </button>
         {%endif%}
-      </form>
     </div>
   </div>
+</form>
+
 {%endblock%}
 
 {%block modal%}

@@ -56,7 +56,7 @@ class Scan:
         self.hande_hosts()
         self.handle_ports()
         self.handle_alerts()
-        # self.handle_house_keeping()
+        self.handle_house_keeping()
 
     def handle_cli(self) -> bool:
         """Handle one off/simple CLI requests"""
@@ -121,10 +121,12 @@ class Scan:
     def setup_logging(self) -> bool:
         """Create the logger."""
         logging.basicConfig(
-            filename=self.config.LAN_NANNY_SCAN_LOG,
             format='%(asctime)s %(message)s',
             datefmt='%m/%d/%Y %I:%M:%S %p',
-            level=logging.DEBUG)
+            level=logging.DEBUG,
+            handlers=[logging.FileHandler(self.config.LAN_NANNY_SCAN_LOG),
+                  logging.StreamHandler()])
+
         return True
 
     def prompt_sudo(self):

@@ -34,8 +34,7 @@
     </div><!-- END Device Scan Options -->
 
     <!-- Device Alert Options -->
-    {%if g.options['beta-features'].value %}
-
+    {%if g.options['beta-features'].value and g.options['alerts-enabled'].value %}
       <div class="col-xl-6 col-lg-6">
         <div class="card shadow mb-4">
           <!-- Card Header -->
