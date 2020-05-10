@@ -101,10 +101,7 @@ class ScanHosts:
         self.scan_log.command = "/usr/sbin/arp-scan %s" % scan_range
         self.scan_log.created_ts = arrow.utcnow().datetime
         self.scan_log.save()
-        logging.info('Saved')
-        logging.info('running: %s' % self.scan_log.command)
         arp_response = subprocess.check_output(self.scan_log.command, shell=True)
-        logging.info('Finished arp')
         # try:
         #     arp_response = subprocess.check_output(self.scan_log.command, shell=True)
         # except subprocess.CalledProcessError:
@@ -170,7 +167,7 @@ class ScanHosts:
             if new:
                 self.new_devices.append(device)
                 new_device_str = "\t- New Device"
-            logging.info('\t\t%s - %s%s' % (device.name, device.ip, new_device_str))
+            logging.debug('\t\t%s - %s%s' % (device.name, device.ip, new_device_str))
 
             self.save_witness(device, scan_time)
 

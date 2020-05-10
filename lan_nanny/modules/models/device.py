@@ -165,13 +165,12 @@ class Device(BaseEntityMeta):
             return True
         return False
 
-    def build_from_list(self, raw: list, build_ports: bool=False):
-        """
-        Build a model from an ordered list, converting data types to their desired type where
-        possible.
+    def build_from_list(self, raw: list, meta: bool=False, build_ports: bool=False):
+        """Build a model from an ordered list, converting data types to their desired type where
+           possible.
 
         """
-        super(Device, self).build_from_list(raw)
+        super(Device, self).build_from_list(raw, meta=meta)
         if build_ports:
             self.get_ports()
         return True

@@ -16,7 +16,6 @@ class Alerts(BaseEntityMetas):
 
     def get_firing(self, build_devices=False) -> list:
         """Gets all active alerts from the database."""
-
         sql = """
             SELECT *
             FROM %s
@@ -25,7 +24,7 @@ class Alerts(BaseEntityMetas):
 
         self.cursor.execute(sql)
         raw_alerts = self.cursor.fetchall()
-        alerts = self.build_from_lists(raw_alerts)
+        alerts = self.build_from_lists(raw_alerts, meta=True)
         return alerts
 
     def get_recent(self, build_devices=False) -> list:

@@ -80,7 +80,7 @@ class ScanPorts:
 
             # Remove devices that dont allow port scanning.
             if not host['device'].port_scan:
-                logging.debug('%s does not have port scanning enabled' % host['device'])
+                logging.debug('\t%s does not have port scanning enabled' % host['device'])
                 continue
 
             if not host['device'].last_port_scan:
@@ -88,7 +88,7 @@ class ScanPorts:
                 continue
             # Remove devices that have been port scanned in x minutes.
             if host['device'].last_port_scan > host_port_scan_timeout:
-                logging.debug('%s has been scanned in the last %s minutes' % (
+                logging.debug('\t%s has been scanned in the last %s minutes' % (
                     host['device'],
                     host_port_scan_interval_mins))
                 continue

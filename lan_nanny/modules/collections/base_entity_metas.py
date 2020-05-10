@@ -14,6 +14,17 @@ class BaseEntityMetas(Base):
         self.collect_model = None
         self.meta_table = 'entity_metas'
 
+    def build_from_lists(self, raws: list, meta: bool=False) -> list:
+        """Creates list of hydrated collection objects, optionally loading the entities meta
+           values.
+        """
+        prestines = []
+        for raw_item in raws:
+            new_object = self.collect_model(self.conn, self.cursor)
+            new_object.build_from_list(raw_item, meta=meta)
+            prestines.append(new_object)
+        return prestines
+
     def get_with_meta_value(self, meta_name: str, meta_value) -> list:
         """Collect models with a meta key and value."""
         sql = """

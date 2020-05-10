@@ -20,6 +20,21 @@
   100% {color: #ffffff;}
 }
 
+.alert_active {
+  animation-name: blink_red;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+}
+
+@keyframes blink_red {
+  0% {color: #cccccc;}
+  50% {color: #ff0000; }
+  100% {color: #cccccc;}
+}
+
+.alert_resolved {
+  color: #1cc88a;
+}
 
 .device_info_connect{
   padding-right: 20px;

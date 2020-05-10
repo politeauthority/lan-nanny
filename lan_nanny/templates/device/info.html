@@ -79,7 +79,11 @@
               <tr>
                 <td><b>Port Scanning</b></td>
                 <td>
-                  {{device.port_scan}}
+                  {%if device.port_scan%}
+                    Enabled
+                  {%else%}
+                    Disabled
+                  {%endif%}
                 </td>
               </tr>
               <tr>

@@ -93,6 +93,20 @@ class BaseEntityMeta(Base):
         self._load_from_meta_raw(meta_raws)
         return True
 
+    def get_meta(self) -> bool:
+        """Load the model's meta data."""
+        sql = """
+            SELECT *
+            FROM %s
+            WHERE
+                entity_id = %s AND
+                entity_type = '%s';
+            """ % (self.table_name_meta, self.id, self.table_name)
+        self.cursor.execute(sql)
+        meta_raws = self.cursor.fetchall()
+        self._load_from_meta_raw(meta_raws)
+        return True
+
     def _load_from_meta_raw(self, meta_raws) -> bool:
         """Create self.metas for an object from raw_metas data."""
         ret_metas = {}

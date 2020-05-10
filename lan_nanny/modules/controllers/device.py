@@ -177,9 +177,7 @@ def favorite(device_id):
 @device.route('/quick-save', methods=['POST'])
 @utils.authenticate
 def quick_save() -> str:
-    """
-    Ajax web route for update a device alert settings or not when coming on or off the network.
-
+    """Ajax web route for update a device alert settings or not when coming on or off the network.
     """
     conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     device = Device(conn, cursor)
@@ -194,9 +192,9 @@ def quick_save() -> str:
         return jsonify("error", "Forbidden field_name %s field_name"), 403
 
     if field_value == 'true'.lower():
-        val = True
+        val = 'true'
     else:
-        val = False
+        val = 'false'
 
     # Handle port_scan and alert settings differently because one is a model attr and the rest are
     # metas

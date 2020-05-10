@@ -6,17 +6,17 @@
     <a class="nav-link {%if active_page=='all'%}active{%endif%}" href="/devices/all">All</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link  {%if active_page=='online'%}active{%endif%}" href="/devices/online">Online</a>
+    <a class="nav-link {%if active_page=='online'%}active{%endif%}" href="/devices/online">Online</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link  {%if active_page=='offline'%}active{%endif%}" href="/devices/offline">Offline</a>
+    <a class="nav-link {%if active_page=='offline'%}active{%endif%}" href="/devices/offline">Offline</a>
   </li>
   {%if g.options['beta-features'].value %}
     <li class="nav-item">
-      <a class="nav-link  {%if active_page=='create'%}active{%endif%}" href="/device/create">Create</a>
+      <a class="nav-link {%if active_page=='create'%}active{%endif%}" href="/device/create">Create</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link  {%if active_page=='export'%}active{%endif%}" href="/devices/export">Export</a>
+      <a class="nav-link {%if active_page=='export'%}active{%endif%}" href="/devices/export">Export</a>
     </li>
 
   {%endif%}

@@ -15,48 +15,58 @@
   <!-- Content Row -->
   <div class="row">
 
-    <!-- Device Table -->
-    <div class="col-xl-8 col-lg-8">
+    <!-- Alerts Table -->
+    <div class="col-xl-12 col-lg-12">
       <div class="card shadow mb-4">
         <!-- Card Body -->
         <div class="card-body">
-          <h4>Active Alerts</h4>
           <div class="table-responsive">
             {%if alerts%}
               <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                   <tr>
-                    <td></td>
-                    <td>Alert Type</td>
-                    <td>Trigger Time</td>
-                    <td>Last Observed</td>
+                    <th>Status</th>
+                    <th>Type</th>
+                    <th>Device</th>
+                    <th>Created</th>
+                    <th>Resolved</th>
                   </tr>
                 </thead>
                 {% for alert in alerts %}
                 <tr>
-                  <td><a href="/alerts/info/{{alert.id}}">{{alert.id}}</a></td>
                   <td>
-                  {%if alert.kind == 'no-hosts-over-time'%}
-                    No Hosts Scanned
-                  {%elif alert.kind == 'new-device'%}
-                    New Device
-                  {%endif%}
+                    {%if alert.active%}
+                      <i class="fas fa-exclamation-circle alert_active"></i>
+                    {%else%}
+                      <i class="fas fa-check-circle alert_resolved"></i>
+                    {%endif%}
                   </td>
-                  <td>{{alert.created_ts|time_switch}}</td>
-                  <td>{{alert.last_observed_ts|time_switch}}</td>
+                  <td>
+                    {%if alert.kind == 'device-offline'%}
+                      <a href="/alerts/info/{{alert.id}}">Device Offline</a>
+                    {%endif%}
+                  </td>
+                  <td>
+                    {%if 'device' in alert.metas%}
+
+                      {{devices[alert.metas['device'].value|int]|device_icon_status}}
+                    {%endif%}
+                  </td>
+                  <td>{{alert.created_ts|time_ago}}</td>
+                  <td>{{alert.resolved_ts|time_ago}}</td>
                 </tr>
                 {%endfor%}
               </table>
             {%else%}
               <div class="text-center">
-                No Alerts!
+                No alerts registered yet.
               </div>
             {%endif%}
           </div>
       </div>
-    </div>
+    </div><!-- End alerts table -->
 
-  </div>
+  </div><!-- End Content Row -->
 
 {%endblock%}
 

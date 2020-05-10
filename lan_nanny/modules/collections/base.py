@@ -57,7 +57,8 @@ class Base:
             prestines_dict[key] = prestine
         return prestines_dict
 
-    def get_paginated(self,
+    def get_paginated(
+        self,
         page: int=1,
         limit: int=0,
         order_by: dict={},
@@ -201,7 +202,7 @@ class Base:
         raw_scans_count = self.cursor.fetchone()
         return raw_scans_count[0]
 
-    def get_since(self, seconds_since_created: int) -> int:
+    def get_since(self, seconds_since_created: int) -> list:
         """Get model instances created in last x seconds."""
         then = arrow.utcnow().datetime - timedelta(seconds=seconds_since_created)
         sql = """

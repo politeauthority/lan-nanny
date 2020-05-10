@@ -9,7 +9,7 @@
   <div class="row">
     <div class="col-lg-6">
       <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Alert - {{alert.kind}}</h1>
+        <h1 class="h3 mb-0 text-gray-800">Alert - {{alert_kind_pretty}}</h1>
       </div>
     </div>
     <div class="col-lg-6 text-right">
@@ -33,9 +33,15 @@
         </div>
         <div class="card-body">
           <table class="table table-striped">
+            {%if device%}
+              <tr>
+                <td>Device</td>
+                <td>{{device|device_icon_status}}</td>
+              </tr>
+            {%endif%}
             <tr>
               <td>Alert Type</td>
-              <td>{{alert.kind}}</td>
+              <td>{{alert_kind_pretty}}</td>
             </tr>
             <tr>
               <td>First Triggered</td>
@@ -46,9 +52,13 @@
               <td>Last Observed</td>
               <td>{{alert.last_observed_ts|time_switch}}</td>
             </tr>
+            <tr>
+              <td>Resolved</td>
+              <td>{{alert.resolved_ts|time_switch}}</td>
+            </tr>
             {%endif%}
             <tr>
-              <td>Currently Active</td>
+              <td>Status</td>
               <td>
                 {%if alert.active == 0%}
                   Resolved
@@ -75,17 +85,6 @@
                 </td>
               </tr>
             {%endif%}
-
-            <!-- Show device for new-device alert -->
-            {%if alert.kind == 'new-device' %}
-            <tr>
-              <td>Device</td>
-              <td>
-                {{device|device_icon_status}}
-              </td>
-            </tr>
-            {%endif%}
-            <!-- End device for new-device alert -->
           </table>
         </div>
       </div>

@@ -27,6 +27,10 @@ class ScanAlerts:
     def run(self):
         """Handle various LanNanny alerts."""
         logging.info('Running alerts')
+        # if self.trigger  != 'manual':
+        #     logging.warning('Not running alerts via cron.')
+        #     return True
+
         if not self.options['alerts-enabled'].value:
             logging.info('\tAlerts are Disabled')
             return True
@@ -134,27 +138,43 @@ class ScanAlerts:
 
     def alert_device_offline(self) -> bool:
         """Manage alerts for devices offline."""
-        if self.trigger  != 'manual':
-            return True
-
         logging.info('\tRunning Device offline alerts')
-        devices_offline = self._get_devices_offline_w_alerting()
 
-        for device in devices_offline:
-            alert = Alert(self.conn, self.cursor)
-            alert.kind = 'device-offline'
-            alert.active = True
-            alert.last_observed_ts = arrow.utcnow().datetime
-            alert.meta_update('device', device.id, 'int')
-            alert.save()
-            print('saved alert')
-
+        self.handle_offline_alerts()
+        self.handle_offline_alerts_resolved()
 
         return True
 
-    def _get_devices_offline_w_alerting(self) -> list:
+    def handle_offline_alerts(self):
+        """
+        """
+        devices_offline = self.get_devices_w_offline_alerts_and_offline()
+        created_offline_alerts = 0
+        # For each offline device with an offline alerts enable, create or update the alert.
+        for device in devices_offline:
+            active_alert = self.device_alert_offline_active(device)
+            if not active_alert:
+                logging.debug('\t%s is offline, creating a new offline alert.' % device)
+                alert = Alert(self.conn, self.cursor)
+                alert.kind = 'device-offline'
+                alert.active = True
+                alert.last_observed_ts = arrow.utcnow().datetime
+                alert.meta_update('device', device.id, 'int')
+                created_offline_alerts += 1
+            else:
+                logging.debug('\t%s is offline and has an active alert.' % device)
+                alert = active_alert
+                alert.last_observed_ts = arrow.utcnow().datetime
+            alert.save()
+
+        logging.debug('Created %s new offline alerts' % created_offline_alerts)
+
+    def get_devices_w_offline_alerts_and_offline(self) -> list:
+        """Get devices with offline alerts enabled, that are offline."""
         device_collect = Devices(self.conn, self.cursor)
         devices_w_alert = device_collect.get_with_meta_value('alert_offline', 'true')
+        logging.debug('Found %s devices with offline alerts enabled.' % len(devices_w_alert))
+
         jitter_timeout = arrow.utcnow().datetime - \
             timedelta(minutes=int(self.options["active-timeout"].value))
 
@@ -163,12 +183,57 @@ class ScanAlerts:
         for device in devices_w_alert:
             # If device was last seen within the active timeout range, skip it.
             if device.last_seen > jitter_timeout:
+                logging.debug('\tDevice %s was seen recently, not alerting.' % device)
                 continue
-            for up_host in self.hosts:
-                if up_host['device'].id == device.id:
-                    break
+            logging.debug('\tDevice %s is offline' % device)
             devices_offline_to_alert.append(device)
         return devices_offline_to_alert
 
-            
+    def device_alert_offline_active(self, device):
+        """Check if device has an active offline alert already set and return it if it does,
+           otherwise return False.
+        """
+        for alert in self.active_alerts:
+            if alert.kind != 'device-offline':
+                continue
+            if device.id == int(alert.metas['device'].value):
+                return alert
+        return False
+
+    def handle_offline_alerts_resolved(self):
+        """
+        """
+        # Get all active device-offline alerts
+        offline_alerts = []
+        for alert in self.active_alerts:
+            if alert.kind != 'device-offline':
+                continue
+            offline_alerts.append(alert)
+
+        # Check to see if any active offline alerts should be turned off because the device is back
+        # online
+
+        device_alerts_to_resolve = []
+        for alert in offline_alerts:
+            alert_device_id = int(alert.metas['device'].value)
+            for host in self.hosts:
+                host_id = host['device'].id
+                if alert_device_id == host_id:
+                    logging.debug('\tDevice %s is back online.' % host['device'])
+                    device_alerts_to_resolve.append(alert)
+                    break
+
+        if not device_alerts_to_resolve:
+            return True
+
+        logging.info('\tFound %s device offline alerts to resolve.' % len(device_alerts_to_resolve))
+        for alert in device_alerts_to_resolve:
+            alert.resolved_ts = arrow.utcnow().datetime
+            alert.active = False
+            alert.save()
+            logging.info('Resolved offline device alert for device id: %s'
+                % alert.metas['device'].value)
+        return True
+
+
 # End File: lan-nanny/lan_nanny/modules/scanning/scan_alerts.py
