@@ -87,19 +87,12 @@ def info(alert_id: int):
         alert.acked_ts = arrow.utcnow().datetime
         alert.save()
 
-    alert_kind_pretty = None
-    if alert.kind == 'new-device':
-        alert_kind_pretty = 'New device'
-    elif alert.kind == 'device-offline':
-        alert_kind_pretty = 'Device offline'
-
     device = None
     if alert.kind in ['new-device', 'device-offline']:
         device = Device(conn, cursor)
         device.get_by_id(int(alert.metas['device'].value))
     data = {}
     data['alert'] = alert
-    data['alert_kind_pretty'] = alert_kind_pretty
     data['device'] = device
     data['active_page'] = 'alerts'
     return render_template('alerts/info.html', **data)
