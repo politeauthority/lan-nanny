@@ -149,6 +149,8 @@ def device_icon_status(device: Device) -> int:
     }
     return Markup(html)
 
+def alert_pretty_kind(raw_kind: str):
+    return utils.alert_pretty_kind(raw_kind)
 
 def number(number: int) -> str:
     """Format an int as a comma broken fiscal numeric string."""

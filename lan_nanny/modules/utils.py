@@ -156,6 +156,16 @@ def run_shell(cmd: str) -> str:
     return result.decode("utf-8")
 
 
+def alert_pretty_kind(kind: str) -> str:
+    if kind == 'device-offline':
+        return 'Device offline'
+    elif kind == 'device-online':
+        return 'Device online'
+    elif kind == 'new-device':
+        return 'New device'
+    return ''
+
+
 def _clean_url(base_url: str, url: str) -> str:
     """Clean a url so its pretty and valid."""
     url =  "%s/%s" % (base_url, url)
