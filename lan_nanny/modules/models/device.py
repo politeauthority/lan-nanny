@@ -134,7 +134,9 @@ class Device(BaseEntityMeta):
         if 'alert_jitter' not in self.metas:
             return None
         jitter = self.metas['alert_jitter']
-        return int(jitter)
+        if jitter.value.isdigit():
+            return int(jitter.value)
+        return None
 
     def set_icon(self):
         """Attempt to set a device icon."""

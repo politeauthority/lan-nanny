@@ -214,15 +214,23 @@ class ScanAlerts:
     def get_devices_w_offline_alerts_triggered(self) -> list:
         """Get devices with offline alerts enabled, that are offline."""
         device_collect = Devices(self.conn, self.cursor)
-        devices_w_alert = device_collect.get_with_meta_value('alert_offline', 'true')
+        devices_w_alert = device_collect.get_with_meta_value('alert_offline', 1)
         logging.debug('\t\tFound %s devices with offline alerts enabled.' % len(devices_w_alert))
 
-        jitter_timeout = arrow.utcnow().datetime - \
+        default_jitter_timeout = arrow.utcnow().datetime - \
             timedelta(minutes=int(self.options["active-timeout"].value))
 
         # Run through devices with offline alerts.
         devices_offline_to_alert = []
         for device in devices_w_alert:
+            # If device has custom alert jitter use it,
+            custom_device_jitter = device.get_alert_jitter()
+            if custom_device_jitter:
+                jitter_timeout = arrow.utcnow().datetime - \
+                    timedelta(minutes=int(custom_device_jitter))
+                logging.debug('DEVICE HAS CUSTOM JITTER %s' % jitter_timeout)
+            else:
+                jitter_timeout = default_jitter_timeout
             # If device was last seen within the active timeout range, skip it.
             if device.last_seen > jitter_timeout:
                 logging.debug('\tDevice %s was seen recently, not alerting.' % device)
