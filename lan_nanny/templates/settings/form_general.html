@@ -58,8 +58,9 @@
               <label for="setting_beta_features">Enable Beta Features</label>
               <input id="setting_beta_features" type="checkbox" data-toggle="toggle" aria-describedby="betaFeaturesHelp">
               <small id="betaFeaturesHelp" class="form-text text-muted">Enable beta features (may be buggy)</small>
-
             </div>
+
+
           </div>
         </div>
       </div>
@@ -116,6 +117,27 @@
       </div>
       <!-- End Visual Settings -->
 
+
+      <!-- Misc Settings -->
+      <div class="col-xl-6 col-lg-6">
+        <div class="card shadow mb-4">
+          <!-- Card Header -->
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">Misc</h6>
+          </div>
+          <div class="card-body">
+
+            <div class="form-group">
+              <label for="setting_debug_features">Enable Debug Features</label>
+              <input id="setting_debug_features" type="checkbox" data-toggle="toggle" aria-describedby="setting_debug_features_help">
+              <small id="setting_debug_features_help" class="form-text text-muted">Turns on debugging info (not recommended unless developing)</small>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      <!-- End Misc Settings -->
+
       <div id="hidden_forms" class=""></div>
 
     </div>
@@ -136,6 +158,9 @@
 
       var auto_reload_console_value = convert_str_bool("{{settings['auto-reload-console'].value}}");
       register_toggle_form('setting_auto_reload_console', auto_reload_console_value);
+
+      var debug_features_value = convert_str_bool("{{settings['debug-features'].value}}");
+      register_toggle_form('setting_debug_features', debug_features_value);
     });
   </script>
 {%endblock%}

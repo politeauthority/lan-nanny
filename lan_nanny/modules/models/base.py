@@ -48,19 +48,19 @@ class Base:
         @unit-tested
 
         """
-        logging.info('Creating %s' % self.__class__.__name__)
+        logging.debug('Creating %s' % self.__class__.__name__)
         self._create_total_map()
         if not self.table_name:
             raise AttributeError('Model table name not set, (self.table_name)')
         sql = "CREATE TABLE IF NOT EXISTS %s \n(%s)" % (
             self.table_name,
             self._generate_create_table_feilds())
-        print('Creating table: %s' % self.table_name)
+        logging.info('Creating table: %s' % self.table_name)
         try:
             self.cursor.execute(sql)
             return True
         except Error as e:
-            print(e)
+            logging.error(e)
         return False
 
     def setup(self) -> bool:

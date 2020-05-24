@@ -43,6 +43,7 @@ def connect_mysql(server: dict):
         logging.error("Error while connecting to MySQL", e)
         exit(1)
 
+
 def connect_mysql_no_db(server: dict):
     """Connect to MySql server, without specifying a database, and get a cursor object."""
     try:
@@ -88,11 +89,10 @@ def get_db_flask(database_file: str):
         db = g._database = sqlite3.connect(database_file)
     return db, db.cursor()
 
-def create_tables_new(conn, cursor):
-    print('Create tables new')
-    Option(conn, cursor).create_table()
-    populate_options(conn, cursor)
 
+def create_tables_new(conn, cursor):
+    logging.info("Creating tables if they don't exist")
+    Option(conn, cursor).create_table()
     Alert(cursor=cursor).create_table()
     Device(cursor=cursor, conn=conn).create_table()
     DevicePort(cursor=cursor, conn=conn).create_table()
@@ -119,11 +119,12 @@ def create_tables(conn, cursor):
     DatabaseGrowth(cursor=cursor, conn=conn).create_table()
     SysInfo(cursor=cursor, conn=conn).create_table()
 
-def populate_options(conn, cursor):
-    """Create options and sets their defaults."""
-    o = Option(cursor=cursor, conn=conn).create_table()
-    options = Options(cursor=cursor, conn=conn)
-    console_password = options.set_defaults()
-    return console_password
+# def populate_options(conn, cursor):
+#     """Create options and sets their defaults."""
+#     o = Option(cursor=cursor, conn=conn).create_table()
+#     options = Options(cursor=cursor, conn=conn)
+#     console_password = options.set_defaults()
+#     return console_password
+
 
 # End File: lan-nanny/lan_nanny/modules/db.py
