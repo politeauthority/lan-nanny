@@ -79,15 +79,7 @@
                 {% for alert in alerts_firing %}
                 <tr>
                   <td>
-                    {%if alert.active%}
-                      {%if alert.kind == 'new-device'%}
-                        <i class="fas fa-exclamation-circle alert_active_yellow"></i>
-                      {%else%}
-                        <i class="fas fa-exclamation-circle alert_active_red"></i>
-                      {%endif%}
-                    {%else%}
-                      <i class="fas fa-check-circle alert_resolved"></i>
-                    {%endif%}
+                    {{alert|alert_icon_status}}
                   </td>
                   <td>
                     <a href="/alerts/info/{{alert.id}}">{{alert.pretty_kind()}}</a>
