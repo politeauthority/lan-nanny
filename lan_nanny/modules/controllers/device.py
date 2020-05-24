@@ -194,9 +194,9 @@ def quick_save() -> str:
 
     if field_name in ['port_scan', 'alert_online', 'alert_offline']:
         if field_value == 'true'.lower():
-            val = True
+            field_value = 1
         else:
-            val = False
+            field_value = 0
 
     # Handle port_scan and alert settings differently because one is a model attr and the rest are
     # metas

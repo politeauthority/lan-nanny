@@ -78,8 +78,8 @@ def monitors():
     """Alert info page."""
     conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     device_collect = DevicesCollect(conn, cursor)
-    devices_alert_online = device_collect.get_with_meta_value('alert_online', 'true')
-    devices_alert_offline = device_collect.get_with_meta_value('alert_offline', 'true')
+    devices_alert_online = device_collect.get_with_meta_value('alert_online', 1)
+    devices_alert_offline = device_collect.get_with_meta_value('alert_offline', 1)
     data = {}
     data['devices_alert_online'] = devices_alert_online
     data['devices_alert_offline'] = devices_alert_offline
@@ -152,5 +152,15 @@ def delete(alert_id: int):
     alert.delete()
     return redirect('/alerts')
 
+
+@alerts.route('/delete-for-device/<device_id>')
+@utils.authenticate
+def delete_for_device(device_id: str):
+    """Delete all alerts for a device.
+       @todo: check for device first
+    """
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
+    col_alerts = AlertsCollect(conn, cursor).delete_device(device_id)
+    return redirect('/alerts')
 
 # End File: lan-nanny/lan_nanny/modules/controllers/alerts.py

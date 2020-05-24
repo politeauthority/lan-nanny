@@ -127,7 +127,7 @@ class Scan:
         if self.args.verbose:
             log_level = logging.DEBUG
         logging.basicConfig(
-            format='%(asctime)s %(message)s',
+            format='%(asctime)s [%(levelname)s]\t%(message)s',
             datefmt='%m/%d/%Y %I:%M:%S %p',
             level=log_level,
             handlers=[logging.FileHandler(self.config.LAN_NANNY_SCAN_LOG),

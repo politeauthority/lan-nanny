@@ -301,7 +301,7 @@ class ScanAlerts:
         return True
 
     def get_devices_w_online_alerts_triggered(self):
-        devices_w_alert = self.device_collect.get_with_meta_value('alert_online', 'true')
+        devices_w_alert = self.device_collect.get_with_meta_value('alert_online', 1)
         logging.debug('Found %s devices with online alerts enabled.' % len(devices_w_alert))
 
         jitter_timein = arrow.utcnow().datetime - \
