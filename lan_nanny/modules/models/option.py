@@ -39,10 +39,7 @@ class Option(Base):
         return "<Option %s:%s>" % (self.name, self.value)
 
     def get_by_name(self, name: str=None) -> bool:
-        """
-        Gets an option from the options table based on name.
-
-        """
+        """Get an option from the options table based on name. """
         if not name:
             name = self.name
         if not name:
@@ -59,10 +56,8 @@ class Option(Base):
         return True
 
     def build_from_list(self, raw: list):
-        """
-        Build a model from an ordered list, converting data types to their desired type where
-        possible.
-
+        """Build a model from an ordered list, converting data types to their desired type where
+           possible.
         """
         count = 0
         for field in self.total_map:
@@ -83,6 +78,9 @@ class Option(Base):
         return self.save()
 
     def set_default(self, the_option: dict) -> bool:
+        """Set a default value for an option, if the option is already set, return False otherwise
+           return True
+        """
         option_name = the_option['name']
         self.get_by_name(option_name)
         if self.name:
@@ -90,16 +88,13 @@ class Option(Base):
         self.name = option_name
         self.type = the_option['type']
         if 'default' in the_option:
-            self.value = the_option['default']
-        self.save()
-        return True
-
+            self.value = the_option['default'] 
+            self.save()
+            return True
+        return False
 
     def _set_bool(self, value) -> bool:
-        """
-        Sets a boolean option to the correct value.
-
-        """
+        """Set a boolean option to the correct value. """
         value = str(value).lower()
         # Try to convert values to the positive.
         if value == '1' or value == 'true':

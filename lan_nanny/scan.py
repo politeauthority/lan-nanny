@@ -71,7 +71,7 @@ class Scan:
         try:
             scan_hosts = ScanHosts(self).run()
             if scan_hosts:
-                self.hosts, self.new_devices = scan_hosts
+                self.hosts, self.new_devices, self.scan_hosts_log = scan_hosts
             else:
                 logging.error('Error scanning hosts, ending scan.')
         except:
@@ -127,7 +127,7 @@ class Scan:
         if self.args.verbose:
             log_level = logging.DEBUG
         logging.basicConfig(
-            format='%(asctime)s %(message)s',
+            format='%(asctime)s [%(levelname)s]\t%(message)s',
             datefmt='%m/%d/%Y %I:%M:%S %p',
             level=log_level,
             handlers=[logging.FileHandler(self.config.LAN_NANNY_SCAN_LOG),

@@ -48,6 +48,13 @@ def save_general():
 
     # Save beta-features
     _save_setting(conn, cursor, 'beta-features', request.form['setting_beta_features'])
+    # If beta features are being disabled, disable alerts as well. @todo: when alerts leave beta,
+    # pull this!
+    if request.form['setting_beta_features'] == 'false':
+        _save_setting(conn, cursor, 'alerts-enabled', 'false')
+
+    # Save debug-features
+    _save_setting(conn, cursor, 'debug-features', request.form['setting_debug_features'])
 
     return redirect('/settings')
 

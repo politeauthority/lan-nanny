@@ -34,7 +34,8 @@ class Alerts(BaseEntityMetas):
             WHERE
                 active = 0 AND
                 acked = 0
-            ORDER BY created_ts DESC;""" % (self.table_name)
+            ORDER BY created_ts DESC
+            LIMIT %s;""" % (self.table_name, limit)
 
         self.cursor.execute(sql)
         raw_alerts = self.cursor.fetchall()
@@ -67,7 +68,7 @@ class Alerts(BaseEntityMetas):
             ORDER BY created_ts DESC;""" % (self.table_name)
         self.cursor.execute(sql)
         raw_alerts = self.cursor.fetchall()
-        alerts = self.build_from_lists(raw_alerts)
+        alerts = self.build_from_lists(raw_alerts, meta=True)
         return alerts
 
     def get_for_device(self, device_id: int) -> list:
@@ -78,7 +79,8 @@ class Alerts(BaseEntityMetas):
             WHERE
                 entity_type="alerts" AND
                 name="device" AND
-                value=%s;
+                value=%s
+            LIMIT 10;
         """ % ("entity_metas", device_id)
         self.cursor.execute(sql)
         raw_metas = self.cursor.fetchall()

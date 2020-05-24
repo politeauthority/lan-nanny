@@ -1,28 +1,47 @@
 """
 """
-
+import logging
 import os
 
 from modules import configer
 from modules import db
+from modules.collections.options import Options as CollectOptions
 
 
-def run():
-    """Run the install/upgrader."""
-    config = configer.get_config()
-    conn, cursor = get_database(config.LAN_NANNY_DB)
-    db.create_tables_new(conn, cursor)
+class InstallUpgrade:
 
+    def run(self):
+        """Run the install/upgrader. """
+        self.setup_logging()
+        # Get the config
+        config = configer.get_config()
+        # Get the Database
+        conn, cursor = self.get_database(config.LAN_NANNY_DB)
+        # Create the Database and tables
+        db.create_tables_new(conn, cursor)
+        logging.info('Creating default options')
+        CollectOptions(conn, cursor).set_defaults()
 
-def get_database(server):
-    """Create the Lan Nanny database if it's not existent, then return the MySql connection."""
-    conn, cursor = db.connect_mysql_no_db(server)
-    db.create_mysql_database(conn, cursor, server['name'])
-    conn, cursor = db.connect_mysql(server)
-    return conn, cursor
+    def setup_logging(self) -> bool:
+        """Create the logger."""
+        log_level = logging.DEBUG
+        logging.basicConfig(
+            format='%(asctime)s [%(levelname)s]\t%(message)s',
+            datefmt='%m/%d/%Y %I:%M:%S %p',
+            level=log_level,
+            handlers=[logging.StreamHandler()])
+
+    def get_database(self, server):
+        """Create the Lan Nanny database if it's not existent, then return the MySql connection."""
+        conn, cursor = db.connect_mysql_no_db(server)
+        db.create_mysql_database(conn, cursor, server['name'])
+        conn, cursor = db.connect_mysql(server)
+        logging.info('Database connection successful')
+        return conn, cursor
 
 
 if __name__ == "__main__":
-    run()
+    InstallUpgrade().run()
+
 
 # End File: lan_nanny/lan-nanny/modules/new-install.py

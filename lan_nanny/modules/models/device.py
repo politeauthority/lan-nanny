@@ -129,6 +129,15 @@ class Device(BaseEntityMeta):
         self.ports = device_ports.get_by_device_id(self.id)
         return True
 
+    def get_alert_jitter(self):
+        """Get the Device's alert jitter meta setting if it exists, or return None. """
+        if 'alert_jitter' not in self.metas:
+            return None
+        jitter = self.metas['alert_jitter']
+        if jitter.value.isdigit():
+            return int(jitter.value)
+        return None
+
     def set_icon(self):
         """Attempt to set a device icon."""
         if self.icon:
@@ -141,10 +150,8 @@ class Device(BaseEntityMeta):
             self.icon = "fas fa-question"
 
     def set_vendor(self, vendor: str) -> bool:
-        """
-        Set the vendor value for a device, if the vendor is a suitable name, update that as
-        well.
-
+        """Set the vendor value for a device, if the vendor is a suitable name, update that as
+           well.
         """
         if not vendor:
             return True

@@ -6,16 +6,37 @@
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Alerts</h1>
   </div>
+  <!-- Start Sub Nav -->
   <div class="row">
     {% with active_page=active_page_alerts %}
       {% include "alerts/sub_nav.html" %}
     {% endwith %}
-  </div>
+  </div><!-- End Sub nav -->
+
+  <!-- Start Mini Nav -->
+<!--   <div>
+    <div class="dropdown">
+      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Dropdown button
+      </button>
+      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <a class="dropdown-item" href="#">Action</a>
+        <a class="dropdown-item" href="#">Another action</a>
+        <a class="dropdown-item" href="#">Something else here</a>
+      </div>
+    </div>
+
+  </div> -->
+  <!-- End Mini Nav-->
+
+  {% with pagination=pagination, alignment="center" %}
+    {% include "pagination.html" %}
+  {% endwith %}
 
   <!-- Content Row -->
   <div class="row">
 
-    <!-- Alerts Table -->
+    <!-- Alerts Roster Table -->
     <div class="col-xl-12 col-lg-12">
       <div class="card shadow mb-4">
         <!-- Card Body -->
@@ -35,22 +56,10 @@
                 {% for alert in alerts %}
                 <tr>
                   <td>
-                    {%if alert.active%}
-                      {%if alert.kind == 'new-device'%}
-                        <i class="fas fa-exclamation-circle alert_active_yellow"></i>
-                      {%else%}
-                        <i class="fas fa-exclamation-circle alert_active_red"></i>
-                      {%endif%}
-                    {%else%}
-                      <i class="fas fa-check-circle alert_resolved"></i>
-                    {%endif%}
+                    {{alert|alert_icon_status}}
                   </td>
                   <td>
-                    {%if alert.kind == 'device-offline'%}
-                      <a href="/alerts/info/{{alert.id}}">Device Offline</a>
-                    {%elif alert.kind == 'new-device'%}
-                      <a href="/alerts/info/{{alert.id}}">New Device</a>
-                    {%endif%}
+                      <a href="/alerts/info/{{alert.id}}">{{alert.kind|alert_pretty_kind}}</a>
                   </td>
                   <td>
                     {%if 'device' in alert.metas%}
@@ -69,9 +78,13 @@
             {%endif%}
           </div>
       </div>
-    </div><!-- End alerts table -->
+    </div><!-- End Alert Roster Table -->
 
-  </div><!-- End Content Row -->
+  </div><!-- End Main Content Row -->
+
+  {% with pagination=pagination, alignment="center" %}
+    {% include "pagination.html" %}
+  {% endwith %}
 
 {%endblock%}
 

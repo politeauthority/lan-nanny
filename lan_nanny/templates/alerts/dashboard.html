@@ -52,7 +52,7 @@
   </div><!-- End Stats Row -->
 
 
-  <!-- Content Row -->
+  <!-- Main Content Row -->
   <div class="row">
     <!-- Alerts Firing Table -->
     <div class="col-xl-6 col-lg-6">
@@ -79,15 +79,7 @@
                 {% for alert in alerts_firing %}
                 <tr>
                   <td>
-                    {%if alert.active%}
-                      {%if alert.kind == 'new-device'%}
-                        <i class="fas fa-exclamation-circle alert_active_yellow"></i>
-                      {%else%}
-                        <i class="fas fa-exclamation-circle alert_active_red"></i>
-                      {%endif%}
-                    {%else%}
-                      <i class="fas fa-check-circle alert_resolved"></i>
-                    {%endif%}
+                    {{alert|alert_icon_status}}
                   </td>
                   <td>
                     <a href="/alerts/info/{{alert.id}}">{{alert.pretty_kind()}}</a>
@@ -111,7 +103,7 @@
       </div>
     </div><!-- End Alerts Firing table -->
 
-    <!-- Alerts Table -->
+    <!-- Alerts alerts_unacked_resolved Table -->
     <div class="col-xl-6 col-lg-6">
       <div class="card shadow mb-4">
         <!-- Card Header -->
@@ -152,8 +144,6 @@
                       <td>{{alert.resolved_ts|time_ago}}</td>
                     </tr>
                   {%endfor%}
-
-
                 </table>
               </div>
             {%else%}
@@ -162,9 +152,9 @@
           </div>
         </div>
       </div>
-    </div><!-- End Alerts table -->
+    </div><!-- End alerts_unacked_resolved table -->
 
-  </div><!-- End Content row -->
+  </div><!-- End Main Content row -->
 
 {%endblock%}
 

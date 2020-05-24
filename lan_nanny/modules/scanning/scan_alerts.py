@@ -10,6 +10,7 @@ import slack
 from ..collections.scan_hosts import ScanHosts
 from ..collections.alerts import Alerts as CollectAlerts
 from ..collections.devices import Devices
+from ..collections.device_witnesses import DeviceWitnesses
 from ..models.alert import Alert
 from ..models.entity_meta import EntityMeta
 from ..models.database_growth import DatabaseGrowth
@@ -22,11 +23,14 @@ class ScanAlerts:
         self.cursor = scan.cursor
         self.options = scan.options
         self.hosts = scan.hosts
+        self.host_scan_log = scan.scan_hosts_log
         self.devices = {}
         self.new_devices = scan.new_devices
         self.trigger = scan.trigger
         self.new_alerts = []
         self.resolved_alerts = []
+        self.device_collect = Devices(self.conn, self.cursor)
+        self.device_witness_collect = DeviceWitnesses(self.conn, self.cursor)
 
     def run(self):
         """Handle various LanNanny alerts."""
@@ -43,6 +47,7 @@ class ScanAlerts:
         self.alert_no_hosts_in_scan()
         self.alert_new_device()
         self.alert_device_offline()
+        self.alert_device_online()
         self.notify()
 
     def get_active_alerts(self):
@@ -148,17 +153,47 @@ class ScanAlerts:
 
         self.handle_offline_alerts()
         self.handle_offline_alerts_resolved()
-
         return True
+
+    def alert_device_online(self) -> bool:
+        print('online')
+        # if self.trigger  != 'manual':
+        #     logging.warning('Not running alerts via cron.')
+        #     return True
+        logging.info('\tRunning Device online alerts')
+
+        devices_online = self.get_devices_w_online_alerts_triggered()
+        if not devices_online:
+            logging.info('\t\tNo new device online alerts found.')
+            return True
+
+        created_alerts = 0
+        for device in devices_online:
+            active_alert = self.device_alert_active(device, 'device-online')
+            if not active_alert:
+                logging.debug('\t%s is online, creating a new online alert.' % device)
+                alert = Alert(self.conn, self.cursor)
+                alert.kind = 'device-online'
+                alert.active = True
+                alert.last_observed_ts = arrow.utcnow().datetime
+                alert.meta_update('device', device.id, 'int')
+                created_alerts += 1
+                self.new_alerts.append(alert)
+            else:
+                logging.debug('\t%s is online and has an active alert.' % device)
+                alert = active_alert
+                alert.last_observed_ts = arrow.utcnow().datetime
+            alert.save()
+        logging.debug('Created %s new online alerts' % created_alerts)
 
     def handle_offline_alerts(self):
         """
         """
-        devices_offline = self.get_devices_w_offline_alerts_and_offline()
+        devices_offline = self.get_devices_w_offline_alerts_triggered()
         created_offline_alerts = 0
         # For each offline device with an offline alerts enable, create or update the alert.
         for device in devices_offline:
-            active_alert = self.device_alert_offline_active(device)
+            active_alert = self.device_alert_active(device, 'device-offline')
             if not active_alert:
                 logging.debug('\t%s is offline, creating a new offline alert.' % device)
                 alert = Alert(self.conn, self.cursor)
@@ -176,18 +211,26 @@ class ScanAlerts:
 
         logging.debug('Created %s new offline alerts' % created_offline_alerts)
 
-    def get_devices_w_offline_alerts_and_offline(self) -> list:
+    def get_devices_w_offline_alerts_triggered(self) -> list:
         """Get devices with offline alerts enabled, that are offline."""
         device_collect = Devices(self.conn, self.cursor)
-        devices_w_alert = device_collect.get_with_meta_value('alert_offline', 'true')
-        logging.debug('Found %s devices with offline alerts enabled.' % len(devices_w_alert))
+        devices_w_alert = device_collect.get_with_meta_value('alert_offline', 1)
+        logging.debug('\t\tFound %s devices with offline alerts enabled.' % len(devices_w_alert))
 
-        jitter_timeout = arrow.utcnow().datetime - \
+        default_jitter_timeout = arrow.utcnow().datetime - \
             timedelta(minutes=int(self.options["active-timeout"].value))
 
         # Run through devices with offline alerts.
         devices_offline_to_alert = []
         for device in devices_w_alert:
+            # If device has custom alert jitter use it,
+            custom_device_jitter = device.get_alert_jitter()
+            if custom_device_jitter:
+                jitter_timeout = arrow.utcnow().datetime - \
+                    timedelta(minutes=int(custom_device_jitter))
+                logging.debug('DEVICE HAS CUSTOM JITTER %s' % jitter_timeout)
+            else:
+                jitter_timeout = default_jitter_timeout
             # If device was last seen within the active timeout range, skip it.
             if device.last_seen > jitter_timeout:
                 logging.debug('\tDevice %s was seen recently, not alerting.' % device)
@@ -198,12 +241,23 @@ class ScanAlerts:
 
         return devices_offline_to_alert
 
-    def device_alert_offline_active(self, device):
+    def device_alert_active(self, device, alert_type):
         """Check if device has an active offline alert already set and return it if it does,
            otherwise return False.
         """
         for alert in self.active_alerts:
-            if alert.kind != 'device-offline':
+            if alert.kind != alert_type:
+                continue
+            if device.id == int(alert.metas['device'].value):
+                return alert
+        return False
+
+    def device_alert_on_off_active(self, device, alert_type):
+        """Check if device has an active offline alert already set and return it if it does,
+           otherwise return False.
+        """
+        for alert in self.active_alerts:
+            if alert.kind != alert_type:
                 continue
             if device.id == int(alert.metas['device'].value):
                 return alert
@@ -246,6 +300,34 @@ class ScanAlerts:
             self.resolved_alerts.append(alert)
         return True
 
+    def get_devices_w_online_alerts_triggered(self):
+        devices_w_alert = self.device_collect.get_with_meta_value('alert_online', 1)
+        logging.debug('Found %s devices with online alerts enabled.' % len(devices_w_alert))
+
+        jitter_timein = arrow.utcnow().datetime - \
+            timedelta(minutes=int(self.options["active-timeout"].value))
+
+        devices_online_to_alert = []
+        for device in devices_w_alert:
+
+            device_online_now = False
+            for host in self.hosts:
+                if device.id == host['device'].id:
+                    device_online_now = True
+                    break
+            if not device_online_now:
+                continue
+            witnesses = self.device_witness_collect.get_device_since(
+                device.id,
+                jitter_timein,
+                except_scan_id=self.host_scan_log.id)
+            if witnesses:
+                continue
+            devices_online_to_alert.append(device)
+            self.devices[device.id] = device
+
+        return devices_online_to_alert
+
     def notify(self):
         """ """
 
@@ -259,6 +341,7 @@ class ScanAlerts:
 
         msg = self.notify_new_alerts()
         msg += self.notify_resolved_alerts()
+
         self.send_slack(msg)
 
     def notify_new_alerts(self) -> str:
@@ -269,6 +352,8 @@ class ScanAlerts:
                 alert_device = self.devices[int(alert.metas['device'].value)]
             if alert.kind == 'device-offline':
                 msg += "Device %s is now offline.\n" % alert_device.name
+            elif alert.kind == 'device-online':
+                msg += "Device %s is online.\n" % alert_device.name
             else:
                 msg += "There was an alert we don't know how to talk about yet.\n"
         return msg
@@ -296,7 +381,6 @@ class ScanAlerts:
         if not slack_channel:
             logging.error('No slack channel found, cannot send notifications.')
             return False
-
 
         slack_client = slack.WebClient(token=slack_token)
         logging.info('Sending: %s' % msg)

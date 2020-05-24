@@ -183,7 +183,7 @@
             <!-- Card Header -->
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
               <h6 class="m-0 font-weight-bold text-primary">
-                Alerts
+                Recent Alerts
               </h6>
             </div>
             <div class="card-body">
@@ -198,11 +198,7 @@
                 {%for alert in alerts%}
                 <tr>
                   <td>
-                    {%if alert.active %}
-                      blink red active
-                    {%else%}
-                      static black
-                    {%endif%}
+                    {{alert|alert_icon_status}}
                   </td>
                   <td>
                     <a href="/alerts/info/{{alert.id}}">

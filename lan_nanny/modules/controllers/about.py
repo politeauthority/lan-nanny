@@ -12,7 +12,7 @@ from .. import utils
 from ..collections.scan_hosts import ScanHosts
 from ..collections.scan_ports import ScanPorts
 from ..collections.device_witnesses import DeviceWitnesses
-from ..collections.sys_infos import SysInfos
+from ..collections.sys_infos import SysInfos as CollectSysInfos
 from ..models.database_growth import DatabaseGrowth
 
 
@@ -24,6 +24,7 @@ about = Blueprint('About', __name__, url_prefix='/about')
 def index(scan_type: str=''):
     """About page."""
     conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
+    collect_sysinfos = CollectSysInfos(conn, cursor)
     # db_stats = database_stats(conn, cursor)
     data = {
         'active_page': 'about',
@@ -31,6 +32,7 @@ def index(scan_type: str=''):
         'db_witness_length': DeviceWitnesses(conn, cursor).get_count_total(),
         'db_scan_host_length': ScanHosts(conn, cursor).get_count_total(),
         'db_scan_port_length': ScanPorts(conn, cursor).get_count_total(),
+        'sys_infos': collect_sysinfos.get_all_keyed('name')
         # 'db_growth': db_stats,
     }
     return render_template('about.html', **data)
@@ -44,7 +46,7 @@ def debug(scan_type: str=''):
     envs = {
         'LAN_NANNY_CONFIG': os.environ.get('LAN_NANNY_CONFIG')
     }
-    sys_infos = SysInfos(conn, cursor).get_all_keyed('name')
+    sys_infos = CollectSysInfos(conn, cursor).get_all_keyed('name')
     data = {
         'active_page': 'about',
         'options': g.options,

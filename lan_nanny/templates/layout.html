@@ -54,15 +54,15 @@
           <span>Dashboard</span>
         </a>
       </li>
-      {%if g.options['alerts-enabled'].value %}
-        {%if g.options['beta-features'].value %}
-          <li class="nav-item {%if active_page == 'alerts'%}active{%endif%}">
-            <a class="nav-link" href="/alerts">
-              <i class="fas fa-fw fa-bell"></i>
-              <span>Alerts</span></a>
-          </li>
+        {%if g.options['alerts-enabled'].value %}
+          {%if g.options['beta-features'].value %}
+            <li class="nav-item {%if active_page == 'alerts'%}active{%endif%}">
+              <a class="nav-link" href="/alerts">
+                <i class="fas fa-fw fa-bell"></i>
+                <span>Alerts</span></a>
+            </li>
+          {%endif%}
         {%endif%}
-      {%endif%}
       <li class="nav-item {%if active_page == 'devices'%}active{%endif%}">
         <a class="nav-link" href="/devices/">
           <i class="fas fa-fw fas fa-laptop"></i>
@@ -134,41 +134,44 @@
             
 
             {%if g.options['beta-features'].value %}
-
-              <!-- Nav Item - Alerts -->
-              <li class="nav-item dropdown no-arrow mx-1">
-                <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  <i class="fas fa-bell fa-fw"></i>
-                  <!-- Counter - Alerts -->
-                  {%if g.alerts%}
-                    {%if g.alerts %}
-                      <span class="badge badge-danger badge-counter">{{g.alerts|length}}</span>
+              {%if g.options['alerts-enabled'].value %}
+                <!-- Nav Item - Alerts -->
+                <li class="nav-item dropdown no-arrow mx-1">
+                  <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-bell fa-fw"></i>
+                    <!-- Counter - Alerts -->
+                    {%if g.alerts%}
+                      {%if g.alerts %}
+                        <span class="badge badge-danger badge-counter">{{g.alerts|length}}</span>
+                      {%endif%}
                     {%endif%}
-                  {%endif%}
-                </a>
+                  </a>
 
-                <!-- Dropdown - Alerts -->
-                <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
-                  <h6 class="dropdown-header">
-                    Alerts
-                  </h6>
+                  <!-- Dropdown - Alerts -->
+                  <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
+                    <h6 class="dropdown-header">
+                      Alerts {{g.devices}}
+                    </h6>
 
-                  {%for alert in g.alerts%}
-                    <a class="dropdown-item d-flex align-items-center" href="/alerts/info/{{alert.id}}">
-                      <div class="mr-3">
-                        <div class="icon-circle bg-primary">
-                          <i class="fas fa-file-alt text-white"></i>
+                    {%for alert in g.alerts%}
+                      <a class="dropdown-item d-flex align-items-center" href="/alerts/info/{{alert.id}}">
+                        <div class="mr-3">
+                          <div class="icon-circle bg-primary">
+                            <i class="fas fa-file-alt text-white"></i>
+                          </div>
                         </div>
-                      </div>
-                      <div>
-                        <div class="small text-gray-500">{{alert.created_ts|time_ago}}</div>
-                        <span class="font-weight-bold">Device Name</span>
-                      </div>
-                    </a>
-                  {%endfor%}
-                  <a class="dropdown-item text-center small text-gray-500" href="/alerts">Show All Alerts</a>
-                </div>
-            </li>
+                        <div>
+                          <div class="small text-gray-500">{{alert.created_ts|time_ago}}</div>
+                          <span class="font-weight-bold">
+                            {{alert.kind|alert_pretty_kind}} - {{g.alert_devices[alert.metas['device'].value|int].name}}
+                          </span>
+                        </div>
+                      </a>
+                    {%endfor%}
+                    <a class="dropdown-item text-center small text-gray-500" href="/alerts">Show All Alerts</a>
+                  </div>
+                </li>
+              {%endif%}
             {%endif%}
 
 

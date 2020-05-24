@@ -202,6 +202,18 @@ class Devices(BaseEntityMetas):
         devices = self.build_from_lists(raw_devices)
         return devices
 
+    def get_w_alerts(self, alerts: list) -> dict:
+        """Get a collection of Devices from the list Alert objects supplied."""
+        alert_device_ids = []
+        for alert_obj in alerts:
+            if 'device' in alert_obj.metas:
+                device_id = int(alert_obj.metas['device'].value)
+                if device_id not in alert_device_ids:
+                    alert_device_ids.append(device_id)
+        devices = {}
+        if alert_device_ids:
+            devices = self.get_by_ids_keyed(alert_device_ids)
+        return devices
 
     def build_from_lists(self, raws: list, meta: bool=False, build_ports: bool=False) -> list:
         """Build a model from an ordered list, converting data types to their desired type where
