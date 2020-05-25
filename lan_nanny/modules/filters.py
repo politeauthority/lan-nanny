@@ -10,6 +10,7 @@ from flask import g, Markup
 
 from .models.device import Device
 from .models.port import Port
+from .models.alert import Alert
 from . import utils
 
 
@@ -118,9 +119,9 @@ def connected_devices(devices: list) -> int:
     return num_online
 
 
-def device_icon_status(device: Device) -> int:
-    """
-
+def device_icon_status(device: Device) -> str:
+    """Creates a Device's online visual representation with appropriate icons and animations based
+       on a Device's current online status, with the linking and other html attributes.
     """
     now = arrow.utcnow().datetime
     seen = arrow.get(device.last_seen).datetime
@@ -150,11 +151,46 @@ def device_icon_status(device: Device) -> int:
     return Markup(html)
 
 
+def alert_icon_status(alert: Alert) -> str:
+    """Creates an Alert's visual status, based on if it's currently active, active but acked, or
+       inactive and acked, with appropriate linking to the alert.
+    """
+    alert_class = "alert_resolved"
+    alert_icon = "fa-exclamation-circle"
+
+    if alert.active:
+        if alert.kind == 'new-device':
+            alert_class = 'alert_active_yellow'
+        elif alert.acked:
+            alert_class = 'alert_active_orange'
+        else:
+            alert_class = 'alert_active_red'
+    else:
+        if not alert.acked:
+            alert_class = "alert_inactive_unacked_green"
+        else:
+            alert_class = "alert_resolved_green"
+            alert_icon = "fa-check-circle"
+
+
+    icon = '<a href="/alerts/info/%s"><i class="fas %s %s"></i></a>' % (
+            alert.id,
+            alert_icon,
+            alert_class)
+    return Markup(icon)
+
+
+def alert_pretty_kind(raw_kind: str):
+    return utils.alert_pretty_kind(raw_kind)
+
+
 def number(number: int) -> str:
     """Format an int as a comma broken fiscal numeric string."""
     return format(number, ",")
 
+
 def get_percent(whole: int, part: int, round_ret: int=0) -> int:
     return utils.get_percent(whole, part, round_ret)
+
 
 # End File: lan-nanny/lan_nanny/modules/filters.py

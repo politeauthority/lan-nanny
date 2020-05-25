@@ -14,12 +14,22 @@
       <div class="card shadow mb-4">
         <!-- Card Header -->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          Database Stats
+          Lan Nanny Stats
         </div>
         <!-- Card Body -->
         <div class="card-body">
           <div class="table-responsive">
             <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
+              {%if 'start-date' in sys_infos%}
+                <tr>
+                  <td>
+                    Lan Nanny Started
+                  </td>
+                  <td>
+                    {{sys_infos['start-date'].value|pretty_time}}
+                  </td>
+                </tr>
+              {%endif%}
               <tr>
                 <td>
                   Recorded Witness
@@ -51,7 +61,7 @@
     </div>
   </div>
   {%if g.options['debug-features'].value %}  
-    <a class="btn btn-large" href="/about/debug">Debug</a>
+    <a class="btn btn-primary btn-large" href="/about/debug">Debug</a>
   {%endif%}
 {%endblock%}
 

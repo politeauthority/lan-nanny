@@ -46,10 +46,8 @@ class EntityMeta(Base):
         return "<EntityMeta %s %s:%s>" % (self.entity_type, self.name, self.value)
 
     def build_from_list(self, raw: list):
-        """
-           Build a model from an ordered list, converting data types to their desired type where
+        """Build a model from an ordered list, converting data types to their desired type where
            possible.
-
         """
         count = 0
         for field in self.total_map:

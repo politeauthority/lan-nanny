@@ -34,8 +34,7 @@
     </div><!-- END Device Scan Options -->
 
     <!-- Device Alert Options -->
-    {%if g.options['beta-features'].value %}
-
+    {%if g.options['beta-features'].value and g.options['alerts-enabled'].value %}
       <div class="col-xl-6 col-lg-6">
         <div class="card shadow mb-4">
           <!-- Card Header -->
@@ -45,11 +44,28 @@
             </h6>
           </div>
           <div class="card-body">
-              <div class="form-group">
-                <label for="alert_device_offline">Alert Offline</label>
-                <input id="alert_offline" data-entity-id="{{device.id}}" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="alertDeviceOfflinedHelp">
-                <small id="alertDeviceOfflinedHelp" class="form-text text-muted">Alert when device goes offline.</small>
-              </div>
+
+            <!-- Alert Online form -->
+            <div class="form-group">
+              <label for="alert_device_online">Alert Online</label>
+              <input id="alert_online" data-entity-id="{{device.id}}" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="alert_device_online_help">
+              <small id="alert_device_online_help" class="form-text text-muted">Alert when device comes online.</small>
+            </div>
+
+            <!-- Alert Offline form -->
+            <div class="form-group">
+              <label for="alert_device_offline">Alert Offline</label>
+              <input id="alert_offline" data-entity-id="{{device.id}}" class="alert-toggle" type="checkbox" data-toggle="toggle" aria-describedby="alertDeviceOfflinedHelp">
+              <small id="alertDeviceOfflinedHelp" class="form-text text-muted">Alert when device goes offline.</small>
+            </div>
+
+            <!-- Alert Jitter Form -->
+            <div class="form-group">
+              <label for="alert_device_jitter">Alert Jitter Time</label>
+              <input type="number" class="form-control form-sm" id="alert_device_jitter" name="alert_device_jitter" value="" aria-describedby="alert_device_jitter_help">
+              <small id="alert_device_jitter_help" class="form-text text-muted">Some devices come on and off network sporadically, making it desirable to set a custom value to consider a device offline rather than the system setting (currently <b>{{g.options['active-timeout'].value}}</b> minutes).</small>
+            </div>
+
           </div>
         </div>
       </div><!-- END Device Alert Options -->
@@ -74,7 +90,7 @@
         '#port_scan',
         device_port_scan_status);
 
-      // Device Meta Ajax
+      // Device Offline Ajax
       {%if device.metas['alert_offline'] %}
         var device_alert_offline_status = convert_str_bool("{{device.metas['alert_offline'].value}}");
       {%else%}
@@ -85,13 +101,44 @@
         '#alert_offline',
         device_alert_offline_status);
 
-      // var device_port_scan_flagged_status = convert_str_bool("{{device.flagged_for_scan}}");
-      // register_toggle_ajax(
-      //   '/device/quick-save',
-      //   '#port_scan_flagged',
-      //   device_port_scan_flagged_status);
+      // Device Online Ajax
+      {%if device.metas['alert_online'] %}
+        var device_alert_online_status = convert_str_bool("{{device.metas['alert_online'].value}}");
+      {%else%}
+        var device_alert_online_status = false;
+      {%endif%}
+      register_toggle_ajax(
+        '/device/quick-save',
+        '#alert_online',
+        device_alert_online_status);
+
+      // Device Jitter Ajax
+      // Set the default jitter if one exists
+      {%if 'alert_jitter' in device.metas %}
+        $('#alert_device_jitter').val({{device.metas['alert_jitter'].value}});
+      {%endif%}
+
+
+      // Send the new alert jitter value if the form is changed.
+      var wto;
+      $('#alert_device_jitter').change(function() {
+        clearTimeout(wto);
+        wto = setTimeout(function() {
+          console.log('Update now');
+          var data = {
+            "id": {{device.id}},
+            "field_name": "alert_jitter",
+            "field_value": $('#alert_device_jitter').val()
+          }
+          console.log(data);
+          send_ajax_update('/device/quick-save', data);
+          console.log('done');
+          // do stuff when user has been idle for 1 second
+        }, 500);
+      });
+
     });
   </script>
 {%endblock%}
 
-<!-- End File: lan-nanny/templates/device/options.html
+<!-- End File: lan-nanny/templates/devices/options.html -->

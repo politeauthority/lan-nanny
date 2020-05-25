@@ -64,6 +64,27 @@ class DeviceWitnesses(Base):
             witnesses.append(witness)
         return witnesses
 
+    def get_device_since(self, device_id, since, except_scan_id):
+        """
+        """
+        sql = """
+            SELECT *
+            FROM `%s`
+            WHERE
+                `device_id` = %s AND
+                `created_ts` >= "%s" AND
+                `scan_id` != %s
+            ORDER BY created_ts DESC;
+        """ % (self.table_name, device_id, since, except_scan_id)
+        self.cursor.execute(sql)
+        raw_witnesses = self.cursor.fetchall()
+        witnesses = []
+        for raw_witness in raw_witnesses:
+            witness = DeviceWitness(self.conn, self.cursor)
+            witness.build_from_list(raw_witness, build_device=True)
+            witnesses.append(witness)
+        return witnesses
+
     def prune(self, days: int) -> bool:
         """Method to remove data older than x days from database."""
         days_back = arrow.utcnow().datetime - timedelta(days=days)

@@ -30,7 +30,7 @@
           <!-- Card Header -->
           <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
             <h6 class="m-0 font-weight-bold text-primary">
-              General Alert Settings
+              Basic Alert Settings
             </h6>
           </div>
           <div class="card-body">
@@ -49,6 +49,40 @@
           </div>
         </div>
       </div> <!-- End Alert General Settings -->
+
+      <!-- Notification Settings -->
+      <div class="col-xl-6 col-lg-6">
+        <div class="card shadow mb-4">
+          <!-- Card Header -->
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">
+              Notifications
+            </h6>
+          </div>
+          <div class="card-body">
+
+            <div class="form-group">
+              <label for="setting_notification_slack_enabled">Enable Slack</label>
+              <input id="setting_notification_slack_enabled" type="checkbox" data-toggle="toggle" aria-describedby="setting_notification_slack_enabled_help">
+              <small id="setting_notification_slack_enabled_help" class="form-text text-muted">Enable notifications to Slack.</small>
+            </div>
+
+
+            <div class="form-group">
+              <label for="setting_notification_slack_token">Slack Token</label>
+              <input type="text" class="form-control form-sm" id="setting_notification_slack_token" name="setting_notification_slack_token" value="{{settings['notification-slack-token'].value}}" aria-describedby="setting_notification_slack_token_help">
+              <small id="setting_notification_slack_token_help" class="form-text text-muted">Slack token for sending messages into slack.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="setting_notification_slack_channel">Slack Channel</label>
+              <input type="text" class="form-control form-sm" id="setting_notification_slack_channel" name="setting_notification_slack_channel" value="{{settings['notification-slack-channel'].value}}" aria-describedby="setting_notification_slack_channel_help">
+              <small id="setting_notification_slack_channel_help" class="form-text text-muted">Slack channel for notifications to go to.</small>
+            </div>
+
+          </div>
+        </div>
+      </div> <!-- End Notification Settings -->
 
       <div id="hidden_forms" class=""></div>
 
@@ -70,8 +104,12 @@
 
       var alert_new_device_value = convert_str_bool("{{settings['alerts-new-device'].value}}");
       register_toggle_form('setting_alert_new_device', alert_new_device_value);
+
+      var notification_slack_enabled_value = convert_str_bool("{{settings['notification-slack-enabled'].value}}");
+      register_toggle_form('setting_notification_slack_enabled', notification_slack_enabled_value);
+
     });
   </script>
 {%endblock%}
 
-<!-- EndFile: lan-nanny/lan_nanny/templates/form_general.html -->
+<!-- EndFile: lan-nanny/lan_nanny/templates/form_alerts.html -->

@@ -2,11 +2,15 @@
 Gets collections of options.
 
 """
+import logging
+
 from werkzeug.security import generate_password_hash
 
 from .base import Base
 from ..models.option import Option
 from .. import utils
+
+
 
 
 class Options(Base):
@@ -15,10 +19,7 @@ class Options(Base):
         super(Options, self).__init__(conn, cursor)
         self.table_name = Option().table_name
         self.collect_model = Option
-
-    def set_defaults(self):
-        """Tool for creating option defaults if they do not exist."""
-        default_opts = [
+        self.default_opts = [
             {
                 'name': 'timezone',
                 'type': 'str',
@@ -67,7 +68,7 @@ class Options(Base):
             {
                 'name': 'scan-ports-per-run',
                 'type': 'int',
-                'default': 2
+                'default': 1
             },
             {
                 'name': 'scan-ports-interval',
@@ -91,6 +92,11 @@ class Options(Base):
             {
                 'name': 'api-key',
                 'type': 'str',
+            },
+            {
+                'name': 'db-prune-enabled',
+                'type': 'bool',
+                'default': False
             },
             {
                 'name': 'db-prune-days',
@@ -120,21 +126,49 @@ class Options(Base):
                 'type': 'str',
                 'default': 'black'
             },
+            {
+                'name': 'notification-slack-enabled',
+                'type': 'bool',
+                'default': False
+            },
+            {
+                'name': 'notification-slack-token',
+                'type': 'str',
+                'default': '',
+            },
+            {
+                'name': 'notification-slack-channel',
+                'type': 'str',
+                'default': '',
+            },
         ]
-        gen_pass = None
-        for opt in default_opts:
-            option = Option(self.conn, self.cursor)
-            option.get_by_name(opt['name'])
-            if option.name:
+
+    def set_defaults(self) -> bool:
+        """Create Option values and set Option defaults where applicable. """
+        for opt in self.default_opts:
+            if opt['name'] == 'console-password':
                 continue
 
-            if opt['name'] != 'console-password':
-                option.set_default(opt)
+            if 'default' not in opt:
+                continue
 
-            if opt['name'] == 'console-password':
-                gen_pass = utils.make_default_password()
-                opt['default'] = generate_password_hash(gen_pass, "sha256")
-                option.set_default(opt)
+            option_made = Option(self.conn, self.cursor).set_default(opt)
+            if option_made:
+                logging.info('Created option: %s with value "%s"' % (opt['name'], opt['default']))
+
+        return True
+
+    def set_default_password(self):
+        gen_pass = False
+        for opt in self.default_opts:
+            if opt['name'] != 'console-password':
+                continue
+            gen_pass = utils.make_default_password()
+            opt['default'] = generate_password_hash(gen_pass, "sha256")
+            new_pass = option.set_default(opt)
+            if new_pass:
+                gen_pass = new_pass
         return gen_pass
+
 
 # End File: lan-nanny/lan_nanny/modules/collections/options.py

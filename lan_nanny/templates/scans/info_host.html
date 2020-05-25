@@ -51,11 +51,11 @@
 
               <tr>
                 <td><strong>Total Time</strong></td>
-                <td>{{scan.elapsed_time}}</td>
+                <td>{{scan.elapsed_time|round(2)}}</td>
               </tr>
               <tr>
                 <td><strong>Command</strong></td>
-                <td>{{scan.command}}</td>
+                <td><code>{{scan.command}}</pre></td>
               </tr>
               <tr>
                 <td><strong>Trigger</strong></td>
@@ -73,7 +73,7 @@
         <!-- Card Header -->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h6 class="m-0 font-weight-bold text-primary">
-            Devices - {{witnesses|length}}
+            Devices Found {{witnesses|length}}
           </h6>
         </div>
 

@@ -82,7 +82,11 @@
               <tr>
                 <td><b>Port Scanning</b></td>
                 <td>
-                  {{device.port_scan}}
+                  {%if device.port_scan%}
+                    Enabled
+                  {%else%}
+                    Disabled
+                  {%endif%}
                 </td>
               </tr>
               <tr>
@@ -201,8 +205,49 @@
     </div><!-- END column right -->
   </div><!-- END content row-->
 
-
-
+    {%if g.options['beta-features'].value %}
+      {%if alerts%}
+        <!-- Device Alerts -->
+        <div class="col-xl-6 col-lg-6">
+          <div class="card shadow mb-4">
+            <!-- Card Header -->
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+              <h6 class="m-0 font-weight-bold text-primary">
+                Recent Alerts
+              </h6>
+            </div>
+            <div class="card-body">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <td></td>
+                    <td>Alert Type</td>
+                    <td>Last Observed</td>
+                  </tr>
+                </thead>
+                {%for alert in alerts%}
+                <tr>
+                  <td>
+                    {{alert|alert_icon_status}}
+                  </td>
+                  <td>
+                    <a href="/alerts/info/{{alert.id}}">
+                      {%if alert.kind == 'new-device'%}
+                        New Device
+                      {%else%}
+                        {{alert.kind}}
+                      {%endif%}
+                    </a>
+                  </td>
+                  <td>{{alert.last_observed_ts|smart_time}}</td>
+                </tr>
+                {%endfor%}
+              </table>
+            </div>
+          </div>
+        </div><!-- END Device Alerts -->
+      {%endif%}
+    {%endif%}
 
 {%endblock%}
 

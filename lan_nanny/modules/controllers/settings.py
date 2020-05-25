@@ -48,6 +48,13 @@ def save_general():
 
     # Save beta-features
     _save_setting(conn, cursor, 'beta-features', request.form['setting_beta_features'])
+    # If beta features are being disabled, disable alerts as well. @todo: when alerts leave beta,
+    # pull this!
+    if request.form['setting_beta_features'] == 'false':
+        _save_setting(conn, cursor, 'alerts-enabled', 'false')
+
+    # Save debug-features
+    _save_setting(conn, cursor, 'debug-features', request.form['setting_debug_features'])
 
     # Save debug-features
     _save_setting(conn, cursor, 'debug-features', request.form['setting_debug_features'])
@@ -115,6 +122,9 @@ def save_alerts():
     """Alerts settings save."""
     conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     _save_setting(conn, cursor, 'alerts-enabled', request.form['setting_alerts_enabled'])
+    _save_setting(conn, cursor, 'notification-slack-enabled', request.form['setting_notification_slack_enabled'])
+    _save_setting(conn, cursor, 'notification-slack-token', request.form['setting_notification_slack_token'])
+    _save_setting(conn, cursor, 'notification-slack-channel', request.form['setting_notification_slack_channel'])
     return redirect('/settings/alerts')
 
 

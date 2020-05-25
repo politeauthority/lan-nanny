@@ -20,6 +20,62 @@
   100% {color: #ffffff;}
 }
 
+.alert_active_red {
+  animation-name: blink_red;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+}
+
+@keyframes blink_red {
+  0% {color: #cccccc;}
+  50% {color: #ff0000; }
+  100% {color: #cccccc;}
+}
+
+.alert_active_orange {
+  animation-name: blink_orange;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+}
+
+@keyframes blink_orange {
+  0% {color: #cccccc;}
+  50% {color: #f5a142; }
+  100% {color: #cccccc;}
+}
+
+.alert_active_yellow {
+  animation-name: blink_yellow;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+}
+
+@keyframes blink_yellow {
+  0% {color: #cccccc;}
+  50% {color: #ff9900; }
+  100% {color: #cccccc;}
+}
+
+.alert_inactive_unacked_green {
+  animation-name: blink_green;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+}
+
+@keyframes blink_green {
+  0% {color: #cccccc;}
+  50% {color: #1cc88a; }
+  100% {color: #cccccc;}
+}
+
+
+.alert_resolved {
+  color: #1cc88a;
+}
+
+.alert_resolved_green {
+  color: #1cc88a;
+}
 
 .device_info_connect{
   padding-right: 20px;

@@ -1,9 +1,8 @@
-"""
-Database handler.
-
-Handles the raw database connections, and database initialization of tables and required values.q
+"""Database handler.
+Handles the raw database connections, and database initialization of tables and required values.
 
 """
+import logging
 import os
 import sqlite3
 from sqlite3 import Error
@@ -25,10 +24,9 @@ from .models.database_growth import DatabaseGrowth
 from .models.sys_info import SysInfo
 from .collections.options import Options
 
-DATABASE_NAME = 'lan_nanny'
 
 def connect_mysql(server: dict):
-    """Connect to MySql database and get a cursor object."""
+    """Connect to MySql server and get a cursor object."""
     try:
         connection = mysql.connector.connect(
             host=server['host'],
@@ -40,13 +38,14 @@ def connect_mysql(server: dict):
             cursor = connection.cursor()
             cursor.execute("select database();")
             record = cursor.fetchone()
+        return connection, cursor
     except Error as e:
-        print("Error while connecting to MySQL", e)
-    return connection, cursor
+        logging.error("Error while connecting to MySQL", e)
+        exit(1)
 
 
-def connect_mysql_no_db(server):
-    """Connect to MySql database and get a cursor object."""
+def connect_mysql_no_db(server: dict):
+    """Connect to MySql server, without specifying a database, and get a cursor object."""
     try:
         connection = mysql.connector.connect(
             host=server['host'],
@@ -54,14 +53,13 @@ def connect_mysql_no_db(server):
             password=server['pass'])
         if connection.is_connected():
             db_Info = connection.get_server_info()
-            print("Connected to MySQL Server version ", db_Info)
             cursor = connection.cursor()
             cursor.execute("select database();")
             record = cursor.fetchone()
-            print("You're connected to database: ", record)
+        return connection, cursor
     except Error as e:
-        print("Error while connecting to MySQL", e)
-    return connection, cursor
+        logging.error("Error while connecting to MySQL", e)
+        exit(1)
 
 
 def create_mysql_database(conn, cursor, db_name: str):
@@ -91,11 +89,10 @@ def get_db_flask(database_file: str):
         db = g._database = sqlite3.connect(database_file)
     return db, db.cursor()
 
-def create_tables_new(conn, cursor):
-    print('Create tables new')
-    Option(conn, cursor).create_table()
-    populate_options(conn, cursor)
 
+def create_tables_new(conn, cursor):
+    logging.info("Creating tables if they don't exist")
+    Option(conn, cursor).create_table()
     Alert(cursor=cursor).create_table()
     Device(cursor=cursor, conn=conn).create_table()
     DevicePort(cursor=cursor, conn=conn).create_table()
@@ -122,11 +119,12 @@ def create_tables(conn, cursor):
     DatabaseGrowth(cursor=cursor, conn=conn).create_table()
     SysInfo(cursor=cursor, conn=conn).create_table()
 
-def populate_options(conn, cursor):
-    """Create options and sets their defaults."""
-    o = Option(cursor=cursor, conn=conn).create_table()
-    options = Options(cursor=cursor, conn=conn)
-    console_password = options.set_defaults()
-    return console_password
+# def populate_options(conn, cursor):
+#     """Create options and sets their defaults."""
+#     o = Option(cursor=cursor, conn=conn).create_table()
+#     options = Options(cursor=cursor, conn=conn)
+#     console_password = options.set_defaults()
+#     return console_password
+
 
 # End File: lan-nanny/lan_nanny/modules/db.py

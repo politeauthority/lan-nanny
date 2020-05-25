@@ -6,57 +6,85 @@
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Alerts</h1>
   </div>
+  <!-- Start Sub Nav -->
   <div class="row">
     {% with active_page=active_page_alerts %}
       {% include "alerts/sub_nav.html" %}
     {% endwith %}
-  </div>
+  </div><!-- End Sub nav -->
+
+  <!-- Start Mini Nav -->
+<!--   <div>
+    <div class="dropdown">
+      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Dropdown button
+      </button>
+      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <a class="dropdown-item" href="#">Action</a>
+        <a class="dropdown-item" href="#">Another action</a>
+        <a class="dropdown-item" href="#">Something else here</a>
+      </div>
+    </div>
+
+  </div> -->
+  <!-- End Mini Nav-->
+
+  {% with pagination=pagination, alignment="center" %}
+    {% include "pagination.html" %}
+  {% endwith %}
 
   <!-- Content Row -->
   <div class="row">
 
-    <!-- Device Table -->
-    <div class="col-xl-8 col-lg-8">
+    <!-- Alerts Roster Table -->
+    <div class="col-xl-12 col-lg-12">
       <div class="card shadow mb-4">
         <!-- Card Body -->
         <div class="card-body">
-          <h4>Active Alerts</h4>
           <div class="table-responsive">
             {%if alerts%}
               <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                   <tr>
-                    <td></td>
-                    <td>Alert Type</td>
-                    <td>Trigger Time</td>
-                    <td>Last Observed</td>
+                    <th>Status</th>
+                    <th>Alert</th>
+                    <th>Device</th>
+                    <th>Created</th>
+                    <th>Resolved</th>
                   </tr>
                 </thead>
                 {% for alert in alerts %}
                 <tr>
-                  <td><a href="/alerts/info/{{alert.id}}">{{alert.id}}</a></td>
                   <td>
-                  {%if alert.kind == 'no-hosts-over-time'%}
-                    No Hosts Scanned
-                  {%elif alert.kind == 'new-device'%}
-                    New Device
-                  {%endif%}
+                    {{alert|alert_icon_status}}
                   </td>
-                  <td>{{alert.created_ts|time_switch}}</td>
-                  <td>{{alert.last_observed_ts|time_switch}}</td>
+                  <td>
+                      <a href="/alerts/info/{{alert.id}}">{{alert.kind|alert_pretty_kind}}</a>
+                  </td>
+                  <td>
+                    {%if 'device' in alert.metas%}
+                      {{devices[alert.metas['device'].value|int]|device_icon_status}}
+                    {%endif%}
+                  </td>
+                  <td>{{alert.created_ts|time_ago}}</td>
+                  <td>{{alert.resolved_ts|time_ago}}</td>
                 </tr>
                 {%endfor%}
               </table>
             {%else%}
               <div class="text-center">
-                No Alerts!
+                No alerts registered yet.
               </div>
             {%endif%}
           </div>
       </div>
-    </div>
+    </div><!-- End Alert Roster Table -->
 
-  </div>
+  </div><!-- End Main Content Row -->
+
+  {% with pagination=pagination, alignment="center" %}
+    {% include "pagination.html" %}
+  {% endwith %}
 
 {%endblock%}
 

@@ -29,6 +29,10 @@ from config import logging_conf
 class Scan:
 
     def __init__(self, configs, args):
+        """
+        :param configs: LanNanny application configs.
+        :param args: CLI arguments
+        """
         self.conn, self.cursor = db.connect_mysql(configs.LAN_NANNY_DB)
         self.args = args
         self.force_scan = False
@@ -56,7 +60,7 @@ class Scan:
         self.hande_hosts()
         self.handle_ports()
         self.handle_alerts()
-        # self.handle_house_keeping()
+        self.handle_house_keeping()
 
     def handle_cli(self) -> bool:
         """Handle one off/simple CLI requests"""
@@ -67,7 +71,7 @@ class Scan:
         try:
             scan_hosts = ScanHosts(self).run()
             if scan_hosts:
-                self.hosts, self.new_devices = scan_hosts
+                self.hosts, self.new_devices, self.scan_hosts_log = scan_hosts
             else:
                 logging.error('Error scanning hosts, ending scan.')
         except:
@@ -76,10 +80,8 @@ class Scan:
         return True
 
     def handle_ports(self):
-        """
-        Scans ports for hosts which appeared in the current scan, checking first if the device and
-        global settings allow for a device to be port scanned.
-
+        """Scans ports for hosts which appeared in the current scan, checking first if the device and
+           global settings allow for a device to be port scanned.
         """
         try:
             ScanPorts(self).run()
@@ -92,7 +94,8 @@ class Scan:
 
     def handle_house_keeping(self):
         """Run house keeping operations like database pruning etc."""
-        HouseKeeping(self).run()
+        logging.info('House keeping is broken, skipping.')
+        # HouseKeeping(self).run()
 
     def _cli_change_password(self):
         if not self.args.password_reset:
@@ -120,11 +123,16 @@ class Scan:
 
     def setup_logging(self) -> bool:
         """Create the logger."""
+        log_level = logging.INFO
+        if self.args.verbose:
+            log_level = logging.DEBUG
         logging.basicConfig(
-            filename=self.config.LAN_NANNY_SCAN_LOG,
-            format='%(asctime)s %(message)s',
+            format='%(asctime)s [%(levelname)s]\t%(message)s',
             datefmt='%m/%d/%Y %I:%M:%S %p',
-            level=logging.DEBUG)
+            level=log_level,
+            handlers=[logging.FileHandler(self.config.LAN_NANNY_SCAN_LOG),
+                  logging.StreamHandler()])
+
         return True
 
     def prompt_sudo(self):
@@ -164,6 +172,11 @@ def parse_args():
         default=False,
         action='store_true',
         help="")
+    parser.add_argument(
+        "--verbose",
+        default=False,
+        action='store_true',
+        help="Run at debug logging level")
     args = parser.parse_args()
     return args
 
@@ -172,7 +185,6 @@ def get_config():
     if os.environ.get('LAN_NANNY_CONFIG'):
         config_file = os.environ.get('LAN_NANNY_CONFIG')
         configs = import_module('config.%s' % config_file)
-        # imported_module = import_module('.config.%s' % config)
         print('Using config: %s' % os.environ.get('LAN_NANNY_CONFIG') )
     else:
         print('Using config: default')

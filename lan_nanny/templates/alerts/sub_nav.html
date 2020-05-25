@@ -1,8 +1,14 @@
-<ul class="nav roster_nav">
+<ul class="nav sub_nav">
   <li class="nav-item">
     <a class="nav-link {%if active_page=='dashboard'%}active{%endif%}" href="/alerts">Dashboard</a>
   </li>
-  <li>
-    <a class="nav-link {%if active_page=='conditions'%}active{%endif%}" href="/alerts/conditions">Conditions</a>
+  <li class="nav-item">
+    <a class="nav-link {%if active_page=='all'%}active{%endif%}" href="/alerts/all">All</a>
   </li>
-</ul> 
+  <li class="nav-item">
+    <a class="nav-link {%if active_page=='monitors'%}active{%endif%}" href="/alerts/monitors">Monitors</a>
+  </li>
+<!--   <li>
+    <a class="nav-link {%if active_page=='conditions'%}active{%endif%}" href="/alerts/conditions">Conditions</a>
+  </li> -->
+</ul>

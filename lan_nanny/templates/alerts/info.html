@@ -9,15 +9,32 @@
   <div class="row">
     <div class="col-lg-6">
       <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Alert - {{alert.kind}}</h1>
+        <h1 class="h3 mb-0 text-gray-800">
+          {%if alert.active == 1%}
+            <i class="fas fa-exclamation-circle alert_active_red"></i>
+          {%else%}
+            <i class="fas fa-check-circle alert_resolved"></i>
+          {%endif%}
+          Alert - {{alert.pretty_kind()}}
+        </h1>
       </div>
     </div>
+
+    <!-- Delete buttons -->
     <div class="col-lg-6 text-right">
-      <!-- Button trigger modal -->
-      <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteAlertModal">
-        Delete
-      </button>
-    </div>
+      <div>
+        <div class="dropdown">
+          <button class="btn btn-danger dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Delete
+          </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <a class="dropdown-item" data-toggle="modal" data-target="#deleteAlertModal">Alert</a>
+            <a class="dropdown-item" data-toggle="modal" data-target="#deleteAlertsForDeviceModal">All Alerts for this device</a>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- End Delete buttons -->
   </div>
 
   <div class="row">
@@ -33,9 +50,15 @@
         </div>
         <div class="card-body">
           <table class="table table-striped">
+            {%if device%}
+              <tr>
+                <td>Device</td>
+                <td>{{device|device_icon_status}}</td>
+              </tr>
+            {%endif%}
             <tr>
               <td>Alert Type</td>
-              <td>{{alert.kind}}</td>
+              <td>{{alert.kind|alert_pretty_kind}}</td>
             </tr>
             <tr>
               <td>First Triggered</td>
@@ -46,9 +69,13 @@
               <td>Last Observed</td>
               <td>{{alert.last_observed_ts|time_switch}}</td>
             </tr>
+            <tr>
+              <td>Resolved</td>
+              <td>{{alert.resolved_ts|time_switch}}</td>
+            </tr>
             {%endif%}
             <tr>
-              <td>Currently Active</td>
+              <td>Status</td>
               <td>
                 {%if alert.active == 0%}
                   Resolved
@@ -75,17 +102,6 @@
                 </td>
               </tr>
             {%endif%}
-
-            <!-- Show device for new-device alert -->
-            {%if alert.kind == 'new-device' %}
-            <tr>
-              <td>Device</td>
-              <td>
-                {{device|device_icon_status}}
-              </td>
-            </tr>
-            {%endif%}
-            <!-- End device for new-device alert -->
           </table>
         </div>
       </div>
@@ -140,7 +156,29 @@
         </div>
       </div>
     </div>
+  </div><!-- End Delete Alert Modal -->
+
+  <!-- Delete All Alerts for Device Modal -->
+  <div class="modal fade" id="deleteAlertsForDeviceModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Delete Alert</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to delete ALL alerts for this device?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <a href="/alerts/delete-for-device/{{device.id}}" type="button" class="btn btn-danger">Delete</a>
+        </div>
+      </div>
+    </div>
   </div>
+
 {%endblock%}
 
 {%block javascript%}

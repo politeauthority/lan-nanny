@@ -11,116 +11,150 @@
       {% include "alerts/sub_nav.html" %}
     {% endwith %}
   </div>
-  <!-- Content Row -->
+
+  <!-- Stats Row -->
   <div class="row">
 
-    <!-- Alerts Firing -->
+    <!-- Active Alerts -->
+    <div id="devices_online" class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-danger shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Active Alerts</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{{alerts_firing|length}}</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-exclamation fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- End Active Alerts -->
+
+    <!-- New Alerts Today -->
+    <div id="devices_online" class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-primary shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">New Alerts Today</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{{alerts_num_today}}</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-bolt fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- End Active Alerts -->
+
+  </div><!-- End Stats Row -->
+
+
+  <!-- Main Content Row -->
+  <div class="row">
+    <!-- Alerts Firing Table -->
     <div class="col-xl-6 col-lg-6">
       <div class="card shadow mb-4">
+        <!-- Card Header -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">
+            Actively Firing Alerts
+          </h6>
+        </div>
         <!-- Card Body -->
         <div class="card-body">
-          <h4>Active Firing</h4>
           <div class="table-responsive">
             {%if alerts_firing%}
               <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                   <tr>
-                    <td></td>
-                    <td>Alert Type</td>
-                    <td>Trigger Time</td>
-                    <td>Last Observed</td>
+                    <th>Status</th>
+                    <th>Alert</th>
+                    <th>Device</th>
+                    <th>Created</th>
                   </tr>
                 </thead>
                 {% for alert in alerts_firing %}
                 <tr>
                   <td>
-                   {%if alert.kind == 'no-hosts-over-time'%}
-                      <a href="/alerts/info/{{alert.id}}">{{alert.id}}</a>
-                    {%elif alert.kind == 'new-device'%}
-                      <a href="/alerts/info/{{alert.id}}">
-                        <i class="fas fa-plus"></i>
-                      </a>
-                    {%else%}
-                      <a href="/alerts/info/{{alert.id}}">{{alert.id}}</a>
-
-                    {%endif%}
+                    {{alert|alert_icon_status}}
                   </td>
                   <td>
-                  {%if alert.kind == 'no-hosts-over-time'%}
-                    No Hosts Scanned
-                  {%elif alert.kind == 'new-device'%}
-                    New Device
-                  {%endif%}
+                    <a href="/alerts/info/{{alert.id}}">{{alert.pretty_kind()}}</a>
                   </td>
-                  <td>{{alert.created_ts|time_switch}}</td>
-                  <td>{{alert.last_observed_ts|time_switch}}</td>
+                  <td>
+                    {%if 'device' in alert.metas%}
+                      {{devices[alert.metas['device'].value|int]|device_icon_status}}
+                    {%endif%}
+                  </td>
+                  <td>{{alert.created_ts|time_ago}}</td>
                 </tr>
                 {%endfor%}
               </table>
             {%else%}
               <div class="text-center">
-                No Alerts!
+                No alerts firing currently.
               </div>
             {%endif%}
           </div>
+        </div>
       </div>
-    </div>
-    <!-- End Alerts Firing -->
+    </div><!-- End Alerts Firing table -->
 
-    <!-- Alerts Recent -->
+    <!-- Alerts alerts_unacked_resolved Table -->
     <div class="col-xl-6 col-lg-6">
       <div class="card shadow mb-4">
+        <!-- Card Header -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">
+            Resolved Unacknowledged Alerts
+          </h6>
+        </div>
         <!-- Card Body -->
         <div class="card-body">
-          <h4>Active Recent</h4>
           <div class="table-responsive">
-            {%if alerts_recent%}
-              <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
-                <thead>
-                  <tr>
-                    <td></td>
-                    <td>Alert Type</td>
-                    <td>Trigger Time</td>
-                    <td>Last Observed</td>
-                  </tr>
-                </thead>
-                {% for alert in alerts_recent %}
-                <tr>
-                  <td>
-                   {%if alert.kind == 'no-hosts-over-time'%}
-                      <a href="/alerts/info/{{alert.id}}">{{alert.id}}</a>
-                    {%elif alert.kind == 'new-device'%}
-                      <a href="/alerts/info/{{alert.id}}">
-                        <i class="fas fa-plus"></i>
-                      </a>
-                    {%else%}
-                      <a href="/alerts/info/{{alert.id}}">{{alert.id}}</a>
-
-                    {%endif%}
-                  </td>
-                  <td>
-                  {%if alert.kind == 'no-hosts-over-time'%}
-                    No Hosts Scanned
-                  {%elif alert.kind == 'new-device'%}
-                    New Device
-                  {%endif%}
-                  </td>
-                  <td>{{alert.created_ts|time_switch}}</td>
-                  <td>{{alert.last_observed_ts|time_switch}}</td>
-                </tr>
-                {%endfor%}
-              </table>
-            {%else%}
-              <div class="text-center">
-                No Alerts!
+            {% if alerts_unacked_resolved%}
+              <div class="table-responsive">
+                <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
+                  <thead>
+                    <tr>
+                      <th>Status</th>
+                      <th>Alert</th>
+                      <th>Device</th>
+                      <th>Resolved</th>
+                    </tr>
+                  </thead>
+                  {% for alert in alerts_unacked_resolved %}
+                    <tr>
+                      <td>
+                        <a href="/alerts/info/{{alert.id}}">
+                          <i class="fas fa-check-circle alert_resolved"></i>
+                        </a>
+                      </td>
+                      <td>
+                        <a href="/alerts/info/{{alert.id}}">{{alert.pretty_kind()}}</a>
+                      </td>
+                      <td>
+                        {%if 'device' in alert.metas%}
+                          {{devices[alert.metas['device'].value|int]|device_icon_status}}
+                        {%endif%}
+                      </td>
+                      <td>{{alert.resolved_ts|time_ago}}</td>
+                    </tr>
+                  {%endfor%}
+                </table>
               </div>
+            {%else%}
+              <p class="text-center">All alerts are acknowledged</p>
             {%endif%}
           </div>
+        </div>
       </div>
-    </div>
-    <!-- End Alerts Firing -->
+    </div><!-- End alerts_unacked_resolved table -->
 
-  </div>
+  </div><!-- End Main Content row -->
 
 {%endblock%}
 

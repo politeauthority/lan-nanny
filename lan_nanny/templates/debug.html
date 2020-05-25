@@ -46,16 +46,79 @@
         <div class="card-body">
           <div class="table-responsive">
             <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
+              <thead>
+                <tr>
+                  <td>Key</td>
+                  <td>Value</td>
+                  <td>Updated</td>
+                </tr>
+              </thead>
               {%for sys_info_name, sys_info in sys_infos.items()%}
                 <tr>
                   <td><b>{{sys_info_name}}</b></td>
                   <td>{{sys_info.value}}</td>
+                  <td>{{sys_info.update_ts}}</td>
                 </tr>
               {%endfor%}
             </table>
           </div>
         </div>
       </div>
+
+      <!-- Config Table -->
+      <div class="card shadow mb-4">
+        <!-- Card Header -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          Config Vars
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
+              <tr>
+                <td><b>DEBUG</b></td>
+                <td>{{config['DEBUG']}}</td>
+              </tr>
+              <tr>
+                <td><b>APP_PORT</b></td>
+                <td>{{config['APP_PORT']}}</td>
+              </tr>
+              <tr>
+                <td><b>LAN_NANNY_STATIC_PATH</b></td>
+                <td>{{config['LAN_NANNY_STATIC_PATH']}}</td>
+              </tr>
+              <tr>
+                <td><b>LAN_NANNY_TMP_DIR</b></td>
+                <td>{{config['LAN_NANNY_TMP_DIR']}}</td>
+              </tr>
+              <tr>
+                <td><b>LAN_NANNY_SCAN_LOG</b></td>
+                <td>{{config['LAN_NANNY_DB_NAME']}}</td>
+              </tr>
+              <tr>
+                <td><b>LAN_NANNY_WEB_LOG</b></td>
+                <td>{{config['LAN_NANNY_DB_USER']}}</td>
+              </tr>
+              <tr>
+                <td><b>LAN_NANNY_DB - Host</b></td>
+                <td>{{config['LAN_NANNY_DB']['host']}}</td>
+              </tr>
+              <tr>
+                <td><b>LAN_NANNY_DB - Host / Port</b></td>
+                <td>{{config['LAN_NANNY_DB']['host']}}:{{config['LAN_NANNY_DB']['port']}}</td>
+              </tr>
+              <tr>
+                <td><b>LAN_NANNY_DB - Name</b></td>
+                <td>{{config['LAN_NANNY_DB']['name']}}</td>
+              </tr>
+              <tr>
+                <td><b>LAN_NANNY_DB - User</b></td>
+                <td>{{config['LAN_NANNY_DB']['user']}}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div> <!-- End Config table -->
 
       <!-- ENV Table -->
       <div class="card shadow mb-4">
@@ -111,6 +174,7 @@
           </div>
         </div>
       </div> <!-- End ENV table -->
+
     </div><!-- End Right Col 6 -->
 
   </div><!-- End content row -->

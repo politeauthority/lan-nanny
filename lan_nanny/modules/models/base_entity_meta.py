@@ -70,6 +70,13 @@ class BaseEntityMeta(Base):
         self.conn.commit()
         return True
 
+    def get_meta(self, meta_name: str):
+        """Get a meta key from an entity if it exists, or return None. """
+        if meta_name not in self.metas:
+            return False
+        else:
+            return self.metas[meta_name]
+
     def meta_update(self, meta_name, meta_value, meta_type='str') -> bool:
         """Set a models entity value if it currently exists or not."""
         if meta_name not in self.metas:
@@ -77,6 +84,22 @@ class BaseEntityMeta(Base):
             self.metas[meta_name].name = meta_name
             self.metas[meta_name].type = meta_type
         self.metas[meta_name].value = meta_value
+        return True
+
+    def meta_delete(self, meta_name) -> bool:
+        """Set a models entity value if it currently exists or not."""
+        sql = """
+            DELETE
+            FROM `%s`
+            WHERE
+                `entity_type` = "%s" AND
+                `entity_id` = %s AND
+                `name` = "%s"; """ % (
+            self.table_name_meta,
+            self.table_name,
+            self.id,
+            meta_name)
+        self.cursor.execute(sql)
         return True
 
     def load_meta(self, model_id) -> bool:
@@ -88,6 +111,20 @@ class BaseEntityMeta(Base):
                 entity_id = %s AND
                 entity_type = '%s';
             """ % (self.table_name_meta, model_id, self.table_name)
+        self.cursor.execute(sql)
+        meta_raws = self.cursor.fetchall()
+        self._load_from_meta_raw(meta_raws)
+        return True
+
+    def get_meta(self) -> bool:
+        """Load the model's meta data."""
+        sql = """
+            SELECT *
+            FROM %s
+            WHERE
+                entity_id = %s AND
+                entity_type = '%s';
+            """ % (self.table_name_meta, self.id, self.table_name)
         self.cursor.execute(sql)
         meta_raws = self.cursor.fetchall()
         self._load_from_meta_raw(meta_raws)
