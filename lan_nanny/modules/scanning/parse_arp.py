@@ -1,11 +1,6 @@
 """Parse Arp
 
 """
-from collections import OrderedDict
-import logging
-import xml
-
-import xmltodict
 
 
 def parse_hosts(raw_arp: str) -> list:

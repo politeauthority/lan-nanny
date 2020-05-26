@@ -6,7 +6,6 @@ Runs at the end of scan.py for house keeping operations.
 """
 from datetime import timedelta
 import logging
-import os
 
 import arrow
 
