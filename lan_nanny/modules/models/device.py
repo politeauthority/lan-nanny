@@ -2,7 +2,6 @@
 
 """
 from datetime import timedelta
-import logging
 
 import arrow
 
@@ -17,9 +16,8 @@ class Device(BaseEntityMeta):
 
     def __init__(self, conn=None, cursor=None):
         """
-        Device init for a new device object, passing SQLite connection parameters.
-        @unit-tested
-
+           Device init for a new device object, passing SQLite connection parameters.
+           @unit-tested
         """
         super(Device, self).__init__(conn, cursor)
         self.conn = conn
@@ -172,10 +170,9 @@ class Device(BaseEntityMeta):
             return True
         return False
 
-    def build_from_list(self, raw: list, meta: bool=False, build_ports: bool=False):
+    def build_from_list(self, raw: list, meta: bool = False, build_ports: bool = False):
         """Build a model from an ordered list, converting data types to their desired type where
            possible.
-
         """
         super(Device, self).build_from_list(raw, meta=meta)
         if build_ports:

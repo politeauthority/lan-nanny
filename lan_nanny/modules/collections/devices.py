@@ -15,8 +15,8 @@ class Devices(BaseEntityMetas):
     """ Collection class for gathering groups of devices."""
 
     def __init__(self, conn=None, cursor=None):
-        """ Store Sqlite conn and model table_name as well as the model obj for the collections
-            target model.
+        """Store Sqlite conn and model table_name as well as the model obj for the collections
+           target model.
         """
         super(Devices, self).__init__(conn, cursor)
         self.table_name = Device().table_name
@@ -24,9 +24,8 @@ class Devices(BaseEntityMetas):
 
     def get_recent(self) -> list:
         """
-        Get all devices in the database.
-        @unit-tested
-
+           Get all devices in the database.
+           @unit-tested
         """
         sql = """
             SELECT *
@@ -215,7 +214,7 @@ class Devices(BaseEntityMetas):
             devices = self.get_by_ids_keyed(alert_device_ids)
         return devices
 
-    def build_from_lists(self, raws: list, meta: bool=False, build_ports: bool=False) -> list:
+    def build_from_lists(self, raws: list, meta: bool = False, build_ports: bool = False) -> list:
         """Build a model from an ordered list, converting data types to their desired type where
            possible.
 

@@ -14,9 +14,8 @@ class Base:
 
     def __init__(self, conn=None, cursor=None):
         """
-        Base model constructor
-        @unit-tested
-
+           Base model constructor
+           @unit-tested
         """
         self.conn = conn
         self.cursor = cursor
@@ -44,9 +43,8 @@ class Base:
 
     def create_table(self) -> bool:
         """
-        Create a table based on the self.table_name, and self.field_map.
-        @unit-tested
-
+           Create a table based on the self.table_name, and self.field_map.
+           @unit-tested
         """
         logging.debug('Creating %s' % self.__class__.__name__)
         self._create_total_map()
@@ -72,9 +70,8 @@ class Base:
 
     def insert(self):
         """
-        Insert a new record of the model.
-        @unit-tested
-
+           Insert a new record of the model.
+           @unit-tested
         """
         self.setup()
         self.check_required_class_vars()
@@ -93,9 +90,8 @@ class Base:
 
     def save(self, where: list = []) -> bool:
         """
-        Saves a model instance in the model table.
-        @unit-tested
-
+           Saves a model instance in the model table.
+           @unit-tested
         """
         self.setup()
         self.check_required_class_vars()
@@ -165,11 +161,10 @@ class Base:
 
     def build_from_list(self, raw: list) -> bool:
         """
-        Build a model from an ordered list, converting data types to their desired type where
-        possible.
-        @unit-tested
-        :param raw: The raw data from the database to be converted to model data.
-
+           Build a model from an ordered list, converting data types to their desired type where
+           possible.
+           @unit-tested
+           :param raw: The raw data from the database to be converted to model data.
         """
         count = 0
         for field in self.total_map:
@@ -204,7 +199,6 @@ class Base:
         """
            Gets all class table column fields in a comma separated list for sql cmds.
            @unit-tested
-
         """
         field_sql = ""
         for field in self.total_map:
@@ -218,7 +212,6 @@ class Base:
         """
            Generates the number of parameterized "?" for the sql lite parameterization.
            @unit-tested
-
         """
         field_value_param_sql = ""
         for field in self.total_map:
@@ -234,9 +227,8 @@ class Base:
 
     def get_values_sql(self, skip_fields: list = ['id']) -> tuple:
         """
-        Generates the model values to send to the sql lite interpretor as a tuple.
-        @unit-tested
-
+           Generates the model values to send to the sql lite interpretor as a tuple.
+           @unit-tested
         """
         vals = []
         for field in self.total_map:
@@ -246,7 +238,7 @@ class Base:
 
             field_value = getattr(self, field['name'])
 
-            # SQLite doesnt support bools, so we update them to ints before saving.
+            # SQLite doesn't support bools, so we update them to ints before saving.
             if field['type'] == 'bool':
                 if field_value == False:
                     field_value = 0
@@ -277,9 +269,8 @@ class Base:
 
     def get_update_set_sql(self, skip_fields=['id']):
         """
-        Generates the models SET sql statements, ie: SET key = value, other_key = other_value.
-        @unit-tested - @todo needs updating for "skip_fields"
-
+           Generates the models SET sql statements, ie: SET key = value, other_key = other_value.
+           @unit-tested - @todo needs updating for "skip_fields"
         """
         set_sql = ""
         for field in self.total_map:
@@ -291,10 +282,9 @@ class Base:
 
     def check_required_class_vars(self, extra_class_vars: list = []) -> bool:
         """
-        Quick class var checks to make sure the required class vars are set before proceeding
-        with an operation.
-        @unit-tested
-
+           Quick class var checks to make sure the required class vars are set before proceeding
+           with an operation.
+           @unit-tested
         """
         if not self.conn:
             raise AttributeError('Missing self.conn')
@@ -313,19 +303,17 @@ class Base:
 
     def _create_total_map(self) -> bool:
         """
-        Concatenate the base_map and models field_map together into self.total_map.
-        @unit-tested
-
+           Concatenate the base_map and models field_map together into self.total_map.
+           @unit-tested
         """
         self.total_map = self.base_map + self.field_map
         return True
 
     def _set_defaults(self) -> bool:
         """
-        Set the defaults for the class field vars and populates the self.field_list var
-        containing all table field names.
-        @unit-tested
-
+           Set the defaults for the class field vars and populates the self.field_list var
+           containing all table field names.
+           @unit-tested
         """
         self.field_list = []
         for field in self.total_map:
@@ -345,9 +333,8 @@ class Base:
 
     def _set_types(self) -> bool:
         """
-        Set the types of class table field vars and corrects their types where possible.
-        @unit-tested
-
+           Set the types of class table field vars and corrects their types where possible.
+           @unit-tested
         """
         for field in self.total_map:
             class_var_name = field['name']
@@ -377,7 +364,6 @@ class Base:
         """
            Attempts to convert ints to a usable value or raises an AttributeError.
            @unit-tested
-
         """
         if isinstance(value, int):
             return value
@@ -390,9 +376,8 @@ class Base:
 
     def _convert_bools(self, name: str, value) -> bool:
         """
-        Convert bools into usable value or raises an AttributeError.
-        @unit-tested
-
+           Convert bools into usable value or raises an AttributeError.
+           @unit-tested
         """
         if isinstance(value, bool):
             return value
@@ -415,9 +400,8 @@ class Base:
 
     def _generate_create_table_feilds(self) -> str:
         """
-        Generates all fields column create sql statements.
-        @unit-tested
-
+           Generates all fields column create sql statements.
+           @unit-tested
         """
         field_sql = ""
         field_num = len(self.total_map)
@@ -459,7 +443,6 @@ class Base:
            Translates field types into sql lite column types.
            @todo: create better class var for xlate map.
            @unit-tested
-
         """
         if field_type == 'int':
             return 'INTEGER'

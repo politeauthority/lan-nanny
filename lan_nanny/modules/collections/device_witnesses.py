@@ -26,7 +26,7 @@ class DeviceWitnesses(Base):
         sql = """
             SELECT COUNT(*)
             FROM %s
-            WHERE 
+            WHERE
                 device_id=%s AND
                 created_ts>"%s";
             """ % (self.table_name, device_id, then)

@@ -62,7 +62,8 @@ class Base:
         page: int = 1,
         limit: int = 0,
         order_by: dict = {},
-        where_and: list = []) -> list:
+        where_and: list = []
+    ) -> list:
         """
         Get paginated collection of models.
         :param limit: The limit of results per page.
@@ -176,9 +177,9 @@ class Base:
 
     def get_all(self) -> list:
         """
-        Get all of a models instances from the database.
-        @note: This should NOT be used unless a model has a VERY limited set of results or all
-               models are absolutely required for a task.
+           Get all of a models instances from the database.
+           @note: This should NOT be used unless a model has a VERY limited set of results or all
+                  models are absolutely required for a task.
         """
         sql = """
             SELECT *
@@ -194,7 +195,7 @@ class Base:
         return pretties
 
     def get_count_since(self, seconds_since_created: int) -> int:
-        """Get count of model instances in table created in last x seconds."""
+        """Get count of model instances in table created in last x seconds. """
         then = arrow.utcnow().datetime - timedelta(seconds=seconds_since_created)
         sql = """
             SELECT COUNT(*)
@@ -206,7 +207,7 @@ class Base:
         return raw_scans_count[0]
 
     def get_since(self, seconds_since_created: int) -> list:
-        """Get model instances created in last x seconds."""
+        """Get model instances created in last x seconds. """
         then = arrow.utcnow().datetime - timedelta(seconds=seconds_since_created)
         sql = """
             SELECT *
@@ -224,7 +225,7 @@ class Base:
         return prestines
 
     def get_last(self, num_units: int = 10) -> list:
-        """Get last `num_units` created models descending."""
+        """Get last `num_units` created models descending. """
         sql = """
             SELECT *
             FROM %s
@@ -236,7 +237,7 @@ class Base:
         return prestines
 
     def build_from_lists(self, raws: list) -> list:
-        """Creates list of hydrated collection objects."""
+        """Creates list of hydrated collection objects. """
         prestines = []
         for raw_item in raws:
             new_object = self.collect_model(self.conn, self.cursor)
@@ -245,7 +246,7 @@ class Base:
         return prestines
 
     def int_list_to_sql(self, item_list: list) -> str:
-        """Transform a list of ints to a sql safe comma separated string."""
+        """Transform a list of ints to a sql safe comma separated string. """
         sql_ids = ""
         for i in item_list:
             sql_ids += "%s," % i
@@ -254,9 +255,8 @@ class Base:
 
     def _pagination_where_and(self, where_and: list) -> str:
         """
-        Create the where clause for pagination when where and clauses are supplied.
-        Note: We append multiple statements with an AND in the sql statement.
-
+           Create the where clause for pagination when where and clauses are supplied.
+           Note: We append multiple statements with an AND in the sql statement.
         """
         where = False
         where_and_sql = ""
@@ -275,9 +275,8 @@ class Base:
 
     def _pagination_order(self, order) -> str:
         """
-        Create the order clause for pagination using user supplied arguments or defaulting to
-        created_desc DESC.
-
+           Create the order clause for pagination using user supplied arguments or defaulting to
+           created_desc DESC.
         """
         order_sql = "ORDER BY created_ts DESC"
         if not order:
@@ -288,12 +287,12 @@ class Base:
         return order_sql
 
     def _get_previous_page(self, page: int) -> int:
-        """Get the previous page, or first page if below 1."""
+        """Get the previous page, or first page if below 1. """
         previous = page - 1
         return previous
 
     def _get_next_page(self, page: int, last_page: int) -> int:
-        """Get the next page."""
+        """Get the next page. """
         if page == last_page:
             return None
         next_page = page + 1

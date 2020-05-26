@@ -4,13 +4,11 @@ Gets collections of options.
 """
 import logging
 
-from werkzeug.security import generate_password_hash
+# from werkzeug.security import generate_password_hash
 
 from .base import Base
 from ..models.option import Option
-from .. import utils
-
-
+# from .. import utils
 
 
 class Options(Base):
@@ -158,17 +156,18 @@ class Options(Base):
 
         return True
 
-    def set_default_password(self):
-        gen_pass = False
-        for opt in self.default_opts:
-            if opt['name'] != 'console-password':
-                continue
-            gen_pass = utils.make_default_password()
-            opt['default'] = generate_password_hash(gen_pass, "sha256")
-            new_pass = option.set_default(opt)
-            if new_pass:
-                gen_pass = new_pass
-        return gen_pass
+    # Removing this function because password setup needs to be revisited.
+    # def set_default_password(self):
+    #     gen_pass = False
+    #     for opt in self.default_opts:
+    #         if opt['name'] != 'console-password':
+    #             continue
+    #         gen_pass = utils.make_default_password()
+    #         opt['default'] = generate_password_hash(gen_pass, "sha256")
+    #         new_pass = option.set_default(opt)
+    #         if new_pass:
+    #             gen_pass = new_pass
+    #     return gen_pass
 
 
 # End File: lan-nanny/lan_nanny/modules/collections/options.py

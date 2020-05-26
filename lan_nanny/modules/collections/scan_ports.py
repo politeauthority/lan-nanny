@@ -2,9 +2,6 @@
 Gets collections of scan port scan logs.
 
 """
-
-import arrow
-
 from .base import Base
 from ..models.scan_port import ScanPort
 
