@@ -5,6 +5,7 @@ Gets collections of sys infos.
 from .base import Base
 from ..models.sys_info import SysInfo
 
+
 class SysInfos(Base):
 
     def __init__(self, conn=None, cursor=None):

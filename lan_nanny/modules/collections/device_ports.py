@@ -4,22 +4,21 @@ Gets collections of device ports.
 """
 from .base import Base
 from ..models.device_port import DevicePort
-from .ports import Ports
 
 
 class DevicePorts(Base):
     """Collection class for gathering groups of device ports."""
 
     def __init__(self, conn=None, cursor=None):
-        """ Store Sqlite conn and model table_name as well as the model obj for the collections
-            target model.
+        """Store Sqlite conn and model table_name as well as the model obj for the collections
+           target model.
         """
         super(DevicePorts, self).__init__(conn, cursor)
         self.table_name = DevicePort().table_name
         self.collect_model = DevicePort
 
     def get_by_device_id(self, device_id: int) -> list:
-        """Get all devices in the database."""
+        """Get all devices in the database. """
         sql = """
             SELECT *
             FROM %s
@@ -37,11 +36,10 @@ class DevicePorts(Base):
         self.cursor.execute(sql)
         return True
 
-    def build_from_lists(self, raws: list, build_ports: bool=False) -> list:
+    def build_from_lists(self, raws: list, build_ports: bool = False) -> list:
         """
-        Build a model from an ordered list, converting data types to their desired type where
-        possible.
-
+           Build a model from an ordered list, converting data types to their desired type where
+           possible.
         """
         device_ports = super(DevicePorts, self).build_from_lists(raws)
         if not build_ports:

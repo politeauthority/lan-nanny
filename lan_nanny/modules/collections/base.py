@@ -28,18 +28,18 @@ class Base:
             SELECT *
             FROM %(table_name)s
             WHERE id IN (%(ids)s); """ % {
-        'table_name': self.table_name,
-        'ids': sql_ids,
+            'table_name': self.table_name,
+            'ids': sql_ids,
         }
         self.cursor.execute(sql)
         raws = self.cursor.fetchall()
         prestines = self.build_from_lists(raws)
         return prestines
 
-    def get_by_ids_keyed(self, model_ids: list, key_field: str="id") -> dict:
+    def get_by_ids_keyed(self, model_ids: list, key_field: str = "id") -> dict:
         """
-        Get models instances by their ids from the database, returned as a dict, keyed off of the 
-        model id or any model attribute supplied by `key_field`.
+           Get models instances by their ids from the database, returned as a dict, keyed off of
+           the model id or any model attribute supplied by `key_field`.
         """
         prestines = self.get_by_ids(model_ids)
         prestine_dict = {}
@@ -48,7 +48,7 @@ class Base:
             prestine_dict[key] = prestine
         return prestine_dict
 
-    def get_all_keyed(self, key_field: str="id") -> dict:
+    def get_all_keyed(self, key_field: str = "id") -> dict:
         """Get all models in a dictionary keyed on the id, or supplied `key_field` value."""
         prestines = self.get_all()
         prestines_dict = {}
@@ -59,10 +59,10 @@ class Base:
 
     def get_paginated(
         self,
-        page: int=1,
-        limit: int=0,
-        order_by: dict={},
-        where_and: list=[]) -> list:
+        page: int = 1,
+        limit: int = 0,
+        order_by: dict = {},
+        where_and: list = []) -> list:
         """
         Get paginated collection of models.
         :param limit: The limit of results per page.
@@ -150,6 +150,9 @@ class Base:
         return raw[0]
 
     def _edit_pagination_sql_for_info(self, original_sql):
+        """Edit the original pagination query to get the total number of results for pagination
+           details.
+        """
         sql = original_sql.replace("SELECT *", "SELECT COUNT(*)")
         end_sql = sql.find("LIMIT ")
         sql = sql[:end_sql]
@@ -220,7 +223,7 @@ class Base:
             prestines.append(new_object)
         return prestines
 
-    def get_last(self, num_units: int=10) -> list:
+    def get_last(self, num_units: int = 10) -> list:
         """Get last `num_units` created models descending."""
         sql = """
             SELECT *
@@ -232,7 +235,7 @@ class Base:
         prestines = self.build_from_lists(raw)
         return prestines
 
-    def build_from_lists(self, raws:list) -> list:
+    def build_from_lists(self, raws: list) -> list:
         """Creates list of hydrated collection objects."""
         prestines = []
         for raw_item in raws:
