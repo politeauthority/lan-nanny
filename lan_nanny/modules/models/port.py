@@ -6,7 +6,7 @@ from .base import Base
 
 class Port(Base):
 
-    def __init__(self, conn = None, cursor = None):
+    def __init__(self, conn=None, cursor=None):
         super(Port, self).__init__(conn, cursor)
         self.conn = conn
         self.cursor = cursor
@@ -53,7 +53,7 @@ class Port(Base):
     def __repr__(self):
         return "<Port %s>" % self.id
 
-    def get_by_port_and_protocol(self, port_number: str = None, protocol: str = None) -> bool:
+    def get_by_port_and_protocol(self, port_number: str=None, protocol: str=None) -> bool:
         """Get a Port obj by port number and protocol."""
         if not port_number and self.number:
             port_number = self.number

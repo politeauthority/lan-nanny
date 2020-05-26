@@ -59,7 +59,7 @@ def roster(page: str="1") -> str:
 
     # Get alert metas
     for alert_obj in alert_pages['objects']:
-        alert_obj.get_meta()
+        alert_obj.load_meta()
 
     devices = devices_collect.get_w_alerts(alert_pages['objects'])
 

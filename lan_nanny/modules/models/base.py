@@ -13,8 +13,7 @@ import arrow
 class Base:
 
     def __init__(self, conn=None, cursor=None):
-        """
-           Base model constructor
+        """Base model constructor
            @unit-tested
         """
         self.conn = conn
@@ -42,8 +41,7 @@ class Base:
         return "<%s>" % self.__class__.__name__
 
     def create_table(self) -> bool:
-        """
-           Create a table based on the self.table_name, and self.field_map.
+        """Create a table based on the self.table_name, and self.field_map.
            @unit-tested
         """
         logging.debug('Creating %s' % self.__class__.__name__)
@@ -69,8 +67,7 @@ class Base:
         return True
 
     def insert(self):
-        """
-           Insert a new record of the model.
+        """Insert a new record of the model.
            @unit-tested
         """
         self.setup()
@@ -89,8 +86,7 @@ class Base:
         return True
 
     def save(self, where: list = []) -> bool:
-        """
-           Saves a model instance in the model table.
+        """Saves a model instance in the model table.
            @unit-tested
         """
         self.setup()

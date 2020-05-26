@@ -8,7 +8,7 @@ from ..models.scan_host import ScanHost
 
 class ScanHosts(Base):
 
-    def __init__(self, conn =None, cursor = None):
+    def __init__(self, conn=None, cursor=None):
         super(ScanHosts, self).__init__(conn, cursor)
         self.table_name = ScanHost().table_name
         self.collect_model = ScanHost

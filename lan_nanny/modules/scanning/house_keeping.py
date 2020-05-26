@@ -119,7 +119,7 @@ class HouseKeeping:
             logging.debug('\tNot running nmap version, too soon.')
             return True
         nmap_v_raw = utils.run_shell('nmap --version')
-        nmap_v = nmap_v[nmap_v.find('version') + 8:]
+        nmap_v = nmap_v_raw[nmap_v_raw.find('version') + 8:]
         nmap_v = nmap_v[:nmap_v.find(' ')]
         if 'nmap-version' in self.sys_infos:
             info = self.sys_infos['nmap-version']

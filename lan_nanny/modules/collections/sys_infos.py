@@ -13,4 +13,5 @@ class SysInfos(Base):
         self.table_name = SysInfo().table_name
         self.collect_model = SysInfo
 
+
 # End File: lan-nanny/lan_nanny/modules/collections/sys_infos.py

@@ -1,8 +1,6 @@
 """Entity Meta Model
 
 """
-import logging
-
 from .base import Base
 
 
