@@ -2,9 +2,6 @@
 Gets collections of scan host scan logs.
 
 """
-
-import arrow
-
 from .base import Base
 from ..models.scan_host import ScanHost
 

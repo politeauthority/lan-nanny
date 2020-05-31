@@ -1,7 +1,9 @@
-"""
+"""New Install / Upgrade
+The new install / upgrade process for Lan Nanny.
+This process can be run safely at anytime to setup a new or in place upgrade and existing install.
+
 """
 import logging
-import os
 
 from modules import configer
 from modules import db

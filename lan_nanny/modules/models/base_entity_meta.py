@@ -23,9 +23,8 @@ class BaseEntityMeta(Base):
 
     def get_by_id(self, model_id: int = None) -> bool:
         """
-        Get a single model object from db based on an object ID with all meta data loaded into
-        self.metas.
-
+           Get a single model object from db based on an object ID with all meta data loaded into
+           self.metas.
         """
         if not super(BaseEntityMeta, self).get_by_id(model_id):
             return False
@@ -45,7 +44,7 @@ class BaseEntityMeta(Base):
             return True
 
         if not self.id:
-            raise AttributeError('Model %s cant save entity metas with out id' % self) 
+            raise AttributeError('Model %s cant save entity metas with out id' % self)
         for meta_name, meta in self.metas.items():
             if not isinstance(meta, EntityMeta):
                 raise AttributeError('Entity meta is not an EntityMeta object: %s' % meta)
@@ -111,20 +110,6 @@ class BaseEntityMeta(Base):
                 entity_id = %s AND
                 entity_type = '%s';
             """ % (self.table_name_meta, model_id, self.table_name)
-        self.cursor.execute(sql)
-        meta_raws = self.cursor.fetchall()
-        self._load_from_meta_raw(meta_raws)
-        return True
-
-    def get_meta(self) -> bool:
-        """Load the model's meta data."""
-        sql = """
-            SELECT *
-            FROM %s
-            WHERE
-                entity_id = %s AND
-                entity_type = '%s';
-            """ % (self.table_name_meta, self.id, self.table_name)
         self.cursor.execute(sql)
         meta_raws = self.cursor.fetchall()
         self._load_from_meta_raw(meta_raws)

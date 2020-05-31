@@ -1,8 +1,6 @@
 """Option Model
 
 """
-import logging
-
 from .base import Base
 
 
@@ -38,7 +36,7 @@ class Option(Base):
     def __repr__(self):
         return "<Option %s:%s>" % (self.name, self.value)
 
-    def get_by_name(self, name: str=None) -> bool:
+    def get_by_name(self, name: str = None) -> bool:
         """Get an option from the options table based on name. """
         if not name:
             name = self.name
@@ -88,7 +86,7 @@ class Option(Base):
         self.name = option_name
         self.type = the_option['type']
         if 'default' in the_option:
-            self.value = the_option['default'] 
+            self.value = the_option['default']
             self.save()
             return True
         return False

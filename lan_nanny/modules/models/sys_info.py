@@ -1,8 +1,6 @@
 """Sys Info Model
 
 """
-import logging
-
 from .base import Base
 
 
@@ -36,5 +34,6 @@ class SysInfo(Base):
 
     def __repr__(self):
         return "<SysInfo %s:%s>" % (self.name, self.value)
+
 
 # End File: lan-nanny/lan_nanny/modules/models/sys_info.py

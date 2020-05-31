@@ -1,23 +1,16 @@
 """Device Controller
 
 """
-from datetime import timedelta
-
-import arrow
-
-from flask import Blueprint, render_template, redirect, request, jsonify, g
+from flask import Blueprint, render_template, redirect, request, jsonify
 from flask import current_app as app
 
 from .. import db
 from .. import utils
 from ..collections.alerts import Alerts
-from ..collections.devices import Devices as DevicesCollection
 from ..collections.device_witnesses import DeviceWitnesses
 from ..collections.device_ports import DevicePorts
 from ..collections.scan_ports import ScanPorts
-from ..models.alert import Alert
 from ..models.device import Device
-from ..models.entity_meta import EntityMeta
 from ..metrics import Metrics
 
 device = Blueprint('Device', __name__, url_prefix='/device')

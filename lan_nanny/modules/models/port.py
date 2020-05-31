@@ -79,4 +79,5 @@ class Port(Base):
         self.build_from_list(port_raw)
         return True
 
+
 # End File: lan-nanny/lan_nanny/modules/models/port.py

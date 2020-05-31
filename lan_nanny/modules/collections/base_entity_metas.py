@@ -5,6 +5,7 @@ This class should be extended by all collections that collect models that have e
 from .base import Base
 from ..models.entity_meta import EntityMeta
 
+
 class BaseEntityMetas(Base):
 
     def __init__(self, conn=None, cursor=None):
@@ -14,7 +15,7 @@ class BaseEntityMetas(Base):
         self.collect_model = None
         self.meta_table = 'entity_metas'
 
-    def build_from_lists(self, raws: list, meta: bool=False) -> list:
+    def build_from_lists(self, raws: list, meta: bool = False) -> list:
         """Creates list of hydrated collection objects, optionally loading the entities meta
            values.
         """

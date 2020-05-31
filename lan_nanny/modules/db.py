@@ -3,13 +3,11 @@ Handles the raw database connections, and database initialization of tables and 
 
 """
 import logging
-import os
 import sqlite3
-from sqlite3 import Error
 
 from flask import g
 import mysql.connector
-from mysql.connector import Error
+from mysql.connector import Error as MySqlError
 
 from .models.option import Option
 from .models.alert import Alert
@@ -22,7 +20,6 @@ from .models.port import Port
 from .models.entity_meta import EntityMeta
 from .models.database_growth import DatabaseGrowth
 from .models.sys_info import SysInfo
-from .collections.options import Options
 
 
 def connect_mysql(server: dict):
@@ -34,12 +31,14 @@ def connect_mysql(server: dict):
             password=server['pass'],
             database=server['name'])
         if connection.is_connected():
-            db_Info = connection.get_server_info()
+            db_info = connection.get_server_info()
+            logging.debug(db_info)
             cursor = connection.cursor()
             cursor.execute("select database();")
             record = cursor.fetchone()
+            logging.debug(record)
         return connection, cursor
-    except Error as e:
+    except MySqlError as e:
         logging.error("Error while connecting to MySQL", e)
         exit(1)
 
@@ -52,12 +51,14 @@ def connect_mysql_no_db(server: dict):
             user=server['user'],
             password=server['pass'])
         if connection.is_connected():
-            db_Info = connection.get_server_info()
+            db_info = connection.get_server_info()
+            logging.debug(db_info)
             cursor = connection.cursor()
             cursor.execute("select database();")
             record = cursor.fetchone()
+            logging.debug(record)
         return connection, cursor
-    except Error as e:
+    except MySqlError as e:
         logging.error("Error while connecting to MySQL", e)
         exit(1)
 
@@ -68,18 +69,6 @@ def create_mysql_database(conn, cursor, db_name: str):
     cursor.execute(sql)
     print('Created database: %s' % db_name)
     return True
-
-
-def create_connection(database_file: str):
-    """Create a database connection to a SQLite database."""
-    conn = None
-    try:
-        conn = sqlite3.connect(database_file)
-    except Error as e:
-        print(e)
-        exit(1)
-    cursor = conn.cursor()
-    return conn, cursor
 
 
 def get_db_flask(database_file: str):

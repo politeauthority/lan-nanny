@@ -2,9 +2,8 @@
 Gets collections of alerts.
 
 """
-from .base import Base
-from ..models.alert import Alert
 from .base_entity_metas import BaseEntityMetas
+from ..models.alert import Alert
 
 
 class Alerts(BaseEntityMetas):

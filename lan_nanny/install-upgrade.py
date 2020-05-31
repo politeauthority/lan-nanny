@@ -44,7 +44,7 @@ def install_lan_nanny_python():
     """Run the python build/install process for lan nanny"""
     setup_path = os.path.normpath(
         os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), 
+            os.path.dirname(os.path.realpath(__file__)),
             '../',
             'setup.py'))
     subprocess.Popen(['python3', setup_path, 'build'], True)
@@ -59,7 +59,7 @@ def pip_requirements():
     """
     requirements_path = os.path.normpath(
         os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), 
+            os.path.dirname(os.path.realpath(__file__)),
             '../',
             'requirements.txt'))
     try:

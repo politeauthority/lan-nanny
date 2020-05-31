@@ -2,7 +2,6 @@
 
 """
 import os
-import subprocess
 
 from flask import Blueprint, render_template, g
 from flask import current_app as app
@@ -28,7 +27,6 @@ def index(scan_type: str=''):
     # db_stats = database_stats(conn, cursor)
     data = {
         'active_page': 'about',
-        # 'db_name': os.path.normpath(app.config['LAN_NANNY_DB_FILE']),
         'db_witness_length': DeviceWitnesses(conn, cursor).get_count_total(),
         'db_scan_host_length': ScanHosts(conn, cursor).get_count_total(),
         'db_scan_port_length': ScanPorts(conn, cursor).get_count_total(),
@@ -55,10 +53,11 @@ def debug(scan_type: str=''):
     }
     return render_template('debug.html', **data)
 
+
 def database_stats(conn, cursor):
     """ """
     db_current_size = utils.get_size_raw(app.config['LAN_NANNY_DB_FILE'])
-    
+
     db_24_hours_ago = DatabaseGrowth(conn, cursor)
     db_24_hours_ago.get_24_hours_ago()
 

@@ -22,8 +22,8 @@ from modules.models.option import Option
 from modules.scanning.scan_ports import ScanPorts
 from modules.scanning.scan_hosts import ScanHosts
 from modules.scanning.scan_alerts import ScanAlerts
-from modules.scanning.house_keeping import HouseKeeping
-from config import logging_conf
+# from modules.scanning.house_keeping import HouseKeeping
+# from config import logging_conf
 
 
 class Scan:
