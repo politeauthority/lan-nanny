@@ -27,6 +27,7 @@ def dashboard() -> str:
     data['ports_total'] = ports_collect.get_count_total()
     data['active_page'] = 'ports'
     data['active_page_ports'] = 'dashboard'
+    data['enable_refresh'] = True
     return render_template('ports/dashboard.html', **data)
 
 
@@ -50,6 +51,7 @@ def roster(page: str="1") -> str:
     data['ports_total'] = ports_collect.get_count_total()
     data['active_page'] = 'ports'
     data['active_page_ports'] = 'all'
+    data['enable_refresh'] = True
     return render_template('ports/roster.html', **data)
 
 
@@ -71,6 +73,7 @@ def info(port_id: int) -> str:
     data['devices'] = devices
     data['active_page'] = 'ports'
     data['active_page_ports'] = 'info'
+    data['enable_refresh'] = True
     return render_template('ports/info.html', **data)
 
 # End File: lan-nanny/lan_nanny/modules/controllers/ports.py

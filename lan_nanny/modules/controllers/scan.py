@@ -49,6 +49,7 @@ def index():
     }
     data['active_page'] = 'scans'
     data['active_page_sub'] = 'dashboard'
+    data['enable_refresh'] = True
     return render_template('scans/dashboard.html', **data)
 
 @scan.route('/hosts/')
@@ -70,6 +71,7 @@ def roster_hosts(page: str="1"):
     }
     data['active_page'] = 'scans'
     data['active_page_sub'] = 'hosts'
+    data['enable_refresh'] = True
     return render_template('scans/roster_hosts.html', **data)
 
 @scan.route('/ports')
@@ -96,6 +98,7 @@ def roster_ports(page: str="1"):
     }
     data['active_page'] = 'scans'
     data['active_page_sub'] = 'ports'
+    data['enable_refresh'] = True
     return render_template('scans/roster_ports.html', **data)
 
 
@@ -113,6 +116,7 @@ def info_host(scan_id: int):
         'scan': scan_host,
         'witnesses': device_witnesses,
     }
+    data['enable_refresh'] = True
     return render_template('scans/info_host.html', **data)
 
 
@@ -130,6 +134,7 @@ def info_port(scan_id: int):
         'scan': scan_port,
         'device': device,
     }
+    data['enable_refresh'] = True
     return render_template('scans/info_port.html', **data)
 
 

@@ -22,7 +22,9 @@
   <link href="/static/css/themes/{{g.options['console-ui-color'].value}}.css" rel="stylesheet">
 
   {%if g.options['auto-reload-console'].value %}
-    <meta http-equiv="Refresh" content="120">
+    {%if enable_refresh is defined%}
+      <meta http-equiv="Refresh" content="120">
+    {%endif%}
   {%endif%}
   {%block head%}{%endblock%}
 
