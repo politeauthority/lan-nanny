@@ -85,7 +85,13 @@
           <input id="icon_form_choice" name="icon_form_choice" type="hidden" name="icon_choice" value="device_icon_select">
         {%endif%}
 
-        <br/>
+        <div class="form-group">
+          <label for="device_notes">Notes</label>
+          <textarea class="form-control" name="device_notes" rows="3">{%if 'notes' in device.metas%}{{device.metas['notes'].value}}{%endif%}</textarea>
+          <small id="device_notes_help" class="form-text text-muted">Notes about the device.</small>
+          <br>
+        </div>
+
         <button class="btn btn-success" type="submit">Save</button>
         {%if form == 'edit' %}
           <!-- Button trigger modal -->

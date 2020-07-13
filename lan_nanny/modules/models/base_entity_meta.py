@@ -22,8 +22,7 @@ class BaseEntityMeta(Base):
         return "<%s>" % self.__class__.__name__
 
     def get_by_id(self, model_id: int = None) -> bool:
-        """
-           Get a single model object from db based on an object ID with all meta data loaded into
+        """Get a single model object from db based on an object ID with all meta data loaded into
            self.metas.
         """
         if not super(BaseEntityMeta, self).get_by_id(model_id):

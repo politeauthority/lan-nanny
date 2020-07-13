@@ -11,6 +11,7 @@ from ..collections.device_witnesses import DeviceWitnesses
 from ..collections.device_ports import DevicePorts
 from ..collections.scan_ports import ScanPorts
 from ..models.device import Device
+from ..models.entity_meta import EntityMeta
 from ..metrics import Metrics
 
 device = Blueprint('Device', __name__, url_prefix='/device')
@@ -39,6 +40,7 @@ def info(device_id: int) -> str:
     data['device_over_day'] = device_online_over_day
     data['device_over_week'] = device_online_over_week
     data['alerts'] = device_alerts
+    data['enable_refresh'] = True
     return render_template('device/info.html', **data)
 
 
@@ -61,6 +63,7 @@ def info_ports(device_id: int) -> str:
     data['scan_ports'] = scan_ports_log
     data['active_page'] = 'devices'
     data['active_page_device'] = 'ports'
+    data['enable_refresh'] = True
     return render_template('device/ports.html', **data)
 
 
@@ -138,6 +141,18 @@ def save():
     else:
         device.kind = request.form['device_type_select']
 
+
+    device_notes = request.form['device_notes']
+    if device_notes:
+        if 'notes' not in device.metas:
+            device.metas['notes'] = EntityMeta(conn, cursor)
+            device.metas['notes'].create(
+                meta_name='notes',
+                meta_type='str',
+                meta_value=device_notes)
+        else:
+            device.metas['notes'].value = request.form['device_notes']
+
     # @todo figure out how hide works.
     # device.hide = request.form['device_hide']
     device.save()
@@ -148,7 +163,7 @@ def save():
 @device.route('/favorite/<device_id>')
 @utils.authenticate
 def favorite(device_id):
-    """Web route for making a device a favorite or not."""
+    """Ajax web route for making a device a favorite or not."""
     conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     device = Device()
     device.conn = conn
