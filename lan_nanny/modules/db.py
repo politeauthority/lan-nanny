@@ -12,6 +12,7 @@ from mysql.connector import Error as MySqlError
 from .models.option import Option
 from .models.alert import Alert
 from .models.device import Device
+from .models.device_mac import DeviceMac
 from .models.device_port import DevicePort
 from .models.device_witness import DeviceWitness
 from .models.scan_port import ScanPort
@@ -85,6 +86,7 @@ def create_tables_new(conn, cursor):
     Alert(cursor=cursor).create_table()
     Device(cursor=cursor, conn=conn).create_table()
     DevicePort(cursor=cursor, conn=conn).create_table()
+    DeviceMac(cursor=cursor, conn=conn).create_table()
     DeviceWitness(cursor=cursor, conn=conn).create_table()
     ScanPort(cursor=cursor, conn=conn).create_table()
     ScanHost(cursor=cursor, conn=conn).create_table()
