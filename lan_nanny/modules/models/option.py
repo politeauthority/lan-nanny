@@ -86,10 +86,9 @@ class Option(Base):
         self.name = option_name
         self.type = the_option['type']
         if 'default' in the_option:
-            self.value = the_option['default']
-            self.save()
-            return True
-        return False
+            self.value = the_option['default']            
+        self.save()
+        return True
 
     def _set_bool(self, value) -> bool:
         """Set a boolean option to the correct value. """

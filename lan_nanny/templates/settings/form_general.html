@@ -38,7 +38,7 @@
 
             <div class="form-group form-sm">
               <label for="systemNameHelp">System Name</label>
-              <input type="input" class="form-control form-sm" id="setting_system_name" name="setting_system_name" aria-describedby="systemNameHelp" value="{{settings['system-name'].value}}">
+              <input type="input" class="form-control form-sm" id="setting_system_name" name="setting_system_name" aria-describedby="systemNameHelp" value="{%if settings['system-name'].value %}{{settings['system-name'].value}}{%endif%}">
               <small id="systemNameHelp" class="form-text text-muted">If you run multiple instances of Lan Nanny, name them uniquely to differentiate them.</small>
             </div>
 

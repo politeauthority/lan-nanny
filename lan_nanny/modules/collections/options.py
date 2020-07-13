@@ -51,7 +51,7 @@ class Options(Base):
             {
                 'name': 'scan-hosts-tool',
                 'type': 'str',
-                'default': 'nmap'
+                'default': 'arp'
             },
             {
                 'name': 'scan-ports-enabled',
@@ -143,16 +143,18 @@ class Options(Base):
 
     def set_defaults(self) -> bool:
         """Create Option values and set Option defaults where applicable. """
+        print('Setting defaults')
         for opt in self.default_opts:
             if opt['name'] == 'console-password':
                 continue
 
-            if 'default' not in opt:
-                continue
-
-            option_made = Option(self.conn, self.cursor).set_default(opt)
+            logging.info('Option: %s' % opt['name'])
+            option = Option(self.conn, self.cursor)
+            option_made = option.set_default(opt)
             if option_made:
-                logging.info('Created option: %s with value "%s"' % (opt['name'], opt['default']))
+                logging.info('Created option: %s with value "%s"' % (option.name, option.value))
+            else:
+                logging.info('Not creating option: %s, already exists' % option.name)
 
         return True
 
