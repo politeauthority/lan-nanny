@@ -38,6 +38,7 @@ def dashboard():
     data['devices'] = devices
     data['active_page'] = 'alerts'
     data['active_page_alerts'] = 'dashboard'
+    data['enable_refresh'] = True
     return render_template('alerts/dashboard.html', **data)
 
 
@@ -69,6 +70,7 @@ def roster(page: str="1") -> str:
     data['devices'] = devices
     data['active_page'] = 'alerts'
     data['active_page_alerts'] = 'all'
+    data['enable_refresh'] = True
     return render_template('alerts/roster.html', **data)
 
 
@@ -85,6 +87,7 @@ def monitors():
     data['devices_alert_offline'] = devices_alert_offline
     data['active_page'] = 'alerts'
     data['active_page_alerts'] = 'monitors'
+    data['enable_refresh'] = True
     return render_template('alerts/monitors.html', **data)
 
 
@@ -113,6 +116,7 @@ def info(alert_id: int):
     data['alert'] = alert
     data['device'] = device
     data['active_page'] = 'alerts'
+    data['enable_refresh'] = True
     return render_template('alerts/info.html', **data)
 
 

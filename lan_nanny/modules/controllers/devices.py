@@ -38,6 +38,7 @@ def dashboard() -> str:
     data['device_venders'] = Metrics(conn, cursor).get_device_vendor_grouping()
     data['active_page'] = 'devices'
     data['active_page_devices'] = 'dashboard'
+    data['enable_refresh'] = True
     return render_template('devices/dashboard.html', **data)
 
 
@@ -65,6 +66,7 @@ def roster(page: str="1") -> str:
     data['active_page_devices'] = 'all'
     data['devices'] = device_pages['objects']
     data['pagination'] = utils.gen_pagination_urls('/devices/all/', device_pages['info'])
+    data['enable_refresh'] = True
     return render_template('devices/roster.html', **data)
 
 
@@ -97,6 +99,7 @@ def roster_online(page: str="1") -> str:
     data['active_page_devices'] = 'online'
     data['devices'] = device_pages['objects']
     data['pagination'] = utils.gen_pagination_urls('/devices/online/', device_pages['info'])
+    data['enable_refresh'] = True
     return render_template('devices/roster.html', **data)
 
 
@@ -129,6 +132,7 @@ def roster_offline(page: str="1") -> str:
     data['active_page_devices'] = 'offline'
     data['devices'] = device_pages['objects']
     data['pagination'] = utils.gen_pagination_urls('/devices/offline/', device_pages['info'])
+    data['enable_refresh'] = True
     return render_template('devices/roster.html', **data)
 
 
@@ -159,6 +163,7 @@ def roster_new(page: str="1") -> str:
     data['active_page_devices'] = 'new'
     data['devices'] = device_pages['objects']
     data['pagination'] = utils.gen_pagination_urls('/devices/new/', device_pages['info'])
+    data['enable_refresh'] = True
     return render_template('devices/roster.html', **data)
 
 

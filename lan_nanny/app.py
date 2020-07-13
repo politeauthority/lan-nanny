@@ -124,6 +124,7 @@ def index() -> str:
     data['online_donut'] = donut_devices_online
     data['active_page'] = 'dashboard'
     data['page_title'] = 'Dashboard'
+    data['enable_refresh'] = True
     return render_template('dashboard.html', **data)
 
 
