@@ -34,26 +34,25 @@
             </h6>
           </div>
           <div class="card-body">
+
             <!-- Host Scanning Enable -->
             <div class="form-group">
               <label for="setting_scan_hosts_enabled">Scan Hosts</label>
               <input id="setting_scan_hosts_enabled" type="checkbox" data-toggle="toggle" aria-describedby="scanHostsEnabledeHelp">
               <small id="scanHostsEnabledeHelp" class="form-text text-muted">Enable regular host scanning.</small>
-            </div>
+            </div> <!-- End Host Scanning Enabled -->
 
-            {%if g.options['beta-features'].value %}
-            <!-- Host Scan Tool -->
+            <!-- Host Scan Engine -->
             <div class="form-group">
-              <label for="setting_scan_hosts_tool">Host Scan Tool</label>
+              <label for="setting_scan_hosts_tool">Host Scan Engine</label>
               <select class="form-control" id="setting_scan_hosts_tool" name="setting_scan_hosts_tool" aria-describedby="setting_scan_hosts_tool_help">
-                <option value="{{settings['scan-hosts-tool'].value}}" selected="selected">{{settings['scan-hosts-tool'].value}}</option>
-                <option value="nmap">Nmap</option>
-                <option value="arp">Arp</option>
+                <option value="{{settings['scan-hosts-tool'].value}}" selected="selected">{{settings['scan-hosts-tool'].value|title}}</option>
+                {%for scan_engine in scan_engines%}
+                  <option value="{{scan_engine}}">{{scan_engine|title}}</option>
+                {%endfor%}
               </select>
               <small id="setting_scan_hosts_tool_help" class="form-text text-muted">Tool for detecting hosts on network.</small>
-            </div>
-            <!-- End Host Scan Tool -->
-            {%endif%}
+            </div><!-- End Host Scan Tool -->
 
             <div class="form-group">
               <label for="setting_scan_hosts_range">IP Scan Range</label>

@@ -193,4 +193,12 @@ def get_percent(whole: int, part: int, round_ret: int=0) -> int:
     return utils.get_percent(whole, part, round_ret)
 
 
+def title(the_title:str) -> str:
+    """Makes the first letter of a string capitalized. """
+    if not the_title:
+        return the_title
+    ret_title = the_title[0].upper() + the_title[1:]
+    return ret_title
+
+
 # End File: lan-nanny/lan_nanny/modules/filters.py

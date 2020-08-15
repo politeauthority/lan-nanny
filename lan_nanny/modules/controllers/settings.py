@@ -63,10 +63,14 @@ def save_general():
 @utils.authenticate
 def form_scanning() -> str:
     """Scanning settings form page."""
+    scan_engines = ['arp', 'nmap']
+    if g.options['scan-hosts-tool'].value in scan_engines:
+        scan_engines.remove(g.options['scan-hosts-tool'].value)
     data = {
         'active_page': 'settings',
         'active_page_sub': 'scan',
         'settings': g.options,
+        'scan_engines': scan_engines
     }
     return render_template('settings/form_scanning.html', **data)
 

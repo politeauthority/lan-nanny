@@ -30,10 +30,6 @@ class Device(BaseEntityMeta):
                 'type': 'datetime'
             },
             {
-                'name': 'mac',
-                'type': 'str',
-            },
-            {
                 'name': 'vendor',
                 'type': 'str'
             },
@@ -97,6 +93,7 @@ class Device(BaseEntityMeta):
             },
         ]
         self.ports = []
+        self.macs = {}
         self.metas = {}
 
         self.setup()
@@ -106,18 +103,14 @@ class Device(BaseEntityMeta):
         return "<Device: %s>" % self.name
 
     def get_by_mac(self, mac: str) -> bool:
-        """
-        Get a device from the devices table based on mac address.
-        @unit-tested
-
-        """
-        sql = """SELECT * FROM devices WHERE mac='%s'""" % mac
+        """Get a device from the devices table based on mac address."""
+        sql = """SELECT * FROM device_mac WHERE addr='%s'""" % mac
         self.cursor.execute(sql)
-        device_raw = self.cursor.fetchone()
+        device_mac_raw = self.cursor.fetchone()
         if not device_raw:
             return False
 
-        self.build_from_list(device_raw)
+        self.get_by_id(device_mac_raw[2])
 
         return True
 

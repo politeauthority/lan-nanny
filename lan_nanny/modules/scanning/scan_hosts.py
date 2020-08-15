@@ -13,6 +13,7 @@ from . import parse_nmap
 from . import parse_arp
 from ..models.scan_host import ScanHost
 from ..models.device import Device
+from ..models.device_mac import DeviceMac
 from ..models.device_witness import DeviceWitness
 
 
@@ -124,10 +125,8 @@ class ScanHosts:
         return True
 
     def handle_devices(self):
-        """
-           Handles devices found in NMap scan, creating records for new devices, updating last seen
+        """Handles devices found in NMap scan, creating records for new devices, updating last seen
            for already known devices and saving witness for all found devices.
-
         """
         if not self.hosts:
             logging.warning('\tNo hosts found or error encountered.')
