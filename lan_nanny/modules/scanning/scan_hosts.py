@@ -134,6 +134,7 @@ class ScanHosts:
         logging.info('\tFound %s devices:' % len(self.hosts))
         self.new_devices = []
 
+        # import ipdb; ipdb.set_trace()
         scan_time = arrow.utcnow().datetime
         count = 0
         for host in self.hosts:
@@ -157,6 +158,7 @@ class ScanHosts:
             device.name = self._set_device_name(device, host)
             device.last_seen = scan_time
             device.ip = host['ip']
+
             device.save()
             self.hosts[count]['device'] = device
             count += 1

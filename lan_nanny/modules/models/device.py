@@ -8,6 +8,8 @@ import arrow
 from flask import g
 
 from .base_entity_meta import BaseEntityMeta
+from .device_mac import DeviceMac
+from ..collections.device_macs import DeviceMacs
 from ..collections.device_ports import DevicePorts
 
 
@@ -93,7 +95,7 @@ class Device(BaseEntityMeta):
             },
         ]
         self.ports = []
-        self.macs = {}
+        self.macs = []
         self.metas = {}
 
         self.setup()
@@ -104,10 +106,10 @@ class Device(BaseEntityMeta):
 
     def get_by_mac(self, mac: str) -> bool:
         """Get a device from the devices table based on mac address."""
-        sql = """SELECT * FROM device_mac WHERE addr='%s'""" % mac
+        sql = """SELECT * FROM device_macs WHERE addr='%s'""" % mac
         self.cursor.execute(sql)
         device_mac_raw = self.cursor.fetchone()
-        if not device_raw:
+        if not device_mac_raw:
             return False
 
         self.get_by_id(device_mac_raw[2])
@@ -118,6 +120,14 @@ class Device(BaseEntityMeta):
         """Get device ports added to self.ports."""
         device_ports = DevicePorts(self.conn, self.cursor)
         self.ports = device_ports.get_by_device_id(self.id)
+        return True
+
+    def get_macs(self):
+        """Get device macs added to self.macs. """
+        device_macs = DeviceMacs(self.conn, self.cursor)
+        self.macs = device_macs.get_by_device_id(self.id)
+        if len(self.macs) == 1:
+            self.mac = self.macs[0]
         return True
 
     def get_alert_jitter(self):
@@ -168,8 +178,33 @@ class Device(BaseEntityMeta):
            possible.
         """
         super(Device, self).build_from_list(raw, meta=meta)
+        self.get_macs()
         if build_ports:
             self.get_ports()
+        return True
+
+    def insert(self):
+        """Insert a new record of the model.
+           @unit-tested
+        """
+        super(Device, self).insert()
+        if self.mac or self.macs:
+            if self.mac:
+                self._create_new_device_mac(self.mac)
+            elif self.macs:
+                for mac in self.macs:
+                    self._create_new_device_mac(mac)
+        return True
+
+    def _create_new_device_mac(self, mac: str) -> bool:
+        """Create a new device-mac pairing, with a given mac address. """
+        now = arrow.utcnow().datetime
+        device_mac = DeviceMac(self.conn, self.cursor)
+        device_mac.device_id = self.id
+        device_mac.addr = mac
+        device_mac.last_seen = now
+        device_mac.updated_ts = now
+        device_mac.save()
         return True
 
 # End File: lan-nanny/lan_nanny/modules/models/device.py

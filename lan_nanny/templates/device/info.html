@@ -33,10 +33,17 @@
                   <code>{{device.ip}}</code>
                 </td>
               </tr>
-              <tr>
-                <td><b>Mac</b></td>
-                <td><code>{{device.mac}}</code></td>
-              </tr>
+              {%if device.get_meta('multi_mac')%}
+                <tr>
+                  <td><b>Macs</b></td>
+                  <td><code>{{device.macs}}</code></td>
+                </tr>
+              {%else%}
+                <tr>
+                  <td><b>Mac</b></td>
+                  <td><code>{{device.macs[0].addr}}</code></td>
+                </tr>
+              {%endif%}
               <tr>
                 <td><b>Vendor</b></td>
                 <td>

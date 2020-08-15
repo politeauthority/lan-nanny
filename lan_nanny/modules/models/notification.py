@@ -23,7 +23,7 @@ class Notification(BaseEntityMeta):
             },
             {
                 'name': 'delivered',
-                'type': 'bool'
+                'type': 'bool',
                 'default': False,
             },
             {
