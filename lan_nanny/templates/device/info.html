@@ -103,14 +103,14 @@
                   {%endif%}
                 </td>
               </tr>
-              <tr>
-                <td><b>Notes</b></td>
-                <td>
-                  {% if 'notes' in device.metas%}
-                    {{device.metas['notes'].value}}
-                  {%endif%}
-                </td>
-              </tr>
+              {% if 'notes' in device.metas%}
+                <tr>
+                  <td><b>Notes</b></td>
+                  <td>
+                      {{device.metas['notes'].value}}
+                  </td>
+                </tr>
+              {%endif%}
             </table>
           </div>
         </div>
