@@ -8,7 +8,7 @@ from .port import Port
 class DeviceMac(Base):
 
     def __init__(self, conn=None, cursor=None):
-        super(DevicePort, self).__init__(conn, cursor)
+        super(DeviceMac, self).__init__(conn, cursor)
         self.conn = conn
         self.cursor = cursor
 

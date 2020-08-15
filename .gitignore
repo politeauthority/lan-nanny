@@ -11,5 +11,5 @@ dist
 .pytest_cache
 
 #Lan Nanny
-lan_nanny/config/*
+*lan_nanny/config/*
 

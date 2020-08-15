@@ -12,6 +12,7 @@ from importlib import import_module
 import logging
 import logging.config
 import subprocess
+import sys
 import os
 
 from werkzeug.security import generate_password_hash
@@ -74,8 +75,10 @@ class Scan:
                 self.hosts, self.new_devices, self.scan_hosts_log = scan_hosts
             else:
                 logging.error('Error scanning hosts, ending scan.')
+                exit(1)
         except:
             logging.error('Error running host scan.')
+            exit(1)
             return False
         return True
 
@@ -123,16 +126,17 @@ class Scan:
 
     def setup_logging(self) -> bool:
         """Create the logger."""
-        log_level = logging.INFO
+        log_level = logging.DEBUG
         if self.args.verbose:
             log_level = logging.DEBUG
         logging.basicConfig(
             format='%(asctime)s [%(levelname)s]\t%(message)s',
             datefmt='%m/%d/%Y %I:%M:%S %p',
-            level=log_level,
-            handlers=[logging.FileHandler(self.config.LAN_NANNY_SCAN_LOG),
-                  logging.StreamHandler()])
+            level=0,
+            handlers=[logging.StreamHandler()])
 
+        logging.getLogger().setLevel(logging.DEBUG)
+        logging.debug('Logging enabled - debug')
         return True
 
     def prompt_sudo(self):
