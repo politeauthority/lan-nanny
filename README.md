@@ -18,9 +18,19 @@ Then install a MySQL server
 docker run \
     --name lan-nanny-mysql \
     -e MYSQL_ROOT_PASSWORD=my_password \
+    -v /home/pi/data/mysql:/var/lib/mysql \
+    --network host \
+    --restart=always \
     -p 3306:3306 \
     -d \
     mysql:latest
+```
+After creating the MySQL container, create the Lan Nanny database and user.
+```
+mysql -h 127.0.0.1 -u root -p{password_you_chose}
+CREATE DATABASE IF NOT EXISTS lan_nanny;
+CREATE USER 'lan_nanny'@'%' IDENTIFIED BY '{password_for_lan_nanny}';
+GRANT ALL PRIVILEGES ON  lan_nanny. * TO 'lan_nanny'@'%';
 ```
 
 Then create the Lan Nanny container
