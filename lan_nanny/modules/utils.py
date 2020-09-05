@@ -42,6 +42,7 @@ def device_icons() -> dict:
         "fas fa-print": "Printer",
         "fas fa-question": "Question Mark",
         "fas fa-satellite": "Satellite",
+        "fas fa-shield-alt": "Security System",
         "fas fa-server": "Sever",
         "fas fa-plug": "Smart Plug",
         "fa fa-mobile": "Smart Phone",
