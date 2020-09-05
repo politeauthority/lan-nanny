@@ -60,8 +60,8 @@ def device_types() -> list:
     """Get a list of all device types."""
     device_types = [
         'Audio Device', 'Camera', 'Desktop', 'Game Console', 'Laptop', 'Light', 'Micro Controller',
-        'Printer', 'Server', 'Smart Plug', 'Smart Phone', 'Raspberry Pi', 'Tablet', 'Thermostat',
-        'Tv', 'Unknown', 'Wifi Access Point'
+        'Printer', 'Security System', 'Server', 'Smart Plug', 'Smart Phone', 'Raspberry Pi', 
+        'Tablet', 'Thermostat', 'Tv', 'Unknown', 'Wifi Access Point'
     ]
     return device_types
 
