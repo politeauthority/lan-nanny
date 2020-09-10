@@ -5,6 +5,7 @@
 *.DS_Store
 .flake8
 *.egg-info*
+*.sql
 __pycache__/
 build
 dist

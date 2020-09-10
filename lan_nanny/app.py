@@ -8,6 +8,7 @@ import sys
 from flask import Flask, render_template, request, redirect, session, g
 from werkzeug.security import check_password_hash
 
+from modules.controllers.api import api as ctrl_api
 from modules.controllers.alerts import alerts as ctrl_alerts
 from modules.controllers.devices import devices as ctrl_devices
 from modules.controllers.device import device as ctrl_device
@@ -130,6 +131,7 @@ def index() -> str:
 
 def register_blueprints(app: Flask):
     """Connect the blueprints to the router."""
+    app.register_blueprint(ctrl_api)
     app.register_blueprint(ctrl_devices)
     app.register_blueprint(ctrl_device)
     app.register_blueprint(ctrl_alerts)
