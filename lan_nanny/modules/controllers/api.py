@@ -24,7 +24,9 @@ accepted_collections = ['devices', 'ports']
 @api.route('/info/<entity_type>/<entity_id>')
 @utils.authenticate
 def info(entity_type: str, entity_id: int) -> str:
-    """Model info api route."""
+    """Model info api route.
+       Generic method, fully transferable to other projects.
+    """
     data = {}
     # Check if access is allowed
     if entity_type not in accepted_entities:
@@ -46,7 +48,9 @@ def info(entity_type: str, entity_id: int) -> str:
 @api.route('/collect/<entity_type>')
 @utils.authenticate
 def collect(entity_type: str) -> str:
-    """Collect model info api route."""
+    """Collect model info api route.
+       Generic method, fully transferable to other projects.
+    """
     data = {}
     # Check if access is allowed
     if entity_type not in accepted_collections:
@@ -116,7 +120,9 @@ def _get_collection_tmp(entity_type: str):
         logging.error('Unknown model: %s' % entity_type)
 
 def _get_args(request_data: dict) -> dict:
-    """Parse the request args into a dict. """
+    """Parse the request args into a dict.
+       Generic method, fully transferable to other projects.
+    """
     args = {}
     for key, value in request.args.items():
         if key == 'ids':
@@ -131,7 +137,9 @@ def _get_args(request_data: dict) -> dict:
 
 
 def _get_page_number(args: dict) -> int:
-    """Get a collection page number from the parsed request arguments. """
+    """Get a collection page number from the parsed request arguments.
+       Generic method, fully transferable to other projects.
+    """
     if 'page' in args:
         return args['page']
     else:
@@ -139,6 +147,9 @@ def _get_page_number(args: dict) -> int:
 
 
 def _get_order_by_field(entity_type, args) -> str:
+    """Get the SQL field to order by.
+       Required by other projects using this, but with less configuration most likely.
+    """
     if entity_type == 'devices':
         return 'last_seen'
     else:
