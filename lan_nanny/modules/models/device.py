@@ -196,6 +196,17 @@ class Device(BaseEntityMeta):
                     self._create_new_device_mac(mac)
         return True
 
+    def unpack(self):
+        """Unpack a serial model object into a flat dictionary of  the model's keys and values. Also
+           grabbing device macs.
+        """
+        unpack = super(Device, self).unpack()
+        self.get_macs()
+        unpack['macs'] = []
+        for mac in self.macs:
+            unpack['macs'].append(mac.addr)
+        return unpack
+
     def _create_new_device_mac(self, mac: str) -> bool:
         """Create a new device-mac pairing, with a given mac address. """
         now = arrow.utcnow().datetime

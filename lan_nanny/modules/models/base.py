@@ -300,6 +300,34 @@ class Base:
 
         return True
 
+    def unpack(self) -> dict:
+        """Unpack a serial model object into a flat dictionary of  the model's keys and values."""
+        unpack = {}
+
+        unpack['id'] = self.id
+        # Unpack regular fields.
+        for field in self.field_map:
+            class_field_var = getattr(self, field['name'])
+            if class_field_var:
+                # Handle DateTimes
+                if isinstance(class_field_var, datetime):
+                    unpack[field['name']] = class_field_var.strftime("%Y-%m-%d %H:%M:%S")
+                else:
+                    unpack[field['name']] = class_field_var
+
+            # Unpack false bools
+            elif class_field_var == 0 and field['type'] == 'bool':
+                unpack[field['name']] = False
+
+            # Unpack 0 ints
+            elif class_field_var == 0 and field['type'] == 'int':
+                unpack[field['name']] = 0
+
+            else:
+                unpack[field['name']] = None
+
+        return unpack
+
     def _create_total_map(self) -> bool:
         """Concatenate the base_map and models field_map together into self.total_map. """
         self.total_map = self.base_map + self.field_map

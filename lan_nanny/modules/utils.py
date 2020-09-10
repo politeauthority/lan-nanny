@@ -42,6 +42,7 @@ def device_icons() -> dict:
         "fas fa-print": "Printer",
         "fas fa-question": "Question Mark",
         "fas fa-satellite": "Satellite",
+        "fas fa-shield-alt": "Security System",
         "fas fa-server": "Sever",
         "fas fa-plug": "Smart Plug",
         "fa fa-mobile": "Smart Phone",
@@ -59,8 +60,8 @@ def device_types() -> list:
     """Get a list of all device types."""
     device_types = [
         'Audio Device', 'Camera', 'Desktop', 'Game Console', 'Laptop', 'Light', 'Micro Controller',
-        'Printer', 'Server', 'Smart Plug', 'Smart Phone', 'Raspberry Pi', 'Tablet', 'Thermostat',
-        'Tv', 'Unknown', 'Wifi Access Point'
+        'Printer', 'Security System', 'Server', 'Smart Plug', 'Smart Phone', 'Raspberry Pi', 
+        'Tablet', 'Thermostat', 'Tv', 'Unknown', 'Wifi Access Point'
     ]
     return device_types
 
@@ -91,12 +92,25 @@ def get_active_timeout_from_now(timeout: int) -> datetime:
 
 
 def gen_like_sql(field: str, phrase: str) -> str:
-    """Generate a SQLite like statement for a given field and phrase."""
+    """Generate a SQLite like statement for a given field and phrase.
+       @note: Generic method.
+    """
     return field + """ LIKE '%""" + phrase + """%' """
 
 
+def gen_sql_list(items: list) -> str:
+    """Generate a SQL friendly comma separted list from a list. """
+    sql = ""
+    for i in items:
+        sql += "%s," % i
+    sql = sql[:-1]
+    return sql
+
+
 def gen_where_in_sql(ids: list) -> str:
-    """Generate a where in sql safe parameter set from a list of ids."""
+    """Generate a where in SQL safe parameter set from a list of ids.
+       @note: Generic method.
+    """
     ids_sql = ""
     for the_id in ids:
         ids_sql += "%s," % the_id
