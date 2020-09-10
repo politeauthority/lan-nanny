@@ -68,6 +68,26 @@ class BaseEntityMeta(Base):
         self.conn.commit()
         return True
 
+    def unpack(self):
+        """Unpack a serial model object into a flat dictionary of  the model's keys and values. Also
+           grabbing device macs.
+        """
+        unpack = super(BaseEntityMeta, self).unpack()
+
+        # If model has metas, unpack them.
+        # @todo: move somewhere more appropriate.
+        # metas = getattr(self, 'metas')
+        # print("\n\n")
+        # print('metas')
+        # print(metas)
+        # print("\n\n")
+        # if isinstance(metas, dict):
+        #     unpack['metas'] = {}
+        #     for meta_key, the_meta in metas.values():
+        #         unpack['metas'][meta_key] = the_meta.value
+
+        return unpack
+
     def get_meta(self, meta_name: str):
         """Get a meta key from an entity if it exists, or return None. """
         if meta_name not in self.metas:
