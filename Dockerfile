@@ -1,4 +1,4 @@
-FROM debian:bullseye-slim
+FROM python:rc-alpine3.12
 
 VOLUME /app/
 WORKDIR /app/
@@ -14,16 +14,18 @@ ENV LAN_NANNY_LOG_DIR=/app/logs
 ENV LAN_NANNY_TMP_DIR=/tmp/lan_nanny
 ENV LAN_NANNY_GIT_BRANCH=0.0.1
 
-# Install apt requirements
-RUN apt-get update && \
-    apt-get install -y \
-        python3-dev \
-        libpython3-dev \
-        python3-pip \
-        python3-mysqldb \
-        git \
-        nmap \
-        arp-scan
+
+# Install apk requirements
+RUN apk update
+RUN apk add --virtual \
+    build-deps \
+    gcc \
+    python3-dev \
+    musl-dev \
+    mariadb-dev \
+    py3-pip \
+    bash \
+    git 
 
 # Install Lan Nanny
 RUN git clone https://github.com/politeauthority/lan-nanny.git /app && \
