@@ -30,10 +30,6 @@ class DevicePort(Base):
             {
                 'name': 'state',
                 'type': 'str'
-            },
-            {
-                'name': 'updated_ts',
-                'type': 'datetime'
             }
         ]
         self.port = None

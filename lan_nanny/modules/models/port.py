@@ -42,10 +42,6 @@ class Port(Base):
             {
                 'name': 'first_port_scan_id',
                 'type': 'int',
-            },
-            {
-                'name': 'updated_ts',
-                'type': 'datetime'
             }
         ]
         self.setup()

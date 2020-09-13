@@ -26,10 +26,6 @@ class DeviceMac(Base):
             {
                 'name': 'last_seen',
                 'type': 'datetime'
-            },
-            {
-                'name': 'updated_ts',
-                'type': 'datetime'
             }
         ]
         self.setup()
