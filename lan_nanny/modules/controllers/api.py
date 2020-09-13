@@ -137,6 +137,7 @@ def _get_args(request_data: dict) -> dict:
 
 
 def _get_page_number(args: dict) -> int:
+<<<<<<< HEAD
     """Get a collection page number from the parsed request arguments.
        Generic method, fully transferable to other projects.
     """

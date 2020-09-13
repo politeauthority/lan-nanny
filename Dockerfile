@@ -2,6 +2,7 @@ FROM python:rc-alpine3.12
 
 VOLUME /app/
 WORKDIR /app/
+ADD ./ /app
 ENV LAN_NANNY_CONFIG=docker
 ENV LAN_NANNY_DB_HOST=lan-nanny-mysql
 ENV LAN_NANNY_DB_PORT=3306
@@ -25,17 +26,14 @@ RUN apk add --virtual \
     mariadb-dev \
     py3-pip \
     bash \
-    git 
+    git
 
 # Install Lan Nanny
-RUN git clone https://github.com/politeauthority/lan-nanny.git /app && \
-    cd /app && \
-    git fetch origin && \
-    git checkout 0.0.1 && \
+RUN cd /app && \
     pip3 install -r /app/requirements.txt  && \
     python3 /app/setup.py build && \
     python3 /app/setup.py install && \
     mkdir -p /app/logs && \
     mkdir -p /tmp/lan_nanny
 
-CMD cd lan_nanny && gunicorn -b 0.0.0.0:5008 app:app
+CMD cd /app/lan_nanny && python3 app.py 5000

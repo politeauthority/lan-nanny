@@ -12,7 +12,7 @@ from .. import utils
 
 
 class Devices(BaseEntityMetas):
-    """ Collection class for gathering groups of devices."""
+    """Collection class for gathering groups of devices."""
 
     def __init__(self, conn=None, cursor=None):
         """Store Sqlite conn and model table_name as well as the model obj for the collections
@@ -23,10 +23,7 @@ class Devices(BaseEntityMetas):
         self.collect_model = Device
 
     def get_recent(self) -> list:
-        """
-           Get all devices in the database.
-           @unit-tested
-        """
+        """Get all devices in the database. """
         sql = """
             SELECT *
             FROM %s
@@ -80,9 +77,7 @@ class Devices(BaseEntityMetas):
         return devices
 
     def get_favorites(self):
-        """Get favorite devices in the database.
-           @unit-tested
-        """
+        """Get favorite devices in the database. """
         sql = """
             SELECT *
             FROM devices
@@ -95,10 +90,7 @@ class Devices(BaseEntityMetas):
         return devices
 
     def get_new_count(self) -> int:
-        """
-           Get new devices from the last 24 hours.
-           @unit-tested
-        """
+        """Get new devices from the last 24 hours. """
         new_since = arrow.utcnow().datetime - timedelta(hours=24)
         sql = """
             SELECT count(*)
@@ -111,10 +103,7 @@ class Devices(BaseEntityMetas):
         return raw_count[0]
 
     def get_new(self) -> int:
-        """
-           Get new devices from the last 24 hours.
-           @unit-tested
-        """
+        """Get new devices from the last 24 hours. """
         new_since = arrow.utcnow().datetime - timedelta(hours=24)
         sql = """
             SELECT *
@@ -143,10 +132,7 @@ class Devices(BaseEntityMetas):
         return devices
 
     def with_enabled_port_scanning(self) -> list:
-        """
-           Get devices with port_scanning enabled.
-           @unit-tested
-        """
+        """Get devices with port_scanning enabled. """
         sql = """
             SELECT *
             FROM devices
@@ -177,7 +163,6 @@ class Devices(BaseEntityMetas):
     def search(self, phrase: str) -> list:
         """Device search method, currently checks against device name, mac, ip and vendor."""
         name_sql = utils.gen_like_sql('name', phrase)
-        mac_sql = utils.gen_like_sql('mac', phrase)
         ip_sql = utils.gen_like_sql('ip', phrase)
         vendor_sql = utils.gen_like_sql('vendor', phrase)
         type_sql = utils.gen_like_sql('kind', phrase)
@@ -186,20 +171,53 @@ class Devices(BaseEntityMetas):
             FROM devices
             WHERE
                 %(name)s OR
-                %(mac)s OR
                 %(ip)s OR
                 %(vendor)s OR
                 %(type)s; """ % {
             'name': name_sql,
-            'mac': mac_sql,
             'ip': ip_sql,
             'vendor': vendor_sql,
             'type': type_sql}
 
         self.cursor.execute(sql)
         raw_devices = self.cursor.fetchall()
+        raw_devices_from_mac = self._search_macs(phrase)
+        raw_devices = raw_devices + raw_devices_from_mac
+
         devices = self.build_from_lists(raw_devices)
         return devices
+
+    def _search_macs(self, phrase) -> list:
+        """Search DeviceMacs for a matching mac address phrase from a search param, returning the
+           raw devices if there is such a match.
+        """
+        mac_sql = utils.gen_like_sql('addr', phrase)
+        sql = """
+            SELECT *
+            FROM device_macs
+            WHERE
+                %s
+            """ % (mac_sql)
+
+        self.cursor.execute(sql)
+        raw_device_macs = self.cursor.fetchall()
+
+        if not raw_device_macs:
+            return []
+
+        device_ids = []
+        for raw_device_mac in raw_device_macs:
+            device_ids.append(raw_device_mac[0])
+
+        sql = """
+            SELECT *
+            FROM devices
+            WHERE `id` IN(%s);
+        """ % utils.gen_sql_list(device_ids)
+        self.cursor.execute(sql)
+        raw_devices = self.cursor.fetchall()
+        return raw_devices
+
 
     def get_w_alerts(self, alerts: list) -> dict:
         """Get a collection of Devices from the list Alert objects supplied."""

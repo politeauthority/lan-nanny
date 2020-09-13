@@ -28,7 +28,10 @@ class ScanHosts(Base):
         raw_avg = self.cursor.fetchone()
         if not raw_avg:
             return None
-        avg = round(raw_avg[0], 2)
+        if raw_avg:
+            avg = round(raw_avg[0], 2)
+        else:
+            avg = 0
         return avg
 
 
