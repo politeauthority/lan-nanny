@@ -106,13 +106,16 @@ class Device(BaseEntityMeta):
 
     def get_by_mac(self, mac: str) -> bool:
         """Get a device from the devices table based on mac address."""
-        sql = """SELECT * FROM device_macs WHERE addr='%s'""" % mac
+        sql = """
+            SELECT *
+            FROM device_macs
+            WHERE addr='%s'; """ % mac
         self.cursor.execute(sql)
         device_mac_raw = self.cursor.fetchone()
         if not device_mac_raw:
             return False
 
-        self.get_by_id(device_mac_raw[2])
+        self.get_by_id(device_mac_raw[3])
 
         return True
 
