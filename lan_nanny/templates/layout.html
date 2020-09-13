@@ -9,7 +9,7 @@
   <meta name="description" content="">
   <meta name="author" content="politeauthority">
 
-  <title>Lan Nanny{%if page_title %} | {{page_title}}{%endif%}{%if g.options['system-name']%} | {{g.options['system-name'].value}}{%endif%}</title>
+  <title>Lan Nanny{%if page_title %} | {{page_title}}{%endif%}{%if g.options['system-name'].value%} | {{g.options['system-name'].value}}{%endif%}</title>
   <link rel="shortcut icon" href="/static/favicon.ico" />
 
   <!-- Custom fonts for this template-->
@@ -31,7 +31,7 @@
 </head>
 
 <body id="page-top">
-
+{{g.options['system-name']}}
   <!-- Page Wrapper -->
   <div id="wrapper">
 
