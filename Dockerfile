@@ -35,3 +35,5 @@ RUN cd /app && \
     python3 /app/setup.py install && \
     mkdir -p /app/logs && \
     mkdir -p /tmp/lan_nanny
+
+CMD cd /app/lan_nanny && python3 app.py 5000
