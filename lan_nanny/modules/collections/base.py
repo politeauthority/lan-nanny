@@ -187,7 +187,7 @@ class Base:
         raws = self.cursor.fetchall()
         pretties = []
         for raw in raws:
-            model = self.collect_model()
+            model = self.collect_model(self.conn, self.cursor)
             model.build_from_list(raw)
             pretties.append(model)
         return pretties

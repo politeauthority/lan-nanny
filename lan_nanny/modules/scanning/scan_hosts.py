@@ -21,6 +21,7 @@ class ScanHosts:
 
     def __init__(self, scan):
         self.args = scan.args
+        self.config = scan.config
         self.conn = scan.conn
         self.cursor = scan.cursor
         self.options = scan.options
@@ -144,6 +145,7 @@ class ScanHosts:
 
             device = Device(self.conn, self.cursor)
             device.get_by_mac(host['mac'])
+            device.scan_mac_addr = host['mac']
 
             # Create a new device
             new = False
@@ -161,8 +163,12 @@ class ScanHosts:
             device.last_seen = scan_time
             device.ip = host['ip']
 
+
             device.save()
             self._set_current_devices_mac_id(device, host['mac'])
+            device.scan_mac.last_seen = scan_time
+            device.scan_mac.save()
+
             self.hosts[count]['device'] = device
             count += 1
 
@@ -170,7 +176,7 @@ class ScanHosts:
             if new:
                 self.new_devices.append(device)
                 new_device_str = "\t- New Device"
-            logging.debug('\t\t%s - %s%s' % (device.name, device.ip, new_device_str))
+            logging.info('\t\t%s - %s%s' % (device.name, device.ip, new_device_str))
 
             self.save_witness(device, scan_time)
 
@@ -184,14 +190,25 @@ class ScanHosts:
         """
         for dmac in device.macs:
             if dmac.addr == mac_addr:
-                device.this_scan_device_mac_id = dmac.id
+                device.scan_mac = dmac
                 logging.debug('Device: %s found with Mac: %s - Device-Mac-ID: %s' % (
                     device,
                     mac_addr,
                     dmac.id))
                 return True
-        logging.error('Could not determine device %s device mac id from addr %s' % (device, mac_addr))
-        return False
+
+        # New devices will hit this block and need to find their device's mac address object to
+        # complete the scan
+        device_mac = DeviceMac(self.conn, self.cursor)
+        device_mac.get_by_field('addr', mac_addr)
+        device.scan_mac = device_mac
+
+        if not device_mac.id:
+            logging.error('Could not determine device %s device mac id from addr %s' % (
+                device,
+                mac_addr))
+            return False
+        return True
 
 
     def prune_hosts_wo_mac(self) -> list:
@@ -229,13 +246,13 @@ class ScanHosts:
             return device.vendor
 
         # if nothing else, use the mac as the device name
-        return device.mac
+        return device.scan_mac_addr
 
     def save_witness(self, device: Device, scan_time: datetime) -> bool:
         """Create a record in the `device_witness` table of the devices id and scan time."""
         witness = DeviceWitness(self.conn, self.cursor)
         witness.device_id = device.id
-        witness.device_mac_id = device.this_scan_device_mac_id
+        witness.device_mac_id = device.scan_mac.id
         witness.scan_id = self.scan_log.id
         witness.insert()
         return True

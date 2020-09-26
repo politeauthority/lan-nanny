@@ -186,8 +186,8 @@ class Device(BaseEntityMeta):
            @unit-tested
         """
         super(Device, self).insert()
-        if self.mac or self.macs:
-            if self.mac:
+        if self.scan_mac_addr or self.macs:
+            if self.scan_mac_addr:
                 self._create_new_device_mac(self.mac)
             elif self.macs:
                 for mac in self.macs:

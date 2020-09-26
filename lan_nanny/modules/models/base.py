@@ -1,4 +1,4 @@
-"""Base Model
+"""Base Model v. 0.0.1
 Parent class for all models to inherit, providing methods for creating tables, inserting, updating,
 selecting and deleting data.
 
@@ -141,7 +141,6 @@ class Base:
             SELECT *
             FROM %s
             WHERE id = %s""" % (self.table_name, self.id)
-        print(sql)
         self.cursor.execute(sql)
         raw = self.cursor.fetchone()
         if not raw:
@@ -149,6 +148,20 @@ class Base:
 
         self.build_from_list(raw)
 
+        return True
+
+    def get_by_field(self, field: str, phrase: str) -> bool:
+        """Get a single model object from db based on an arbitrary object field."""
+        sql = """
+            SELECT *
+            FROM %s
+            WHERE
+                `%s` = "%s"; """ % (self.table_name, field, phrase)
+        self.cursor.execute(sql)
+        raw = self.cursor.fetchone()
+        if not raw:
+            return False
+        self.build_from_list(raw)
         return True
 
     def get_last(self) -> bool:
@@ -209,8 +222,11 @@ class Base:
 
         return True
 
-    def get_fields_sql(self, skip_fields: list = ['id']) -> str:
-        """Get all class table column fields in a comma separated list for sql cmds. """
+    def get_fields_sql(self, skip_fields: list) -> str:
+        """Get all class table column fields in a comma separated list for sql cmds. Returns a value
+           like: `id`, `created_ts`, `update_ts`, `name`, `vendor`
+
+        """
         field_sql = ""
         for field in self.total_map:
             # Skip fields we don't want included in db writes
