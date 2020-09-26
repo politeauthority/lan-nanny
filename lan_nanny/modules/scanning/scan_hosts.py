@@ -144,6 +144,7 @@ class ScanHosts:
             device = Device(self.conn, self.cursor)
             device.get_by_mac(host['mac'])
             new = False
+            # Create a new device
             if not device.id:
                 new = True
                 device.first_seen = scan_time

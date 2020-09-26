@@ -126,8 +126,6 @@ class Device(BaseEntityMeta):
         """Get device macs added to self.macs. """
         device_macs = DeviceMacs(self.conn, self.cursor)
         self.macs = device_macs.get_by_device_id(self.id)
-        if len(self.macs) == 1:
-            self.mac = self.macs[0]
         return True
 
     def get_alert_jitter(self):

@@ -172,6 +172,12 @@ class Base:
            possible.
            :param raw: The raw data from the database to be converted to model data.
         """
+        if len(self.total_map) != len(raw):
+            logging.error('Model %s field map and total raw fields do NOT match.' % self)
+            logging.error('Field Map: %s' % str(self.total_map))
+            logging.error('Raw Record: %s' % str(raw))
+            return False
+
         count = 0
         for field in self.total_map:
             field_name = field['name']
