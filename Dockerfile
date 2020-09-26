@@ -14,6 +14,7 @@ ENV LAN_NANNY_APP_PORT=5000
 ENV LAN_NANNY_LOG_DIR=/app/logs
 ENV LAN_NANNY_TMP_DIR=/tmp/lan_nanny
 ENV LAN_NANNY_GIT_BRANCH=0.0.1
+EXPOSE 5000
 
 
 # Install apk requirements

@@ -37,6 +37,10 @@ class ScanPort(Base):
                 'type': 'int'
             },
             {
+                'name': 'device_mac_id',
+                'type': 'int'
+            },
+            {
                 'name': 'units',
                 'type': 'int',
                 'default': 0,

@@ -17,10 +17,7 @@ class Device(BaseEntityMeta):
     """Device object, representing a LanNanny registered device."""
 
     def __init__(self, conn=None, cursor=None):
-        """
-           Device init for a new device object, passing SQLite connection parameters.
-           @unit-tested
-        """
+        """Device init for a new device object, passing SQLite connection parameters. """
         super(Device, self).__init__(conn, cursor)
         self.conn = conn
         self.cursor = cursor
@@ -129,8 +126,6 @@ class Device(BaseEntityMeta):
         """Get device macs added to self.macs. """
         device_macs = DeviceMacs(self.conn, self.cursor)
         self.macs = device_macs.get_by_device_id(self.id)
-        if len(self.macs) == 1:
-            self.mac = self.macs[0]
         return True
 
     def get_alert_jitter(self):
@@ -191,8 +186,8 @@ class Device(BaseEntityMeta):
            @unit-tested
         """
         super(Device, self).insert()
-        if self.mac or self.macs:
-            if self.mac:
+        if self.scan_mac_addr or self.macs:
+            if self.scan_mac_addr:
                 self._create_new_device_mac(self.mac)
             elif self.macs:
                 for mac in self.macs:

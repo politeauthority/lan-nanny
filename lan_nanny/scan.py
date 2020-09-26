@@ -24,7 +24,6 @@ from modules.scanning.scan_ports import ScanPorts
 from modules.scanning.scan_hosts import ScanHosts
 from modules.scanning.scan_alerts import ScanAlerts
 # from modules.scanning.house_keeping import HouseKeeping
-# from config import logging_conf
 
 
 class Scan:
@@ -61,7 +60,7 @@ class Scan:
         self.hande_hosts()
         self.handle_ports()
         self.handle_alerts()
-        self.handle_house_keeping()
+        # self.handle_house_keeping()
 
     def handle_cli(self) -> bool:
         """Handle one off/simple CLI requests"""
@@ -69,17 +68,25 @@ class Scan:
 
     def hande_hosts(self) -> bool:
         """Launch host scanning operations."""
-        try:
-            scan_hosts = ScanHosts(self).run()
-            if scan_hosts:
-                self.hosts, self.new_devices, self.scan_hosts_log = scan_hosts
-            else:
-                logging.error('Error scanning hosts, ending scan.')
-                exit(1)
-        except:
-            logging.error('Error running host scan.')
+        scan_hosts = ScanHosts(self).run()
+        if scan_hosts:
+            self.hosts, self.new_devices, self.scan_hosts_log = scan_hosts
+        else:
+            logging.error('Error scanning hosts, ending scan.')
             exit(1)
-            return False
+
+        # try:
+        #     scan_hosts = ScanHosts(self).run()
+        #     if scan_hosts:
+        #         self.hosts, self.new_devices, self.scan_hosts_log = scan_hosts
+        #     else:
+        #         logging.error('Error scanning hosts, ending scan.')
+        #         exit(1)
+        # except:
+        #     logging.error('Error running host scan.')
+        #     exit(1)
+        #     return False
+
         return True
 
     def handle_ports(self):

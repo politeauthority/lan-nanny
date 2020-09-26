@@ -185,12 +185,16 @@ def export_all():
     conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     devices = DevicesCollect(conn, cursor).get_all()
     header = [
-        'id', 'name', 'mac', 'ip', 'vendor', 'device type', 'last seen', 'favorite',
+        'id', 'name', 'macs', 'ip', 'vendor', 'device type', 'last seen', 'favorite',
         'last port scan']
     devices_csv = []
     for device in devices:
+        device_macs = ""
+        for mac in device.macs:
+            device_macs += "%s : " % mac.addr
+        device_macs = device_macs[:-3]
         device_row = [
-            device.id, device.name, device.mac, device.ip, device.vendor, device.kind,
+            device.id, device.name, device_macs, device.ip, device.vendor, device.kind,
             device.last_seen, device.favorite]
         devices_csv.append(device_row)
 

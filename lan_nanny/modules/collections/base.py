@@ -37,8 +37,7 @@ class Base:
         return prestines
 
     def get_by_ids_keyed(self, model_ids: list, key_field: str = "id") -> dict:
-        """
-           Get models instances by their ids from the database, returned as a dict, keyed off of
+        """Get models instances by their ids from the database, returned as a dict, keyed off of
            the model id or any model attribute supplied by `key_field`.
         """
         prestines = self.get_by_ids(model_ids)
@@ -176,8 +175,7 @@ class Base:
         return raw_scans_count[0]
 
     def get_all(self) -> list:
-        """
-           Get all of a models instances from the database.
+        """Get all of a models instances from the database.
            @note: This should NOT be used unless a model has a VERY limited set of results or all
                   models are absolutely required for a task.
         """
@@ -189,7 +187,7 @@ class Base:
         raws = self.cursor.fetchall()
         pretties = []
         for raw in raws:
-            model = self.collect_model()
+            model = self.collect_model(self.conn, self.cursor)
             model.build_from_list(raw)
             pretties.append(model)
         return pretties

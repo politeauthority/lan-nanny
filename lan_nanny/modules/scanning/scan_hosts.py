@@ -21,6 +21,7 @@ class ScanHosts:
 
     def __init__(self, scan):
         self.args = scan.args
+        self.config = scan.config
         self.conn = scan.conn
         self.cursor = scan.cursor
         self.options = scan.options
@@ -125,8 +126,9 @@ class ScanHosts:
         return True
 
     def handle_devices(self):
-        """Handles devices found in NMap scan, creating records for new devices, updating last seen
-           for already known devices and saving witness for all found devices.
+        """Handles devices found in the just completed host scan, creating records for new devices, 
+           updating last seen for already known devices and saving witness for all found devices.
+
         """
         if not self.hosts:
             logging.warning('\tNo hosts found or error encountered.')
@@ -134,7 +136,6 @@ class ScanHosts:
         logging.info('\tFound %s devices:' % len(self.hosts))
         self.new_devices = []
 
-        # import ipdb; ipdb.set_trace()
         scan_time = arrow.utcnow().datetime
         count = 0
         for host in self.hosts:
@@ -144,6 +145,9 @@ class ScanHosts:
 
             device = Device(self.conn, self.cursor)
             device.get_by_mac(host['mac'])
+            device.scan_mac_addr = host['mac']
+
+            # Create a new device
             new = False
             if not device.id:
                 new = True
@@ -159,7 +163,12 @@ class ScanHosts:
             device.last_seen = scan_time
             device.ip = host['ip']
 
+
             device.save()
+            self._set_current_devices_mac_id(device, host['mac'])
+            device.scan_mac.last_seen = scan_time
+            device.scan_mac.save()
+
             self.hosts[count]['device'] = device
             count += 1
 
@@ -167,15 +176,43 @@ class ScanHosts:
             if new:
                 self.new_devices.append(device)
                 new_device_str = "\t- New Device"
-            logging.debug('\t\t%s - %s%s' % (device.name, device.ip, new_device_str))
+            logging.info('\t\t%s - %s%s' % (device.name, device.ip, new_device_str))
 
             self.save_witness(device, scan_time)
 
         self.hosts = self.prune_hosts_wo_mac()
 
-    def prune_hosts_wo_mac(self) -> list:
+    def _set_current_devices_mac_id(self, device: Device, mac_addr:str) -> bool:
+        """Determine which device mac id was found in the most recent scan, and set a temporary var 
+           `this_scan_device_mac_id` on the device so we can properly log the mac address associated
+           to the device from this scan.
+
         """
-           The device running the scan is not able to find its own mac, we need to filter that out,
+        for dmac in device.macs:
+            if dmac.addr == mac_addr:
+                device.scan_mac = dmac
+                logging.debug('Device: %s found with Mac: %s - Device-Mac-ID: %s' % (
+                    device,
+                    mac_addr,
+                    dmac.id))
+                return True
+
+        # New devices will hit this block and need to find their device's mac address object to
+        # complete the scan
+        device_mac = DeviceMac(self.conn, self.cursor)
+        device_mac.get_by_field('addr', mac_addr)
+        device.scan_mac = device_mac
+
+        if not device_mac.id:
+            logging.error('Could not determine device %s device mac id from addr %s' % (
+                device,
+                mac_addr))
+            return False
+        return True
+
+
+    def prune_hosts_wo_mac(self) -> list:
+        """The device running the scan is not able to find its own mac, we need to filter that out,
            and potentially any other device without a mac, though I think only localhost will have 
            this issue.
 
@@ -188,12 +225,11 @@ class ScanHosts:
         return pruned_hosts
 
     def _set_device_name(self, device: Device, host: dict):
-        """
-           Set the device name to the host name if available, then the vendor if nothing else is
+        """Set the device name to the host name if available, then the vendor if nothing else is
            available it sets the device name to the mac address.
 
         """
-        # if we dont have a device name and we have a hostname, use the hostname
+        # if we don't have a device name and we have a hostname, use the hostname
         if not device.name and 'hostname' in host and host['hostname']:
             return host['hostname']
 
@@ -210,12 +246,13 @@ class ScanHosts:
             return device.vendor
 
         # if nothing else, use the mac as the device name
-        return device.mac
+        return device.scan_mac_addr
 
     def save_witness(self, device: Device, scan_time: datetime) -> bool:
-        """Creates a record in the `device_witness` table of the devices id and scan time."""
+        """Create a record in the `device_witness` table of the devices id and scan time."""
         witness = DeviceWitness(self.conn, self.cursor)
         witness.device_id = device.id
+        witness.device_mac_id = device.scan_mac.id
         witness.scan_id = self.scan_log.id
         witness.insert()
         return True

@@ -20,6 +20,10 @@ class DevicePort(Base):
                 'type': 'int'
             },
             {
+                'name': 'device_mac_id',
+                'type': 'int'
+            },
+            {
                 'name': 'port_id',
                 'type': 'int'
             },
