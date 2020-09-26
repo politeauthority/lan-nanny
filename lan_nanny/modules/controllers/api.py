@@ -11,13 +11,14 @@ from .. import db
 from .. import utils
 from .. import models
 from ..models.device import Device
+from ..models.device_mac import DeviceMac
 from ..collections.devices import Devices
 from ..models.port import Port
 from ..collections.ports import Ports
 
 
 api = Blueprint('Api', __name__, url_prefix='/api')
-accepted_entities = ['device', 'port']
+accepted_entities = ['device', 'device_mac', 'port']
 accepted_collections = ['devices', 'ports']
 
 
@@ -99,6 +100,8 @@ def _get_model_tmp(entity_type: str):
     conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     if entity_type == 'device':
         return Device(conn, cursor)
+    elif entity_type == 'device_mac':
+        return DeviceMac(conn, cursor)
     elif entity_type == 'port':
         return Port(conn, cursor)
     else:

@@ -15,10 +15,7 @@ from . import utils
 
 
 def time_ago(seen_at: datetime) -> str:
-    """
-    Gets a human readable 'time ago' date format.
-
-    """
+    """Gets a human readable 'time ago' date format. """
     if not seen_at:
         return ''
     parsed = arrow.get(seen_at)
@@ -26,10 +23,7 @@ def time_ago(seen_at: datetime) -> str:
 
 
 def pretty_time(first_at: datetime) -> str:
-    """
-    Gets a human readable 'time ago' date format, Mon Dec 30th 4:03:11 pm
-
-    """
+    """Gets a human readable 'time ago' date format, Mon Dec 30th 4:03:11 pm. """
     if not first_at:
         return ''
     parsed = arrow.get(first_at)
@@ -38,9 +32,8 @@ def pretty_time(first_at: datetime) -> str:
 
 
 def smart_time(date_val: datetime, format_switch_range_seconds: int = None) -> str:
-    """
-    Gets a human readable 'time ago' date format if the time is within x period, otherwise returns
-    the pretty_time.
+    """Gets a human readable 'time ago' date format if the time is within x period, otherwise
+       returns the pretty_time.
 
     """
     if not date_val:
@@ -58,9 +51,8 @@ def smart_time(date_val: datetime, format_switch_range_seconds: int = None) -> s
 
 
 def pretty_time_adaptive(date_val: datetime) -> str:
-    """
-    Create a switchable time display, starting with time ago value, which can be clicked to show
-    a more standard date value via javascript.
+    """Create a switchable time display, starting with time ago value, which can be clicked to show
+       a more standard date value via javascript.
 
     """
     if not date_val:
@@ -78,7 +70,7 @@ def pretty_time_adaptive(date_val: datetime) -> str:
 
 
 def time_switch(the_time) -> str:
-    """Draw a datetime var in "time ago" with a hidden span containing the pretty time."""
+    """Draw a datetime var in "time ago" with a hidden span containing the pretty time. """
     if not the_time:
         return ''
     the_arrow = arrow.get(the_time)
@@ -91,10 +83,7 @@ def time_switch(the_time) -> str:
     return Markup(html)
 
 def online(seen_at: datetime) -> bool:
-    """
-    Checks to see if the device's last_seen attribute has checked in within x minutes.
-
-    """
+    """Checks to see if the device's last_seen attribute has checked in within x minutes. """
     if not seen_at:
         return False
     now = arrow.utcnow().datetime
@@ -107,10 +96,7 @@ def online(seen_at: datetime) -> bool:
 
 
 def connected_devices(devices: list) -> int:
-    """
-    Takes a list of devices and determines the number of currently connected devices.
-
-    """
+    """Takes a list of devices and determines the number of currently connected devices. """
     num_online = 0
     for d in devices:
         if online(d.last_seen):

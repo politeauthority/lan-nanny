@@ -134,7 +134,6 @@ class ScanHosts:
         logging.info('\tFound %s devices:' % len(self.hosts))
         self.new_devices = []
 
-        # import ipdb; ipdb.set_trace()
         scan_time = arrow.utcnow().datetime
         count = 0
         for host in self.hosts:
@@ -174,8 +173,7 @@ class ScanHosts:
         self.hosts = self.prune_hosts_wo_mac()
 
     def prune_hosts_wo_mac(self) -> list:
-        """
-           The device running the scan is not able to find its own mac, we need to filter that out,
+        """The device running the scan is not able to find its own mac, we need to filter that out,
            and potentially any other device without a mac, though I think only localhost will have 
            this issue.
 
@@ -188,12 +186,11 @@ class ScanHosts:
         return pruned_hosts
 
     def _set_device_name(self, device: Device, host: dict):
-        """
-           Set the device name to the host name if available, then the vendor if nothing else is
+        """Set the device name to the host name if available, then the vendor if nothing else is
            available it sets the device name to the mac address.
 
         """
-        # if we dont have a device name and we have a hostname, use the hostname
+        # if we don't have a device name and we have a hostname, use the hostname
         if not device.name and 'hostname' in host and host['hostname']:
             return host['hostname']
 
@@ -213,7 +210,7 @@ class ScanHosts:
         return device.mac
 
     def save_witness(self, device: Device, scan_time: datetime) -> bool:
-        """Creates a record in the `device_witness` table of the devices id and scan time."""
+        """Create a record in the `device_witness` table of the devices id and scan time."""
         witness = DeviceWitness(self.conn, self.cursor)
         witness.device_id = device.id
         witness.scan_id = self.scan_log.id

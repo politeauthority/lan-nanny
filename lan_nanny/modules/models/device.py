@@ -17,10 +17,7 @@ class Device(BaseEntityMeta):
     """Device object, representing a LanNanny registered device."""
 
     def __init__(self, conn=None, cursor=None):
-        """
-           Device init for a new device object, passing SQLite connection parameters.
-           @unit-tested
-        """
+        """Device init for a new device object, passing SQLite connection parameters. """
         super(Device, self).__init__(conn, cursor)
         self.conn = conn
         self.cursor = cursor
