@@ -91,8 +91,6 @@ class Base:
             self.table_name,
             self.get_fields_sql(skip_fields=['id']),
             self.get_parmaterized_num())
-        print(insert_sql)
-        print(self.get_values_sql(skip_fields=['id']))
         self.cursor.execute(insert_sql, self.get_values_sql(skip_fields=['id']))
 
         self.conn.commit()
@@ -143,6 +141,7 @@ class Base:
             SELECT *
             FROM %s
             WHERE id = %s""" % (self.table_name, self.id)
+        print(sql)
         self.cursor.execute(sql)
         raw = self.cursor.fetchone()
         if not raw:
@@ -173,7 +172,10 @@ class Base:
            :param raw: The raw data from the database to be converted to model data.
         """
         if len(self.total_map) != len(raw):
-            logging.error('Model %s field map and total raw fields do NOT match.' % self)
+            logging.error('Model %s field map (%s) and total raw fields (%s) do NOT match.' % (
+                self,
+                len(self.total_map),
+                len(raw)))
             logging.error('Field Map: %s' % str(self.total_map))
             logging.error('Raw Record: %s' % str(raw))
             return False
