@@ -120,13 +120,13 @@ class ScanAlerts:
             logging.info("\tCreated new device alert for %s" % new_device)
 
     def _validate_run_new_device_alert(self) -> bool:
-        """
-        Run checks to see if the new device alert should run.
-        This alert should only run if all are True
-            - The `alerts-new-device` setting is set True
-            - Hosts were found in the last scan
-            - New devices were found in the last scan
-            - The Lan Nanny install is more than 1 hour old
+        """Run checks to see if the new device alert should run.
+           This alert should only run if all are True
+             - The `alerts-new-device` setting is set True
+             - Hosts were found in the last scan
+             - New devices were found in the last scan
+             - The Lan Nanny install is more than 1 hour old
+
         """
         if not self.options['alerts-new-device'].value:
             logging.info("\tNot running new device alert, because of alerts-new-device setting.")
@@ -141,7 +141,8 @@ class ScanAlerts:
         # Don't run new device alerts if system is only 1 hour old.
         first_growth = DatabaseGrowth(self.conn, self.cursor)
         first_growth.get_by_id(1)
-        if first_growth.created_ts > arrow.utcnow().datetime - timedelta(hours=1):
+        if (not first_growth or
+            first_growth.created_ts > arrow.utcnow().datetime - timedelta(hours=1)):
             logging.info('\tNot running new device alert, system is too new.')
             return True
 
