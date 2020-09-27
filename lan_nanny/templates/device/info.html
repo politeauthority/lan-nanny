@@ -33,16 +33,22 @@
                   <code>{{device.ip}}</code>
                 </td>
               </tr>
-              {%if device.get_meta('multi_mac')%}
-                <tr>
-                  <td><b>Macs</b></td>
-                  <td><code>{{device.macs}}</code></td>
-                </tr>
-              {%else%}
+              {%if device.macs|length == 1 %}
                 <tr>
                   <td><b>Mac</b></td>
                   <td><code>{{device.macs[0].mac_addr}}</code></td>
                 </tr>
+              {%else%}
+                {%for mac in device.macs%}
+                <tr>
+                  <td>
+                    {% if loop.index == 1 %}
+                      <b>Macs</b>
+                    {% endif %}
+                  </td>
+                  <td><code>{{mac.mac_addr}}</code></td>
+                </tr>
+                {%endfor%}
               {%endif%}
               <tr>
                 <td><b>Vendor</b></td>
@@ -159,6 +165,45 @@
         </div>
       </div>
     </div><!-- End Device Ports-->
+
+
+    <!-- Device Macs -->
+    {%if device.macs|length > 1 %}  
+      <div class="col-xl-6 col-lg-6">
+        <div class="card shadow mb-4">
+          <!-- Card Header -->
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">
+              <a href="/device/info/ports/{{device.id}}">Macs</a>
+            </h6>
+          </div>
+          <!-- Card Body -->
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <td></td>
+                    <td>Mac</td>
+                    <td>IP</td>
+                    <td>Last Seen</td>
+                  </tr>
+                </thead>
+                {%for mac in device.macs%}
+                <tr>
+                  <td></td>
+                  <td><code>{{mac.mac_addr}}</code></td>
+                  <td><code>{{mac.ip_addr}}</code></td>
+                  <td>{{mac.last_seen|time_switch}}</td>
+                </tr>
+                {%endfor%}
+              </table>
+
+            </div>
+          </div>
+        </div>
+      </div><!-- End Device Macs-->
+    {%endif%}
   
     {%if g.options['beta-features'].value %}
       <!-- Device Stats -->

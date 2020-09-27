@@ -2,6 +2,7 @@
 
 """
 from datetime import timedelta
+import logging
 
 import arrow
 
@@ -186,9 +187,13 @@ class Device(BaseEntityMeta):
            @unit-tested
         """
         super(Device, self).insert()
-        if self.scan_mac_info:
-            if self.scan_mac_info:
-                self._create_new_device_mac(self.scan_mac_info)
+        try:
+            getattr(self, 'scan_mac_info')
+            self._create_new_device_mac(self.scan_mac_info)
+        except AttributeError:
+            logging.debug('Device is not coming from scan.')
+            logging.debug('Device is not coming from scan.')
+            logging.debug('Device is not coming from scan.')
 
         return True
 

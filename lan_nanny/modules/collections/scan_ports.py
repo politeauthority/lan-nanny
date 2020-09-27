@@ -28,6 +28,23 @@ class ScanPorts(Base):
         presetines = self.build_from_lists(raws)
         return presetines
 
+    def update_device_mac_pair(self, new_device_id: int, device_mac_id: int) -> bool:
+        """Update scan ports records when a mac address is changed to be associated to a
+           different device. 
+
+        """
+        sql = """
+            UPDATE `%s`
+            SET `device_id` = %s
+            WHERE `device_mac_id` = %s;
+        """ % (self.table_name, new_device_id, device_mac_id)
+        print("\n")
+        print("Update Scan Ports")
+        print(sql)
+        print("\n")
+        self.cursor.execute(sql)
+        return True
+
     def delete_device(self, device_id: int) -> bool:
         """Delete all device port records for a device_id."""
         sql = """DELETE FROM %s WHERE device_id=%s""" % (self.table_name, device_id)

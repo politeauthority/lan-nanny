@@ -72,6 +72,23 @@ class DeviceWitnesses(Base):
             witnesses.append(witness)
         return witnesses
 
+    def update_device_mac_pair(self, new_device_id: int, device_mac_id: int) -> bool:
+        """Update device witness records when a mac address is changed to be associated to a
+           different device. 
+
+        """
+        sql = """
+            UPDATE `%s`
+            SET device_id = %s
+            WHERE device_mac_id = %s;
+        """ % (self.table_name, new_device_id, device_mac_id)
+        print("\n")
+        print("Update Device Witness")
+        print(sql)
+        print("\n")
+        self.cursor.execute(sql)
+        return True
+
     def prune(self, days: int) -> bool:
         """Method to remove data older than x days from database."""
         days_back = arrow.utcnow().datetime - timedelta(days=days)

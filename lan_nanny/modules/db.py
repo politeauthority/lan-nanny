@@ -30,7 +30,8 @@ def connect_mysql(server: dict):
             host=server['host'],
             user=server['user'],
             password=server['pass'],
-            database=server['name'])
+            database=server['name'],
+            autocommit=True)
         if connection.is_connected():
             db_info = connection.get_server_info()
             logging.debug(db_info)

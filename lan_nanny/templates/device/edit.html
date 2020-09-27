@@ -20,28 +20,51 @@
         {%endif%}
 
         <div class="form-group">
-          <label for="device_name">Device Name</label>
+          <label for="device_name"><h5>Device Name</h5></label>
           <input type="text" class="form-control form-control-lg" id="device_name" name="device_name" value="{%if device.name%}{{device.name}}{%endif%}" aria-describedby="nameHelp">
           <small id="nameHelp" class="form-text text-muted">Custom name for the device.</small>
         </div>
         
         {%if form == 'new' %}
           <div class="form-group">
-            <label for="device_mac">Mac</label>
+            <label for="device_mac"><h5>Mac</h5></label>
             <input type="text" class="form-control" id="device_mac" name="device_mac" aria-describedby="macHelp">
             <small id="macHelp" class="form-text text-muted">MAC address for the new device. (this is required for a new device)</small>
           </div>
         {%endif%}
 
         <div class="form-group">
-          <label for="device_vendor">Vendor</label>
+          <label for="device_vendor"><h5>Vendor</h5></label>
           <input type="text" class="form-control" id="device_vendor" name="device_vendor" value="{%if device.vendor%}{{device.vendor}}{%endif%}" aria-describedby="vendorHelp">
           <small id="vendorHelp" class="form-text text-muted">Vendor of the device (optional).</small>
         </div>
 
-        <!-- Device kind select form -->
+        <!-- Device mac form -->
+        {%if form == 'edit' %}
+          {%if g.options['beta-features'].value %}
+          <div  class="form-group">
+            <table class="table table-striped">
+            <h5>Macs</h5>
+            {%if device.macs|length > 1 %}
+              {%for device_mac in device.macs%}
+                <tr>
+                  <td>{{device_mac.mac_addr}}</td>
+                  <td>{{device_mac.ip_addr}}</td>
+                  <td><a class="delete_mac" data-device-mac-id="{{device_mac.id}}" data-toggle="modal" data-target="#deleteMacModal"><i class="fas fa-trash-alt"></i></a></td>
+                </tr>
+              {%endfor%}
+            {%endif%}
+            </table>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addMacModal">
+              Add Mac
+            </button>
+          </div>
+          {%endif%}
+        {%endif%}
+
+        <!-- Device type select form -->
         <div  class="form-group">
-          <label for="device_type_select">Type</label>
+          <label for="device_type_select"><h5>Type</h5></label>
           <select class="form-control" id="device_type_select" name="device_type_select"  aria-describedby="typeSelectHelp">
             <option value="none">None</option>
             {% for device_type in device_types%}
@@ -55,7 +78,7 @@
 
         <!-- Device icon select form -->
         <div class="form-group {%if custom_icon%}hidden{%endif%}">
-          <label for="device_icon_select">Icon</label>
+          <label for="device_icon_select"><h5>Icon</h5></label>
           <select class="form-control" id="device_icon_select" name="device_icon_select"  aria-describedby="iconSelectHelp">
             <option value="none">None</option>
             {% for icon_css, icon_name in icons.items()%}
@@ -86,7 +109,7 @@
         {%endif%}
 
         <div class="form-group">
-          <label for="device_notes">Notes</label>
+          <label for="device_notes"><h5>Notes</h5></label>
           <textarea class="form-control" name="device_notes" rows="3">{%if 'notes' in device.metas%}{{device.metas['notes'].value}}{%endif%}</textarea>
           <small id="device_notes_help" class="form-text text-muted">Notes about the device.</small>
           <br>
@@ -106,7 +129,7 @@
 {%endblock%}
 
 {%block modal%}
-  <!-- Delete Device Modal -->
+  <!-- Delete device modal -->
   <div class="modal fade" id="deleteDeviceModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
@@ -126,6 +149,74 @@
       </div>
     </div>
   </div>
+  <!-- End delete device modal -->
+
+
+  <!-- Add mac modal -->
+  <form action="/device/add-mac" method="POST">
+    <div class="modal fade" id="addMacModal" tabindex="-1" role="dialog" aria-labelledby="addMacLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addMacLabel">Add Mac Address to Device</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            Add an already resisted mac address to this device.<br>
+            <b>Note:</b> This will strip all attributes of the device you select, and combine it with the current device <b>{{device.name}}</b>
+            <br>
+            <!-- Add mac address select form -->
+            <div  class="form-group">
+              <input type="hidden" name="device_id" value="{{device.id}}">
+              <select class="form-control" name="device_add_mac_select"  aria-describedby="addMacSelectHelp">
+                <option value="0"></option>
+                {% for mac in all_macs%}
+                  <option value="{{mac['id']}}">
+                    {{mac['mac_addr']}}{%if mac['mac_addr'] != mac['device_name'] %} | {{mac['device_name']}}{%endif%}
+                  </option>
+                {%endfor%}
+              </select>
+              <small id="addMacSelectHelp" class="form-text text-muted">Choose a mac address to attatch to this device. This action <i>can</i> be undone.</small>
+              <br>
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button class="btn btn-success" type="submit">Add</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+  <!-- End add mac modal -->
+
+  <!-- Delete mac modal -->
+  <div class="modal fade" id="deleteMacModal" tabindex="-1" role="dialog" aria-labelledby="deleteMacLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addMacLabel">Delete Mac Address:</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          Add an already resisted mac address to this device.<br>
+          <b>Note:</b> This will strip all attributes of the device you select, and combine it with the current device <b>{{device.name}}</b>
+          <br>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <a id="delete_mac_trigger" href="" type="button" class="btn btn-danger">Delete</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End delete mac modal -->
+
 {%endblock%}
 
 {%block javascript%}
@@ -158,7 +249,7 @@
       });
 
       // Send ajax request to fav/ unfavorite device
-      $( "#device-icon-custom-btn" ).click(function(event){
+      $("#device-icon-custom-btn" ).click(function(event){
         event.preventDefault();
         $( "#device_icon_select" ).addClass("hidden");
         $( "#device_icon_custom" ).removeClass("hidden");
@@ -166,12 +257,19 @@
       });
 
       // Send ajax request to fav/ unfavorite device
-      $( "#device-icon-select-btn" ).click(function(event){
+      $("#device-icon-select-btn" ).click(function(event){
         event.preventDefault();
         $( "#device_icon_custom" ).addClass("hidden");
         $( "#device_icon_select" ).removeClass("hidden");
         $( "#icon_form_choice").val("device_icon_select");
       });
+
+      // When a mac delete button is clicked, set the correct url to delete that particular mac
+      $(".delete_mac").click(function(event){
+        var device_mac_id = $(this).attr("data-device-mac-id");
+        var delete_mac_url = "/device/delete-mac/" + device_mac_id;
+        $("#delete_mac_trigger").attr("href", delete_mac_url)
+      })
 
     });
   </script>

@@ -1,4 +1,3 @@
-.git*
 .pytest_cache*
 Lan_Nanny.egg-info*
 *.db-journal
