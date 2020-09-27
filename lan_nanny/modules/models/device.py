@@ -189,6 +189,7 @@ class Device(BaseEntityMeta):
         if self.scan_mac_info:
             if self.scan_mac_info:
                 self._create_new_device_mac(self.scan_mac_info)
+
         return True
 
     def unpack(self):

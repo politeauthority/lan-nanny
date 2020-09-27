@@ -32,6 +32,10 @@ class DeviceMac(Base):
                 'type': 'str'
             },
             {
+                'name': 'type',
+                'type': 'str'
+            },
+            {
                 'name': 'last_seen',
                 'type': 'datetime'
             }
