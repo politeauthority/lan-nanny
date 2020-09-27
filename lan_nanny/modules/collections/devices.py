@@ -28,7 +28,7 @@ class Devices(BaseEntityMetas):
             SELECT *
             FROM %s
             ORDER BY last_seen DESC
-            LIMIT 10;""" % self.table_name
+            LIMIT 20;""" % self.table_name
         self.cursor.execute(sql)
         raw_devices = self.cursor.fetchall()
         devices = self.build_from_lists(raw_devices)
@@ -181,23 +181,25 @@ class Devices(BaseEntityMetas):
 
         self.cursor.execute(sql)
         raw_devices = self.cursor.fetchall()
-        raw_devices_from_mac = self._search_macs(phrase)
+        raw_devices_from_mac = self._search_device_macs(phrase)
         raw_devices = raw_devices + raw_devices_from_mac
 
         devices = self.build_from_lists(raw_devices)
         return devices
 
-    def _search_macs(self, phrase) -> list:
+    def _search_device_macs(self, phrase) -> list:
         """Search DeviceMacs for a matching mac address phrase from a search param, returning the
            raw devices if there is such a match.
         """
-        mac_sql = utils.gen_like_sql('addr', phrase)
+        mac_sql = utils.gen_like_sql('mac_addr', phrase)
+        ip_sql = utils.gen_like_sql('ip_addr', phrase)
         sql = """
             SELECT *
             FROM device_macs
             WHERE
+                %s OR
                 %s
-            """ % (mac_sql)
+            """ % (mac_sql, ip_sql)
 
         self.cursor.execute(sql)
         raw_device_macs = self.cursor.fetchall()

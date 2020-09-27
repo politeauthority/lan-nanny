@@ -106,7 +106,7 @@ class Device(BaseEntityMeta):
         sql = """
             SELECT *
             FROM device_macs
-            WHERE addr='%s'; """ % mac
+            WHERE mac_addr='%s'; """ % mac
         self.cursor.execute(sql)
         device_mac_raw = self.cursor.fetchone()
         if not device_mac_raw:
@@ -186,12 +186,10 @@ class Device(BaseEntityMeta):
            @unit-tested
         """
         super(Device, self).insert()
-        if self.scan_mac_addr or self.macs:
-            if self.scan_mac_addr:
-                self._create_new_device_mac(self.mac)
-            elif self.macs:
-                for mac in self.macs:
-                    self._create_new_device_mac(mac)
+        if self.scan_mac_info:
+            if self.scan_mac_info:
+                self._create_new_device_mac(self.scan_mac_info)
+
         return True
 
     def unpack(self):
@@ -205,12 +203,13 @@ class Device(BaseEntityMeta):
             unpack['macs'].append(mac.addr)
         return unpack
 
-    def _create_new_device_mac(self, mac: str) -> bool:
+    def _create_new_device_mac(self, scan_mac_info: {}) -> bool:
         """Create a new device-mac pairing, with a given mac address. """
         now = arrow.utcnow().datetime
         device_mac = DeviceMac(self.conn, self.cursor)
         device_mac.device_id = self.id
-        device_mac.addr = mac
+        device_mac.mac_addr = scan_mac_info['mac']
+        device_mac.ip_addr = scan_mac_info['ip']
         device_mac.last_seen = now
         device_mac.updated_ts = now
         device_mac.save()
