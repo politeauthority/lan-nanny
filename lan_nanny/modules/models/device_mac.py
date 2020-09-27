@@ -20,7 +20,11 @@ class DeviceMac(Base):
                 'type': 'int'
             },
             {
-                'name': 'addr',
+                'name': 'mac_addr',
+                'type': 'str'
+            },
+            {
+                'name': 'ip_addr',
                 'type': 'str'
             },
             {

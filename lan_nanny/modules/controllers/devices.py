@@ -191,7 +191,7 @@ def export_all():
     for device in devices:
         device_macs = ""
         for mac in device.macs:
-            device_macs += "%s : " % mac.addr
+            device_macs += "%s : " % mac.mac_addr
         device_macs = device_macs[:-3]
         device_row = [
             device.id, device.name, device_macs, device.ip, device.vendor, device.kind,

@@ -145,7 +145,10 @@ class ScanHosts:
 
             device = Device(self.conn, self.cursor)
             device.get_by_mac(host['mac'])
-            device.scan_mac_addr = host['mac']
+            device.scan_mac_info = {
+                "mac": host['mac'],
+                "ip": host['ip']
+            }
 
             # Create a new device
             new = False
@@ -246,7 +249,7 @@ class ScanHosts:
             return device.vendor
 
         # if nothing else, use the mac as the device name
-        return device.scan_mac_addr
+        return device.scan_mac_info['mac']
 
     def save_witness(self, device: Device, scan_time: datetime) -> bool:
         """Create a record in the `device_witness` table of the devices id and scan time."""
