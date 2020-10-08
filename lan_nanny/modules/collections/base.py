@@ -252,8 +252,7 @@ class Base:
         return sql_ids
 
     def _pagination_where_and(self, where_and: list) -> str:
-        """
-           Create the where clause for pagination when where and clauses are supplied.
+        """Create the where clause for pagination when where and clauses are supplied.
            Note: We append multiple statements with an AND in the sql statement.
         """
         where = False
@@ -272,8 +271,7 @@ class Base:
         return where_and_sql
 
     def _pagination_order(self, order) -> str:
-        """
-           Create the order clause for pagination using user supplied arguments or defaulting to
+        """Create the order clause for pagination using user supplied arguments or defaulting to
            created_desc DESC.
         """
         order_sql = "ORDER BY created_ts DESC"

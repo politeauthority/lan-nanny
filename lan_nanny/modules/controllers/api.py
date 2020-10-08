@@ -1,4 +1,5 @@
-"""Api Device Controller
+"""Api Controller v.0.0.1
+This is an Api Controller which attempts to create a REST API interface for the models used here.
 
 """
 import importlib
@@ -13,16 +14,17 @@ from .. import models
 from ..models.device import Device
 from ..models.device_mac import DeviceMac
 from ..collections.devices import Devices
+from ..collections.device_witnesses import DeviceWitnesses
 from ..models.port import Port
 from ..collections.ports import Ports
 
 
 api = Blueprint('Api', __name__, url_prefix='/api')
 accepted_entities = ['device', 'device_mac', 'port']
-accepted_collections = ['devices', 'ports']
+accepted_collections = ['devices', 'ports', 'device_witnesses']
 
 
-@api.route('/info/<entity_type>/<entity_id>')
+@api.route('/info/<entity_type>/<entity_id>', methods=["GET"])
 @utils.authenticate
 def info(entity_type: str, entity_id: int) -> str:
     """Model info api route."""
@@ -44,7 +46,7 @@ def info(entity_type: str, entity_id: int) -> str:
     return jsonify(data)
 
 
-@api.route('/collect/<entity_type>')
+@api.route('/collect/<entity_type>', methods=["GET"])
 @utils.authenticate
 def collect(entity_type: str) -> str:
     """Collect model info api route."""
@@ -57,7 +59,7 @@ def collect(entity_type: str) -> str:
 
     collect = _get_collection_tmp(entity_type)
     args = _get_args(request)
-    page = _get_page_number(args)
+    args, page = _get_page_number(args)
     order_by_field = _get_order_by_field(entity_type, args)
     data['objects'] = []
 
@@ -68,13 +70,24 @@ def collect(entity_type: str) -> str:
 
     # Gather everything else.
     else:
+        # Add the where clause.
+        where_and = []
+        for field, value in args.items():
+            where_and.append({
+                'field': field,
+                'value': value,
+                'op': '='
+            })
+
         collect_pages = collect.get_paginated(
+            where_and=where_and,
             page=page,
             order_by={
                 'field': order_by_field,
                 'op' : 'DESC'
             })
         objects = collect_pages['objects']
+        data['info'] = collect_pages['info']
 
     for model in objects:
         data['objects'].append(model.unpack())
@@ -113,10 +126,13 @@ def _get_collection_tmp(entity_type: str):
     conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     if entity_type == 'devices':
         return Devices(conn, cursor)
+    elif entity_type == 'device_witnesses':
+        return DeviceWitnesses(conn, cursor)
     elif entity_type == 'ports':
         return Ports(conn, cursor)
     else:
-        logging.error('Unknown model: %s' % entity_type)
+        raise Exception('Unknown model: %s' % entity_type)
+
 
 def _get_args(request_data: dict) -> dict:
     """Parse the request args into a dict. """
@@ -136,9 +152,11 @@ def _get_args(request_data: dict) -> dict:
 def _get_page_number(args: dict) -> int:
     """Get a collection page number from the parsed request arguments. """
     if 'page' in args:
-        return args['page']
+        page = int(args['page'])
+        args.pop('page')
+        return args, page
     else:
-        return 1
+        return args, 1
 
 
 def _get_order_by_field(entity_type, args) -> str:

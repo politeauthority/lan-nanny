@@ -30,9 +30,9 @@ class DeviceMacs(Base):
 
         return device_macs
 
-    def get_all_macs_with_device_name(self):
+    def get_all_macs_with_device_name(self) -> list:
+        """Get all DeviceMacs and their current corresponding Device name. """
         all_macs = self.get_all()
-
         ret = []
         for mac in all_macs:
             mac_tmp = {
@@ -42,9 +42,6 @@ class DeviceMacs(Base):
                 'device_name': self.get_device_name_from_device_id(mac.device_id)
             }
             ret.append(mac_tmp)
-        print("\n")
-        print(ret)
-        print("\n")
         return ret
         # all_devices = Devices(self.conn, self.cursor).get_all()
 

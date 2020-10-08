@@ -205,7 +205,7 @@ class Device(BaseEntityMeta):
         self.get_macs()
         unpack['macs'] = []
         for mac in self.macs:
-            unpack['macs'].append(mac.addr)
+            unpack['macs'].append(mac.mac_addr)
         return unpack
 
     def _create_new_device_mac(self, scan_mac_info: {}) -> bool:
