@@ -13,6 +13,7 @@
 
   <!-- Content Row -->
   <div class="row">
+
     <!-- Device Info -->
     <div class="col-xl-6 col-lg-6">
       <div class="card shadow mb-4">
@@ -204,9 +205,10 @@
         </div>
       </div><!-- End Device Macs-->
     {%endif%}
+    <!-- End Device Macs -->
   
+    <!-- Device Stats -->
     {%if g.options['beta-features'].value %}
-      <!-- Device Stats -->
       <div class="col-xl-6 col-lg-6">
         <div class="card shadow mb-4">
           <!-- Card Header -->
@@ -228,16 +230,39 @@
                   <td>{{device_over_week['device_online_percent']}}%</td>
                 </tr>
               </table>
-              
             </div>
           </div>
         </div>
-      </div><!-- End Device Stats-->
-    {%endif%}
+      </div>
 
+      <div class="col-xl-6 col-lg-6">
+        <div class="card shadow mb-4">
+          <!-- Card Header -->
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">
+              Device Graph
+            </h6>
+          </div>
+          <!-- Card Body -->
+          <div class="card-body">
+
+            <div class="chart-area">
+              <canvas id="myAreaChart"></canvas>
+            </div>
+            <hr>
+            Api Route: <code>http://192.168.50.10:7000/api/collect/device_witnesses?device_id=6</code>
+            <div id="debug">debug</div>
+
+          </div>
+
+        </div>
+      </div>
+    {%endif%}
+    <!-- End Device Stats-->
+
+    <!-- Device Alerts -->
     {%if g.options['beta-features'].value %}
       {%if alerts%}
-        <!-- Device Alerts -->
         <div class="col-xl-6 col-lg-6">
           <div class="card shadow mb-4">
             <!-- Card Header -->
@@ -275,21 +300,29 @@
               </table>
             </div>
           </div>
-        </div><!-- END Device Alerts -->
+        </div>
       {%endif%}
     {%endif%}
+    <!-- END Device Alerts -->
 
   </div>
 {%endblock%}
 
 {%block javascript%}
   <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
+  <script src="/static/vendor/chart.js/Chart.min.js"></script>
+  <script src="/static/js/chart-device.js"></script>
+
   <script type="text/javascript">
     $( document ).ready(function(){
       var device_favorite_status = convert_str_bool("{{device.favorite}}");
       register_favorite_button('#device-favorite', device_favorite_status, '/device/favorite/{{device.id}}')
+
+      url = "/api/collect/device_witnesses?device_id={{device.id}}";
+      console.log(url);
     });
   </script>
 {%endblock%}
 
-<!-- End File: lan-nanny/templates/devices/info.html
+<!-- End File: lan-nanny/lan_nanny/templates/devices/info.html -->
+

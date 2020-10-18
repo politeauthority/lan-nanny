@@ -3,6 +3,8 @@
 """
 import json
 
+import arrow
+
 from .collections.devices import Devices
 from .collections.device_witnesses import DeviceWitnesses
 from .collections.scan_hosts import ScanHosts
@@ -90,5 +92,32 @@ class Metrics:
         }
 
         return ret
+
+
+    def get_device_presence_over_time(self, device_id: int, from_date=None, to_date=None):
+        """Get device presence over time.
+        """
+        if not from_date:
+            from_date = arrow.utcnow().datetime
+        sql = """
+            SELECT *
+            FROM 
+                %(scan_hosts_table)s as sh
+            JOIN device_witnesses as dw
+                ON sh.id = dw.scan_id
+            WHERE
+                dw.device_id = %(device_id)s
+                AND
+                sh.created_ts >= %(created_ts )s
+
+        """ % {
+            'scan_hosts_table': 'scan_hosts',
+            'device_witnesses_table': 'device_witnesses',
+            'device_id': device_id,
+            'created_ts': from_date
+        }
+        print(sql)
+        print(sql)
+        print(sql)
 
 # End File: lan-nanny/lan_nanny/modules/metrics.py
