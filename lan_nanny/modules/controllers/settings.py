@@ -177,11 +177,6 @@ def save_security():
     else:
         console_password_enabled = False
 
-    logging.info('WERE LOGGING')
-    logging.info('WERE LOGGING')
-    logging.info('WERE LOGGING')
-    logging.info('WERE LOGGING')
-
     # If we are enabling the console password
     if console_password_enabled:
         logging.info('Enabling console password')
