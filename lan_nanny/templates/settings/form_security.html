@@ -34,29 +34,30 @@
             </h6>
           </div>
           <div class="card-body">
-
             <div class="form-group">
               <label for="setting_console_password_enabled">Require Console Password</label>
               <input id="setting_console_password_enabled" type="checkbox" data-toggle="toggle" aria-describedby="console_password_enabled_help">
               <small id="console_password_enabled_help" class="form-text text-muted">Require a password to access to Lan Nanny console.</small>
             </div>
 
-            <div class="form-group form-sm">
+            <div id="current_password" class="form-group form-sm">
               <label for="currentPasswordHelp">Current Password</label>
               <input type="password" class="form-control form-sm" id="setting_current_password" name="setting_current_password" aria-describedby="currentPasswordHelp">
               <small id="currentPasswordHelp" class="form-text text-muted">Number of minutes a device has to be missing from scans to be marked offline.</small>
             </div>
 
-            <div class="form-group form-sm">
-              <label for="new1PasswordHelp">New password</label>
-              <input type="password" class="form-control form-sm" id="setting_password_1" name="setting_password_1" aria-describedby="new1PasswordHelp">
-              <small id="new1PasswordHelp" class="form-text text-muted">Number of minutes a device has to be missing from scans to be marked offline.</small>
-            </div>
+            <div id="password_fields">
+              <div class="form-group form-sm">
+                <label for="new1PasswordHelp">New password</label>
+                <input type="password" class="form-control form-sm" id="setting_password_1" name="setting_password_1" aria-describedby="new1PasswordHelp">
+                <small id="new1PasswordHelp" class="form-text text-muted">Number of minutes a device has to be missing from scans to be marked offline.</small>
+              </div>
 
-            <div class="form-group form-sm">
-              <label for="new2PasswordHelp">New password again</label>
-              <input type="password" class="form-control form-sm" id="setting_password_2" name="setting_password_2" aria-describedby="new2PasswordHelp">
-              <small id="new2PasswordHelp" class="form-text text-muted">Number of minutes a device has to be missing from scans to be marked offline.</small>
+              <div class="form-group form-sm">
+                <label for="new2PasswordHelp">New password again</label>
+                <input type="password" class="form-control form-sm" id="setting_password_2" name="setting_password_2" aria-describedby="new2PasswordHelp">
+                <small id="new2PasswordHelp" class="form-text text-muted">Number of minutes a device has to be missing from scans to be marked offline.</small>
+              </div>
             </div>
 
           </div>
@@ -65,9 +66,8 @@
 
       {%if g.options['beta-features'].value %}
         <!-- Api Security -->
-        <div class="col-xl-6 col-lg-6">
+<!--         <div class="col-xl-6 col-lg-6">
           <div class="card shadow mb-4">
-            <!-- Card Header -->
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
               <h6 class="m-0 font-weight-bold text-primary">
                 Api Settings
@@ -76,7 +76,8 @@
             <div class="card-body">
             </div>
           </div>
-        </div> <!-- End API Security -->
+        </div> -->
+        <!-- End API Security -->
       {%endif%}
 
       <div id="hidden_forms" class=""></div>
@@ -96,6 +97,27 @@
     $( document ).ready(function(){
       var console_password_enabled = convert_str_bool("{{settings['console-password-enabled'].value}}");
       register_toggle_form('setting_console_password_enabled', console_password_enabled);
+
+      // If console password is disabled, hide new/current password fields.
+      if(!console_password_enabled){
+        $("#password_fields").hide();
+        $("#current_password").hide();
+      }
+
+      var password_enabled_toggle = $("#setting_console_password_enabled");
+
+      // On toggle of "Require Console Password"
+      password_enabled_toggle.change(function(){
+        password_enabled_form = $("#manage_setting_console_password_enabled");
+        if( password_enabled_form.val() == 'true'){
+          // If we're enabling console password, show new password fields
+          $("#password_fields").slideDown();
+        } else if (password_enabled_form.val() == 'false'){
+          // If we are disabling console password hide new password fields.
+          $("#password_fields").slideUp();
+        }
+      });
+
     });
   </script>
 {%endblock%}

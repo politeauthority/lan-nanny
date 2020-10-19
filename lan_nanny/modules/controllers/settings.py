@@ -1,7 +1,9 @@
 """Setting Controller
 
 """
-from flask import Blueprint, render_template, redirect, request, g
+import logging
+
+from flask import Blueprint, render_template, redirect, request, g, session
 from flask import current_app as app
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -169,18 +171,41 @@ def save_security():
     """Security settings save."""
     conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
 
-    # Handle password change, this can probably be done better.
-    if request.form['setting_password_1'] and request.form['setting_password_2']:
-        if not check_password_hash(g.options['console-password'].value, request.form['setting_current_password']):
-            return redirect('/'), 403
-        if request.form['setting_password_1'] != request.form['setting_password_1']:
-            return redirect('/'), 403
+    console_password_enabled = request.form['setting_console_password_enabled']
+    if console_password_enabled == 'true':
+        console_password_enabled = True
+    else:
+        console_password_enabled = False
+
+    # If we are enabling the console password
+    if console_password_enabled:
+        logging.info('Enabling console password')
+        if not (request.form['setting_password_1'] and request.form['setting_password_2']):
+            # Passwords do not match
+            logging.warning("Passwords don't match")
+            return redirect('/settings/security')
+
+        # If there's a current console password, check that it's correct.
+        if g.options['console-password'].value:
+            if not check_password_hash(g.options['console-password'].value, request.form['setting_current_password']):
+                return redirect('/'), 403
 
         new_pass = generate_password_hash(request.form['setting_password_1'], "sha256")
         _save_setting(conn, cursor, 'console-password', new_pass)
 
+    # If we are disabling the console password
+    else:
+        # If we're removing the console password, delete the old so it won't be required later when 
+        # a user re-enables the console password
+        if g.options['console-password']:
+            if not check_password_hash(g.options['console-password'].value, request.form['setting_current_password']):
+                session.pop('auth')
+                return redirect('/login'), 403
+        _save_setting(conn, cursor, 'console-password', None)
+
     # Save Console Password Enabled.
-    _save_setting(conn, cursor, 'console-password-enabled', request.form['setting_console_password_enabled'])
+    _save_setting(conn, cursor, 'console-password-enabled', console_password_enabled)
+
 
     return redirect('/settings/security')
 
