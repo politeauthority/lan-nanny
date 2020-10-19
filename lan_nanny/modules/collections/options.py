@@ -145,9 +145,6 @@ class Options(Base):
         """Create Option values and set Option defaults where applicable. """
         print('Setting defaults')
         for opt in self.default_opts:
-            if opt['name'] == 'console-password':
-                continue
-
             logging.info('Option: %s' % opt['name'])
             option = Option(self.conn, self.cursor)
             option_made = option.set_default(opt)
