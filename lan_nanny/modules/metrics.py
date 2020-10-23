@@ -91,4 +91,13 @@ class Metrics:
 
         return ret
 
+    def get_db_disk_usage(self):
+        sql = """SELECT
+                    table_name AS `Table`, 
+                    round(((data_length + index_length) / 1024 / 1024), 2) `Size (MB)`
+                 FROM information_schema.TABLES
+                 WHERE table_schema = "lan_nanny_dev";
+        """
+
+
 # End File: lan-nanny/lan_nanny/modules/metrics.py
