@@ -36,6 +36,7 @@ def device_icons() -> dict:
         "fas fa-camera": "Camera",
         "fas fa-desktop": "Desktop",
         "fas fa-gamepad": "Game Console",
+        "fas fas-warehouse": "Garage Door",
         "fas fa-laptop": "Laptop",
         "fas fa-lightbulb": "Light",
         "fas fa-microchip": "Micro Controller",
