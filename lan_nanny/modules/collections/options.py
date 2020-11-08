@@ -74,6 +74,11 @@ class Options(Base):
                 'default': 120
             },
             {
+                'name': 'port-open-timeout',
+                'type': 'int',
+                'default': 84
+            },
+            {
                 'name': 'console-password-enabled',
                 'type': 'bool',
                 'default': False

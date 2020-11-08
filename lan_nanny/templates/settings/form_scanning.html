@@ -88,9 +88,14 @@
               <small id="scanPortsPerRunHelp" class="form-text text-muted">Max number of devices to run a port scan per scan run.</small>
             </div>
             <div class="form-group">
-              <label for="setting_scan_ports_default">Scan Device Ports Interval</label>
+              <label for="setting_scan_ports_default">Scan Device Ports Interval (minutes)</label>
               <input name="setting_scan_ports_interval" type="number" class="form-control form-sm" aria-describedby="scanPortsInvervalHelp" value="{{settings['scan-ports-interval'].value}}">
               <small id="scanPortsInvervalHelp" class="form-text text-muted">Number of minutes before re port scanning a device.</small>
+            </div>
+            <div class="form-group">
+              <label for="setting_scan_ports_default">Port Open Timeout (hours)</label>
+              <input name="setting_scan_port_open_timeout" type="number" class="form-control form-sm" aria-describedby="scanPortsOpenTimeoutHelp" value="{{settings['port-open-timeout'].value}}">
+              <small id="scanPortsOpenTimeoutHelp" class="form-text text-muted">Number hours without seeing a port open on a device until assuming it is no longer open.</small>
             </div>
 
           </div>

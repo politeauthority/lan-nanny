@@ -166,6 +166,19 @@ def alert_icon_status(alert: Alert) -> str:
     return Markup(icon)
 
 
+def port_online(seen_at: datetime) -> bool:
+    """Checks to see if the device's last_seen attribute has checked in within x minutes. """
+    if not seen_at:
+        return False
+    now = arrow.utcnow().datetime
+    seen = arrow.get(seen_at).datetime
+
+    if now - seen > timedelta(days=7):
+        return False
+
+    return True
+
+
 def alert_pretty_kind(raw_kind: str):
     return utils.alert_pretty_kind(raw_kind)
 

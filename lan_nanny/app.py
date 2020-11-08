@@ -148,6 +148,7 @@ def register_jinja_funcs(app: Flask):
     app.jinja_env.filters['pretty_time'] = filters.pretty_time
     app.jinja_env.filters['smart_time'] = filters.smart_time
     app.jinja_env.filters['online'] = filters.online
+    app.jinja_env.filters['port_online'] = filters.port_online
     app.jinja_env.filters['device_icon_status'] = filters.device_icon_status
     app.jinja_env.filters['alert_icon_status'] = filters.alert_icon_status
     app.jinja_env.filters['time_switch'] = filters.time_switch

@@ -1,7 +1,11 @@
 """Device Controller
 
 """
-from flask import Blueprint, render_template, redirect, request, jsonify
+from datetime import timedelta
+
+import arrow
+
+from flask import Blueprint, render_template, redirect, request, jsonify, g
 from flask import current_app as app
 
 from .. import db
@@ -35,8 +39,10 @@ def info(device_id: int) -> str:
     device_online_over_day = metrics.get_device_presence_over_time(device)
     device_online_over_week = metrics.get_device_presence_over_time(device, 24*7)
     device.get_ports()
+    ports = _filter_device_ports_info(device)
     data = {}
     data['device'] = device
+    data['ports'] = ports
     data['active_page'] = 'devices'
     data['active_page_device'] = 'general'
     data['device_over_day'] = device_online_over_day
@@ -57,11 +63,13 @@ def info_ports(device_id: int) -> str:
         return page_not_found('Device not found')
 
     device.get_ports()
+    ports = _sort_device_ports_by_numer(device.ports)
 
     scan_ports_log = ScanPorts(conn, cursor).get_by_device_id(device.id)
 
     data = {}
     data['device'] = device
+    data['ports'] = ports
     data['scan_ports'] = scan_ports_log
     data['active_page'] = 'devices'
     data['active_page_device'] = 'ports'
@@ -344,6 +352,51 @@ def _pair_mac_to_device(conn, cursor, new_device: Device, device_mac: DeviceMac)
     # Update Device Ports
     ScanPorts(conn, cursor).update_device_mac_pair(new_device.id, device_mac.id)
     return True
+
+
+def _filter_device_ports_info(device) -> list:
+    """Filter device ports to a reasonable number. Prioritize ports under 1000 first, then after
+       ports that have been seen within the last x period of time.
+    """
+    total_num_ports_to_show = 15
+    hours_since_since_open_delta = int(g.options['port-open-timeout'].value)
+
+    if len(device.ports) < total_num_ports_to_show:
+        return device.ports
+
+    time_to_incude_borring_ports = arrow.utcnow() - timedelta(hours=hours_since_since_open_delta)
+    ret_ports = []
+
+    for dp in device.ports:
+        dp.get_port()
+
+        # Include every port below 1000
+        if dp.port.number < 1000:
+            if dp.last_seen > time_to_incude_borring_ports:
+                ret_ports.append(dp)
+                continue
+
+        # If we have less then 10 and they have been seen in 2 days include them
+        if len(ret_ports) < total_num_ports_to_show:
+            if dp.last_seen > time_to_incude_borring_ports:
+                ret_ports.append(dp)
+                continue
+
+
+    # Sort the ports by their port number
+    ret_ports = _sort_device_ports_by_numer(ret_ports)
+
+    if len(ret_ports) >= total_num_ports_to_show:
+        ret_ports = ret_ports[0:total_num_ports_to_show]
+
+    return ret_ports
+
+
+def _sort_device_ports_by_numer(device_ports: list) -> list:
+    """Sort a list of DevicePort objects by their port number ascending. """
+    ret_ports = sorted(device_ports, key = lambda i: i.port.number)
+    return ret_ports
+
 
 
 # End File: lan-nanny/lan_nanny/modules/controllers/device.py

@@ -104,6 +104,8 @@ def save_scanning():
 
     _save_setting(conn, cursor, 'scan-ports-interval', request.form['setting_scan_ports_interval'])
 
+    _save_setting(conn, cursor, 'port-open-timeout', request.form['setting_scan_port_open_timeout'])
+
     return redirect('/settings/scanning')
 
 

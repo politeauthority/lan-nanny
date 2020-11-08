@@ -135,18 +135,24 @@
         <!-- Card Body -->
         <div class="card-body">
           <div class="table-responsive">
-            {%if device.ports%}
+            {%if ports%}
               <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                   <tr>
+                    <td></td>
                     <td>Port</td>
                     <td>Service</td>
                     <td>Protocol</td>
                     <td>Last Seen</td>
                   </tr>
                 </thead>
-                {%for port in device.ports%}
+                {%for port in ports%}
                   <tr>
+                    <td>
+                      {%if port.last_seen|port_online %}
+                        <i class="fas fa-bolt device_info_connect connected_bolt"></i>
+                      {%endif%}
+                    </td>
                     <td>
                       <a href="/ports/info/{{port.port.id}}">{{port.port.number}}</a>
                     </td>
@@ -156,6 +162,14 @@
                   </tr>
                 {%endfor%}
               </table>
+              {%if ports|length < device.ports|length%}
+                Showing {{ports|length}} of {{device.ports|length}} total discovered for device due to relevance.<br>
+                Only ports below 1000/ seen open within the last 2 days are shown here.<br>
+                To see all ports <a href="/device/ports/{{device.id}}">click here</a>.
+              {%else%}
+                Showing all known ports.<br>
+                For more port info <a href="/device/ports/{{device.id}}">click here</a>
+              {%endif%}
             {%elif device.port_scan==1%}
               No ports found yet for device.
             {%else%}

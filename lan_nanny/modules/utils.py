@@ -26,13 +26,11 @@ def authenticate(f):
 
 
 def device_icons() -> dict:
-    """
-    Returns a dict keyed on font awesome CSS classes and corresponding names for those icons.
-
-    """
+    """Returns a dict keyed on font awesome CSS classes and corresponding names for those icons. """
     icons = {
-        "fas fa-music": "Audio Device",
         "fab fa-apple": "Apple",
+        "fas fa-hands-helping": "Assistant",
+        "fas fa-music": "Audio Device",
         "fas fa-camera": "Camera",
         "fas fa-desktop": "Desktop",
         "fas fa-gamepad": "Game Console",
@@ -47,6 +45,7 @@ def device_icons() -> dict:
         "fas fa-plug": "Smart Plug",
         "fa fa-mobile": "Smart Phone",
         # "fas fa-router": "Router",
+        "fas volume-up": "Speaker",
         "fab fa-rasppberry-pi": "Raspberry Pi",
         "fas fa-tablet-alt": "Tablet",
         "fas fa-thermometer-half": "Thermostat",

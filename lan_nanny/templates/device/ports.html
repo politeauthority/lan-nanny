@@ -32,7 +32,7 @@
                     <td>Last Seen</td>
                   </tr>
                 </thead>
-                {%for port in device.ports%}
+                {%for port in ports%}
                   <tr>
                     <td>
                       <a href="/ports/info/{{port.port.id}}">{{port.port.number}}</a>
