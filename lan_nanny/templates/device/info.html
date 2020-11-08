@@ -164,7 +164,7 @@
               </table>
               {%if ports|length < device.ports|length%}
                 Showing {{ports|length}} of {{device.ports|length}} total discovered for device due to relevance.<br>
-                Only ports below 1000/ seen open within the last 2 days are shown here.<br>
+                Only ports below 1000 and or seen open within the last {{g.options['port-open-timeout'].value }} hours are shown here.<br>
                 To see all ports <a href="/device/ports/{{device.id}}">click here</a>.
               {%else%}
                 Showing all known ports.<br>

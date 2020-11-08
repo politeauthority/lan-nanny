@@ -155,6 +155,7 @@ def register_jinja_funcs(app: Flask):
     app.jinja_env.filters['alert_pretty_kind'] = filters.alert_pretty_kind
     app.jinja_env.filters['number'] = filters.number
     app.jinja_env.filters['get_percent'] = filters.get_percent
+    app.jinja_env.filters['round_seconds'] = filters.round_seconds
 
 
 if __name__ == '__main__':

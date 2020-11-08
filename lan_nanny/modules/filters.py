@@ -34,7 +34,6 @@ def pretty_time(first_at: datetime) -> str:
 def smart_time(date_val: datetime, format_switch_range_seconds: int = None) -> str:
     """Gets a human readable 'time ago' date format if the time is within x period, otherwise
        returns the pretty_time.
-
     """
     if not date_val:
         return ''
@@ -53,7 +52,6 @@ def smart_time(date_val: datetime, format_switch_range_seconds: int = None) -> s
 def pretty_time_adaptive(date_val: datetime) -> str:
     """Create a switchable time display, starting with time ago value, which can be clicked to show
        a more standard date value via javascript.
-
     """
     if not date_val:
         return ''
@@ -199,5 +197,12 @@ def title(the_title:str) -> str:
     ret_title = the_title[0].upper() + the_title[1:]
     return ret_title
 
+
+def round_seconds(fractional_time: float, precisision: int=2) -> float:
+    """Round a float value to two points passed the decimal, or whatever is given by the
+       `precision` value.
+    """
+    the_time = float(fractional_time)
+    return round(the_time, precisision)
 
 # End File: lan-nanny/lan_nanny/modules/filters.py

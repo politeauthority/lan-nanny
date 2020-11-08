@@ -39,9 +39,25 @@
                 <td>{{device|device_icon_status}}</td>
               </tr>
               <tr>
+                <td><strong>State</strong></td>
+                <td>
+                  {%if scan.completed%}
+                    Completed
+                  {%else%}
+                    In Progress
+                  {%endif%}
+                </td>
+              </tr>
+              <tr>
                 <td><strong>Status</strong></td>
                 <td>
-                  {%if scan.completed%}Completed{%endif%}
+                  {%if scan.completed==1 and scan.success==1%}
+                    Success
+                  {%elif not scan.completed and scan.success == None%}
+                    In Progress
+                  {%else%}
+                    Failed
+                  {%endif%}
                 </td>
               </tr>
               <!-- 
@@ -52,7 +68,11 @@
 
               <tr>
                 <td><strong>Total Time</strong></td>
-                <td>{{scan.elapsed_time}}</td>
+                <td>
+                  {%if scan.elapsed_time%}
+                    {{scan.elapsed_time|round_seconds}} seconds
+                  {%endif%}
+                </td>
               </tr>
               <tr>
                 <td><strong>Command</strong></td>
@@ -73,3 +93,4 @@
   </div>
 {%endblock%}
 
+<!-- End File: lan-nanny/templates/scans/info_port.html

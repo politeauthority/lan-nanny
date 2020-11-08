@@ -195,7 +195,7 @@
                     <td>{{scan.created_ts|smart_time}}</td>
                     <td class="d-none d-sm-block">
                       {%if scan.elapsed_time%}
-                        {{scan.elapsed_time}} sec
+                        {{scan.elapsed_time|round_seconds}} sec
                       {%endif%}
                     </td>
                   </tr>
