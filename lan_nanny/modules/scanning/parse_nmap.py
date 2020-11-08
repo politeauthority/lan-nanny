@@ -132,10 +132,14 @@ def parse_ports(parsed):
     if not isinstance(parsed['nmaprun']['host']['ports'], OrderedDict):
         logging.error('\t\tCannot parse Nmap port file.')
         logging.error("\t\t%s" % parsed['nmaprun']['host']['ports'])
-        import ipdb; ipdb.set_trace()
         return False
 
     prestine_ports = []
+
+    # If the scan returned but has no actionable ports return
+    if 'port' not in parsed['nmaprun']['host']['ports']:
+        logging.warning('No usable ports from NMAP scan')
+        return prestine_ports
 
     raw_ports = parsed['nmaprun']['host']['ports']['port']
     if not isinstance(raw_ports, list):

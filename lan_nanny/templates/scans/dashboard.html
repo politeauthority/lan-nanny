@@ -179,6 +179,10 @@
                         <a href="/scan/info/port/{{scan.id}}">
                           <i class="fas fa-check scan-success"></i>
                         </a>
+                      {%elif not scan.completed and scan.success == None%}
+                      <a href="/scan/info/port/{{scan.id}}">
+                        <i class="fas fa-spin fa-pulse fa-spinner alert_active_yellow" style="color:#ff9900"></i>
+                      </a>
                       {%else%}
                         <a href="/scan/info/port/{{scan.id}}">
                           <i class="fas fa-exclamation-triangle scan-fail"></i>

@@ -124,6 +124,10 @@ class ScanPorts:
         # if port scanning failed for any reason.
         if not port_scan_results:
             logging.warning('\tPort scan failed for %s, will try again soon.' % device)
+            ## Check if this device has failed x port scans consecutively, if so update last_
+            device.success = 0
+            device.completed = 1
+            device.save()
             return False
 
         self.handle_ports(device, port_scan_results, psl)
@@ -147,8 +151,10 @@ class ScanPorts:
             subprocess.check_output(cmd, shell=True)
             port_scan_log.success = True
         except subprocess.CalledProcessError:
+            print("CAUGHT EXCEPTION ON: %s" % cmd)
             end = time.time()
             scan.elapsed_time = end - start
+            port_scan_log.success = False
             self._complete_run_error(scan, 'Error at NMAP command run')
             return False
         end = time.time()

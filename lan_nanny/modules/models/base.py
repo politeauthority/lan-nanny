@@ -91,10 +91,6 @@ class Base:
             self.table_name,
             self.get_fields_sql(skip_fields=['id']),
             self.get_parmaterized_num())
-        print("\n")
-        print(insert_sql)
-        print(self.get_values_sql(skip_fields=['id']))
-        print("\n")
 
         self.cursor.execute(insert_sql, self.get_values_sql(skip_fields=['id']))
 
