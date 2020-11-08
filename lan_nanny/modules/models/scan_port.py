@@ -22,7 +22,7 @@ class ScanPort(Base):
             },
             {
                 'name': 'elapsed_time',
-                'type': 'int'
+                'type': 'float'
             },
             {
                 'name': 'completed',
