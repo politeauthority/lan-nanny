@@ -15,6 +15,7 @@ from modules.controllers.device import device as ctrl_device
 from modules.controllers.ports import ports as ctrl_ports
 from modules.controllers.scan import scan as ctrl_scan
 from modules.controllers.search import search as ctrl_search
+from modules.controllers.kiosk import kiosk as ctrl_kisok
 from modules.controllers.about import about as ctrl_about
 from modules.controllers.settings import settings as ctrl_settings
 from modules.models.scan_host import ScanHost
@@ -137,6 +138,7 @@ def register_blueprints(app: Flask):
     app.register_blueprint(ctrl_alerts)
     app.register_blueprint(ctrl_ports)
     app.register_blueprint(ctrl_scan)
+    app.register_blueprint(ctrl_kisok)
     app.register_blueprint(ctrl_settings)
     app.register_blueprint(ctrl_about)
     app.register_blueprint(ctrl_search)
