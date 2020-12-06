@@ -1,4 +1,4 @@
-FROM python:rc-alpine3.12
+FROM python:3.7-slim-buster
 
 VOLUME /app/
 WORKDIR /app/
@@ -18,16 +18,24 @@ EXPOSE 5000
 
 
 # Install apk requirements
-RUN apk update
-RUN apk add --virtual \
-    build-deps \
-    gcc \
-    python3-dev \
-    musl-dev \
-    mariadb-dev \
-    py3-pip \
-    bash \
-    git
+RUN apt-get update && \
+    apt-get install -y \
+        gcc \
+        python-pip \
+        python3-dev \
+        default-libmysqlclient-dev \
+        build-essential
+
+# RUN apk update
+# RUN apk add --virtual \
+#     build-deps \
+#     gcc \
+#     python3.7-dev \
+#     musl-dev \
+#     mariadb-dev \
+#     py3-pip \
+#     bash \
+#     git
 
 # Install Lan Nanny
 RUN cd /app && \

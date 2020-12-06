@@ -38,6 +38,7 @@ def device_icons() -> dict:
         "fas fa-lightbulb": "Light",
         "fas fa-microchip": "Micro Controller",
         "fas fa-print": "Printer",
+        "fas fa-broom": "Vacuum",
         "fas fa-question": "Question Mark",
         "fas fa-satellite": "Satellite",
         "fas fa-shield-alt": "Security System",
@@ -47,6 +48,7 @@ def device_icons() -> dict:
         # "fas fa-router": "Router",
         "fas volume-up": "Speaker",
         "fab fa-rasppberry-pi": "Raspberry Pi",
+        "fas fa-robot": "Robot",
         "fas fa-tablet-alt": "Tablet",
         "fas fa-thermometer-half": "Thermostat",
         "fas fa-tv": "Tv",
@@ -59,8 +61,8 @@ def device_types() -> list:
     """Get a list of all device types."""
     device_types = [
         'Audio Device', 'Camera', 'Desktop', 'Game Console', 'Laptop', 'Light', 'Micro Controller',
-        'Printer', 'Security System', 'Server', 'Smart Plug', 'Smart Phone', 'Raspberry Pi', 
-        'Tablet', 'Thermostat', 'Tv', 'Unknown', 'Wifi Access Point'
+        'Printer', 'Vacuum', 'Security System', 'Server', 'Smart Plug', 'Smart Phone', 'Raspberry Pi',
+        'Robot', 'Tablet', 'Thermostat', 'Tv', 'Unknown', 'Wifi Access Point'
     ]
     return device_types
 
