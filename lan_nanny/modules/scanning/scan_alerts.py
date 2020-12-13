@@ -99,7 +99,7 @@ class ScanAlerts:
 
     def alert_new_device(self) -> bool:
         """Alert on new device discovery."""
-        ## TODO: REWORK TO GRAB devices.new_devices and check for existing alerts
+        # TODO: REWORK TO GRAB devices.new_devices and check for existing alerts
         # Run checks to see if new device alert should run.
         if not self._validate_run_new_device_alert():
             return False
@@ -296,8 +296,8 @@ class ScanAlerts:
             alert.resolved_ts = arrow.utcnow().datetime
             alert.active = False
             alert.save()
-            logging.info('Resolved offline device alert for device id: %s'
-                % alert.metas['device'].value)
+            logging.info('Resolved offline device alert for device id: %s' %
+                         alert.metas['device'].value)
             self.resolved_alerts.append(alert)
         return True
 
@@ -372,8 +372,7 @@ class ScanAlerts:
         return msg
 
     def send_slack(self, msg: str) -> bool:
-        """Sends a slack message to 
-        """
+        """Sends a slack message. """
         slack_token = self.options['notification-slack-token'].value
         if not slack_token:
             logging.error('No slack token found, cannot send notifications.')

@@ -2,7 +2,6 @@
 
 """
 from .base import Base
-from .port import Port
 
 
 class DeviceMac(Base):

@@ -220,7 +220,6 @@ class Devices(BaseEntityMetas):
         raw_devices = self.cursor.fetchall()
         return raw_devices
 
-
     def get_w_alerts(self, alerts: list) -> dict:
         """Get a collection of Devices from the list Alert objects supplied."""
         alert_device_ids = []

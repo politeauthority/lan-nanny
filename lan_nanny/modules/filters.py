@@ -9,7 +9,6 @@ import arrow
 from flask import g, Markup
 
 from .models.device import Device
-from .models.port import Port
 from .models.alert import Alert
 from . import utils
 
@@ -71,7 +70,6 @@ def time_switch(the_time) -> str:
     """Draw a datetime var in "time ago" with a hidden span containing the pretty time. """
     if not the_time:
         return ''
-    the_arrow = arrow.get(the_time)
     pretty_time = pretty_time_adaptive(the_time)
     html = '<div class="time_switch">'
     html += '<i class="fas fa-clock"></i>'
@@ -79,6 +77,7 @@ def time_switch(the_time) -> str:
     html += '<span class="time-long hidden">%s</span>' % pretty_time
     html += '</div>'
     return Markup(html)
+
 
 def online(seen_at: datetime) -> bool:
     """Checks to see if the device's last_seen attribute has checked in within x minutes. """
@@ -156,11 +155,10 @@ def alert_icon_status(alert: Alert) -> str:
             alert_class = "alert_resolved_green"
             alert_icon = "fa-check-circle"
 
-
     icon = '<a href="/alerts/info/%s"><i class="fas %s %s"></i></a>' % (
-            alert.id,
-            alert_icon,
-            alert_class)
+        alert.id,
+        alert_icon,
+        alert_class)
     return Markup(icon)
 
 
@@ -190,7 +188,7 @@ def get_percent(whole: int, part: int, round_ret: int=0) -> int:
     return utils.get_percent(whole, part, round_ret)
 
 
-def title(the_title:str) -> str:
+def title(the_title: str) -> str:
     """Makes the first letter of a string capitalized. """
     if not the_title:
         return the_title

@@ -1,4 +1,4 @@
-"""Base Model v. 0.0.1
+"""Base Model v. 0.0.1a
 Parent class for all models to inherit, providing methods for creating tables, inserting, updating,
 selecting and deleting data.
 
@@ -184,7 +184,7 @@ class Base:
         return True
 
     def build_from_list(self, raw: list) -> bool:
-        """Build a model from an ordered list, converting data types to their desired type where 
+        """Build a model from an ordered list, converting data types to their desired type where
            possible.
            :param raw: The raw data from the database to be converted to model data.
         """
@@ -387,7 +387,7 @@ class Base:
             class_var_name = field['name']
 
             class_var_value = getattr(self, class_var_name)
-            if class_var_value == None:
+            if class_var_value is None:
                 continue
 
             if field['type'] == 'int' and type(class_var_value) != int:
@@ -424,7 +424,7 @@ class Base:
         if isinstance(value, bool):
             return value
 
-        if value == None:
+        if value is None:
             return None
 
         value = str(value).lower()

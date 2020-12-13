@@ -2,7 +2,7 @@
 
 """
 from importlib import import_module
-import os 
+import os
 
 
 def get_config():
@@ -11,7 +11,7 @@ def get_config():
         config_file = os.environ.get('LAN_NANNY_CONFIG')
         configs = import_module('config.%s' % config_file)
         # imported_module = import_module('.config.%s' % config)
-        print('Using config: %s' % os.environ.get('LAN_NANNY_CONFIG') )
+        print('Using config: %s' % os.environ.get('LAN_NANNY_CONFIG'))
     else:
         print('Using config: default')
         configs = import_module('config.default')

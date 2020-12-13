@@ -27,12 +27,11 @@ import time
 import arrow
 
 from . import parse_nmap
-from ..collections.devices import Devices
-from ..collections.device_ports import DevicePorts
 from ..models.device import Device
 from ..models.device_port import DevicePort
 from ..models.port import Port
 from ..models.scan_port import ScanPort
+
 
 class ScanPorts:
 
@@ -94,7 +93,7 @@ class ScanPorts:
                 continue
 
             port_scan_devices.append(host['device'])
-        
+
         limit = int(self.options['scan-ports-per-run'].value)
         if len(port_scan_devices) > limit:
             port_scan_devices = port_scan_devices[0:limit]
@@ -124,7 +123,7 @@ class ScanPorts:
         # if port scanning failed for any reason.
         if not port_scan_results:
             logging.warning('\tPort scan failed for %s, will try again soon.' % device)
-            ## Check if this device has failed x port scans consecutively, if so update last_
+            # Check if this device has failed x port scans consecutively, if so update last_
             device.success = 0
             device.completed = 1
             device.save()

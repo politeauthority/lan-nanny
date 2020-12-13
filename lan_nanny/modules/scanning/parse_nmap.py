@@ -9,7 +9,7 @@ import xml
 import xmltodict
 
 
-def parse_xml(phile: str, scan_type:str):
+def parse_xml(phile: str, scan_type: str):
     try:
         phile = open(phile, "r")
         parsed = xmltodict.parse(phile.read())
@@ -35,7 +35,7 @@ def parse_hosts(parsed: dict):
         return []
     for host in parsed['nmaprun']['host']:
         # Check if this host is the localhost and skip
-        is_local_host = _detect_local_host(host)
+        # is_local_host = _detect_local_host(host)
 
         found = {
             'ip': _get_host_ip(host),
@@ -156,7 +156,6 @@ def parse_ports(parsed):
             logging.warning('Found invalid port, skipping')
             continue
         prestine_ports.append(found)
-
 
     return prestine_ports
 

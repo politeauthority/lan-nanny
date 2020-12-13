@@ -16,11 +16,11 @@ from ..collections.scan_ports import ScanPorts
 
 scan = Blueprint('Scan', __name__, url_prefix='/scan')
 
+
 @scan.route('/')
 @utils.authenticate
 def index():
     """Host scan roster page."""
-    page = 1
     conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     scan_host = ScanHost(conn, cursor)
     scan_host.get_last()
@@ -40,9 +40,9 @@ def index():
     data = {
         'host_scan_last': scan_host,
         'host_scan_avg_24': host_scans_avg_24,
-        'host_scans_today': collect_scan_hosts.get_count_since(60*60*24),
+        'host_scans_today': collect_scan_hosts.get_count_since(60 * 60 * 24),
         'port_scan_last': scan_port,
-        'port_scans_today': collect_scan_ports.get_count_since(60*60*24),
+        'port_scans_today': collect_scan_ports.get_count_since(60 * 60 * 24),
         'last_host_scans': host_scans_last,
         'last_port_scans': last_port_scans,
         'port_devices': devices
@@ -51,6 +51,7 @@ def index():
     data['active_page_sub'] = 'dashboard'
     data['enable_refresh'] = True
     return render_template('scans/dashboard.html', **data)
+
 
 @scan.route('/hosts/')
 @scan.route('/hosts/<page>')
@@ -66,13 +67,14 @@ def roster_hosts(page: str="1"):
         return page_not_found('Scan Hosts page not found.')
 
     data = {
-        'scans':scan_pages['objects'],
+        'scans': scan_pages['objects'],
         'pagination': utils.gen_pagination_urls('/scan/hosts/', scan_pages['info'])
     }
     data['active_page'] = 'scans'
     data['active_page_sub'] = 'hosts'
     data['enable_refresh'] = True
     return render_template('scans/roster_hosts.html', **data)
+
 
 @scan.route('/ports')
 @scan.route('/ports/<page>')

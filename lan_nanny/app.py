@@ -63,7 +63,7 @@ def close_connection(exception: str):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login() -> str:
-    """Login form and form response"""
+    """Login form and form response. """
     if not request.form:
         return render_template('login.html')
 
@@ -73,10 +73,11 @@ def login() -> str:
 
     return render_template('login.html', error="Incorrect password."), 403
 
+
 @app.route('/forgot-password')
 def forgot_password() -> str:
-    """Forgotten password info page"""
-    return render_template('forgot-password.html')    
+    """Forgotten password info page. """
+    return render_template('forgot-password.html')
 
 
 @app.route('/logout')

@@ -7,7 +7,6 @@ from .collections.devices import Devices
 from .collections.device_witnesses import DeviceWitnesses
 from .collections.scan_hosts import ScanHosts
 from .collections.scan_ports import ScanPorts
-from .models.scan_host import ScanHost
 from . import utils
 
 
@@ -47,7 +46,7 @@ class Metrics:
             SELECT DISTINCT vendor, count(*)
             FROM devices
             GROUP BY 1
-            ORDER BY 1 ASC 
+            ORDER BY 1 ASC
             ;"""
         self.cursor.execute(sql)
         raw = self.cursor.fetchall()
@@ -63,7 +62,7 @@ class Metrics:
                 vendor_name = 'Unknown'
             ret['vendors'].append(vendor_name)
             ret['vendors_js'].append(vendor_name)
-            
+
             value = row[1]
             ret['values'].append(value)
             ret['values_js'].append(value)
