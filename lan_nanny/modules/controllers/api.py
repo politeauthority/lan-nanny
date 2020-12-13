@@ -1,15 +1,15 @@
 """Api Device Controller
 
 """
-import importlib
+# import importlib
 import logging
 
-from flask import Blueprint, redirect, request, jsonify
+from flask import Blueprint, request, jsonify, render_template
 from flask import current_app as app
 
 from .. import db
 from .. import utils
-from .. import models
+# from .. import models
 from ..models.device import Device
 from ..models.device_mac import DeviceMac
 from ..collections.devices import Devices
@@ -72,7 +72,7 @@ def collect(entity_type: str) -> str:
             page=page,
             order_by={
                 'field': order_by_field,
-                'op' : 'DESC'
+                'op': 'DESC'
             })
         objects = collect_pages['objects']
 
@@ -118,6 +118,7 @@ def _get_collection_tmp(entity_type: str):
     else:
         logging.error('Unknown model: %s' % entity_type)
 
+
 def _get_args(request_data: dict) -> dict:
     """Parse the request args into a dict. """
     args = {}
@@ -146,5 +147,11 @@ def _get_order_by_field(entity_type, args) -> str:
         return 'last_seen'
     else:
         return 'created_ts'
+
+
+def page_not_found(e: str):
+    """404 Error page."""
+    return render_template('errors/404.html', error=e), 404
+
 
 # End File: lan-nanny/lan_nanny/modules/controllers/api_device.py

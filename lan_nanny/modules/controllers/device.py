@@ -2,6 +2,7 @@
 
 """
 from datetime import timedelta
+import logging
 
 import arrow
 
@@ -37,7 +38,7 @@ def info(device_id: int) -> str:
     device_alerts = alerts_col.get_for_device(device.id)
     metrics = Metrics(conn, cursor)
     device_online_over_day = metrics.get_device_presence_over_time(device)
-    device_online_over_week = metrics.get_device_presence_over_time(device, 24*7)
+    device_online_over_week = metrics.get_device_presence_over_time(device, 24 * 7)
     device.get_ports()
     ports = _filter_device_ports_info(device)
     data = {}
@@ -93,6 +94,7 @@ def info_options(device_id: int) -> str:
     data['active_page_device'] = 'options'
     return render_template('device/options.html', **data)
 
+
 @device.route('/edit/<device_id>')
 @utils.authenticate
 def edit(device_id: int) -> str:
@@ -104,8 +106,6 @@ def edit(device_id: int) -> str:
     custom_icon = False
     if device.icon and device.icon not in icons:
         custom_icon = True
-
-    macs = CollectDeviceMacs(conn, cursor).get_all_macs_with_device_name()
 
     data = {}
     data['device'] = device
@@ -152,7 +152,6 @@ def save():
     else:
         device.kind = request.form['device_type_select']
 
-
     device_notes = request.form['device_notes']
     if device_notes:
         if 'notes' not in device.metas:
@@ -174,9 +173,8 @@ def save():
 @device.route('/add-mac', methods=['POST'])
 @utils.authenticate
 def add_mac():
-    """Add a mac address to a device, by taking another devices details and combing them in to the 
+    """Add a mac address to a device, by taking another devices details and combing them in to the
        first device.
-
     """
     conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     device = Device(conn, cursor)
@@ -186,8 +184,8 @@ def add_mac():
     device_mac.get_by_id(request.form['device_add_mac_select'])
 
     original_device_mac_device_id = device_mac.device_id
-    
-    # Pair the mac address to the new device. 
+
+    # Pair the mac address to the new device.
     _pair_mac_to_device(conn, cursor, device, device_mac)
 
     # Finally, delete the entire device
@@ -201,7 +199,6 @@ def add_mac():
 def delete_mac(device_mac_id: int):
     """Delete a macs association with a device, removing the association from the device and
        creating a new one.
-
     """
     conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     device_mac = DeviceMac(conn, cursor)
@@ -223,7 +220,7 @@ def delete_mac(device_mac_id: int):
     device_mac.device_id = device.id
     device_mac.save()
 
-    # Pair the mac address to the new device. 
+    # Pair the mac address to the new device.
     _pair_mac_to_device(conn, cursor, device, device_mac)
 
     return redirect('/device/%s' % og_device.id)
@@ -268,7 +265,6 @@ def quick_save() -> str:
         logging.warning("Forbidden field_name %s field_name")
         return jsonify("error", "Forbidden field_name %s field_name"), 403
 
-
     if field_name in ['port_scan', 'alert_online', 'alert_offline']:
         if field_value == 'true'.lower():
             field_value = 1
@@ -278,7 +274,7 @@ def quick_save() -> str:
     # Handle port_scan and alert settings differently because one is a model attr and the rest are
     # metas
     if field_name == 'port_scan':
-        setattr(device, field_name, val)
+        setattr(device, field_name, field_value)
     elif field_name in ['alert_offline', 'alert_online']:
         device.meta_update(field_name, field_value, 'bool')
     elif field_name == 'alert_jitter':
@@ -322,7 +318,7 @@ def _delete_device(device_id: int, conn=None, cursor=None) -> bool:
     """Delete a Device by it's id and all it's corresponding traces in the system. """
     if not conn or not cursor:
         conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
-    
+
     device = Device(conn, cursor)
     device.get_by_id(device_id)
     if not device.id:
@@ -382,7 +378,6 @@ def _filter_device_ports_info(device) -> list:
                 ret_ports.append(dp)
                 continue
 
-
     # Sort the ports by their port number
     ret_ports = _sort_device_ports_by_numer(ret_ports)
 
@@ -394,9 +389,8 @@ def _filter_device_ports_info(device) -> list:
 
 def _sort_device_ports_by_numer(device_ports: list) -> list:
     """Sort a list of DevicePort objects by their port number ascending. """
-    ret_ports = sorted(device_ports, key = lambda i: i.port.number)
+    ret_ports = sorted(device_ports, key=lambda i: i.port.number)
     return ret_ports
-
 
 
 # End File: lan-nanny/lan_nanny/modules/controllers/device.py

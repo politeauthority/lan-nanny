@@ -30,8 +30,7 @@ class ScanPorts(Base):
 
     def update_device_mac_pair(self, new_device_id: int, device_mac_id: int) -> bool:
         """Update scan ports records when a mac address is changed to be associated to a
-           different device. 
-
+           different device.
         """
         sql = """
             UPDATE `%s`

@@ -1,11 +1,10 @@
 """Ports Controller
 
 """
-from flask import Blueprint, render_template, redirect, request, jsonify, g
+from flask import Blueprint, render_template, redirect, request
 from flask import current_app as app
 
 from .. import db
-from .. import utils
 from ..collections.devices import Devices
 from ..collections.ports import Ports
 
@@ -36,6 +35,7 @@ def results() -> str:
         return redirect(redir)
 
     return render_template('search/results.html', **data)
+
 
 def redirect_if_one_result(data: dict):
     """If only one search result comes up, create the uri to go directly to that object."""

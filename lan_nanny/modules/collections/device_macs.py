@@ -10,7 +10,7 @@ class DeviceMacs(Base):
     """Collection class for gathering groups of device macs."""
 
     def __init__(self, conn=None, cursor=None):
-        """Store database conn/connection and model table_name as well as the model obj for the 
+        """Store database conn/connection and model table_name as well as the model obj for the
            collections target model.
         """
         super(DeviceMacs, self).__init__(conn, cursor)

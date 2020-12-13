@@ -12,7 +12,6 @@ from importlib import import_module
 import logging
 import logging.config
 import subprocess
-import sys
 import os
 
 from werkzeug.security import generate_password_hash
@@ -139,7 +138,7 @@ class Scan:
         logging.basicConfig(
             format='%(asctime)s [%(levelname)s]\t%(message)s',
             datefmt='%m/%d/%Y %I:%M:%S %p',
-            level=0,
+            level=log_level,
             handlers=[logging.StreamHandler()])
 
         logging.getLogger().setLevel(logging.DEBUG)
@@ -153,6 +152,7 @@ class Scan:
             msg = "[sudo] password for %u:"
             ret = subprocess.check_call("sudo -v -p '%s'" % msg, shell=True)
         return ret
+
 
 def parse_args():
     """
@@ -191,12 +191,13 @@ def parse_args():
     args = parser.parse_args()
     return args
 
+
 def get_config():
     """Get the application configs."""
     if os.environ.get('LAN_NANNY_CONFIG'):
         config_file = os.environ.get('LAN_NANNY_CONFIG')
         configs = import_module('config.%s' % config_file)
-        print('Using config: %s' % os.environ.get('LAN_NANNY_CONFIG') )
+        print('Using config: %s' % os.environ.get('LAN_NANNY_CONFIG'))
     else:
         print('Using config: default')
         configs = import_module('config.default')

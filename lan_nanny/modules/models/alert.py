@@ -3,7 +3,6 @@ Alert model extends BaseEntityMeta allowing the object to have meta objects.
 
 """
 from .base_entity_meta import BaseEntityMeta
-from .device import Device
 
 
 class Alert(BaseEntityMeta):

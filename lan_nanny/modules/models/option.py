@@ -86,7 +86,7 @@ class Option(Base):
         self.name = option_name
         self.type = the_option['type']
         if 'default' in the_option:
-            self.value = the_option['default']            
+            self.value = the_option['default']
         self.save()
         return True
 

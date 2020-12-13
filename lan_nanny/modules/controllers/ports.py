@@ -1,7 +1,7 @@
 """Ports Controller
 
 """
-from flask import Blueprint, render_template, redirect, request, jsonify, g
+from flask import Blueprint, render_template
 from flask import current_app as app
 
 from .. import db
@@ -43,7 +43,7 @@ def roster(page: str="1") -> str:
         page=page,
         order_by={
             'field': 'number',
-            'op' : 'ASC'
+            'op': 'ASC'
         })
     data = {}
     data['ports'] = port_pages['objects']

@@ -118,6 +118,7 @@ def gen_where_in_sql(ids: list) -> str:
     ids_sql = ids_sql[:-1]
     return ids_sql
 
+
 def gen_pagination_urls(base_url: str, pagination: dict) -> dict:
     """Generate pagination urls to use on the frontend."""
     pagination['first_page_url'] = _clean_url(base_url, pagination['first_page'])
@@ -179,7 +180,7 @@ def alert_pretty_kind(kind: str) -> str:
 
 def _clean_url(base_url: str, url: str) -> str:
     """Clean a url so its pretty and valid."""
-    url =  "%s/%s" % (base_url, url)
+    url = "%s/%s" % (base_url, url)
     url = url.replace('//', '/')
     if url[0] != '/':
         url = '/' + url

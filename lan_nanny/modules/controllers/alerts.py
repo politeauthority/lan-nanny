@@ -9,7 +9,6 @@ import arrow
 from .. import db
 from .. import utils
 from ..models.alert import Alert
-from ..models.entity_meta import EntityMeta
 from ..models.device import Device
 from ..collections.alerts import Alerts as AlertsCollect
 from ..collections.devices import Devices as DevicesCollect
@@ -55,7 +54,7 @@ def roster(page: str="1") -> str:
         page=page,
         order_by={
             'field': 'created_ts',
-            'op' : 'DESC'
+            'op': 'DESC'
         })
 
     # Get alert metas
@@ -164,7 +163,7 @@ def delete_for_device(device_id: str):
        @todo: check for device first
     """
     conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
-    col_alerts = AlertsCollect(conn, cursor).delete_device(device_id)
+    AlertsCollect(conn, cursor).delete_device(device_id)
     return redirect('/alerts')
 
 # End File: lan-nanny/lan_nanny/modules/controllers/alerts.py

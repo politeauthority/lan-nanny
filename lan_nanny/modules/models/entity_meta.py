@@ -77,7 +77,7 @@ class EntityMeta(Base):
         return True
 
     def create(self, meta_name: str, meta_type: str, meta_value: str=None) -> bool:
-        """Initiate a new EntityMeta object with a name, type and optional value. 
+        """Initiate a new EntityMeta object with a name, type and optional value.
 
         :param meta_name: The meta key name for the entity meta.
         :param meta_type: The meta's data type. Supported str, int and bool currently.
@@ -97,7 +97,6 @@ class EntityMeta(Base):
             raise AttributeError("Invalid EntityType type: %s, must set model's self.table_name" % self.entity_type)
 
         return True
-
 
     def _set_bool(self, value) -> bool:
         """Set a boolean option to the correct value."""

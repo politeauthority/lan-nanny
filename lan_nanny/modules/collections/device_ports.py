@@ -32,8 +32,7 @@ class DevicePorts(Base):
 
     def update_device_mac_pair(self, new_device_id: int, device_mac_id: int) -> bool:
         """Update device port records when a mac address is changed to be associated to a
-           different device. 
-
+           different device.
         """
         sql = """
             UPDATE `%s`
@@ -46,7 +45,6 @@ class DevicePorts(Base):
         print("\n")
         self.cursor.execute(sql)
         return True
-
 
     def delete_device(self, device_id: int) -> bool:
         """Delete all device port records for a device_id."""

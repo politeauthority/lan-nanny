@@ -9,7 +9,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from .. import db
 from .. import utils
-from ..models.option import Option
 
 settings = Blueprint('Settings', __name__, url_prefix='/settings')
 
@@ -197,7 +196,7 @@ def save_security():
 
     # If we are disabling the console password
     else:
-        # If we're removing the console password, delete the old so it won't be required later when 
+        # If we're removing the console password, delete the old so it won't be required later when
         # a user re-enables the console password
         if g.options['console-password']:
             if not check_password_hash(g.options['console-password'].value, request.form['setting_current_password']):
@@ -207,7 +206,6 @@ def save_security():
 
     # Save Console Password Enabled.
     _save_setting(conn, cursor, 'console-password-enabled', console_password_enabled)
-
 
     return redirect('/settings/security')
 

@@ -8,19 +8,12 @@ import os
 
 import arrow
 
-from flask import Blueprint, render_template, redirect, request, jsonify, g, Response, send_file
+from flask import Blueprint, render_template, g, send_file
 from flask import current_app as app
 
 from .. import db
 from .. import utils
-from ..collections.alerts import Alerts
 from ..collections.devices import Devices as DevicesCollect
-from ..collections.device_witnesses import DeviceWitnesses
-from ..collections.device_ports import DevicePorts
-from ..collections.scan_ports import ScanPorts
-from ..models.alert import Alert
-from ..models.device import Device
-from ..models.entity_meta import EntityMeta
 from ..metrics import Metrics
 
 devices = Blueprint('Devices', __name__, url_prefix='/devices')
@@ -55,7 +48,7 @@ def roster(page: str="1") -> str:
         page=page,
         order_by={
             'field': 'last_seen',
-            'op' : 'DESC'
+            'op': 'DESC'
         })
 
     if not device_pages['objects']:
@@ -89,9 +82,9 @@ def roster_online(page: str="1") -> str:
                 'op': '>='
             }
         ],
-        order_by = {
+        order_by={
             'field': 'last_seen',
-            'op' : 'DESC'
+            'op': 'DESC'
         })
 
     data = {}
@@ -123,9 +116,9 @@ def roster_offline(page: str="1") -> str:
                 'op': '<='
             }
         ],
-        order_by = {
+        order_by={
             'field': 'last_seen',
-            'op' : 'DESC'
+            'op': 'DESC'
         })
     data = {}
     data['active_page'] = 'devices'
@@ -154,9 +147,9 @@ def roster_new(page: str="1") -> str:
                 'op': '>='
             }
         ],
-        order_by = {
+        order_by={
             'field': 'first_seen',
-            'op' : 'DESC'
+            'op': 'DESC'
         })
     data = {}
     data['active_page'] = 'devices'
@@ -211,5 +204,10 @@ def export_all():
             writer.writerow(device_data)
 
     return send_file(devices_csv_file, as_attachment=True)
+
+
+def page_not_found(e: str):
+    """404 Error page."""
+    return render_template('errors/404.html', error=e), 404
 
 # End File: lan-nanny/lan_nanny/modules/controllers/devices.py
