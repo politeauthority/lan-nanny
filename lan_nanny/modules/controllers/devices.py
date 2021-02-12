@@ -46,6 +46,7 @@ def roster(page: str="1") -> str:
     device_collection = DevicesCollect(conn, cursor)
     device_pages = device_collection.get_paginated(
         page=page,
+        per_page=int(g.options['entities-per-page'].value),
         order_by={
             'field': 'last_seen',
             'op': 'DESC'
@@ -75,6 +76,7 @@ def roster_online(page: str="1") -> str:
     devices_collection = DevicesCollect(conn, cursor)
     device_pages = devices_collection.get_paginated(
         page=page,
+        per_page=int(g.options['entities-per-page'].value),
         where_and=[
             {
                 'field': 'last_seen',
@@ -109,6 +111,7 @@ def roster_offline(page: str="1") -> str:
     devices_collection = DevicesCollect(conn, cursor)
     device_pages = devices_collection.get_paginated(
         page=page,
+        per_page=int(g.options['entities-per-page'].value),
         where_and=[
             {
                 'field': 'last_seen',
@@ -140,6 +143,7 @@ def roster_new(page: str="1") -> str:
     devices_collection = DevicesCollect(conn, cursor)
     device_pages = devices_collection.get_paginated(
         page=page,
+        per_page=int(g.options['entities-per-page'].value),
         where_and=[
             {
                 'field': 'first_seen',

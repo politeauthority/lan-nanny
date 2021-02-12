@@ -16,7 +16,6 @@ class Base:
 
         self.table_name = None
         self.collect_model = None
-        self.per_page = 20
 
     def get_by_ids(self, model_ids: list) -> list:
         """Get models instances by their ids from the database."""
@@ -61,7 +60,8 @@ class Base:
         page: int = 1,
         limit: int = 0,
         order_by: dict = {},
-        where_and: list = []
+        where_and: list = [],
+        per_page: int = 20,
     ) -> list:
         """
         Get paginated collection of models.
@@ -86,7 +86,7 @@ class Base:
         :returns: A list of model objects, hydrated to the default of the base.build_from_list()
         """
         if limit == 0:
-            limit = self.per_page
+            limit = per_page
         sql_vars = {
             'table_name': self.table_name,
             'limit': limit,

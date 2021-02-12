@@ -4,11 +4,8 @@ Gets collections of options.
 """
 import logging
 
-# from werkzeug.security import generate_password_hash
-
 from .base import Base
 from ..models.option import Option
-# from .. import utils
 
 
 class Options(Base):
@@ -143,6 +140,11 @@ class Options(Base):
                 'name': 'notification-slack-channel',
                 'type': 'str',
                 'default': '',
+            },
+            {
+                'name': 'entities-per-page',
+                'type': 'int',
+                'default': 20,
             },
         ]
 

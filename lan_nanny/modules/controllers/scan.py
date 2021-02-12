@@ -1,7 +1,7 @@
 """Scan - Controller
 
 """
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, g
 from flask import current_app as app
 
 from .. import db
@@ -61,7 +61,9 @@ def roster_hosts(page: str="1"):
     conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     page = int(page)
     scan_hosts_collection = ScanHosts(conn, cursor)
-    scan_pages = scan_hosts_collection.get_paginated(page=page)
+    scan_pages = scan_hosts_collection.get_paginated(
+        page=page,
+        per_page=int(g.options['entities-per-page'].value))
 
     if not scan_pages['objects'] and page > 1:
         return page_not_found('Scan Hosts page not found.')
@@ -84,7 +86,9 @@ def roster_ports(page: str="1"):
     conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     page = int(page)
     scan_ports_collection = ScanPorts(conn, cursor)
-    scan_pages = scan_ports_collection.get_paginated(page=page)
+    scan_pages = scan_ports_collection.get_paginated(
+        page=page,
+        per_page=int(g.options['entities-per-page'].value))
     collect_devices = Devices(conn, cursor)
 
     if not scan_pages['objects'] and page > 1:

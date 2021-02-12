@@ -4,7 +4,7 @@
 # import importlib
 import logging
 
-from flask import Blueprint, request, jsonify, render_template
+from flask import Blueprint, request, jsonify, render_template, g
 from flask import current_app as app
 
 from .. import db
@@ -70,6 +70,7 @@ def collect(entity_type: str) -> str:
     else:
         collect_pages = collect.get_paginated(
             page=page,
+            per_page=int(g.options['entities-per-page'].value),
             order_by={
                 'field': order_by_field,
                 'op': 'DESC'

@@ -1,7 +1,7 @@
 """Alert - Controller
 
 """
-from flask import Blueprint, render_template, request, redirect, jsonify
+from flask import Blueprint, render_template, request, redirect, jsonify, g
 from flask import current_app as app
 
 import arrow
@@ -52,6 +52,7 @@ def roster(page: str="1") -> str:
     alert_collect = AlertsCollect(conn, cursor)
     alert_pages = alert_collect.get_paginated(
         page=page,
+        per_page=int(g.options['entities-per-page'].value),
         order_by={
             'field': 'created_ts',
             'op': 'DESC'

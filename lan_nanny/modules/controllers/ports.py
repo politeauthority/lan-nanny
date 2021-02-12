@@ -1,7 +1,7 @@
 """Ports Controller
 
 """
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, g
 from flask import current_app as app
 
 from .. import db
@@ -41,6 +41,7 @@ def roster(page: str="1") -> str:
     ports_collect = PortsCollect(conn, cursor)
     port_pages = ports_collect.get_paginated(
         page=page,
+        per_page=int(g.options['entities-per-page'].value),
         order_by={
             'field': 'number',
             'op': 'ASC'
