@@ -152,9 +152,9 @@ class ScanPorts:
         except subprocess.CalledProcessError:
             print("CAUGHT EXCEPTION ON: %s" % cmd)
             end = time.time()
-            scan.elapsed_time = end - start
+            self.scan.elapsed_time = end - start
             port_scan_log.success = False
-            self._complete_run_error(scan, 'Error at NMAP command run')
+            self._complete_run_error(self.scan, 'Error at NMAP command run')
             return False
         end = time.time()
         port_scan_log.elapsed_time = end - start
@@ -182,7 +182,6 @@ class ScanPorts:
 
     def handle_ports(self, device: Device, ports: list, psl) -> bool:
         """Take ports found in scan to report and save."""
-        device_currently_open_ports = ''
         if not ports:
             print('\t\t\tDevice offline or no ports for %s' % device)
             return False

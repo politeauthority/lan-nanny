@@ -141,8 +141,10 @@ class ScanAlerts:
         # Don't run new device alerts if system is only 1 hour old.
         first_growth = DatabaseGrowth(self.conn, self.cursor)
         first_growth.get_by_id(1)
-        if (not first_growth or
-            first_growth.created_ts > arrow.utcnow().datetime - timedelta(hours=1)):
+        if (
+            not first_growth
+            or first_growth.created_ts > arrow.utcnow().datetime - timedelta(hours=1)
+        ):
             logging.info('\tNot running new device alert, system is too new.')
             return True
 
