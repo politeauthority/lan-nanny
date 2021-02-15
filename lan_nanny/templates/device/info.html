@@ -89,6 +89,19 @@
                 <td>{{device.first_seen|pretty_time}}</td>
               </tr>
 
+              {%if g.options['beta-features'].value %}
+                <tr>
+                  <td><b>Identified</b></td>
+                  <td>
+                    {%if device.identified%}
+                      True
+                    {%else%}
+                      False
+                    {%endif%}
+                  </td>
+                </tr>
+              {%endif%}
+
               <tr>
                 <td><b>Port Scanning</b></td>
                 <td>

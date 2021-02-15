@@ -14,6 +14,27 @@
   <!-- Content Row -->
   <div class="row">
 
+    {%if g.options['beta-features'].value %}
+      <!-- Device General Options -->
+      <div class="col-xl-6 col-lg-6">
+        <div class="card shadow mb-4">
+          <!-- Card Header -->
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">
+              General Options
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label for="identified">Identified</label>
+              <input id="identified" data-entity-id="{{device.id}}" type="checkbox" data-toggle="toggle" aria-describedby="identified_help">
+              <small id="identified_help" class="form-text text-muted">Device has been identified as a legitimate member of the network.</small>
+            </div>
+          </div>
+        </div>
+      </div><!-- END Device General Options -->
+    {%endif%}
+
     <!-- Device Scan Options -->
     <div class="col-xl-6 col-lg-6">
       <div class="card shadow mb-4">
@@ -82,6 +103,15 @@
 
       var device_favorite_status = convert_str_bool("{{device.favorite}}");
       register_favorite_button('#device-favorite', device_favorite_status, '/device/favorite/{{device.id}}')
+
+      {%if g.options['beta-features'].value %}
+      // Device identified toggle.
+      var device_identified_status = convert_str_bool("{{device.identified}}");
+      register_toggle_ajax(
+        '/device/quick-save',
+        '#identified',
+        device_identified_status);
+      {%endif%}
 
       // Device port scan enable toggle.
       var device_port_scan_status = convert_str_bool("{{device.port_scan}}");

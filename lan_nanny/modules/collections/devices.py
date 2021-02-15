@@ -48,6 +48,23 @@ class Devices(BaseEntityMetas):
         raw_count = self.cursor.fetchone()
         return raw_count[0]
 
+    def get_online_unidentified_count(self) -> int:
+        """Get currently online, unidentified devices as an int."""
+        since = int(g.options['active-timeout'].value)
+        last_online = arrow.utcnow().datetime - timedelta(minutes=since)
+        sql = """
+            SELECT COUNT(*)
+            FROM devices
+            WHERE
+                last_seen >= '%s' AND
+                `identified` = 0
+            ORDER BY last_seen DESC;""" % last_online
+
+        self.cursor.execute(sql)
+        raw_count = self.cursor.fetchone()
+        return raw_count[0]
+
+
     def get_online(self, since: int) -> list:
         """Get all online devices in the database."""
         last_online = arrow.utcnow().datetime - timedelta(minutes=since)

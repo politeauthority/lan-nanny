@@ -50,28 +50,51 @@
       </div>
     </div>
 
-    <!-- New Devices Today -->
-    <div id="devices_new" class="col-xl-3 col-md-6 mb-4">
-      <div class="card border-left-info shadow h-100 py-2">
-        <div class="card-body">
-          <div class="row no-gutters align-items-center">
-            <div class="col mr-2">
-              <div class="text-xs font-weight-bold text-info text-uppercase mb-1">New Devices Today</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">
-                {%if new_devices and new_devices == 0%}
-                  0
-                {%else%}
-                  {{new_devices}}
-                {%endif%}
+    {%if new_devices and new_devices == 0%}
+      <!-- New Devices Today -->
+      <div id="devices_new" class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+          <div class="card-body">
+            <div class="row no-gutters align-items-center">
+              <div class="col mr-2">
+                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">New Devices Today</div>
+                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                  {%if new_devices and new_devices == 0%}
+                    0
+                  {%else%}
+                    {{new_devices}}
+                  {%endif%}
+                </div>
               </div>
-            </div>
-            <div class="col-auto">
-              <i class="fas fa-plus fa-2x text-gray-300"></i>
+              <div class="col-auto">
+                <i class="fas fa-plus fa-2x text-gray-300"></i>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </div><!-- END - New Devices Today -->
+    {%else%}
+      {%if g.options['beta-features'].value %}
+        <!-- Identified Online Now -->
+        <div id="devices_new" class="col-xl-3 col-md-6 mb-4">
+          <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Unidentified Online</div>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800">
+                    {{num_online_unidentified}}
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-plus fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div><!-- END - Identified Online Now -->
+      {%endif%}
+    {%endif%}
 
     <!-- Pending Requests Card Example -->
     <div class="col-xl-3 col-md-6 mb-4">

@@ -118,6 +118,7 @@ def index() -> str:
     sh.get_last()
     data = {}
     data['num_connected'] = devices_col.get_online_count()
+    data['num_online_unidentified'] = devices_col.get_online_unidentified_count()
     data['device_favorites'] = favorites
     data['devices'] = devices
     data['new_devices'] = new_devices

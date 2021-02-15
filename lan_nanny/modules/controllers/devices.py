@@ -164,6 +164,68 @@ def roster_new(page: str="1") -> str:
     return render_template('devices/roster.html', **data)
 
 
+@devices.route('/identified')
+@devices.route('/identified/<page>')
+@utils.authenticate
+def roster_identified(page: str="1") -> str:
+    """Devices roster page for identified devices."""
+    page = int(page)
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
+    devices_collection = DevicesCollect(conn, cursor)
+    device_pages = devices_collection.get_paginated(
+        page=page,
+        per_page=int(g.options['entities-per-page'].value),
+        where_and=[
+            {
+                'field': 'identified',
+                'value': 1,
+                'op': '='
+            }
+        ],
+        order_by={
+            'field': 'first_seen',
+            'op': 'DESC'
+        })
+    data = {}
+    data['active_page'] = 'devices'
+    data['active_page_devices'] = 'identified'
+    data['devices'] = device_pages['objects']
+    data['pagination'] = utils.gen_pagination_urls('/devices/identified/', device_pages['info'])
+    data['enable_refresh'] = True
+    return render_template('devices/roster.html', **data)
+
+
+@devices.route('/unidentified')
+@devices.route('/unidentified/<page>')
+@utils.authenticate
+def roster_unidentified(page: str="1") -> str:
+    """Devices roster page for unidentified devices."""
+    page = int(page)
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
+    devices_collection = DevicesCollect(conn, cursor)
+    device_pages = devices_collection.get_paginated(
+        page=page,
+        per_page=int(g.options['entities-per-page'].value),
+        where_and=[
+            {
+                'field': 'identified',
+                'value': 0,
+                'op': '='
+            }
+        ],
+        order_by={
+            'field': 'first_seen',
+            'op': 'DESC'
+        })
+    data = {}
+    data['active_page'] = 'devices'
+    data['active_page_devices'] = 'unidentified'
+    data['devices'] = device_pages['objects']
+    data['pagination'] = utils.gen_pagination_urls('/devices/unidentified/', device_pages['info'])
+    data['enable_refresh'] = True
+    return render_template('devices/roster.html', **data)
+
+
 @devices.route('/export')
 @utils.authenticate
 def export() -> str:

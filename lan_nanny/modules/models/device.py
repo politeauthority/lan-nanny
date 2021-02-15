@@ -91,6 +91,11 @@ class Device(BaseEntityMeta):
                 'type': 'str',
                 'default': 'Unknown',
             },
+            {
+                'name': 'identified',
+                'type': 'bool',
+                'default': 0,
+            },
         ]
         self.ports = []
         self.macs = []

@@ -261,19 +261,23 @@ def quick_save() -> str:
         # return page_not_found('Device not found')
     field_name = request.form.get('field_name')
     field_value = request.form.get('field_value')
-    if field_name not in ['port_scan', 'alert_offline', 'alert_online', 'alert_jitter']:
+    valid_quick_save_fields = [
+        'identified', 'port_scan', 'alert_offline', 'alert_online',
+        'alert_jitter']
+    if field_name not in valid_quick_save_fields:
         logging.warning("Forbidden field_name %s field_name")
         return jsonify("error", "Forbidden field_name %s field_name"), 403
 
-    if field_name in ['port_scan', 'alert_online', 'alert_offline']:
+    # Bool Fields
+    if field_name in ['identified', 'port_scan', 'alert_online', 'alert_offline']:
         if field_value == 'true'.lower():
             field_value = 1
         else:
             field_value = 0
 
-    # Handle port_scan and alert settings differently because one is a model attr and the rest are
-    # metas
-    if field_name == 'port_scan':
+    # Handle device_identified, port_scan and alert settings differently because one is a model attr 
+    # and the rest are metas
+    if field_name in ['identified', 'port_scan']:
         setattr(device, field_name, field_value)
     elif field_name in ['alert_offline', 'alert_online']:
         device.meta_update(field_name, field_value, 'bool')
