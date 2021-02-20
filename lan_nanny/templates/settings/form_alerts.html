@@ -35,15 +35,22 @@
           </div>
           <div class="card-body">
             <div class="form-group">
-              <label for="setting_alerts_enabled">Enable Alerts</label>
               <input id="setting_alerts_enabled" type="checkbox" data-toggle="toggle" aria-describedby="setting_alerts_enabled_help">
+              <label for="setting_alerts_enabled">Enable Alerts</label>
+
               <small id="setting_alerts_enabled_help" class="form-text text-muted">Enable the alerting system.</small>
             </div>
 
             <div class="form-group">
-              <label for="setting_alert_new_device">Alert on new devices</label>
               <input id="setting_alert_new_device" type="checkbox" data-toggle="toggle" aria-describedby="setting_alert_new_device_help">
+              <label for="setting_alert_new_device">Alert on new devices</label>
               <small id="setting_alert_new_device_help" class="form-text text-muted">Create an alert when new devices are found on network.</small>
+            </div>
+
+            <div class="form-group">
+              <input id="setting_alert_unidentified_online_default" type="checkbox" data-toggle="toggle" aria-describedby="setting_alert_unidentified_online_default_help">
+              <label for="setting_alert_unidentified_online_default">Alert on Unidentified Device Online Default</label>
+              <small id="setting_alert_unidentified_online_default_help" class="form-text text-muted">Set all new unidentified devices to create an alert when they come online.</small>
             </div>
 
           </div>
@@ -62,8 +69,8 @@
           <div class="card-body">
 
             <div class="form-group">
-              <label for="setting_notification_slack_enabled">Enable Slack</label>
               <input id="setting_notification_slack_enabled" type="checkbox" data-toggle="toggle" aria-describedby="setting_notification_slack_enabled_help">
+              <label for="setting_notification_slack_enabled">Enable Slack</label>
               <small id="setting_notification_slack_enabled_help" class="form-text text-muted">Enable notifications to Slack.</small>
             </div>
 
@@ -104,6 +111,9 @@
 
       var alert_new_device_value = convert_str_bool("{{settings['alerts-new-device'].value}}");
       register_toggle_form('setting_alert_new_device', alert_new_device_value);
+
+      var alert_unidentified_online_default = convert_str_bool("{{settings['alerts-default-unidentified-online'].value}}");
+      register_toggle_form('setting_alert_unidentified_online_default', alert_unidentified_online_default);
 
       var notification_slack_enabled_value = convert_str_bool("{{settings['notification-slack-enabled'].value}}");
       register_toggle_form('setting_notification_slack_enabled', notification_slack_enabled_value);

@@ -154,18 +154,11 @@ class ScanHosts:
             new = False
             if not device.id:
                 new = True
-                device.first_seen = scan_time
-                device.name = host['vendor']
-                device.vendor = host['vendor']
-
-                device.mac = host['mac']
-                if self.options['scan-ports-default'].value:
-                    device.port_scan = True
+                device = self._create_new_device(device, host)
 
             device.name = self._set_device_name(device, host)
             device.last_seen = scan_time
             device.ip = host['ip']
-
 
             device.save()
             self._set_current_devices_mac_id(device, host['mac'])
@@ -184,6 +177,20 @@ class ScanHosts:
             self.save_witness(device, scan_time)
 
         self.hosts = self.prune_hosts_wo_mac()
+
+    def _create_new_device(self, device: Device, host:dict) -> Device:
+        """Create a new device. """
+        device.first_seen = scan_time
+        device.name = host['vendor']
+        device.vendor = host['vendor']
+        device.mac = host['mac']
+        if self.options['scan-ports-default'].value:
+            device.port_scan = True
+
+        if self.options['alerts-default-unidentified-online'].value:
+            device.meta_update('alert_online', 1, 'bool')
+
+        return device
 
     def _set_current_devices_mac_id(self, device: Device, mac_addr:str) -> bool:
         """Determine which device mac id was found in the most recent scan, and set a temporary var 

@@ -122,6 +122,11 @@ class Options(Base):
                 'default': True
             },
             {
+                'name': 'alerts-default-unidentified-online',
+                'type': 'bool',
+                'default': True
+            },
+            {
                 'name': 'console-ui-color',
                 'type': 'str',
                 'default': 'black'

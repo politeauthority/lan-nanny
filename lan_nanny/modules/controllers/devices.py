@@ -183,7 +183,7 @@ def roster_identified(page: str="1") -> str:
             }
         ],
         order_by={
-            'field': 'first_seen',
+            'field': 'last_seen',
             'op': 'DESC'
         })
     data = {}
@@ -214,7 +214,7 @@ def roster_unidentified(page: str="1") -> str:
             }
         ],
         order_by={
-            'field': 'first_seen',
+            'field': 'last_seen',
             'op': 'DESC'
         })
     data = {}

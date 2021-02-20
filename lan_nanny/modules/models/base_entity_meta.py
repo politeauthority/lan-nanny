@@ -95,7 +95,7 @@ class BaseEntityMeta(Base):
         else:
             return self.metas[meta_name]
 
-    def meta_update(self, meta_name, meta_value, meta_type='str') -> bool:
+    def meta_update(self, meta_name: str, meta_value, meta_type: str='str') -> bool:
         """Set a models entity value if it currently exists or not."""
         if meta_name not in self.metas:
             self.metas[meta_name] = EntityMeta(self.conn, self.cursor)
