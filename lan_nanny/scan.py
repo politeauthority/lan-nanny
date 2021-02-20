@@ -12,6 +12,7 @@ from importlib import import_module
 import logging
 import logging.config
 import subprocess
+import sys
 import os
 
 from werkzeug.security import generate_password_hash
@@ -184,6 +185,10 @@ def parse_args():
         action='store_true',
         help="")
     parser.add_argument(
+        "--config",
+        default=False,
+        help="")
+    parser.add_argument(
         "--verbose",
         default=False,
         action='store_true',
@@ -192,12 +197,21 @@ def parse_args():
     return args
 
 
-def get_config():
+def get_config(args):
     """Get the application configs."""
-    if os.environ.get('LAN_NANNY_CONFIG'):
+
+    # Check if the --config CLI arg was used.
+    if args.config:
+        print('Using config: %s' % args.config)
+        configs = import_module('config.%s' % args.config)
+
+    # Check if the ENV var is set
+    elif os.environ.get('LAN_NANNY_CONFIG'):
         config_file = os.environ.get('LAN_NANNY_CONFIG')
         configs = import_module('config.%s' % config_file)
         print('Using config: %s' % os.environ.get('LAN_NANNY_CONFIG'))
+
+    # Use default configs
     else:
         print('Using config: default')
         configs = import_module('config.default')
@@ -206,7 +220,7 @@ def get_config():
 
 if __name__ == '__main__':
     args = parse_args()
-    configs = get_config()
+    configs = get_config(args)
     Scan(configs, args).run()
 
 
