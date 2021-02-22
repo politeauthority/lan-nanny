@@ -263,6 +263,47 @@
       </div><!-- End Device Stats-->
     {%endif%}
 
+    <!-- Device Alerts Enabled-->
+    {%if g.options['beta-features'].value and g.options['alerts-enabled'].value %}
+      {%if ('alert_online' in device.metas and device.metas['alert_online'].value) or ('alert_offline' in device.metas and device.metas['alert_offline'].value)%}
+        <div class="col-xl-6 col-lg-6">
+          <div class="card shadow mb-4">
+            <!-- Card Header -->
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+              <h6 class="m-0 font-weight-bold text-primary">
+                Device Alerts Enabled
+              </h6>
+            </div>
+            <div class="card-body">
+
+              <table class="table table-striped">
+                <tr>
+                  <thead>
+                    <td>Alert Type</td>
+                    <td>Enabled</td>
+                  </thead>
+                  {%if 'alert_online' in device.metas and device.metas['alert_online'].value %}
+                  <tr>
+                    <td>Online</td>
+                    <td><code>{{device.metas['alert_online'].value}}</code></td>
+                  </tr>
+                  {%endif%}
+                  {%if 'alert_offline' in device.metas and device.metas['alert_offline'].value %}
+                  <tr>
+                    <td>Offline</td>
+                    <td><code>{{device.metas['alert_offline'].value}}</code></td>
+                  </tr>
+                  {%endif%}
+                </tr>
+              </table>
+
+
+            </div>
+          </div>
+        </div><!-- END Device Alerts Enabled -->
+      {%endif%}
+    {%endif%}
+
     {%if g.options['beta-features'].value %}
       {%if alerts%}
         <!-- Device Alerts -->
@@ -316,7 +357,30 @@
     $( document ).ready(function(){
       var device_favorite_status = convert_str_bool("{{device.favorite}}");
       register_favorite_button('#device-favorite', device_favorite_status, '/device/favorite/{{device.id}}')
+
+      // Device Offline Ajax
+      {%if device.metas['alert_offline'] %}
+        var device_alert_offline_status = convert_str_bool("{{device.metas['alert_offline'].value}}");
+      {%else%}
+        var device_alert_offline_status = false;
+      {%endif%}
+      register_toggle_ajax(
+        '/device/quick-save',
+        '#alert_offline',
+        device_alert_offline_status);
+
+      // Device Online Ajax
+      {%if device.metas['alert_online'] %}
+        var device_alert_online_status = convert_str_bool("{{device.metas['alert_online'].value}}");
+      {%else%}
+        var device_alert_online_status = false;
+      {%endif%}
+      register_toggle_ajax(
+        '/device/quick-save',
+        '#alert_online',
+        device_alert_online_status);
     });
+
   </script>
 {%endblock%}
 

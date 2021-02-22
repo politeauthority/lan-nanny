@@ -16,7 +16,7 @@ from ..collections.device_macs import DeviceMacs as CollectDeviceMacs
 from ..collections.device_witnesses import DeviceWitnesses
 from ..collections.device_ports import DevicePorts
 from ..collections.scan_ports import ScanPorts
-from ..models.device import Device
+from ..models.device import Device as DeviceModel
 from ..models.device_mac import DeviceMac
 from ..models.entity_meta import EntityMeta
 from ..metrics import Metrics
@@ -29,7 +29,7 @@ device = Blueprint('Device', __name__, url_prefix='/device')
 def info(device_id: int) -> str:
     """Device info page."""
     conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
-    device = Device(conn, cursor)
+    device = DeviceModel(conn, cursor)
     device.get_by_id(device_id)
     if not device.id:
         return page_not_found('Device not found')
@@ -58,7 +58,7 @@ def info(device_id: int) -> str:
 def info_ports(device_id: int) -> str:
     """Device info ports sub page."""
     conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
-    device = Device(conn, cursor)
+    device = DeviceModel(conn, cursor)
     device.get_by_id(device_id)
     if not device.id:
         return page_not_found('Device not found')
@@ -83,7 +83,7 @@ def info_ports(device_id: int) -> str:
 def info_options(device_id: int) -> str:
     """Device info ports sub page."""
     conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
-    device = Device(conn, cursor)
+    device = DeviceModel(conn, cursor)
     device.get_by_id(device_id)
     if not device.id:
         return page_not_found('Device not found')
@@ -98,9 +98,9 @@ def info_options(device_id: int) -> str:
 @device.route('/edit/<device_id>')
 @utils.authenticate
 def edit(device_id: int) -> str:
-    """Device edit page."""
+    """Device edit page. """
     conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
-    device = Device(conn, cursor)
+    device = DeviceModel(conn, cursor)
     device.get_by_id(device_id)
     icons = utils.device_icons()
     custom_icon = False
@@ -124,7 +124,7 @@ def edit(device_id: int) -> str:
 def save():
     """Device save, route for new and editing devices."""
     conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
-    device = Device()
+    device = DeviceModel()
     device.conn = conn
     device.cursor = cursor
     if request.form['device_id'] == 'new':
@@ -177,7 +177,7 @@ def add_mac():
        first device.
     """
     conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
-    device = Device(conn, cursor)
+    device = DeviceModel(conn, cursor)
     device.get_by_id(request.form['device_id'])
 
     device_mac = DeviceMac(conn, cursor)
@@ -205,12 +205,12 @@ def delete_mac(device_mac_id: int):
     device_mac.get_by_id(device_mac_id)
 
     # Get the original device
-    og_device = Device(conn, cursor)
+    og_device = DeviceModel(conn, cursor)
     og_device.get_by_id(device_mac.device_id)
 
     # Create a new device for the mac address being removed from the device, copying as much data as
     # possible
-    device = Device(conn, cursor)
+    device = DeviceModel(conn, cursor)
     device.name = device_mac.mac_addr
     device.ip = device_mac.ip_addr
     device.port_scan = og_device.port_scan
@@ -231,7 +231,7 @@ def delete_mac(device_mac_id: int):
 def favorite(device_id):
     """Ajax web route for making a device a favorite or not."""
     conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
-    device = Device()
+    device = DeviceModel()
     device.conn = conn
     device.cursor = cursor
     device.get_by_id(device_id)
@@ -254,7 +254,7 @@ def quick_save() -> str:
     """Ajax web route for update a device alert settings or not when coming on or off the network.
     """
     conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
-    device = Device(conn, cursor)
+    device = DeviceModel(conn, cursor)
     device.get_by_id(request.form.get('id'))
     if not device.id:
         return 'ERROR 404: Route this to page_not_found method!', 404
@@ -295,7 +295,7 @@ def quick_save() -> str:
 @utils.authenticate
 def delete(device_id: int):
     """Device delete. """
-    _delete_device(device)
+    _delete_device(device_id)
 
     return redirect('/devices')
 
@@ -323,7 +323,7 @@ def _delete_device(device_id: int, conn=None, cursor=None) -> bool:
     if not conn or not cursor:
         conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
 
-    device = Device(conn, cursor)
+    device = DeviceModel(conn, cursor)
     device.get_by_id(device_id)
     if not device.id:
         return False
@@ -331,6 +331,8 @@ def _delete_device(device_id: int, conn=None, cursor=None) -> bool:
 
     # Delete device witnesses
     DeviceWitnesses(conn, cursor).delete_device(device.id)
+    # Delete device macs
+    CollectDeviceMacs(conn, cursor).delete_device(device.id)
     # Delete device ports
     DevicePorts(conn, cursor).delete_device(device.id)
     # Delete device scan ports logs
@@ -341,7 +343,7 @@ def _delete_device(device_id: int, conn=None, cursor=None) -> bool:
     return True
 
 
-def _pair_mac_to_device(conn, cursor, new_device: Device, device_mac: DeviceMac) -> bool:
+def _pair_mac_to_device(conn, cursor, new_device: DeviceModel, device_mac: DeviceMac) -> bool:
     # Update DeviceMac
     device_mac.device_id = new_device.id
     device_mac.save()

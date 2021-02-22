@@ -142,6 +142,7 @@ class Base:
             SELECT *
             FROM %s
             WHERE id = %s""" % (self.table_name, self.id)
+        # print(sql)
         self.cursor.execute(sql)
         raw = self.cursor.fetchone()
         if not raw:
