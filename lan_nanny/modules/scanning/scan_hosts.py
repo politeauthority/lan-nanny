@@ -154,7 +154,7 @@ class ScanHosts:
             new = False
             if not device.id:
                 new = True
-                device = self._create_new_device(device, host)
+                device = self._create_new_device(scan_time, device, host)
 
             device.name = self._set_device_name(device, host)
             device.last_seen = scan_time
@@ -178,7 +178,7 @@ class ScanHosts:
 
         self.hosts = self.prune_hosts_wo_mac()
 
-    def _create_new_device(self, device: Device, host:dict) -> Device:
+    def _create_new_device(self, scan_time, device: Device, host:dict) -> Device:
         """Create a new device. """
         device.first_seen = scan_time
         device.name = host['vendor']
