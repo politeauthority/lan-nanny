@@ -201,10 +201,10 @@ class ScanHosts:
         for dmac in device.macs:
             if dmac.mac_addr == mac_addr:
                 device.scan_mac = dmac
-                logging.debug('Device: %s found with Mac: %s - Device-Mac-ID: %s' % (
-                    device,
-                    mac_addr,
-                    dmac.id))
+                # logging.debug('Device: %s found with Mac: %s - Device-Mac-ID: %s' % (
+                #     device,
+                #     mac_addr,
+                #     dmac.id))
                 return True
 
         # New devices will hit this block and need to find their device's mac address object to
