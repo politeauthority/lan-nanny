@@ -56,13 +56,11 @@
         </a>
       </li>
         {%if g.options['alerts-enabled'].value %}
-          {%if g.options['beta-features'].value %}
-            <li class="nav-item {%if active_page == 'alerts'%}active{%endif%}">
-              <a class="nav-link" href="/alerts">
-                <i class="fas fa-fw fa-bell"></i>
-                <span>Alerts</span></a>
-            </li>
-          {%endif%}
+          <li class="nav-item {%if active_page == 'alerts'%}active{%endif%}">
+            <a class="nav-link" href="/alerts">
+              <i class="fas fa-fw fa-bell"></i>
+              <span>Alerts</span></a>
+          </li>
         {%endif%}
       <li class="nav-item {%if active_page == 'devices'%}active{%endif%}">
         <a class="nav-link" href="/devices/">

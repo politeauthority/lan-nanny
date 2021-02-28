@@ -254,7 +254,7 @@
     {%endif%}
 
     <!-- Device Alerts Enabled-->
-    {%if g.options['beta-features'].value and g.options['alerts-enabled'].value %}
+    {%if g.options['alerts-enabled'].value %}
       {%if ('alert_online' in device.metas and device.metas['alert_online'].value) or ('alert_offline' in device.metas and device.metas['alert_offline'].value)%}
         <div class="col-xl-6 col-lg-6">
           <div class="card shadow mb-4">
@@ -294,7 +294,7 @@
       {%endif%}
     {%endif%}
 
-    {%if g.options['beta-features'].value and g.options['alerts-enabled'].value%}
+    {%if g.options['alerts-enabled'].value%}
       {%if alerts%}
         <!-- Device Alerts -->
         <div class="col-xl-6 col-lg-6">
