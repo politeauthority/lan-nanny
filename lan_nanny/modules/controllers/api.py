@@ -133,6 +133,7 @@ def device_connectivity(device_id: int):
     print("\n\n")
 
     metric = []
+    metric_x = []
     for host_scan in raw_host_scans:
         print(host_scan)
         scan_instances = {
@@ -140,8 +141,10 @@ def device_connectivity(device_id: int):
             "scan_ts": host_scan[1]
         }
         if host_scan[0] in device_witness_scan_ids:
+            metric_x.append(1)
             scan_instances["connected"] = 1
         else:
+            metric_x.append(0)
             scan_instances["connected"] = 0
 
         metric.append(scan_instances)
@@ -156,7 +159,8 @@ def device_connectivity(device_id: int):
         'device_id': device_id,
         'day_ago': str(day_ago),
         'metric': metric,
-        'metric_y': metric_y
+        'metric_y': metric_y,
+        'metric_x': metric_x
     }
     return jsonify(data)
 
