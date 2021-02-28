@@ -3,6 +3,9 @@
 """
 # import importlib
 import logging
+from datetime import timedelta
+
+import arrow
 
 from flask import Blueprint, request, jsonify, render_template, g
 from flask import current_app as app
@@ -83,6 +86,79 @@ def collect(entity_type: str) -> str:
     data['success'] = True
     return jsonify(data)
 
+
+@api.route('/device-connectivity/<device_id>')
+@utils.authenticate
+def device_connectivity(device_id: int):
+    conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
+
+    # Get host scans from the last x period
+    day_ago = utils.gen_sql_date((arrow.now() - timedelta(hours=2)).datetime)
+    sql_hosts = """
+        SELECT id, created_ts
+        FROM scan_hosts
+        WHERE `created_ts` >= "%s"
+        ORDER BY id desc;
+        """ % day_ago
+    cursor.execute(sql_hosts)
+    raw_host_scans = cursor.fetchall()
+    sql_scan_host_ids = ""
+    metric_y = []
+    for scan in raw_host_scans:
+        sql_scan_host_ids += "%s, " % scan[0]
+        metric_y.append(scan[1])
+    sql_scan_host_ids = sql_scan_host_ids[:-2]
+
+
+    # Get results from those scans from device witness to see if they were there.
+    sql_witness = """
+        SELECT *
+        FROM device_witness
+        WHERE
+            device_id = %s AND
+            scan_id IN (%s)
+
+    """ % (device_id, sql_scan_host_ids)
+    cursor.execute(sql_witness)
+    raw_device_witness = cursor.fetchall()
+
+    device_witness_scan_ids = []
+    for device_witness in raw_device_witness:
+        device_witness_scan_ids.append(device_witness[5])
+
+
+
+    print("\n\n")
+    print(raw_host_scans)
+    print("\n\n")
+
+    metric = []
+    for host_scan in raw_host_scans:
+        print(host_scan)
+        scan_instances = {
+            "scan_id": host_scan[0],
+            "scan_ts": host_scan[1]
+        }
+        if host_scan[0] in device_witness_scan_ids:
+            scan_instances["connected"] = 1
+        else:
+            scan_instances["connected"] = 0
+
+        metric.append(scan_instances)
+
+    print("\n\n")
+    print(metric)
+    print("\n\n")
+
+    # for scan_
+
+    data = {
+        'device_id': device_id,
+        'day_ago': str(day_ago),
+        'metric': metric,
+        'metric_y': metric_y
+    }
+    return jsonify(data)
 
 # def _get_model(entity_type: str):
 #     file_name = entity_type

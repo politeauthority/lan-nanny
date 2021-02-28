@@ -119,6 +119,13 @@ def gen_where_in_sql(ids: list) -> str:
     return ids_sql
 
 
+def gen_sql_date(the_time: datetime):
+    str_time = str(the_time)
+    if len(str_time) == 32:
+        str_time = str_time[:-13]
+    return str_time
+
+
 def gen_pagination_urls(base_url: str, pagination: dict) -> dict:
     """Generate pagination urls to use on the frontend."""
     pagination['first_page_url'] = _clean_url(base_url, pagination['first_page'])
