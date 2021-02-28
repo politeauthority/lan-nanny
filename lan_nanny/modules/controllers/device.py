@@ -37,8 +37,8 @@ def info(device_id: int) -> str:
     alerts_col = Alerts(conn, cursor)
     device_alerts = alerts_col.get_for_device(device.id)
     metrics = Metrics(conn, cursor)
-    device_online_over_day = metrics.get_device_presence_over_time(device)
-    device_online_over_week = metrics.get_device_presence_over_time(device, 24 * 7)
+    # device_online_over_day = metrics.get_device_presence_over_time(device)
+    # device_online_over_week = metrics.get_device_presence_over_time(device, 24 * 7)
     device.get_ports()
     ports = _filter_device_ports_info(device)
     data = {}
@@ -46,8 +46,8 @@ def info(device_id: int) -> str:
     data['ports'] = ports
     data['active_page'] = 'devices'
     data['active_page_device'] = 'general'
-    data['device_over_day'] = device_online_over_day
-    data['device_over_week'] = device_online_over_week
+    # data['device_over_day'] = device_online_over_day
+    # data['device_over_week'] = device_online_over_week
     data['alerts'] = device_alerts
     data['enable_refresh'] = True
     return render_template('device/info.html', **data)
