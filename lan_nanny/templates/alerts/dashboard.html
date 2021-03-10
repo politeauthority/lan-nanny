@@ -1,4 +1,11 @@
 <!-- Alert Dashboard -->
+<!--
+
+Alert Icon Status
+
+blinking red    - Active Unkacked Alert
+blinking yellow - Active Acked Alert
+-->
 
 {% extends "layout.html" %}
 {% block content %}
@@ -114,6 +121,7 @@
         </div>
         <!-- Card Body -->
         <div class="card-body">
+          <small>Alerts which have fired and then changed state to no longer meet the alert, that have not been acked.</small>
           <div class="table-responsive">
             {% if alerts_unacked_resolved%}
               <div class="table-responsive">

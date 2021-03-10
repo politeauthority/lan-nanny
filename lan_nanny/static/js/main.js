@@ -63,6 +63,41 @@ function register_toggle_ajax(base_ajax_uri, input_selector, starting_value){
 }
 
 
+function register_number_ajax(base_ajax_uri, input_selector, starting_value){
+    /*
+    Will setup a number input for sending values on input change.
+
+    */
+    // Send the new alert jitter value if the form is changed.
+    var field_name = input_selector.replace('#','');
+    
+    // Set the initial state of the toggle.
+    if(starting_value){
+      $(input_selector).val(starting_value);
+    }
+
+    var device_id = $(input_selector).attr('data-entity-id');
+
+    var wto;
+    $(input_selector).change(function() {
+      console.log('Update now val');
+      console.log($(input_selector).val());
+      clearTimeout(wto);
+      wto = setTimeout(function() {
+        var data = {
+          "id": device_id,
+          "field_name": field_name,
+          "field_value": $(input_selector).val()
+        }
+        console.log(data);
+        send_ajax_update(base_ajax_uri, data);
+        console.log('done');
+        // do stuff when user has been idle for 1 second
+      }, 500);
+    });
+}
+
+
 function send_ajax_update(base_ajax_uri, data){
   /*
   Creates a generic AJAX POST request to the url with the data containing the id, field_name, and

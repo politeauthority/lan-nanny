@@ -31,6 +31,7 @@ def connect_mysql(server: dict):
             user=server['user'],
             password=server['pass'],
             database=server['name'],
+            buffered=True,
             autocommit=True)
         if connection.is_connected():
             db_info = connection.get_server_info()

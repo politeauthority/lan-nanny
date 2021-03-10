@@ -109,7 +109,7 @@ def info(alert_id: int):
         alert.save()
 
     device = None
-    if alert.kind in ['new-device', 'device-offline']:
+    if alert.kind in ['new-device', 'device-offline', 'device-online']:
         device = Device(conn, cursor)
         device.get_by_id(int(alert.metas['device'].value))
     data = {}
@@ -166,5 +166,6 @@ def delete_for_device(device_id: str):
     conn, cursor = db.connect_mysql(app.config['LAN_NANNY_DB'])
     AlertsCollect(conn, cursor).delete_device(device_id)
     return redirect('/alerts')
+
 
 # End File: lan-nanny/lan_nanny/modules/controllers/alerts.py
