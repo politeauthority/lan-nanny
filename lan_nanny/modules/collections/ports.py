@@ -41,6 +41,8 @@ class Ports(Base):
                 number <= 1000;""" % (self.table_name)
         self.cursor.execute(sql)
         raw_ports = self.cursor.fetchall()
+        # Order privileged ports by port number, position 3
+        raw_ports = sorted(raw_ports, key=lambda i: int(i[3]))
         ports = self.build_from_lists(raw_ports)
         return ports
 
