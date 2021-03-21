@@ -36,11 +36,31 @@ class HouseKeeping:
     def run(self):
         """Main Runner for Scan House Keeping."""
         logging.info('Running House Keeping')
-        self.sys_info_start()
+        self.prune_db()
+        # self.sys_info_start()
         # self.database_growth()
         # self.database_prune()
         # self.get_software_versions()
-        self.collect_metrics()
+        # self.collect_metrics()
+
+    def prune_db(self):
+        if not self.options['db-prune-days'].value:
+            return True
+        remove_from_date = arrow.utcnow() - timedelta(days=int(self.options['db-prune-days'].value))
+        prune_time = str(remove_from_date.datetime)[:10]
+        logging.info('Running prune, removing records older than %s' % prune_time)
+        self._prune_table('device_witness', prune_time)
+        self._prune_table('scan_hosts', prune_time)
+        self._prune_table('scan_ports', prune_time)
+
+    def _prune_table(self, table, prune_time):
+        logging.info('Pruning %s' % table)
+        sql = """
+            DELETE FROM %s
+            WHERE `created_ts` <= "%s"
+        """ % (table, prune_time)
+        self.cursor.execute(sql)
+        self.conn.commit()
 
     def sys_info_start(self):
         """Creates the start-date sys info for the Lanny Nanny system, defining when Lan Nanny was
