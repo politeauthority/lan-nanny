@@ -76,7 +76,7 @@
     {%else%}
       {%if g.options['beta-features'].value %}
         <!-- Identified Online Now -->
-        <div id="devices_new" class="col-xl-3 col-md-6 mb-4">
+        <div id="devices_unidentified" class="col-xl-3 col-md-6 mb-4">
           <div class="card border-left-info shadow h-100 py-2">
             <div class="card-body">
               <div class="row no-gutters align-items-center">
@@ -195,6 +195,10 @@
 
       $("#devices_new").click(function(){
         window.location = "/devices/new";
+      });
+
+      $("#devices_unidentified").click(function(){
+        window.location = "/devices/unidentified";
       });
 
       var donut_data = [];
