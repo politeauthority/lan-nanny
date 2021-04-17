@@ -96,6 +96,7 @@ def remove_dupicates(items: list) -> list:
     """Remove duplicate items from a list. """
     return list(dict.fromkeys(items))
 
+
 def gen_like_sql(field: str, phrase: str) -> str:
     """Generate a SQLite like statement for a given field and phrase.
        @note: Generic method.
