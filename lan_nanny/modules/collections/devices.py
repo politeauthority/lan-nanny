@@ -203,7 +203,7 @@ class Devices(BaseEntityMetas):
         raw_devices_from_notes = self._search_device_notes(phrase)
         raw_devices = raw_devices + raw_devices_from_mac + raw_devices_from_notes
 
-        raw_devices = self._search_remove_dupicates(raw_devices)
+        raw_devices = utils.remove_dupicates(raw_devices)
 
         devices = self.build_from_lists(raw_devices)
         return devices
@@ -272,10 +272,6 @@ class Devices(BaseEntityMetas):
         raw_devices = self.cursor.fetchall()
 
         return raw_devices
-
-    def _search_remove_dupicates(self, devices: list) -> list:
-        """Remove duplicate devices from the search results. """
-        return list(dict.fromkeys(devices))
 
     def get_w_alerts(self, alerts: list) -> dict:
         """Get a collection of Devices from the list Alert objects supplied."""
