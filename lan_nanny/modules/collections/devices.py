@@ -182,6 +182,7 @@ class Devices(BaseEntityMetas):
         name_sql = utils.gen_like_sql('name', phrase)
         ip_sql = utils.gen_like_sql('ip', phrase)
         vendor_sql = utils.gen_like_sql('vendor', phrase)
+        notes_sql = utils.gen_like_sql('notes', phrase)
         type_sql = utils.gen_like_sql('kind', phrase)
         sql = """
             SELECT *
@@ -199,7 +200,10 @@ class Devices(BaseEntityMetas):
         self.cursor.execute(sql)
         raw_devices = self.cursor.fetchall()
         raw_devices_from_mac = self._search_device_macs(phrase)
-        raw_devices = raw_devices + raw_devices_from_mac
+        raw_devices_from_notes = self._search_device_notes(phrase)
+        raw_devices = raw_devices + raw_devices_from_mac + raw_devices_from_notes
+
+        raw_devices = self._search_remove_dupicates(raw_devices)
 
         devices = self.build_from_lists(raw_devices)
         return devices
@@ -236,6 +240,42 @@ class Devices(BaseEntityMetas):
         self.cursor.execute(sql)
         raw_devices = self.cursor.fetchall()
         return raw_devices
+
+    def _search_device_notes(self, phrase) -> list:
+        """Search entity_metaas device notes for the given phrase. """
+        notes_sql = utils.gen_like_sql('value', phrase)
+        sql = """
+            SELECT entity_id
+            FROM `entity_metas`
+            WHERE
+                `entity_type` = "devices" AND
+                `name` = "notes" AND
+                %s
+            """ % (notes_sql)
+
+        self.cursor.execute(sql)
+        raw_device_notes = self.cursor.fetchall()
+
+        if not raw_device_notes:
+            return []
+
+        device_ids = []
+        for raw_device_note in raw_device_notes:
+            device_ids.append(raw_device_note[0])
+
+        sql = """
+            SELECT *
+            FROM devices
+            WHERE `id` IN(%s);
+        """ % utils.gen_sql_list(device_ids)
+        self.cursor.execute(sql)
+        raw_devices = self.cursor.fetchall()
+
+        return raw_devices
+
+    def _search_remove_dupicates(self, devices: list) -> list:
+        """Remove duplicate devices from the search results. """
+        return list(dict.fromkeys(devices))
 
     def get_w_alerts(self, alerts: list) -> dict:
         """Get a collection of Devices from the list Alert objects supplied."""
