@@ -14,6 +14,29 @@
       {% include "ports/sub_nav.html" %}
     {% endwith %}
   </div>
+
+  {%if not g.options['scan-ports-enabled'].value %}
+  <!-- Content Row -->
+  <div class="row">
+    <!-- Port Scanning Disabled Warning -->
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-warning shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Port Scanning Disabled</div>
+              <div class="mb-0 font-weight-bold text-gray-800"><a href="/settings/scanning">Re-enable</a></div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- END - Port Scanning Disabled Warning -->
+  </div><!-- END - Content Row -->
+  {%endif%}
+
   <!-- Content Row -->
   <div class="row">
 
