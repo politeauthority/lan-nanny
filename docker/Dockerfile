@@ -1,4 +1,4 @@
-FROM python:3.7-slim-buster
+FROM python:3.7-slim-buster as base
 
 VOLUME /app/
 WORKDIR /app/
@@ -37,11 +37,13 @@ RUN apt-get update && \
 #     bash \
 #     git
 
+# pip3 install -r /app/requirements.txt  && \
+# 
+#     python3 /app/setup.py build && \
+# python3 /app/setup.py install && \
+
 # Install Lan Nanny
 RUN cd /app && \
-    pip3 install -r /app/requirements.txt  && \
-    python3 /app/setup.py build && \
-    python3 /app/setup.py install && \
     mkdir -p /app/logs && \
     mkdir -p /tmp/lan_nanny
 

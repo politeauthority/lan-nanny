@@ -1,0 +1,29 @@
+version: "3"
+vars:
+  K8S_NS_DEV: "lan-nanny-dev"
+  K8S_NS_STAGE: "lan-nanny-stage"
+  K8S_NS_PROD: "lan-nanny"
+
+tasks:
+  build-docker:
+    cmds:
+      - |
+        BUILD_TARGET="{{.CLI_ARGS}}"
+        if [ -z "$BUILD_TARGET" ]; then
+          BUILD_TARGET="base"
+        fi
+        if [ -d docker/build-files ]; then
+          rm -rf docker/build-files
+        fi
+        echo "Building Target: ${BUILD_TARGET}"
+        mkdir docker/build-files
+        cp pyproject.toml docker/build-files
+        cp tox.ini docker/build-files
+        cp -r src docker/build-files
+        cp -r tests docker/build-files
+        docker build -t harbor.squid-ink.us/politeauthority/lan-nany \
+          --target ${BUILD_TARGET} \
+          --build-arg="harbor.squid-ink.us/docker-hub" \
+          --no-cache docker/
+        rm -rf docker/build-files
+    silent: True

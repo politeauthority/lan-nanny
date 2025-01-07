@@ -1,3 +1,7 @@
+#Lan Nanny
+*lan_nanny/config/*
+
+
 *.pyc
 ./conf.py
 *.db
