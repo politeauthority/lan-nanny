@@ -1,0 +1,35 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "lan-nanny"
+version = "0.0.0.1"
+
+requires-python = ">=3.11"
+dependencies = [
+    "gunicorn>=22.0.0",
+    "Flask>=3.0.3",
+    "requests>=2.32.2",
+    "psycopg2==2.9.9",
+    "PyJWT==2.8.0",
+    "sqlescapy==1.0.1",
+    "tldextract==5.1.2",
+]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "bookmarky/api/*.py",
+  "bookmarky/api/collects/*.py",
+  "bookmarky/api/controllers/*.py",
+  "bookmarky/api/controllers/models/*.py",
+  "bookmarky/api/models/*.py",
+  "bookmarky/api/utils/*.py",
+  "bookmarky/introspect/*.py",
+  "bookmarky/migrations/*",
+  "bookmarky/shared/*"
+]
+# exclude = [
+#   "*.json",
+#   "pkg/_compat.py",
+# ]
